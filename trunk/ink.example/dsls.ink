@@ -18,7 +18,7 @@ Class id="ShapesFactory" class="ink.core:DslFactory" super="ink.core:ObjectFacto
 	imports{
 		import ref="ink.core:ObjectFactory"
 	}
-	namespace "example.shape"	// DSL name
+	namespace "example.shapes"	// DSL name
 	loader class="ink.core:DslLoader"
 	repository class="ink.core:DslRepository"
 	dsl_package "org.ink.language.example.shapes"		// DSL source folder

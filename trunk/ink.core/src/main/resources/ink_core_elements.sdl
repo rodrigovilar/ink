@@ -1,0 +1,4088 @@
+Metaclass id="DslFactory" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+			final_value "Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "namespace"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:DslLoader"
+			name "loader"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:DslRepository"
+			name "repository"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "imports"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:DslFactory"
+				name "import"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "dsl_package"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_package"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+	}
+	personality class="ink.core:DslFactoryPersonality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+		app_context ref="ink.core:DefaultContext"
+		event_dispatcher class="ink.core:DslFactoryEventDispatcher"{}
+	}
+}
+
+Metaclass id="ValidationContextClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ValidationMessageClass"
+			name "error_message_class"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value ref="ink.core:ValidationMessage"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="StructClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "lang"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+			final_value "Only_State"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:StructClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="MessageClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "messages"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+			final_value "Root"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="ValidatorClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "abort_on_error"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ActivationMode"
+			name "active_at"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Always"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Message"
+			name "default_message"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:MapProperty"{
+			type ref="ink.core:Map"
+			name "specific_messages"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			map_value class="ink.core:Reference"{
+				type ref="ink.core:Message"
+				name "message"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+			map_key class="ink.core:StringAttribute"{
+				type ref="ink.core:String"
+				name "code"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			}
+			is_sorted false
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="ObjectEditorClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "mirror.editor"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+			final_value false
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="EnumTypeClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "types"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+			final_value "Root"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="ValidationMessageClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "constraints"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+			final_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="InkClass" class="ink.core:InkClass" super="ink.core:InkType"{
+	java_path "lang"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Metaclass id="TraitClass" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path "traits"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:JavaMapping"
+			name "java_mapping"
+			mandatory true
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+			default_value "State_Behavior_Interface"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "can_cache_behavior_instance"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ComponentType"
+			name "component_type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Root_or_Pure_Component"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "operations"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Operation"
+				name "operation"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Personality"
+			name "personality"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "injected_properties"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:Reference"{
+				type ref="ink.core:Property"
+				name "property"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:TraitKind"
+			name "kind"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Structural_or_Detachable"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "role"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ClassMirror"{
+			editor class="ink.core:ClassEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="DslLoader" class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="EnumType" class="ink.core:EnumTypeClass" super="ink.core:InkType"{
+	java_path "types"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "java_path"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ListProperty"{
+			type ref="ink.core:List"
+			name "values"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			list_item class="ink.core:StringAttribute"{
+				type ref="ink.core:String"
+				name "value"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			}
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="DslFactoryEventDispatcher" class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="InkType" class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "lang"
+	java_mapping "State_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="PropertyValueValidator" abstract=true class="ink.core:ValidatorClass" super="ink.core:Validator"{
+	java_path "constraints"
+	java_mapping "State_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+}
+
+Class id="PrimitiveAttribute" abstract=true class="ink.core:InkClass" super="ink.core:Attribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="TypedObject" abstract=true class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "lang"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="CollectionType" class="ink.core:InkClass" super="ink.core:InkType"{
+	java_path "types"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:CollectionTypeMarker"
+			name "type_marker"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="GenericInstanceValidator" class="ink.core:ValidatorClass" super="ink.core:InstanceValidator"{
+	java_path "lang.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "component.type.violation"
+		     message ref="ink.core:component_type_violation"
+		}
+		item{
+		     code "refinement.violation"
+		     message ref="ink.core:refinement_violation"
+		}
+	}
+}
+
+Class id="MapPropertyMirror" class="ink.core:TraitClass" super="ink.core:CollectionPropertyMirror"{
+	java_path "utils.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="Message" class="ink.core:MessageClass" super="ink.core:InkObject"{
+	java_path "messages"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root"
+	properties{
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "text"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="DslFactoryEvent" class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="ValidationMessage" class="ink.core:ValidationMessageClass" super="ink.core:InkObject"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ReferenceMirror" class="ink.core:TraitClass" super="ink.core:ValuePropertyMirror"{
+	java_path "utils.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="Reference" class="ink.core:InkClass" super="ink.core:ValueProperty"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkObject"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkObject"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:ReferenceKind"
+			name "kind"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ReferenceMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="CoreLoader" class="ink.core:InkClass" super="ink.core:DslLoader"{
+	java_path "factory.internal"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="TargetLocator" abstract=true class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "traits"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ClassEditor" class="ink.core:ObjectEditorClass" super="ink.core:ObjectEditor"{
+	java_path "mirror.editor"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance false
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="Context" class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="Attribute" abstract=true class="ink.core:InkClass" super="ink.core:ValueProperty"{
+	java_path "lang.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ValuePropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="Validator" abstract=true class="ink.core:ValidatorClass" super="ink.core:InkObject"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+}
+
+Class id="PrimitiveAttributeMirror" class="ink.core:TraitClass" super="ink.core:ValuePropertyMirror"{
+	java_path "utils.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="ValuePropertyMirror" class="ink.core:TraitClass" super="ink.core:PropertyMirror"{
+	java_path "lang.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="LongAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Long"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:LongAttribute"{
+			type ref="ink.core:Long"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:LongAttribute"{
+			type ref="ink.core:Long"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:LongAttribute"{
+			type ref="ink.core:Long"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:LongAttribute"{
+			type ref="ink.core:Long"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="StringAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:String"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "min_length"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "max_length"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "reg_exp"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "string_attribute_validator"
+				     validator class="ink.core:StringAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "string_value_validator"
+				     validator class="ink.core:StringAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="CollectionPropertyMirror" class="ink.core:TraitClass" super="ink.core:PropertyMirror"{
+	java_path "lang.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="NumericType" class="ink.core:InkClass" super="ink.core:PrimitiveType"{
+	java_path "types"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:PrimitiveTypeMarker"
+			name "type_marker"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ValidationContext" class="ink.core:ValidationContextClass" super="ink.core:InkObject"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	error_message_class ref="ink.core:ValidationMessage"
+}
+
+Class id="BooleanAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Boolean"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="Mirror" class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="DslFactoryEventListener" abstract=true class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "bind_on_creation"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value true
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="ListPropertyMirror" class="ink.core:TraitClass" super="ink.core:CollectionPropertyMirror"{
+	java_path "utils.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="DslRepository" class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "factory"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ValueProperty" abstract=true class="ink.core:InkClass" super="ink.core:Property"{
+	java_path "lang.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ValuePropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="StringAttributeValidator" class="ink.core:ValidatorClass" super="ink.core:InstanceValidator"{
+	java_path "utils.property.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "values.comparison.violation"
+		     message ref="ink.core:values_comparison_violation"
+		}
+		item{
+		     code "max.length.violation"
+		     message ref="ink.core:string_max_length_violation"
+		}
+		item{
+		     code "min.length.violation"
+		     message ref="ink.core:string_min_length_violation"
+		}
+		item{
+		     code "reg.exp.violation"
+		     message ref="ink.core:string_reg_exp_violation"
+		}
+		item{
+		     code "min.value.violation"
+		     message ref="ink.core:min_value_violation"
+		}
+	}
+}
+
+Class id="Constraints" class="ink.core:TraitClass" super="ink.core:Trait"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:InstanceValidator"
+			name "generic_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:MapProperty"{
+			type ref="ink.core:Map"
+			name "validators"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			map_value class="ink.core:Reference"{
+				type ref="ink.core:InstanceValidator"
+				name "validator"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+			map_key class="ink.core:StringAttribute"{
+				type ref="ink.core:String"
+				name "name"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			}
+			is_sorted false
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="EnumAttribute" class="ink.core:InkClass" super="ink.core:Attribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ValuePropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="GenericPropertyValueValidator" class="ink.core:ValidatorClass" super="ink.core:PropertyValueValidator"{
+	java_path "lang.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "wrong.value.type"
+		     message ref="ink.core:wrong_value_type"
+		}
+		item{
+		     code "field.required"
+		     message ref="ink.core:missing_field_data"
+		}
+	}
+}
+
+Class id="NumericAttributeValueValidator" class="ink.core:ValidatorClass" super="ink.core:PropertyValueValidator"{
+	java_path "utils.property.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "max.value.violation"
+		     message ref="ink.core:max_value_violation"
+		}
+		item{
+		     code "min.value.violation"
+		     message ref="ink.core:min_value_violation"
+		}
+	}
+}
+
+Class id="ClassMirror" class="ink.core:TraitClass" super="ink.core:Mirror"{
+	java_path "mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="StringAttributeValueValidator" class="ink.core:ValidatorClass" super="ink.core:PropertyValueValidator"{
+	java_path "utils.property.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "max.length.violation"
+		     message ref="ink.core:string_max_length_violation"
+		}
+		item{
+		     code "min.length.violation"
+		     message ref="ink.core:string_min_length_violation"
+		}
+		item{
+		     code "reg.exp.violation"
+		     message ref="ink.core:string_reg_exp_violation"
+		}
+	}
+}
+
+Class id="ByteAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Byte"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:ByteAttribute"{
+			type ref="ink.core:Byte"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ByteAttribute"{
+			type ref="ink.core:Byte"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ByteAttribute"{
+			type ref="ink.core:Byte"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ByteAttribute"{
+			type ref="ink.core:Byte"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="InstanceValidator" abstract=true class="ink.core:ValidatorClass" super="ink.core:Validator"{
+	java_path "constraints"
+	java_mapping "State_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+}
+
+Class id="ShortAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Short"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:ShortAttribute"{
+			type ref="ink.core:Short"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ShortAttribute"{
+			type ref="ink.core:Short"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ShortAttribute"{
+			type ref="ink.core:Short"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:ShortAttribute"{
+			type ref="ink.core:Short"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="PrimitiveType" class="ink.core:InkClass" super="ink.core:InkType"{
+	java_path "types"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:PrimitiveTypeMarker"
+			name "type_marker"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="PropertyValueCalculator" abstract=true class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "lang.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "has_static_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="Personality" class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "traits"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:Mirror"
+			name "reflection"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Constraints"
+			name "constraints"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="DateAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Date"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:DateAttribute"{
+			type ref="ink.core:Date"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:DateAttribute"{
+			type ref="ink.core:Date"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "date_pattern"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="TraitMirror" class="ink.core:TraitClass" super="ink.core:Mirror"{
+	java_path "mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="IntegerAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Integer"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="MapProperty" class="ink.core:InkClass" super="ink.core:CollectionProperty"{
+	java_path "utils.property"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Map"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "lower_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "upper_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Property"
+			name "map_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Property"
+			name "map_key"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "is_sorted"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:MapPropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="Struct" class="ink.core:StructClass" super="ink.core:InkObject"{
+	java_path "lang"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="Property" abstract=true class="ink.core:InkClass" super="ink.core:TypedObject"{
+	java_path "lang"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="Operation" class="ink.core:InkClass" super="ink.core:TypedObject"{
+	java_path "lang.operation"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="NumericAttributeValidator" class="ink.core:ValidatorClass" super="ink.core:InstanceValidator"{
+	java_path "utils.property.constraints"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	abort_on_error false
+	active_at "Always"
+	specific_messages{
+		item{
+		     code "values.comparison.violation"
+		     message ref="ink.core:values_comparison_violation"
+		}
+		item{
+		     code "max.value.violation"
+		     message ref="ink.core:max_value_violation"
+		}
+		item{
+		     code "min.value.violation"
+		     message ref="ink.core:min_value_violation"
+		}
+	}
+}
+
+Class id="StructClassMirror" class="ink.core:TraitClass" super="ink.core:ClassMirror"{
+	java_path "mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="InkReader" class="ink.core:InkClass" super="ink.core:InkObject"{
+	java_path "serialization"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="FloatAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Float"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:FloatAttribute"{
+			type ref="ink.core:Float"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:FloatAttribute"{
+			type ref="ink.core:Float"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:FloatAttribute"{
+			type ref="ink.core:Float"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:FloatAttribute"{
+			type ref="ink.core:Float"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="Trait" class="ink.core:TraitClass" super="ink.core:InkObject"{
+	java_path "traits"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="PropertyConstraints" class="ink.core:TraitClass" super="ink.core:Constraints"{
+	java_path "constraints"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:InstanceValidator"
+			name "generic_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:MapProperty"{
+			type ref="ink.core:Map"
+			name "validators"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			map_value class="ink.core:Reference"{
+				type ref="ink.core:InstanceValidator"
+				name "validator"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+			map_key class="ink.core:StringAttribute"{
+				type ref="ink.core:String"
+				name "name"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			}
+			is_sorted false
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueValidator"
+			name "generic_property_value_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:MapProperty"{
+			type ref="ink.core:Map"
+			name "property_value_validators"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			map_value class="ink.core:Reference"{
+				type ref="ink.core:PropertyValueValidator"
+				name "validator"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+				kind "Association_or_Composition"
+			}
+			map_key class="ink.core:StringAttribute"{
+				type ref="ink.core:String"
+				name "key"
+				mandatory false
+				inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			}
+			is_sorted false
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="PropertyMirror" class="ink.core:TraitClass" super="ink.core:Mirror"{
+	java_path "lang.property.mirror"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:TargetLocator"
+			name "target_locator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:ObjectEditor"
+			name "editor"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:TraitMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	kind "Structural_or_Detachable"
+}
+
+Class id="CollectionProperty" abstract=true class="ink.core:InkClass" super="ink.core:Property"{
+	java_path "lang.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "lower_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "upper_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:CollectionPropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="DslFactoryPersonality" class="ink.core:InkClass" super="ink.core:Personality"{
+	java_path "factory"
+	java_mapping "Only_State"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:Mirror"
+			name "reflection"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Constraints"
+			name "constraints"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Context"
+			name "app_context"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:DslFactoryEventDispatcher"
+			name "event_dispatcher"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="AcquiredPropertyValue" abstract=true class="ink.core:InkClass" super="ink.core:PropertyValueCalculator"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "has_static_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ObjectEditor" class="ink.core:ObjectEditorClass" super="ink.core:InkObject"{
+	java_path "mirror.editor"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance false
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="ListProperty" class="ink.core:InkClass" super="ink.core:CollectionProperty"{
+	java_path "utils.property"
+	java_mapping "State_Behavior"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:List"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "lower_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:IntegerAttribute"{
+			type ref="ink.core:Integer"
+			name "upper_bound"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:Property"
+			name "list_item"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:ListPropertyMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Class id="InkObject" class="ink.core:InkClass"{
+	java_path "lang"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+}
+
+Class id="DoubleAttribute" class="ink.core:InkClass" super="ink.core:NumericAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			final_value ref="ink.core:Double"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:DoubleAttribute"{
+			type ref="ink.core:Double"
+			name "default_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:DoubleAttribute"{
+			type ref="ink.core:Double"
+			name "final_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:DoubleAttribute"{
+			type ref="ink.core:Double"
+			name "min_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:DoubleAttribute"{
+			type ref="ink.core:Double"
+			name "max_value"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			validators{
+				item{
+				     name "numeric_attribute_validator"
+				     validator class="ink.core:NumericAttributeValidator"{}
+				}
+			}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+			property_value_validators{
+				item{
+				     key "numeric_value_validator"
+				     validator class="ink.core:NumericAttributeValueValidator"{}
+				}
+			}
+		}
+	}
+}
+
+Class id="ObjectFactory" class="ink.core:DslFactory" super="ink.core:InkObject"{
+	java_path "lang"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Pure_Component"
+	properties{}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:Mirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:Constraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+		}
+	}
+	namespace "ink.core"
+	loader class="ink.core:DslLoader"{}
+	repository class="ink.core:DslRepository"{}
+	dsl_package "org.ink.core.vm"
+	java_package "org.ink.core.vm"
+}
+
+Class id="NumericAttribute" abstract=true class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
+	java_path "utils.property"
+	java_mapping "State_Behavior_Interface"
+	can_cache_behavior_instance true
+	component_type "Root_or_Pure_Component"
+	properties{
+		property class="ink.core:Reference"{
+			type ref="ink.core:InkType"
+			name "type"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "name"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:BooleanAttribute"{
+			type ref="ink.core:Boolean"
+			name "mandatory"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value false
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "display_name"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:StringAttribute"{
+			type ref="ink.core:String"
+			name "description"
+			mandatory false
+			inheritance_constraints "Instance_Must_Override_Inherited_Value"
+		}
+		property class="ink.core:EnumAttribute"{
+			type ref="ink.core:InheritanceConstraints"
+			name "inheritance_constraints"
+			mandatory true
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			default_value "Instance_Can_Refine_Inherited_Value"
+		}
+		property class="ink.core:Reference"{
+			type ref="ink.core:PropertyValueCalculator"
+			name "value_calculator"
+			mandatory false
+			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
+			kind "Association_or_Composition"
+		}
+	}
+	personality class="ink.core:Personality"{
+		reflection class="ink.core:PrimitiveAttributeMirror"{
+			editor class="ink.core:ObjectEditor"{}
+		}
+		constraints class="ink.core:PropertyConstraints"{
+			generic_constraints class="ink.core:GenericInstanceValidator"{}
+			generic_property_value_constraints class="ink.core:GenericPropertyValueValidator"{}
+		}
+	}
+}
+
+Object id="missing_field_data" class="ink.core:Message"{
+	text "The field ''{0}'' should not be empty."
+}
+
+Object id="Boolean" class="ink.core:PrimitiveType"{
+	type_marker "Boolean"
+}
+
+Object id="List" class="ink.core:CollectionType"{
+	type_marker "List"
+}
+
+Object id="Long" class="ink.core:PrimitiveType"{
+	type_marker "Long"
+}
+
+Object id="Byte" class="ink.core:PrimitiveType"{
+	type_marker "Byte"
+}
+
+Object id="Float" class="ink.core:PrimitiveType"{
+	type_marker "Float"
+}
+
+Object id="values_comparison_violation" class="ink.core:Message"{
+	text "The field ''{0}'' value ({1}) should be greater or equals to field ''{2}'' value ({3})."
+}
+
+Object id="wrong_value_type" class="ink.core:Message"{
+	text "The field ''{0}'' is of wrong type; expected ''{1}'', actual ''{2}''."
+}
+
+Object id="DefaultContext" class="ink.core:Context"{}
+
+Object id="component_type_violation" class="ink.core:Message"{
+	text "The object ''{0}'' is defined as ''{1}'' component."
+}
+
+Object id="string_reg_exp_violation" class="ink.core:Message"{
+	text "The field ''{0}'' value should match the regular expression ''{1}''."
+}
+
+Object id="Integer" class="ink.core:PrimitiveType"{
+	type_marker "Integer"
+}
+
+Object id="String" class="ink.core:PrimitiveType"{
+	type_marker "String"
+}
+
+Object id="string_max_length_violation" class="ink.core:Message"{
+	text "The value length of field ''{0}'' should be at most {1} characters."
+}
+
+Object id="Double" class="ink.core:PrimitiveType"{
+	type_marker "Double"
+}
+
+Object id="max_value_violation" class="ink.core:Message"{
+	text "The field ''{0}'' value should be equals or smaller than {1}."
+}
+
+Object id="refinement_violation" class="ink.core:Message"{
+	text "The object ''{0}'' should refine matching super field; expected ''{1}'', actual ''{2}''."
+}
+
+Object id="min_value_violation" class="ink.core:Message"{
+	text "The field ''{0}'' value should be equals or greater than {1}."
+}
+
+Object id="reg_exp_synatx_error" class="ink.core:Message"{
+	text "The field ''{0}'' value is not a vaild regular expression."
+}
+
+Object id="Date" class="ink.core:PrimitiveType"{
+	type_marker "Date"
+}
+
+Object id="string_min_length_violation" class="ink.core:Message"{
+	text "The value length of field ''{0}'' should be at least {1} characters."
+}
+
+Object id="Map" class="ink.core:CollectionType"{
+	type_marker "Map"
+}
+
+Object id="Short" class="ink.core:PrimitiveType"{
+	type_marker "Short"
+}
+
+Enumeration id="JavaMapping" class="ink.core:EnumType"{
+	java_path "lang"
+	values{value "State_Behavior_Interface"
+	value "State_Behavior"
+	value "State_Interface"
+	value "Behavior_Interface"
+	value "Only_State"
+	value "Only_Behavior"
+	value "Only_Interface"
+	value "No_Java"
+	}
+}
+
+Enumeration id="InheritanceConstraints" class="ink.core:EnumType"{
+	java_path "lang"
+	values{value "Instance_Must_Override_Inherited_Value"
+	value "Instance_Can_Refine_Inherited_Value"
+	value "Instance_Can_Override_or_Refine_Inherited_Value"
+	}
+}
+
+Enumeration id="ReferenceKind" class="ink.core:EnumType"{
+	java_path "utils.property"
+	values{value "Association_Only"
+	value "Composition_Only"
+	value "Association_or_Composition"
+	}
+}
+
+Enumeration id="CollectionTypeMarker" class="ink.core:EnumType"{
+	java_path "types"
+	values{value "List"
+	value "Map"
+	}
+}
+
+Enumeration id="ActivationMode" class="ink.core:EnumType"{
+	java_path "constraints"
+	values{value "Always"
+	value "Design_Time"
+	value "Run_Time"
+	}
+}
+
+Enumeration id="Severity" class="ink.core:EnumType"{
+	java_path "constraints"
+	values{value "Warning"
+	value "Error"
+	}
+}
+
+Enumeration id="TraitKind" class="ink.core:EnumType"{
+	java_path "traits"
+	values{value "Structural"
+	value "Detachable"
+	value "Structural_or_Detachable"
+	}
+}
+
+Enumeration id="SystemState" class="ink.core:EnumType"{
+	java_path "constraints"
+	values{value "Design_Time"
+	value "Run_Time"
+	}
+}
+
+Enumeration id="ComponentType" class="ink.core:EnumType"{
+	java_path "lang"
+	values{value "Root"
+	value "Pure_Component"
+	value "Root_or_Pure_Component"
+	}
+}
+
+Enumeration id="PrimitiveTypeMarker" class="ink.core:EnumType"{
+	java_path "types"
+	values{value "Byte"
+	value "Short"
+	value "Integer"
+	value "Long"
+	value "Float"
+	value "Double"
+	value "String"
+	value "Date"
+	value "Boolean"
+	}
+}
+

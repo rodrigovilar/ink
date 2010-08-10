@@ -13,6 +13,6 @@
 	<classpathentry kind="lib" path="lib/jarjar.jar"/>
 	<classpathentry kind="lib" path="lib/tools.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/sdl-for-ink-0.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ink-sdl.jar"/>
 	<classpathentry kind="output" path="output/java"/>
 </classpath>

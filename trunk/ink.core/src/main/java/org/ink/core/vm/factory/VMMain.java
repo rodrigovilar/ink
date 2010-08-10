@@ -127,7 +127,7 @@ public class VMMain {
 			return result;
 		}
 		if(inkFile.isFile()){
-			result.add(locateFactory(inkFile, coreFactory));
+			result.addAll(locateFactory(inkFile, coreFactory));
 		}else{
 			result.addAll(loadDirectory(inkFile, coreFactory));
 		}
@@ -138,20 +138,21 @@ public class VMMain {
 	private static List<DslFactory> loadDirectory(File dir, DslFactory coreFactory) {
 		List<DslFactory> result = new ArrayList<DslFactory>();
 		for(File f : FileUtils.listInkFiles(dir)){
-			result.add(locateFactory(f, coreFactory));
+			result.addAll(locateFactory(f, coreFactory));
 		}
 		return result;
 	}
 
 
-	private static DslFactory locateFactory(File inkFile, DslFactory coreFactory) {
+	private static List<DslFactory> locateFactory(File inkFile, DslFactory coreFactory) {
 		try {
-			DslFactory result = null;
+			List<DslFactory> result = new ArrayList<DslFactory>();
 			Tag content = SdlParser.parse(inkFile);
 			List<Tag> elements = content.getChildren();
 			String classId;
 			InkClass readerCls = coreFactory.getObject(CoreNotations.Ids.INK_READER.toString());
-			InkReader<Tag> reader = readerCls.newInstance(coreFactory.getAppContext(), false, true).getBehavior(); 
+			InkReader<Tag> reader = readerCls.newInstance(coreFactory.getAppContext(), false, true).getBehavior();
+			DslFactory factory;
 			for(Tag elem : elements){
 				try{
 					classId = (String)elem.getAttribute(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
@@ -159,8 +160,9 @@ public class VMMain {
 						//TODO need to check also if subclass of
 						if(classId.equals(CoreNotations.Ids.DSL_FACTORY)){
 							long start = System.currentTimeMillis();
-							result = reader.read(elem, coreFactory.getAppContext()).getBehavior();
-							System.out.println("DSL factory '" + result.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
+							System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+							result.add(factory);
 						}
 					}
 				}catch(ClassCastException e){

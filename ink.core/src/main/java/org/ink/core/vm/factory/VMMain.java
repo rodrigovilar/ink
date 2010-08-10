@@ -9,6 +9,7 @@ import java.util.List;
 import org.ikayzo.sdl.SDLParseException;
 import org.ikayzo.sdl.Tag;
 import org.ink.core.utils.sdl.SdlParser;
+import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.InkBootException;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
@@ -95,10 +96,20 @@ public class VMMain {
 				if(factories.get(0).compareTo(factories.get(1))==0){
 					String defaultFactoryNS = System.getProperty("default.factory");
 					if(defaultFactoryNS==null){
-						System.out.println("More than one possible default factory was found. Using the factory '" + factories.get(0).getNamespace() +"' as default.");
+						factory = factories.get(0);
+						System.out.println("More than one possible default factory was found.");
+					}else{
+						for(DslFactory f : factories){
+							if(f.getNamespace().equals(defaultFactoryNS)){
+								factory = f;
+								break;
+							}
+						}
+						if(factory==null){
+							System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
+							throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
+						}
 					}
-					factory = factories.get(0);
-					System.out.println("More than one possible default factory was found");
 				}else{
 					
 				}

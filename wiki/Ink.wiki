@@ -2,8 +2,7 @@
 
 = Introduction =
 
-Ink is an adaptive object model (AOM) framework. The Ink framework provides Java programmers with a Smalltalk-like reflective metamodel. Changes to the model are reflected at runtime, making Ink applications adaptable. Ink is designed for developing DSLs;
-DSL development in Ink is easy and intuitive.  
+Ink is an adaptive object model (AOM) framework. The Ink framework provides Java programmers with a Smalltalk-like reflective metamodel. Changes to the model are reflected at runtime, making applications implemented with Ink highly adaptable. Ink is designed for developing DSLs with the intention of making DSL development easy and intuitive.  
 
 = Details =
 

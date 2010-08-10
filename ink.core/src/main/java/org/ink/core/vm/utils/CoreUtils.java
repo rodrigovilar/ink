@@ -43,7 +43,7 @@ public class CoreUtils {
 	public static void toString(MirrorAPI object, ClassMirrorAPI classMirror, StringBuilder builder){
 		if(object.isRoot()){
 			builder.append(object.getObjectTypeMarker()).append(" ");
-			builder.append(InkNotations.Path_Syntax.ID_ATTRIBUTE).append("=").append(object.getShortId()).append(" ");
+			builder.append(InkNotations.Path_Syntax.ID_ATTRIBUTE).append("=\"").append(object.getShortId()).append("\"").append(" ");
 			if(object.isAbstract()){
 				builder.append(InkNotations.Path_Syntax.ABSTRACT_ATTRIBUTE).append("=").append("true").append(" ");
 			}
@@ -53,11 +53,11 @@ public class CoreUtils {
 		}else{
 			builder.append(object.getObjectTypeMarker()).append(" ");
 		}
-		builder.append(InkNotations.Path_Syntax.CLASS_ATTRIBUTE).append("=").append(classMirror.getId());
+		builder.append(InkNotations.Path_Syntax.CLASS_ATTRIBUTE).append("=\"").append(classMirror.getId()).append("\"");
 		if(object.getSuper()!=null){
-			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=").append(object.getSuper().getId());
+			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=\"").append(object.getSuper().getId()).append("\"");;
 		}if(object.getScope()!=Scope.all){
-			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=").append(object.getScope());
+			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getScope()).append("\"");;
 		}
 		builder.append("{");
 		Object o;
@@ -82,7 +82,7 @@ public class CoreUtils {
 			CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror)definingProperty).getCollectionTypeMarker();
 			switch (collectionMarker){
 			case List:
-				builder.append(prop.getDisplayName()).append("=[");
+				builder.append(prop.getDisplayName()).append("{");
 				PropertyMirror itemMirror = ((ListPropertyMirror)definingProperty).getItemMirror();
 				boolean isClass = itemMirror.getTypeMarker()==DataTypeMarker.Class;
 				if(!((List<?>)value).isEmpty() && isClass){
@@ -99,9 +99,6 @@ public class CoreUtils {
 				for(int i=0;i<l.size();i++){
 					o = l.get(i);
 					toString(itemMirror, definingPropertyIndex, listBuilder, o, true);
-					if(i<l.size()-1){
-						listBuilder.append(',');
-					}
 					if(isClass){
 						listBuilder.append(StringUtils.LINE_SEPARATOR);
 					}
@@ -117,10 +114,10 @@ public class CoreUtils {
 						}
 					}
 				}
-				builder.append("]").append(StringUtils.LINE_SEPARATOR);
+				builder.append("}").append(StringUtils.LINE_SEPARATOR);
 				break;
 			case Map:
-				builder.append(prop.getDisplayName()).append("=[");
+				builder.append(prop.getDisplayName()).append("{");
 				Map<?,?> mapValue = (Map<?, ?>)value;
 				PropertyMirror keyMirror = ((MapPropertyMirror)definingProperty).getKeyMirror();
 				PropertyMirror valueMirror = ((MapPropertyMirror)definingProperty).getValueMirror();
@@ -131,18 +128,17 @@ public class CoreUtils {
 				Map.Entry<?, ?> en;
 				while(iter.hasNext()){
 					en = (Entry<?, ?>) iter.next();
-					builder.append(CoreUtils.TAB).append("<").append(keyMirror.getName()).append("=");
+					builder.append(CoreUtils.TAB).append("item{");
+					builder.append(StringUtils.LINE_SEPARATOR);
+					builder.append(CoreUtils.TAB).append("     ");
 					toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true);
-					builder.append(",").append(StringUtils.LINE_SEPARATOR);
-					builder.append(CoreUtils.TAB).append(" ");//.append(valueMirror.getName()).append("=");
+					builder.append(CoreUtils.TAB).append("     ");//.append(valueMirror.getName()).append("=");
 					toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true);
-					builder.append(">");
-					if(iter.hasNext()){
-						builder.append(",");
-					}
+					builder.append(StringUtils.LINE_SEPARATOR);
+					builder.append(CoreUtils.TAB).append("}");
 					builder.append(StringUtils.LINE_SEPARATOR);
 				}
-				builder.append("]").append(StringUtils.LINE_SEPARATOR);
+				builder.append("}").append(StringUtils.LINE_SEPARATOR);
 				break;
 			default:
 				throw new UnsupportedOperationException(collectionMarker.name());
@@ -157,7 +153,7 @@ public class CoreUtils {
 				}
 			}else{
 				if(((Proxiable)value).isProxied()){
-					builder.append(prop.getDisplayName()).append(" ").append("ref=").append(m.getId());
+					builder.append(prop.getDisplayName()).append(" ").append("ref=\"").append(m.getId()).append("\"");
 				}else{
 					String stringValue = value.toString();
 					builder.append(stringValue);
@@ -166,29 +162,22 @@ public class CoreUtils {
 					builder.append(StringUtils.LINE_SEPARATOR);
 				}
 			}
-//			if(!((Proxiable)value).isProxied()){
-//				builder.append(value);
-//				if(!isItem){
-//					builder.append(StringUtils.LINE_SEPARATOR);
-//				}
-//			}else{
-//				String id;
-//				if(((Proxiability)value).getProxyKind()==Proxiability.Kind.STRUCTURE){
-//					id = ((InkObjectState)value).getId();
-//				}else{
-//					id = ((InkObject)value).reflect().getId();
-//				}
-//				builder.append(prop.getDisplayName()).append("=ref to ").append(id);
-//				if(!isItem){
-//					builder.append(StringUtils.LINE_SEPARATOR);
-//				}
-//			}
+			break;
+		case Enum:
+			builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
+			break;
+		case Primitive:
+			if(((PrimitiveAttributeMirror)definingProperty).getPrimitiveTypeMarker()==PrimitiveTypeMarker.String){
+				builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
+			}else{
+				builder.append(prop.getDisplayName()).append(" ").append(value).append(StringUtils.LINE_SEPARATOR);
+			}
 			break;
 		default:
 			if(isItem){
 				builder.append(value);
 			}else{
-				builder.append(prop.getDisplayName()).append("=").append(value).append(StringUtils.LINE_SEPARATOR);
+				builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
 			}
 			break;
 		}

@@ -290,7 +290,11 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 			}
 			if(!containsErrors()){
 				if(!isInnerObject){
-					editor.compile();
+					try{
+						editor.compile();
+					}catch(Exception e){
+						addError(tag, e.getMessage());
+					}
 				}
 				editor.save();
 			}

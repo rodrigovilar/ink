@@ -1,4 +1,4 @@
-Ink language has unified syntax rules for all DSLs.  This saves language users the need to learn new syntax rules for each DSL and saves DSL developers the effort in defining syntax, grammer, etc.
+Ink language has unified syntax rules for all DSLs.  This saves language users the need to learn new syntax rules for each DSL and saves DSL developers the effort in defining syntax.
 
 Ink uses SDL syntax (see TBD) with the only difference that period (".") is a legal character in a name.
 
@@ -17,4 +17,3 @@ The tutorial covers the following topics:
 - Aspects...
 
 The example doesn't cover the behavior part of the DSL (which is implemented in Java).  For more on this see TBD.
-

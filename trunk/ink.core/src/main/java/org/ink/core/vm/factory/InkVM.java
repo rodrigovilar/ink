@@ -27,6 +27,18 @@ public class InkVM implements VM {
 	}
 	
 	@Override
+	public Context getContext(String namespace) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public DslFactory getFactory(String namespace) {
+		return null;
+	}
+	
+	
+	@Override
 	public void destroy() {
 		VMMain.stop();
 	}

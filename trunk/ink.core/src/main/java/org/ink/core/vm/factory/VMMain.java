@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ikayzo.sdl.SDLParseException;
 import org.ikayzo.sdl.Tag;
@@ -23,6 +25,7 @@ import org.ink.core.vm.utils.file.FileUtils;
 public class VMMain {
 	
 	private static DslFactory factory;
+	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	
 	public static void restart(){
 		stop();
@@ -32,6 +35,10 @@ public class VMMain {
 	
 	public static void stop(){
 		//vm.destroy();
+	}
+	
+	public static DslFactory getFactory(String namespace){
+		return allFactories.get(namespace);
 	}
 	
 	public static DslFactory getDefaultFactory(){
@@ -83,11 +90,15 @@ public class VMMain {
 	private static void loadFactories(String[] sourcePaths) {
 		if(sourcePaths==null){
 			factory = loadCoreFactory();
+			allFactories.put(factory.getNamespace(), factory);
 		}else{
 			DslFactory coreFactory = loadCoreFactory();
 			List<DslFactory> factories = new ArrayList<DslFactory>();
 			for(String p : sourcePaths){
 				factories.addAll(collectFactories(p, coreFactory));
+			}
+			for(DslFactory f : factories){
+				allFactories.put(f.getNamespace(), f);
 			}
 			Collections.sort(factories);
 			if(factories.size()==1){

@@ -29,7 +29,7 @@ public class VMMain {
 	
 	public static void restart(){
 		stop();
-		start();
+		start(factory.getNamespace());
 	}
 	
 	
@@ -38,7 +38,13 @@ public class VMMain {
 	}
 	
 	public static DslFactory getFactory(String namespace){
-		return allFactories.get(namespace);
+		DslFactory result = allFactories.get(namespace);
+		if(result==null){
+			
+		}else{
+			factory = result;
+		}
+		return result;
 	}
 	
 	public static DslFactory getDefaultFactory(){
@@ -48,7 +54,7 @@ public class VMMain {
 		return factory;
 	}
 	
-	public static void start(){
+	public static void start(String defaultNamespace){
 		if(factory==null){
 			synchronized (VMMain.class) {
 				if(factory==null){
@@ -72,10 +78,10 @@ public class VMMain {
 						}
 						if(pathsList.size()>0){
 							String[] paths = pathsList.toArray(new String[]{});
-							loadApplication(paths);
+							loadApplication(defaultNamespace, paths);
 						}
 					}else{
-						loadApplication(null);
+						loadApplication(defaultNamespace, null);
 					}
 					
 				}
@@ -83,11 +89,11 @@ public class VMMain {
 		}
 	}
 	
-	private static void loadApplication(String[] sourcePaths) {
-		loadFactories(sourcePaths);
+	private static void loadApplication(String defaultNamespace, String[] sourcePaths) {
+		loadFactories(defaultNamespace, sourcePaths);
 	}
 	
-	private static void loadFactories(String[] sourcePaths) {
+	private static void loadFactories(String defaultNamespace, String[] sourcePaths) {
 		if(sourcePaths==null){
 			factory = loadCoreFactory();
 			allFactories.put(factory.getNamespace(), factory);
@@ -105,20 +111,28 @@ public class VMMain {
 				factory = factories.get(0);
 			}else if(factories.size()>1){
 				if(factories.get(0).compareTo(factories.get(1))==0){
-					String defaultFactoryNS = System.getProperty("default.factory");
-					if(defaultFactoryNS==null){
-						factory = factories.get(0);
-						System.out.println("More than one possible default factory was found.");
-					}else{
-						for(DslFactory f : factories){
-							if(f.getNamespace().equals(defaultFactoryNS)){
-								factory = f;
-								break;
-							}
+					if(defaultNamespace!=null){
+						factory = allFactories.get(defaultNamespace);
+						if(factory == null){
+							System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
+							throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
 						}
-						if(factory==null){
-							System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
-							throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
+					}else{
+						String defaultFactoryNS = System.getProperty("default.factory");
+						if(defaultFactoryNS==null){
+							factory = factories.get(0);
+							System.out.println("More than one possible default factory was found.");
+						}else{
+							for(DslFactory f : factories){
+								if(f.getNamespace().equals(defaultFactoryNS)){
+									factory = f;
+									break;
+								}
+							}
+							if(factory==null){
+								System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
+								throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
+							}
 						}
 					}
 				}else{

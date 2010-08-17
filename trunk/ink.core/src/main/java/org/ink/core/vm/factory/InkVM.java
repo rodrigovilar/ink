@@ -6,14 +6,21 @@ package org.ink.core.vm.factory;
  */
 public class InkVM implements VM {
 
-	private static VM vm = new InkVM();
+	private static VM vm = null;
 	
 	public static VM instance(){
+		return instance(null);
+	}
+	
+	public static VM instance(String defaultNamespace){
+		if(vm==null){
+			vm = new InkVM(defaultNamespace);
+		}
 		return vm;
 	}
 	
-	private InkVM(){
-		VMMain.start();
+	private InkVM(String defaultNamespace){
+		VMMain.start(defaultNamespace);
 	}
 	
 	@Override
@@ -25,17 +32,6 @@ public class InkVM implements VM {
 	public DslFactory getFactory(){
 		return VMMain.getDefaultFactory();
 	}
-	
-	@Override
-	public Context getContext(String namespace) {
-		return VMMain.getFactory(namespace).getAppContext();
-	}
-	
-	@Override
-	public DslFactory getFactory(String namespace) {
-		return VMMain.getFactory(namespace);
-	}
-	
 	
 	@Override
 	public void destroy() {

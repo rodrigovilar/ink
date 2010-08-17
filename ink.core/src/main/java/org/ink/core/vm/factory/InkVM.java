@@ -28,13 +28,12 @@ public class InkVM implements VM {
 	
 	@Override
 	public Context getContext(String namespace) {
-		// TODO Auto-generated method stub
-		return null;
+		return VMMain.getFactory(namespace).getAppContext();
 	}
 	
 	@Override
 	public DslFactory getFactory(String namespace) {
-		return null;
+		return VMMain.getFactory(namespace);
 	}
 	
 	

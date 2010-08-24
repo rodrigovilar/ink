@@ -52,7 +52,7 @@ public class BehaviorProxy implements InvocationHandler {
 	private Method getVanillaState_I = null;
 	
 	private static final String GET_VANILLA_BEHAVIOR = "getVanillaBehavior";
-	private static final int GET_VANILLA_BEHAVIOR_HASH = GET_VANILLA_STATE.hashCode();
+	private static final int GET_VANILLA_BEHAVIOR_HASH = GET_VANILLA_BEHAVIOR.hashCode();
 	private static Method getVanillaBehavior = null;
 	private Method getVanillaBehavior_I = null;
 	

@@ -20,17 +20,29 @@ public class HTTPTest extends TestCase {
 	private Context context = InkVM.instance().getContext();
 
 	public void testFigure1Test() {
+		String prefix = "F1";
 		System.out.println("Figure1");
 		System.out.println("-------");
-		testShowHTTP_ClientTest();
-		testShowFastHTTP_ClientTest();
-		testShowRobustHTTP_ClientTest();
-		testShowPontisLogoRetriever_ClientTest();
+		showHTTP_Client(prefix);
+		showFastHTTP_Client(prefix);
+		showRobustHTTP_Client(prefix);
+		showPontisLogoRetriever_Client(prefix);
 	}
 	
-	private void testShowHTTP_ClientTest() {
+	public void testFigure3Test() {
+		String prefix = "F3";
+		System.out.println("Figure3");
+		System.out.println("-------");
+		showMetaCache(prefix);
+		showHTTP_Client(prefix);
+		showFastHTTP_Client(prefix);
+		showRobustHTTP_Client(prefix);
+		showPontisLogoRetriever_Client(prefix);
+	}
+	
+	private void showHTTP_Client(String prefix) {
 		InkObject httpClientClass = context
-				.getObject("example.http:HTTP_Client_1");
+				.getObject("example.http:" + prefix + "_" + "HTTP_Client");
 		assertNotNull(httpClientClass);
 
 		System.out.println("HTTP_Client = ");
@@ -38,9 +50,9 @@ public class HTTPTest extends TestCase {
 
 	}
 	
-	private void testShowFastHTTP_ClientTest() {
+	private void showFastHTTP_Client(String prefix) {
 		InkObject httpClient = context
-				.getObject("example.http:FastHTTP_Client_1");
+				.getObject("example.http:" + prefix + "_" + "FastHTTP_Client");
 		assertNotNull(httpClient);
 
 		System.out.println("FastHTTP_Client = ");
@@ -48,9 +60,9 @@ public class HTTPTest extends TestCase {
 
 	}
 	
-	private void testShowRobustHTTP_ClientTest() {
+	private void showRobustHTTP_Client(String prefix) {
 		InkObject httpClient = context
-				.getObject("example.http:RobustHTTP_Client_1");
+				.getObject("example.http:" + prefix + "_" + "RobustHTTP_Client");
 		assertNotNull(httpClient);
 
 		System.out.println("RobustHTTP_Client = ");
@@ -58,12 +70,22 @@ public class HTTPTest extends TestCase {
 
 	}
 	
-	private void testShowPontisLogoRetriever_ClientTest() {
+	private void showPontisLogoRetriever_Client(String prefix) {
 		InkObject httpClient = context
-				.getObject("example.http:PontisLogoRetriever_1");
+				.getObject("example.http:"  + prefix + "_" + "PontisLogoRetriever");
 		assertNotNull(httpClient);
 
 		System.out.println("PontisLogoRetriever = ");
+		System.out.println(httpClient);
+
+	}
+
+	private void showMetaCache(String prefix) {
+		InkObject httpClient = context
+				.getObject("example.http:"  + prefix + "_" + "MetaCache");
+		assertNotNull(httpClient);
+
+		System.out.println("MetaCache = ");
 		System.out.println(httpClient);
 
 	}

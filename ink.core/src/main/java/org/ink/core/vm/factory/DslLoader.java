@@ -10,6 +10,6 @@ import org.ink.core.vm.lang.InkObjectState;
 public interface DslLoader extends InkObject {
 	
 	public void scan(DslFactory ownerFactory);
-	public InkObjectState getObject(String id) throws ObjectLoadingException;
+	public InkObjectState getObject(String id, Context context) throws ObjectLoadingException;
 
 }

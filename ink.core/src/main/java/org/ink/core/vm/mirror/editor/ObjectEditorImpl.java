@@ -313,4 +313,10 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends InkObjectState> T getEditedState() {
+		return (T)workOnObject;
+	}
+
 }

@@ -2,6 +2,7 @@ package org.ink.core.vm.lang;
 
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
+import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.mirror.ClassMirror;
 
 
@@ -22,7 +23,7 @@ public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> impl
 	
 	@Override
 	public final <T extends InkObjectState> T  newInstance(boolean initObjectId, boolean initDefaults) {
-		return ((ClassMirror)reflect()).getFactory().newInstance(getContext().getFactory(), getState(), initObjectId, initDefaults);
+		return ((ClassMirror)reflect()).getFactory().newInstance(InkVM.instance().getFactory(), getState(), initObjectId, initDefaults);
 	}
 	
 	@Override
@@ -37,7 +38,7 @@ public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> impl
 
 	@Override
 	public final <T extends InkObjectState> T newInstance() {
-		return newInstance(false, true);
+		return newInstance(getContext(), false, true);
 	}
 	
 	@Override

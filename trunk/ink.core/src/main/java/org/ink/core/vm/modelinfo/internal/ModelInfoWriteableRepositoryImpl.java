@@ -5,6 +5,10 @@ import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 
 public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl implements ModelInfoWriteableRepository {
 
+	public ModelInfoWriteableRepositoryImpl(ModelIndex index) {
+		this.index = index;
+	}
+
 	@Override
 	public void beginWriteTransaction() {
 		// TODO Auto-generated method stub

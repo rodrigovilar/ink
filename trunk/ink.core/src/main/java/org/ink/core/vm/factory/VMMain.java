@@ -15,6 +15,10 @@ import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.InkBootException;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
+import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.JavaMapping;
+import org.ink.core.vm.mirror.editor.ObjectEditor;
+import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.serialization.InkReader;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.file.FileUtils;
@@ -81,7 +85,7 @@ public class VMMain {
 							loadApplication(defaultNamespace, paths);
 						}
 					}else{
-						loadApplication(defaultNamespace, null);
+						loadApplication(defaultNamespace, new String[]{"dsls.ink"});
 					}
 					
 				}
@@ -105,45 +109,75 @@ public class VMMain {
 			}
 			for(DslFactory f : factories){
 				allFactories.put(f.getNamespace(), f);
+				ModelInfoFactory.getWriteableInstance().register(f);
 			}
-			Collections.sort(factories);
-			if(factories.size()==1){
-				factory = factories.get(0);
-			}else if(factories.size()>1){
-				if(factories.get(0).compareTo(factories.get(1))==0){
-					if(defaultNamespace!=null){
-						factory = allFactories.get(defaultNamespace);
-						if(factory == null){
-							System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
-							throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
-						}
-					}else{
-						String defaultFactoryNS = System.getProperty("default.factory");
-						if(defaultFactoryNS==null){
-							factory = factories.get(0);
-							System.out.println("More than one possible default factory was found.");
+			if(factories.isEmpty()){
+				factory = coreFactory;
+			}else{
+				Collections.sort(factories);
+				if(factories.size()==1){
+					factory = factories.get(0);
+				}else if(factories.size()>1){
+					if(factories.get(0).compareTo(factories.get(1))==0){
+						if(defaultNamespace!=null){
+							factory = allFactories.get(defaultNamespace);
+							if(factory == null){
+								System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
+								throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
+							}
 						}else{
-							for(DslFactory f : factories){
-								if(f.getNamespace().equals(defaultFactoryNS)){
-									factory = f;
-									break;
+							String defaultFactoryNS = System.getProperty("default.factory");
+							if(defaultFactoryNS==null){
+								System.out.println("More than one possible default factory was found, creating a facade factory...");
+								factory = createFacadeFactory(coreFactory, factories);
+							}else{
+								for(DslFactory f : factories){
+									if(f.getNamespace().equals(defaultFactoryNS)){
+										factory = f;
+										break;
+									}
+								}
+								if(factory==null){
+									System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
+									throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
 								}
 							}
-							if(factory==null){
-								System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
-								throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
-							}
 						}
+					}else{
+						
 					}
 				}else{
-					
+					System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
 				}
-			}else{
-				System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
 			}
 		}
 	}
 	
+	private static DslFactory createFacadeFactory(DslFactory coreFactory, List<DslFactory> factories) {
+		List<DslFactoryState> imports = new ArrayList<DslFactoryState>(); 
+		DslFactory firstFactory = factories.get(0);
+		imports.add((DslFactoryState) firstFactory.reflect().edit().getEditedState());
+		DslFactoryState facadeFactory = coreFactory.cloneState();
+		ObjectEditor editor = facadeFactory.reflect().edit();
+		InkObjectState superFactory = coreFactory.getState(CoreNotations.Ids.OBJECT_FACTORY);
+		editor.setSuper(superFactory);
+		facadeFactory.setJavaPath("");
+		facadeFactory.setJavaMapping(JavaMapping.No_Java);
+		facadeFactory.setDslPackage("");
+		facadeFactory.setJavaPackage("");
+		facadeFactory.setNamespace("ink.facade");
+		
+		for(int i=1;i<factories.size();i++){
+			if(firstFactory.compareTo(factories.get(i))==0){
+				imports.add((DslFactoryState) factories.get(i).reflect().edit().getEditedState());
+			}
+		}
+		facadeFactory.setImports(imports);
+		facadeFactory.reflect().edit().save();
+		return facadeFactory.getBehavior();
+	}
+
+
 	private static List<DslFactory> collectFactories(String path, DslFactory coreFactory){
 		List<DslFactory> result = new ArrayList<DslFactory>();
 		File inkFile = new File(path);

@@ -144,7 +144,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			MirrorAPI result = null;
 			try {
 				boolean initObjectId = !identicalTwin&isRoot;
-				result = (MirrorAPI) getMeta().newInstance(initObjectId, false);
+				result = (MirrorAPI) getMeta().newInstance(getContext(), initObjectId, false);
 				if(!initObjectId){
 					result.setId(id);
 				}

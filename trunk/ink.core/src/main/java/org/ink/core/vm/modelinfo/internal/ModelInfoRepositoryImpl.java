@@ -37,7 +37,7 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 	}
 
 	ModelInfoWriteableRepository createWriteableInstance() {
-		return new ModelInfoWriteableRepositoryImpl();
+		return new ModelInfoWriteableRepositoryImpl(index);
 	}
 
 }

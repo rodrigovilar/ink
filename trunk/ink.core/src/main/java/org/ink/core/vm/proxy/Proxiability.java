@@ -1,5 +1,6 @@
 package org.ink.core.vm.proxy;
 
+import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 
 /**
@@ -12,7 +13,7 @@ public interface Proxiability {
 	}
 	
 	public MirrorAPI getVanillaState();
-	public MirrorAPI getVanillaBehavior();
+	public InkObject getVanillaBehavior();
 	public Kind getProxyKind();
 	
 }

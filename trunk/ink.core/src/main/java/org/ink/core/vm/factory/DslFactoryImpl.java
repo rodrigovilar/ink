@@ -35,6 +35,8 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.mirror.editor.ClassEditor;
+import org.ink.core.vm.modelinfo.ModelInfoFactory;
+import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.ProxyFactory;
 import org.ink.core.vm.traits.Trait;
@@ -95,6 +97,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		List<? extends DslFactory> importsList = getState().getImports();
 		if(importsList!=null && !importsList.isEmpty()){
 			for(DslFactory f : importsList){
+				if(f.isProxied()){
+					f = (DslFactory) ((Proxiability)f).getVanillaBehavior();
+				}
 				boundedFactories.put(f.getNamespace(), f);
 				this.scope.addAll(f.getScope());
 			}
@@ -126,9 +131,10 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		if(result==null){
 			String ns = extractNamespace(id);
 			if(getNamespace().equals(ns)){
-				result = loader.getObject(id);
+				result = loader.getObject(id, getAppContext());
 				if(result!=null){
 					repository.setObject(id, result);
+					ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 				}else if(reportErrorIfNotExists){
 					throw new CoreException("The object with id '" +id+"', could not be found.");
 				}
@@ -147,6 +153,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				}
 				if(result!=null){
 					repository.setObject(id, result);
+					ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 				}else if(reportErrorIfNotExists){
 					throw new CoreException("The object with id '" +id+"', could not be found");
 				}
@@ -203,6 +210,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public synchronized void register(InkObjectState state) {
 		// TODO add validation code
 		repository.setObject(state.getId(), state);
+		ModelInfoFactory.getWriteableInstance().register(state.getBehavior());
 	}
 
 	@Override
@@ -411,10 +419,15 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		scope = Collections.unmodifiableSet(scope);
 		this.loader = coreLoader;
 		Collection<CoreObjectDescriptor> elements = coreLoader.start(this);
+		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
+		MirrorAPI o;
 		for(CoreObjectDescriptor elem : elements){
-			repository.setObject(elem.getId(), elem.getObject());
+			o = elem.getObject();
+			repository.setObject(elem.getId(), o);
+			repo.register(o.getBehavior());
 		}
 	}
+	
 	
 	public void printElements(String toFile) throws IOException{
 		File f = new File(toFile);

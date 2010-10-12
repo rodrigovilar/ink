@@ -35,11 +35,11 @@ public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S
 	ValidationContext vc = null;
 	
 	@Override
-	public synchronized InkObjectState getObject(String id) throws ObjectLoadingException{
+	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException{
 		ElementDescriptor<D> desc = elements.get(id);
 		if(desc!=null){
 			try{
-				InkObjectState result = reader.read(desc.getRawData());
+				InkObjectState result = reader.read(desc.getRawData(), context);
 				if(reader.containsErrors()){
 					List<ParseError> errors = reader.getErrors();
 					desc.setParsingErrors(errors);
@@ -80,7 +80,7 @@ public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S
 		ClassMirror tc = getContext().getObject(CoreNotations.Ids.TRAIT).reflect();
 		InkObjectState o = null;
 		for(String id : startupObjects){
-			o  = getObject(id);
+			o  = getObject(id, ownerFactory.getAppContext());
 			objects.add(o);
 		}
 		InkClass cls;
@@ -109,7 +109,7 @@ public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S
 		File folder = new File(dir.getPath());
 		//TODO - the reader should be a property on DSLoader
 		InkClass readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
-		reader = readerCls.newInstance().getBehavior();
+		reader = readerCls.newInstance(ownerFactory.getAppContext()).getBehavior();
 		vc = ((InkClass)ownerFactory.getObject(CoreNotations.Ids.VALIDATION_CONTEXT.toString())).newInstance().getBehavior();
 		List<ElementDescriptor<D>> fileElements;
 		String id;

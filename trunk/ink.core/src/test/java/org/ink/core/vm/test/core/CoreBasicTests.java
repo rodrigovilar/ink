@@ -1,8 +1,11 @@
 package org.ink.core.vm.test.core;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -28,6 +31,11 @@ import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.mirror.editor.ClassEditor;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
+import org.ink.core.vm.modelinfo.ModelInfoFactory;
+import org.ink.core.vm.modelinfo.ModelInfoRepository;
+import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
+import org.ink.core.vm.modelinfo.relations.ExtendsRelation;
+import org.ink.core.vm.modelinfo.relations.IsInstanceOfRelation;
 import org.ink.core.vm.traits.Trait;
 import org.ink.core.vm.traits.TraitClass;
 import org.ink.core.vm.traits.TraitClassState;
@@ -330,6 +338,27 @@ public class CoreBasicTests extends TestCase{
 		vc.reset();
 		state.getBehavior().validate(vc);
 		assertFalse(vc.containsError());
+	}
+	
+	public void testModelInfoRepository(){
+		ModelInfoRepository repo = ModelInfoFactory.getInstance();
+		
+		InkObject mirror = context.getObject(CoreNotations.Ids.MIRROR);
+		InkObject trait = context.getObject(CoreNotations.Ids.TRAIT);
+		InkObject traitClass = context.getObject(CoreNotations.Ids.TRAIT_CLASS);
+		Collection<InkObject> referrers = repo.findReferrers(trait, ExtendsRelation.getInstance());
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(mirror));
+		referrers = repo.findReferrers(traitClass, IsInstanceOfRelation.getInstance());
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(mirror));
+		InkObject inkClass = context.getObject(CoreNotations.Ids.INK_CLASS);
+		InkObject dslFactory = context.getObject(CoreNotations.Ids.DSL_FACTORY);
+		referrers = repo.findReferrers(inkClass, ExtendsRelation.getInstance());
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(dslFactory));
+		assertTrue(referrers.contains(traitClass));
+
 	}
 	
 	public void testInkConvention(){

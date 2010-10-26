@@ -33,6 +33,7 @@ public class CustomerTest extends TestCase{
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
 		assertNotNull(customer);
 		
+		
 		assertEquals(customer.getFirstName(),"Lior");
 		assertEquals(customer.getLastName(),"Schachter");
 		assertNotNull(customer.getAddress());

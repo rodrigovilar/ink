@@ -8,4 +8,6 @@ import org.ink.core.vm.lang.property.mirror.ValuePropertyMirror;
  * @author Lior Schachter
  */
 public interface ReferenceMirror extends ValuePropertyMirror{
+	
+	//public boolean 
 }

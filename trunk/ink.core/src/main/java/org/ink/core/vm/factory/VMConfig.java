@@ -1,17 +1,27 @@
 package org.ink.core.vm.factory;
 
-import org.ink.core.vm.factory.internal.VMConfigImpl;
+import org.ink.core.vm.factory.internal.FullInstantiationStrategy;
 
 /**
  * @author Lior Schachter
  */
-public abstract class VMConfig {
+public class VMConfig {
 	
-	private static VMConfig instance = VMConfigImpl.getInstance();
-
+	private static final VMConfig INSTANCE = new VMConfig();
+	private static InstantiationStrategy initStrategy = FullInstantiationStrategy.getInstance();
+	
+	private VMConfig() {
+	}
+	
 	public static VMConfig instance() {
-		return instance;
+		return INSTANCE;
+	}
+	
+	public static void setInstantiationStrategy(InstantiationStrategy strategy){
+		initStrategy = strategy;
 	}
 
-	public abstract InstantiationStrategy getInstantiationStrategy();
+	public InstantiationStrategy getInstantiationStrategy() {
+		return initStrategy;
+	}
 }

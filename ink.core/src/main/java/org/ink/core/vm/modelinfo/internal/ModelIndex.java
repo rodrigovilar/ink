@@ -18,6 +18,7 @@ import org.ink.core.vm.modelinfo.relations.IsInstanceOfRelation;
 import org.ink.core.vm.modelinfo.relations.ModelRelation;
 import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiability.Kind;
+import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
@@ -82,7 +83,10 @@ class ModelIndex {
 			if (value != null && !propertyMirror.isComputed()) {
 				switch (propertyMirror.getTypeMarker()) {
 				case Class:
-					result.addAll(recursiveFindReferents(relation, (InkObject) value));
+					//TODO - eli - handle structs
+					if(value instanceof InkObject){
+						result.addAll(recursiveFindReferents(relation, (InkObject) value));
+					}
 					break;
 				case Collection:
 					CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) propertyMirror).getCollectionTypeMarker();

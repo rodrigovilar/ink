@@ -1,6 +1,7 @@
 package org.ink.core.vm.utils.property.mirror;
 
 import org.ink.core.vm.lang.property.mirror.ValuePropertyMirror;
+import org.ink.core.vm.types.ReferenceTypeMarker;
 
 
 
@@ -9,5 +10,5 @@ import org.ink.core.vm.lang.property.mirror.ValuePropertyMirror;
  */
 public interface ReferenceMirror extends ValuePropertyMirror{
 	
-	//public boolean 
+	public ReferenceTypeMarker getReferenceTypeMarker(); 
 }

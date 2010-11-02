@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -28,7 +29,7 @@ import org.ink.core.vm.utils.file.FileUtils;
 /**
  * @author Lior Schachter
  */
-public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
+public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
 
 	private Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
 	InkReader<D> reader = null;
@@ -101,12 +102,7 @@ public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void loadElements(DslFactory ownerFactory) throws IOException {
-		URL dir  = Thread.currentThread().getContextClassLoader().getResource(ownerFactory.getDslPackage().replace('.', '/'));
-		if(dir==null){
-			//TODO log error
-			return;
-		}
-		File folder = new File(dir.getPath());
+		File folder = VMConfig.instance().getInstantiationStrategy().getDslResourcesLocation(ownerFactory);
 		//TODO - the reader should be a property on DSLoader
 		InkClass readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
 		reader = readerCls.newInstance(ownerFactory.getAppContext()).getBehavior();
@@ -136,6 +132,11 @@ public class DslLoaderImpl<S extends CoreLoaderState, D> extends InkObjectImpl<S
 
 	private List<String> scan(String dslPackage) {
 		return new ArrayList<String>();
+	}
+
+	@Override
+	public Iterator<String> iterator() {
+		return elements.keySet().iterator();
 	}
 	
 }

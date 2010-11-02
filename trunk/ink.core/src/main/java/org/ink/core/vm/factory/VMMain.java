@@ -29,11 +29,13 @@ import org.ink.core.vm.utils.file.FileUtils;
 public class VMMain {
 	
 	private static DslFactory factory;
+	private static DslFactory coreFactory;
+	private static String[] paths = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	
 	public static void restart(){
 		stop();
-		start(factory.getNamespace());
+		start(factory.getNamespace(), paths);
 	}
 	
 	
@@ -58,34 +60,38 @@ public class VMMain {
 		return factory;
 	}
 	
-	public static void start(String defaultNamespace){
+	public static void start(String defaultNamespace, String[] paths){
 		if(factory==null){
 			synchronized (VMMain.class) {
 				if(factory==null){
-					String pathArgument = System.getProperty("ink.classpath");
-					if(pathArgument!=null){
-						List<String> pathsList = new ArrayList<String>();
-						StringBuilder builder = new StringBuilder(40);
-						for(char c : pathArgument.toCharArray()){
-							if(c==','){
+					if(paths==null){
+						String pathArgument = System.getProperty("ink.classpath");
+						if(pathArgument!=null){
+							List<String> pathsList = new ArrayList<String>();
+							StringBuilder builder = new StringBuilder(40);
+							for(char c : pathArgument.toCharArray()){
+								if(c==','){
+									pathsList.add(builder.toString());
+									builder = new StringBuilder(40);
+								}
+								else if(builder.length()==0 && c==' '){
+									continue;
+								}else{
+									builder.append(c);
+								}
+							}
+							if(builder.length()>0){
 								pathsList.add(builder.toString());
-								builder = new StringBuilder(40);
 							}
-							else if(builder.length()==0 && c==' '){
-								continue;
-							}else{
-								builder.append(c);
+							if(pathsList.size()>0){
+								loadApplication(defaultNamespace, pathsList.toArray(new String[]{}));
 							}
-						}
-						if(builder.length()>0){
-							pathsList.add(builder.toString());
-						}
-						if(pathsList.size()>0){
-							String[] paths = pathsList.toArray(new String[]{});
-							loadApplication(defaultNamespace, paths);
+						}else{
+							loadApplication(defaultNamespace, new String[]{"dsls.ink"});
 						}
 					}else{
-						loadApplication(defaultNamespace, new String[]{"dsls.ink"});
+						VMMain.paths = paths;
+						loadApplication(defaultNamespace, paths);
 					}
 					
 				}
@@ -97,12 +103,16 @@ public class VMMain {
 		loadFactories(defaultNamespace, sourcePaths);
 	}
 	
+	public static DslFactory getCoreFactory(){
+		return coreFactory;
+	}
+	
 	private static void loadFactories(String defaultNamespace, String[] sourcePaths) {
 		if(sourcePaths==null){
-			factory = loadCoreFactory();
+			coreFactory = factory = loadCoreFactory();
 			allFactories.put(factory.getNamespace(), factory);
 		}else{
-			DslFactory coreFactory = loadCoreFactory();
+			coreFactory = loadCoreFactory();
 			List<DslFactory> factories = new ArrayList<DslFactory>();
 			for(String p : sourcePaths){
 				factories.addAll(collectFactories(p, coreFactory));
@@ -161,12 +171,13 @@ public class VMMain {
 		ObjectEditor editor = facadeFactory.reflect().edit();
 		InkObjectState superFactory = coreFactory.getState(CoreNotations.Ids.OBJECT_FACTORY);
 		editor.setSuper(superFactory);
+		DslLoaderState loader = ((InkClass)coreFactory.getObject(CoreNotations.Ids.EMPTY_DSL_LOADER)).newInstance();
+		facadeFactory.setLoader(loader);
 		facadeFactory.setJavaPath("");
 		facadeFactory.setJavaMapping(JavaMapping.No_Java);
 		facadeFactory.setDslPackage("");
 		facadeFactory.setJavaPackage("");
 		facadeFactory.setNamespace("ink.facade");
-		
 		for(int i=1;i<factories.size();i++){
 			if(firstFactory.compareTo(factories.get(i))==0){
 				imports.add((DslFactoryState) factories.get(i).reflect().edit().getEditedState());
@@ -221,6 +232,8 @@ public class VMMain {
 							long start = System.currentTimeMillis();
 							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
 							System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+							factory.setConfigurationFile(inkFile);
+							factory.scan();
 							result.add(factory);
 						}
 					}

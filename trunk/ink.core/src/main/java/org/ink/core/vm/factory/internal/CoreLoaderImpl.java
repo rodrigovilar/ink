@@ -68,6 +68,7 @@ import org.ink.core.vm.factory.DslLoaderImpl;
 import org.ink.core.vm.factory.DslLoaderState;
 import org.ink.core.vm.factory.DslRepositoryImpl;
 import org.ink.core.vm.factory.DslRepositoryState;
+import org.ink.core.vm.factory.EmptyDslLoaderState;
 import org.ink.core.vm.lang.ComponentType;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InheritanceConstraints;
@@ -1303,6 +1304,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(NumericAttributeValueValidatorState.class);
 		newInkObject(NumericAttributeValidatorState.class);
 		newInkObject(InkReaderState.class);
+		newInkObject(EmptyDslLoaderState.class);
 	}
 
 	private <A extends Annotation> A  findAnnotation(Class stateClass, Class<A> annotationClass){

@@ -54,6 +54,7 @@ import org.ink.core.vm.utils.InkNotations;
  */
 public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> implements DslFactory{
 	
+	private static final String FACTORY_CONF_FILE = "factory_conf_file";
 	public long numberOfStateInstance=0;
 	public long numberOfBehaviorInstance=0;
 	public List<Trait> detachableTraits = new ArrayList<Trait>();
@@ -105,11 +106,28 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			}
 		}
 		scope = Collections.unmodifiableSet(scope);
+	}
+
+	@Override
+	public void scan() {
 		if(!reflect().isAbstract() && !reflect().isCoreObject()){
 			loader.scan(this);
+			if(VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+				Iterator<String> iter = loader.iterator();
+				while(iter.hasNext()){
+					try{
+						getState(iter.next());
+					}catch(Exception e){
+						//TODO - log error
+						e.printStackTrace();
+					}
+				}
+				
+			}
 		}
 	}
 
+	
 	@Override
 	public List<Trait> getDetachableTraits(){
 		return new ArrayList<Trait>(detachableTraits);
@@ -121,7 +139,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	private String extractNamespace(String id){
-		return id.substring(0, id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C));
+		try{
+			return id.substring(0, id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C));
+		}catch(StringIndexOutOfBoundsException e){
+			throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -514,6 +536,15 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			return 1;
 		}
 		return 0;
+	}
+	@Override
+	public File getConfigurationFile() {
+		return (File) reflect().get(FACTORY_CONF_FILE);
+	}
+	
+	@Override
+	public void setConfigurationFile(File f) {
+		reflect().put(FACTORY_CONF_FILE, f);
 	}
 	
 }

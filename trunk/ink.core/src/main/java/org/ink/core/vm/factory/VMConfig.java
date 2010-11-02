@@ -8,7 +8,7 @@ import org.ink.core.vm.factory.internal.FullInstantiationStrategy;
 public class VMConfig {
 	
 	private static final VMConfig INSTANCE = new VMConfig();
-	private static InstantiationStrategy initStrategy = FullInstantiationStrategy.getInstance();
+	private static InstantiationStrategy initStrategy = new FullInstantiationStrategy();
 	
 	private VMConfig() {
 	}

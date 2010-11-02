@@ -1,5 +1,6 @@
 package org.ink.core.vm.factory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -57,5 +58,9 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public List<Trait> getDetachableTraits();
 	public void validateAllElements(ValidationContext vc);
 	public Context getAppContext();
+	public File getConfigurationFile();
+	//TODO - need to move this method to the mirror
+	public void setConfigurationFile(File f);
+	public void scan();
 
 }

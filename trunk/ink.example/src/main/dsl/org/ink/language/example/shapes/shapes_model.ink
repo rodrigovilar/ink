@@ -4,7 +4,7 @@ Class id="Drawing" class="ink.core:InkClass" super="ink.core:InkObject"{
 	component_type "Root"
 	properties{
 		property class="ink.core:ListProperty"{
-			type ref="ink.core:LIst"
+			type ref="ink.core:List"
 			name "elements"
 			mandatory true
 			inheritance_constraints "Instance_Can_Refine_Inherited_Value"

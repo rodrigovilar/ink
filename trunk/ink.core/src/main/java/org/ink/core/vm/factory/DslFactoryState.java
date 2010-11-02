@@ -19,7 +19,7 @@ public interface DslFactoryState extends InkClassState{
 	public static final byte p_namespace = p_personality + 1;
 	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_loader = p_namespace + 1;
-	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value, mandatory=false)
 	public static final byte p_repository = p_loader + 1;
 	@CoreListField(itemName="import")
 	public static final byte p_imports = p_repository + 1;

@@ -1,5 +1,9 @@
 package org.ink.core.vm.factory.internal;
 
+import java.io.File;
+import java.net.URL;
+
+import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InstantiationStrategy;
 import org.ink.core.vm.lang.InkClassState;
@@ -12,11 +16,6 @@ import org.ink.core.vm.utils.InkNotations;
  */
 public class FullInstantiationStrategy implements InstantiationStrategy {
 
-	private static FullInstantiationStrategy instance = new FullInstantiationStrategy();
-
-	public static InstantiationStrategy getInstance(){
-		return instance;
-	}
 	
 	@Override
 	public String getBehaviorClassName(InkClassState cls, DslFactory factory) {
@@ -78,6 +77,20 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		return  builder.toString();
 	}
 	
+	@Override
+	public boolean enableEagerFetch() {
+		return false;
+	}
 	
+	@Override
+	public File getDslResourcesLocation(DslFactory factory) {
+		URL dir  = Thread.currentThread().getContextClassLoader().getResource(factory.getDslPackage().replace('.', '/'));
+		if(dir==null){
+			//TODO log error
+			throw new CoreException("Could not locate dsl reources location ofr DSL factory :" + factory.getNamespace());
+		}
+		File folder = new File(dir.getPath());
+		return folder;
+	}
 	
 }

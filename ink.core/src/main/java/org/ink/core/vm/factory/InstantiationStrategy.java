@@ -1,5 +1,7 @@
 package org.ink.core.vm.factory;
 
+import java.io.File;
+
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.types.EnumTypeState;
 
@@ -17,4 +19,8 @@ public interface InstantiationStrategy {
 	public String getEnumClassName(EnumTypeState enumState, DslFactory factory);
 
 	public String getStructDataClassName(InkClassState cls, DslFactory factory);
+	
+	public boolean enableEagerFetch();
+	
+	public File getDslResourcesLocation(DslFactory factory);
 }

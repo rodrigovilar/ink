@@ -28,6 +28,7 @@ import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Property;
+import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
@@ -258,7 +259,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 	protected InkObjectState createInkObject(Tag tag, String id,
 			String classId, String superId, boolean isAbstract, boolean isInnerObject) {
 		InkClassState clsState = serializationContext.getState(classId, false);
-		InkObjectState result = null;
+		MirrorAPI result = null;
 		if (clsState == null) {
 			addError(tag, "Could not resolve class id '" + classId + "'.");
 			return null;
@@ -269,11 +270,10 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 					.getClassPropertiesMap();
 			//no defaults here - defaults are resolved in compilation
 			result = cls.newInstance(serializationContext, false, false);
-			ObjectEditor editor = result.reflect().edit();
-			editor.setId(id);
-			editor.setRoot(!isInnerObject);
-			editor.setAbstract(isAbstract);
-			editor.setSuperId(superId);
+			result.setId(id);
+			result.setRoot(!isInnerObject);
+			result.setAbstract(isAbstract);
+			result.setSuperId(superId);
 			List<Tag> fields = tag.getChildren();
 			PropertyMirror pm;
 			String propertyName;
@@ -284,19 +284,18 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 					addError(field, "The property with name '" + propertyName
 							+ "' does not exist for class '" + classId + "'.");
 				} else {
-					editor.setPropertyValue(propertyName, transformPropertyValue(
+					result.setRawValue(pm.getIndex(), transformPropertyValue(
 							field, pm));
 				}
 			}
 			if(!containsErrors()){
 				if(!isInnerObject){
 					try{
-						editor.compile();
+						result.reflect().edit().compile();
 					}catch(Exception e){
 						addError(tag, e.getMessage());
 					}
 				}
-				editor.save();
 			}
 		}
 		return result;

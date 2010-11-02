@@ -48,6 +48,7 @@ public interface ClassMirror extends Mirror{
 	public Trait getRole(byte index);
 	public JavaMapping getJavaMapping();
 	public ComponentType getComponentType();
+	public String getJavaPath();
 	
 	
 }

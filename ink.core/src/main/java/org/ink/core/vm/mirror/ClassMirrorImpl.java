@@ -204,5 +204,10 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	public ComponentType getComponentType() {
 		return ((ClassMirrorAPI)getTargetState()).getComponentType();
 	}
+	
+	@Override
+	public String getJavaPath() {
+		return ((ClassMirrorAPI)getTargetState()).getJavaPath();
+	}
 
 }

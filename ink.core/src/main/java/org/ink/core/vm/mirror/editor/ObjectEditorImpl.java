@@ -16,6 +16,7 @@ import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.Mirror;
+import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.utils.CoreUtils;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
@@ -127,9 +128,8 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 
 	@Override
 	public void save() {
-		if (workOnObject.isRoot()) {
-			workOnObject.afterPropertiesSet();
-		}
+		workOnObject.afterPropertiesSet();
+		//TODO - here we should validate the workOnObject and then redfine the editedObject with the workOnObject
 	}
 	
 	@Override
@@ -159,11 +159,13 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 				if (innerO != null) {
 					switch (pm.getTypeMarker()) {
 					case Class:
-						if (((Proxiable) innerO).getObjectKind() == Kind.State
-								&& !((MirrorAPI) innerO).isRoot()) {
-							setFields((MirrorAPI) innerO);
-							object.setPropertyValue(pm.getIndex(), innerO);
+						if(((Proxiable)innerO).isProxied()){
+							innerO = ((Proxiability)innerO).getVanillaState();
 						}
+						if (!((MirrorAPI) innerO).isRoot()) {
+							setFields((MirrorAPI) innerO);
+						}
+						object.setPropertyValue(pm.getIndex(), innerO);
 						break;
 					case Collection:
 						switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
@@ -197,6 +199,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 		switch (itemMirror.getTypeMarker()) {
 		case Class:
 			for (Object item : col) {
+				if(((Proxiable)item).isProxied()){
+					item = ((Proxiability)item).getVanillaState();
+				}
 				if (!((MirrorAPI) item).isRoot()) {
 					setFields((MirrorAPI) item);
 				}
@@ -251,7 +256,10 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 					object.setRawValue(pm.getIndex(), valuesToSet);
 				} else{
 					if(pm.getTypeMarker()==DataTypeMarker.Class){
-						if(!((Proxiable)o).reflect().isRoot()){
+						if(((Proxiable)o).isProxied()){
+							o = ((Proxiability)o).getVanillaState();
+						}
+						if(!((MirrorAPI)o).reflect().isRoot()){
 							Mirror innerSuper = null;
 							if(superObject!=null && superObject.getPropertiesCount()> pm.getIndex()){
 								InkObject innerSuperO = (InkObject)superObject.getPropertyValue(pm.getIndex());
@@ -267,6 +275,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = (Collection<MirrorAPI>)o;
 								for(Proxiable item : col){
+									if(((Proxiable)item).isProxied()){
+										item = ((Proxiability)item).getVanillaState();
+									}
 									if(!item.reflect().isRoot()){
 										innerCompile((MirrorAPI)item, null);
 									}
@@ -290,6 +301,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((MapPropertyMirror)pm).getKeyMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = ((Map<MirrorAPI, ?>)o).keySet();
 								for(Proxiable item : col){
+									if(((Proxiable)item).isProxied()){
+										item = ((Proxiability)item).getVanillaState();
+									}
 									if(!item.reflect().isRoot()){
 										innerCompile((MirrorAPI)item, null);
 									}
@@ -298,6 +312,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((MapPropertyMirror)pm).getValueMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = ((Map<?, MirrorAPI>)o).values();
 								for(Proxiable item : col){
+									if(((Proxiable)item).isProxied()){
+										item = ((Proxiability)item).getVanillaState();
+									}
 									if(!item.reflect().isRoot()){
 										innerCompile((MirrorAPI)item, null);
 									}
@@ -310,7 +327,6 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 				}
 			}
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")

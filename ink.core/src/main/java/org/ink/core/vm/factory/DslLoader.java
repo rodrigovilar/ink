@@ -1,5 +1,7 @@
 package org.ink.core.vm.factory;
 
+import java.util.Iterator;
+
 import org.ink.core.vm.exceptions.ObjectLoadingException;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
@@ -11,5 +13,6 @@ public interface DslLoader extends InkObject {
 	
 	public void scan(DslFactory ownerFactory);
 	public InkObjectState getObject(String id, Context context) throws ObjectLoadingException;
+	public Iterator<String> iterator();
 
 }

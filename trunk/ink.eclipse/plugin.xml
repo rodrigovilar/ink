@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="inkBuilder"
+         name="Ink Project Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="org.ink.eclipse.builder.InkBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="inkNature"
+         name="Ink Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.ink.eclipse.builder.InkNature">
+         </run>
+      </runtime>
+      <builder
+            id="ink.eclipse.inkBuilder">
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IProject"
+            nameFilter="*"
+            id="ink.eclipse.contribution1">
+         <action
+               label="Add/Remove Ink Nature"
+               class="org.ink.eclipse.builder.ToggleNatureAction"
+               menubarPath="additions"
+               enablesFor="+"
+               id="ink.eclipse.addRemoveNatureAction">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="inkProblem"
+         name="Ink Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="ink.eclipse.editors.InkEditor"
+            contributorClass="ink.eclipse.editors.InkEditorActionContributor"
+            extensions="ink"
+            icon="icons/sample.gif"
+            id="ink.eclipse.editors.InkEditor"
+            name="Ink Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+   </extension>
+
+</plugin>

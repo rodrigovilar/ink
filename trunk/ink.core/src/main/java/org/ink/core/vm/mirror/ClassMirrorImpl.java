@@ -111,7 +111,11 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public PropertyMirror getClassPropertyMirror(String propertyName) {
-		return getClassPropertyMirror(((ClassMirrorAPI)getTargetState()).getClassPropertiesIndexes().get(propertyName));
+		Byte index = ((ClassMirrorAPI)getTargetState()).getClassPropertiesIndexes().get(propertyName);
+		if(index != null){
+			return getClassPropertyMirror(index);
+		}
+		return null;
 	}
 
 	@Override

@@ -12,15 +12,13 @@ import org.ink.core.vm.lang.InkObjectState;
  */
 public class ShapesTest extends TestCase {
 
-	private Context context = InkVM.instance().getContext();
+	private final Context context = InkVM.instance().getContext();
 
 	public void testCustomerRetrival() {
-		InkObject myDrawingClass = context.getObject("example.shapes:Drawing");
-		InkObject myDrawing = context
-				.getObject("example.shapes:myFirstShape2");
+		//InkObject myDrawingClass = context.getObject("example.shapes:Drawing");
+		InkObject myDrawing = context.getObject("example.shapes:myFirstShape2");
 		assertNotNull(myDrawing);
-		InkObjectState myDrawingStruct = context
-				.getState("example.shapes:myFirstShape2");
+		InkObjectState myDrawingStruct = context.getState("example.shapes:myFirstShape2");
 		assertNotNull(myDrawingStruct);
 
 		System.out.println("MyFirstDrawing2 = " + myDrawingStruct);

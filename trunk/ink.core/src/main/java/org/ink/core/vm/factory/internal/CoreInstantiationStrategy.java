@@ -3,10 +3,8 @@ package org.ink.core.vm.factory.internal;
 import java.io.File;
 
 import org.ink.core.vm.factory.DslFactory;
-import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.InstantiationStrategy;
 import org.ink.core.vm.lang.InkClassState;
-import org.ink.core.vm.lang.internal.annotations.CoreField;
 import org.ink.core.vm.types.EnumTypeState;
 import org.ink.core.vm.types.GenericEnum;
 import org.ink.core.vm.utils.CoreUtils;
@@ -24,14 +22,14 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 		}
 		return findCoreClass((InkClassState) cls.reflect().getSuper().edit().getEditedState());
 	}
-	
+
 	private String getCoreJavaPackage(InkClassState originalClass, InkClassState coreClass, DslFactory factory){
 		if(originalClass.reflect().isCoreObject()){
 			return factory.getJavaPackage();
 		}
 		return coreClass.getContext().getFactory().getJavaPackage();
 	}
-	
+
 	@Override
 	public String getBehaviorClassName(InkClassState cls, DslFactory factory) {
 		InkClassState coreClass = findCoreClass(cls);
@@ -45,7 +43,7 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 		}
 		return  builder.toString();
 	}
-	
+
 	@Override
 	public String getInterfaceClassName(InkClassState cls, DslFactory factory) {
 		InkClassState coreClass = findCoreClass(cls);
@@ -73,7 +71,7 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 		}
 		return  builder.toString();
 	}
-	
+
 	@Override
 	public String getStructDataClassName(InkClassState cls, DslFactory factory) {
 		InkClassState coreClass = findCoreClass(cls);
@@ -108,14 +106,14 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 	public boolean enableEagerFetch() {
 		return true;
 	}
-	
+
 	@Override
 	public File getDslResourcesLocation(DslFactory factory) {
 		File dslConfFile = factory.getConfigurationFile();
 		File result = new File(dslConfFile.getParentFile().getAbsolutePath() +
-				File.separatorChar + "src" + File.separatorChar +"main" + File.separatorChar +"dsl" 
+				File.separatorChar + "src" + File.separatorChar +"main" + File.separatorChar +"dsl"
 				+ File.separatorChar +factory.getDslPackage().replace('.', File.separatorChar));
 		return result;
 	}
-	
+
 }

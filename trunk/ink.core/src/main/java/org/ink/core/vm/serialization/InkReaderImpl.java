@@ -32,7 +32,6 @@ import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
-import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.types.EnumType;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
@@ -43,13 +42,13 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
  * @author Lior Schachter
  */
 public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
-		implements InkReader<Tag>{
+implements InkReader<Tag>{
 
-	
+
 	private List<ParseError> errors = new ArrayList<ParseError>();
 	private URL url = null;
 	private DslFactory serializationContext = null;
-	
+
 	@Override
 	public void reset() {
 		errors = new ArrayList<ParseError>();
@@ -74,7 +73,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 	public InkObjectState[] read(File f) throws IOException {
 		return read(f, InkVM.instance().getContext());
 	}
-	
+
 	@Override
 	public InkObjectState[] read(File f, Context context) throws IOException {
 		this.serializationContext = context.getFactory();
@@ -85,7 +84,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 	public InkObjectState[] read(URL url) throws IOException {
 		return read(url, InkVM.instance().getContext());
 	}
-	
+
 	@Override
 	public InkObjectState[] read(URL url, Context context) throws IOException {
 		this.serializationContext = context.getFactory();
@@ -104,7 +103,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 	public InkObjectState[] read(String data) {
 		return read(data, InkVM.instance().getContext());
 	}
-	
+
 	@Override
 	public InkObjectState[] read(String data, Context context) {
 		this.serializationContext = context.getFactory();
@@ -116,7 +115,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<ElementDescriptor<Tag>> extractRawData(File f) throws IOException{
 		try {
@@ -132,12 +131,12 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 		}
 		return null;
 	}
-	
+
 	@Override
 	public InkObjectState read(Tag data) {
 		return read(data, InkVM.instance().getContext());
 	}
-	
+
 	@Override
 	public InkObjectState read(Tag data, Context context) {
 		this.serializationContext = context.getFactory();
@@ -237,7 +236,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 		if (ref != null) {
 			if (classId != null) {
 				addError(tag,
-						"The attribute 'class' is invalid in this context.");
+				"The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
 				InkObjectState result = serializationContext.getState(ref, false);
@@ -267,7 +266,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 			InkClass cls = clsState.getBehavior();
 			ClassMirror cMirror = cls.reflect();
 			Map<String, PropertyMirror> propertiesMap = cMirror
-					.getClassPropertiesMap();
+			.getClassPropertiesMap();
 			//no defaults here - defaults are resolved in compilation
 			result = cls.newInstance(serializationContext, false, false);
 			result.setId(id);
@@ -300,12 +299,12 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 		}
 		return result;
 	}
-	
+
 	private Object convertPrimitiveTypeValue(Tag t,Object val, PrimitiveAttributeMirror pm){
 		Object result = val;
 		if(result!=null){
 			try{
-				switch(((PrimitiveAttributeMirror)pm).getPrimitiveTypeMarker()){
+				switch((pm).getPrimitiveTypeMarker()){
 				case Byte:
 					result = ((Number)val).byteValue();
 					break;
@@ -326,15 +325,15 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 					break;
 				}
 			}catch(ClassCastException e){
-//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId() 
-//						+" type, while the value is of '" + val.getClass() +"'");
+				//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
+				//						+" type, while the value is of '" + val.getClass() +"'");
 			}
 			//no need to add an error here - validation framework should report the error
-//			if(!pm.getPropertyType().getTypeClass().equals(result.getClass())){
-//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId() 
-//						+" type, while the value is of '" + result.getClass() +"'");
-//				result = null;
-//			}
+			//			if(!pm.getPropertyType().getTypeClass().equals(result.getClass())){
+			//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
+			//						+" type, while the value is of '" + result.getClass() +"'");
+			//				result = null;
+			//			}
 		}
 		return result;
 	}
@@ -365,7 +364,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 					List<Tag> tags = tag.getChildren();
 					result = new ArrayList<Object>(tags.size());
 					PropertyMirror innerPM = ((ListPropertyMirror) pm)
-							.getItemMirror();
+					.getItemMirror();
 					for (Tag t : tags) {
 						if (!t.getName().equals(innerPM.getName())) {
 							addError(t, "Invalid list item name '"
@@ -382,7 +381,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 			case Map:
 				PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
 				PropertyMirror valueM = ((MapPropertyMirror) pm)
-						.getValueMirror();
+				.getValueMirror();
 				List<Tag> tags = tag.getChildren();
 				List<Tag> keyValue;
 				result = new HashMap(tags.size());
@@ -402,8 +401,8 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 						} else {
 							addError(mapEn,
 									"Unexpected field found inside map item. Expected fields are '"
-											+ keyM.getName() + "','"
-											+ valueM.getName() + "'.");
+									+ keyM.getName() + "','"
+									+ valueM.getName() + "'.");
 						}
 					}
 					if (!keyFound) {
@@ -436,7 +435,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
 		}
 		return result;
 	}
-	
+
 	@Override
 	public boolean containsErrors() {
 		return !errors.isEmpty();

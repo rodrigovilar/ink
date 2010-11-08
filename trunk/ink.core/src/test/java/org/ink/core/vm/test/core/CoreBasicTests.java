@@ -1,7 +1,5 @@
 package org.ink.core.vm.test.core;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ import org.ink.core.vm.mirror.editor.ClassEditor;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.modelinfo.ModelInfoRepository;
-import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 import org.ink.core.vm.modelinfo.relations.ExtendsRelation;
 import org.ink.core.vm.modelinfo.relations.IsInstanceOfRelation;
 import org.ink.core.vm.traits.Trait;
@@ -52,9 +49,9 @@ import org.ink.core.vm.utils.property.StringAttributeState;
  * @author Lior Schachter
  */
 public class CoreBasicTests extends TestCase{
-	
-	private Context context = InkVM.instance().getContext();
-	
+
+	private final Context context = InkVM.instance().getContext();
+
 	public void testObjectRetrival(){
 		InkClass o = context.getObject(CoreNotations.Ids.INK_OBJECT);
 		assertNotNull(o);
@@ -68,7 +65,7 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(pt.isNumeric());
 		assertTrue(pt.getPrimitiveMarker()==PrimitiveTypeMarker.Long);
 	}
-	
+
 	public void testObjectCreation(){
 		InkClass referenceAttClass = context.getObject(CoreNotations.Ids.REFERENCE);
 		InkClassState referenceType = context.getState(CoreNotations.Ids.PROPERTY);
@@ -89,12 +86,12 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(mirror==containedRefMirror.getOwner());
 		assertTrue(containedRefMirror.getDefiningPropertyIndex()==ReferenceState.p_type);
 	}
-	
+
 	public void testTraitCreation(){
 		DslFactoryEventDispatcher listener = context.getTargetBehavior().asTrait(DslFactoryState.t_event_dispatcher);
 		assertNotNull(listener);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void testOwner(){
 		InkClass stringAttClass = context.getObject(CoreNotations.Ids.STRING_ATTRIBUTE);
@@ -114,7 +111,7 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(type.reflect().getOwner().getOwner()==mirror);
 		assertTrue(type.reflect().getDefiningPropertyIndex()==PropertyState.p_type);
 	}
-	
+
 	public void testDefaultValue(){
 		InkClass inkClass = context.getObject(CoreNotations.Ids.INK_CLASS);
 		assertNotNull(inkClass);
@@ -127,7 +124,7 @@ public class CoreBasicTests extends TestCase{
 		InkClass tClass = context.getObject(CoreNotations.Ids.INK_CLASS);
 		assertNotNull(tClass.cloneState());
 	}
-	
+
 	public void testFinalValue(){
 		InkClass stringAttClass = context.getObject(CoreNotations.Ids.STRING_ATTRIBUTE);
 		PrimitiveType stringType = context.getObject(CoreNotations.Ids.STRING);
@@ -136,7 +133,7 @@ public class CoreBasicTests extends TestCase{
 		assertNotNull(stringAttribute.getType());
 		assertEquals(stringAttribute.getType().reflect().getId(), stringType.reflect().getId());
 	}
-	
+
 	public void testPrintElements() throws IOException{
 		String filePath = System.getProperty("java.io.tmpdir") + File.separator + "ink_core_elements.txt";
 		File output = new File(filePath);
@@ -146,7 +143,7 @@ public class CoreBasicTests extends TestCase{
 		context.getFactory().printElements(filePath);
 		assertTrue(output.exists());
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testStructuralTraitWeave() throws WeaveException{
 		InkClass tClass = context.getObject(CoreNotations.Ids.MIRROR);
@@ -166,7 +163,7 @@ public class CoreBasicTests extends TestCase{
 		ClassMirror targetMirror = targetClass.reflect();
 		ClassEditor targetEditor = targetMirror.edit();
 		targetEditor.weaveStructuralTrait("stam_role", (TraitClass)newTrait.getBehavior());
-		PropertyMirror[] mirrors = targetMirror.getClassPropertiesMirrors(); 
+		PropertyMirror[] mirrors = targetMirror.getClassPropertiesMirrors();
 		assertTrue(mirrors[mirrors.length-1].getName().equals("stam_role.kuku"));
 		InkObjectState newInstance = targetClass.newInstance();
 		assertNotNull(newInstance.reflect().getPropertyValue("stam_role.kuku"));
@@ -211,8 +208,8 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(ind2==((ClassMirror)superClass.reflect()).getClassPropertyMirror("stam_role.kuku").getIndex());
 	}
 
-	
-	
+
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testDetachableTraitWeave() throws WeaveException{
 		InkClass tClass = context.getObject(CoreNotations.Ids.PRIMITIVE_ATTRIBUTE_MIRROR);
@@ -237,7 +234,7 @@ public class CoreBasicTests extends TestCase{
 		ClassEditor targetEditor = targetMirror.edit();
 		Trait t = traitState.getBehavior();
 		targetEditor.weaveDetachableTrait(t);
-		PropertyMirror[] mirrors = targetMirror.getClassPropertiesMirrors(); 
+		PropertyMirror[] mirrors = targetMirror.getClassPropertiesMirrors();
 		assertTrue(mirrors[mirrors.length-1].getName().equals("stam_role.kuku"));
 		InkObjectState newInstance = targetClass.newInstance();
 		assertNotNull(newInstance.reflect().getPropertyValue("stam_role.kuku"));
@@ -290,7 +287,7 @@ public class CoreBasicTests extends TestCase{
 		context.getFactory().validateAllElements(vc);
 		assertFalse(vc.containsError());
 	}
-	
+
 	public void testValidationFramework(){
 		InkClass stringAttClass = context.getObject(CoreNotations.Ids.STRING_ATTRIBUTE);
 		StringAttributeState stringAttribute = (StringAttributeState) stringAttClass.newInstance();
@@ -302,7 +299,7 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(vc.getMessages().get(0).getFormattedMessage().equals("The field 'name' should not be empty."));
 		assertTrue(vc.getMessages().get(1).getFormattedMessage().equals("The field 'max_length' is of wrong type; expected 'java.lang.Integer', actual 'java.lang.String'."));
 	}
-	
+
 	public void testStringAttributeValidation(){
 		InkClass loaderClass = context.getObject(CoreNotations.Ids.DSL_LOADER);
 		InkClassState newLoaderClass = loaderClass.cloneState();
@@ -339,10 +336,10 @@ public class CoreBasicTests extends TestCase{
 		state.getBehavior().validate(vc);
 		assertFalse(vc.containsError());
 	}
-	
+
 	public void testModelInfoRepository(){
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
-		
+
 		InkObject mirror = context.getObject(CoreNotations.Ids.MIRROR);
 		InkObject trait = context.getObject(CoreNotations.Ids.TRAIT);
 		InkObject traitClass = context.getObject(CoreNotations.Ids.TRAIT_CLASS);
@@ -360,17 +357,17 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(referrers.contains(traitClass));
 
 	}
-	
+
 	public void testInkConvention(){
 
 		ink(org.ink.core.vm.lang.InkObject.class);
-		
+
 		// core.vm.lang
 		ink(org.ink.core.vm.lang.InkType.class);
 		ink(org.ink.core.vm.lang.ObjectFactory.class);
 		//ink(org.ink.core.vm.lang.InkClass.class);
 		ink(org.ink.core.vm.lang.Property.class);
-				
+
 		// core.vm.factory
 		ink(org.ink.core.vm.factory.Context.class);
 		ink(org.ink.core.vm.factory.DslFactory.class);
@@ -383,19 +380,19 @@ public class CoreBasicTests extends TestCase{
 		//ink(org.ink.core.vm.factory.internal.CoreLoader.class);
 		//ink(org.ink.core.vm.factory.internal.CoreObjectDescriptor.class);
 		//ink(org.ink.core.vm.factory.internal.ObjectDescriptor.class);
-		
+
 		// core.vm.lang.mirror
 		ink(org.ink.core.vm.mirror.ClassMirror.class);
 		ink(org.ink.core.vm.mirror.Mirror.class);
 		ink(org.ink.core.vm.mirror.StructClassMirror.class);
 		ink(org.ink.core.vm.mirror.TraitMirror.class);
-		
+
 		ink(org.ink.core.vm.mirror.editor.ObjectEditor.class);
 		//ink(org.ink.core.vm.lang.mirror.editor.TransactionalObjectEditor.class);
 		ink(org.ink.core.vm.lang.operation.Operation.class);
 
 
-		
+
 	}
 
 	private void ink(Class<?> base){
@@ -435,12 +432,13 @@ public class CoreBasicTests extends TestCase{
 		final String zuperName = zuper.getCanonicalName();
 		final String zuperImplName = zuperImpl.getCanonicalName();
 		final String zuperImplNameExp = zuperName + impl;
-		
+
 		//baseImpl extends correctly?
-		if (!zuperImplName.equals(zuperImplNameExp))
-			System.out.println(baseImplName 
-					+ ": Expected to extend " + zuperImplNameExp 
+		if (!zuperImplName.equals(zuperImplNameExp)) {
+			System.out.println(baseImplName
+					+ ": Expected to extend " + zuperImplNameExp
 					+ " but extending instead " + zuperImplName);
+		}
 		final boolean isInkObject = base==InkObject.class;
 		assertTrue(isInkObject || zuperImplName.equals(zuperImplNameExp));
 
@@ -449,10 +447,10 @@ public class CoreBasicTests extends TestCase{
 		Class<?> zuperInterface = baseImpl.getInterfaces()[0];
 		final String zuperInterfaceName = zuperInterface.getCanonicalName();
 		assertTrue(zuperInterfaceName.equals(baseName));
-		
+
 		//baseState is an interface?
 		assertTrue(baseState.isInterface());
-		
+
 		// baseState and baseState.Data extends correctly?
 		Class<?> zuperData = baseData.getSuperclass();
 		assertNotNull(zuperData);
@@ -464,24 +462,25 @@ public class CoreBasicTests extends TestCase{
 			final String zuperStateNameExp = zuperName + stat;
 			final String zuperDataName = zuperData.getCanonicalName();
 			assertTrue(zuperDataName.equals(zuperStateName + sep + data));
-			if (!zuperStateName.equals(zuperStateNameExp))
-				System.out.println("Expected " + zuperStateNameExp 
+			if (!zuperStateName.equals(zuperStateNameExp)) {
+				System.out.println("Expected " + zuperStateNameExp
 						+ " but found " + zuperState);
+			}
 			assertTrue(zuperStateName.equals(zuperStateNameExp));
 		}
-//		if (false) {
-//			System.out.println(base);
-//			System.out.println(baseImpl);
-//			System.out.println(baseState);
-//			System.out.println(baseData);
-//			System.out.println(zuper);
-//			System.out.println(zuperImpl);
-//			System.out.println(zuperState);
-//			System.out.println(zuperData);
-//		}
+		//		if (false) {
+		//			System.out.println(base);
+		//			System.out.println(baseImpl);
+		//			System.out.println(baseState);
+		//			System.out.println(baseData);
+		//			System.out.println(zuper);
+		//			System.out.println(zuperImpl);
+		//			System.out.println(zuperState);
+		//			System.out.println(zuperData);
+		//		}
 	}
 
 }
 
-		
-	
+
+

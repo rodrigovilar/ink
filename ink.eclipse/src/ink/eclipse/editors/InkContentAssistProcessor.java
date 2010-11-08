@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.naming.Referenceable;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.ITextViewer;
@@ -24,7 +22,6 @@ import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.modelinfo.ModelInfoRepository;
 import org.ink.core.vm.modelinfo.relations.ExtendsRelation;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
-import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
 import org.ink.eclipse.InkPlugin;
 
@@ -33,7 +30,7 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 	protected IProgressMonitor createProgressMonitor() {
 		return new NullProgressMonitor();
 	}
-	
+
 	@Override
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 			int offset) {
@@ -78,7 +75,7 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 					count++;
 					break;
 				}
-					
+
 			}
 			if(startElement){
 				proposals.add(new CompletionProposal("Class ", offset-count, count, "Class ".length(), null, null, null, null));
@@ -160,7 +157,7 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 										proposals.add(new CompletionProposal(pm.getName() + " \"\"", offset, 0, pm.getName().length() + " \"\"".length()-1, null, pm.getName(), null, null));
 									}
 									break;
-									
+
 								}
 							}
 						}

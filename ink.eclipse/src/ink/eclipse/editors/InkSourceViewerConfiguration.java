@@ -1,7 +1,6 @@
 package ink.eclipse.editors;
 
 import ink.eclipse.editors.partitioner.InkPartitionScanner;
-import ink.eclipse.editors.utils.ColorManager;
 
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
@@ -15,13 +14,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
 public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration {
-	
-	private ColorManager colorManager;
-	
-	public InkSourceViewerConfiguration(ColorManager colorManager) {
-		this.colorManager = colorManager;
-	}
 
+	//	private ColorManager colorManager;
+	//
+	//	public InkSourceViewerConfiguration(ColorManager colorManager) {
+	//		this.colorManager = colorManager;
+	//	}
+
+	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 
 		ContentAssistant assistant= new ContentAssistant();
@@ -29,9 +29,10 @@ public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration 
 
 		IContentAssistProcessor inkProcessor= new InkContentAssistProcessor();
 		assistant.setContentAssistProcessor(inkProcessor, IDocument.DEFAULT_CONTENT_TYPE);
-		
+
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
+			@Override
 			public IInformationControl createInformationControl(Shell parent) {
 				return new DefaultInformationControl(parent, "");
 			}
@@ -39,17 +40,18 @@ public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration 
 
 		return assistant;
 	}
-	
+
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer)
 	{
-	    return new String[]
-	    {
-	            IDocument.DEFAULT_CONTENT_TYPE,
-	            InkPartitionScanner.INK_COMMENT,
-	            InkPartitionScanner.INK_STRING,
-	    };
+		return new String[]
+		                  {
+				IDocument.DEFAULT_CONTENT_TYPE,
+				InkPartitionScanner.INK_COMMENT,
+				InkPartitionScanner.INK_STRING,
+		                  };
 	}
-	
+
 	/*public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer)
     {
         PresentationReconciler reconciler = new PresentationReconciler();

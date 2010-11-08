@@ -2,7 +2,6 @@ package org.ink.core.vm.factory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.Map;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
 import org.ink.core.vm.exceptions.ObjectLoadingException;
-import org.ink.core.vm.factory.internal.CoreLoaderState;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectImpl;
@@ -31,10 +29,10 @@ import org.ink.core.vm.utils.file.FileUtils;
  */
 public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
 
-	private Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
+	private final Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
 	InkReader<D> reader = null;
 	ValidationContext vc = null;
-	
+
 	@Override
 	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException{
 		ElementDescriptor<D> desc = elements.get(id);
@@ -138,5 +136,5 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	public Iterator<String> iterator() {
 		return elements.keySet().iterator();
 	}
-	
+
 }

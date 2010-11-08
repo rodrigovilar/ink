@@ -8,7 +8,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
@@ -27,9 +26,9 @@ public class InkPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static InkPlugin plugin;
-	
+
 	private Context inkContext;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -40,12 +39,13 @@ public class InkPlugin extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 		loadInk();
 	}
-	
+
 	private void loadInk(){
 		VMConfig.setInstantiationStrategy(new CoreInstantiationStrategy());
 		List<IProject> inkProjects = getInkProjects();
@@ -59,11 +59,11 @@ public class InkPlugin extends AbstractUIPlugin {
 		}
 		inkContext = InkVM.instance(null, paths.toArray(new String[]{})).getContext();
 	}
-	
+
 	public Context getInkContext(){
 		return inkContext;
 	}
-	
+
 	public List<IProject> getInkProjects(){
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		List<IProject> inkProjects = new ArrayList<IProject>();
@@ -78,12 +78,13 @@ public class InkPlugin extends AbstractUIPlugin {
 		}
 		return inkProjects;
 	}
-	
+
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);

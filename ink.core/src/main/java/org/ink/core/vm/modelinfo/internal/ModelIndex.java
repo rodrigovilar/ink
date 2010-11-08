@@ -18,7 +18,6 @@ import org.ink.core.vm.modelinfo.relations.IsInstanceOfRelation;
 import org.ink.core.vm.modelinfo.relations.ModelRelation;
 import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiability.Kind;
-import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;

@@ -3,6 +3,7 @@ package ink.eclipse.editors;
 import ink.eclipse.editors.highlight.InkScanner;
 import ink.eclipse.editors.highlight.InkTagScanner;
 import ink.eclipse.editors.partitioner.InkPartitionScanner;
+import ink.eclipse.editors.processors.InkContentAssistProcessor;
 import ink.eclipse.editors.rules.NonRuleBasedDamagerRepairer;
 import ink.eclipse.editors.utils.ColorManager;
 import ink.eclipse.editors.utils.InkColorConstants;

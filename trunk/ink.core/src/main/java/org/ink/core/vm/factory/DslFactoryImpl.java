@@ -175,7 +175,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				}
 				if(result!=null){
 					repository.setObject(id, result);
-					ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 				}else if(reportErrorIfNotExists){
 					throw new CoreException("The object with id '" +id+"', could not be found");
 				}
@@ -214,6 +213,15 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public <T extends InkObject> T getObject(String id){
 		return getState(id, true).getBehavior();
+	}
+	
+	@Override
+	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists){
+		InkObjectState result = getState(id, reportErrorIfNotExists);
+		if(result==null){
+			return null;
+		}
+		return result.getBehavior();
 	}
 
 	@SuppressWarnings("unchecked")

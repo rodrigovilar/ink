@@ -1,6 +1,7 @@
 package org.ink.core.vm.types;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.lang.DataTypeMarker;
@@ -63,6 +64,11 @@ public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> impl
 	@Override
 	public boolean isEnumeration() {
 		return true;
+	}
+
+	@Override
+	public Collection<String> getValues() {
+		return getState().getValues();
 	}
 	
 }

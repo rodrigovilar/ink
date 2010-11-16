@@ -32,6 +32,7 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public <T extends InkObjectState> T newInstance(Class<T> stateClass, boolean initObjectId, boolean initDefaults);
 	public <T extends Struct> T getStruct(String id);
 	public <T extends InkObject> T getObject(String id);
+	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists);
 	public <T extends InkClass> T getObject(Class<InkObjectState> stateClass);
 	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists);
 	public <T extends InkObjectState> T getState(String id);

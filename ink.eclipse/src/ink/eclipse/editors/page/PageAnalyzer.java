@@ -3,17 +3,39 @@ package ink.eclipse.editors.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+
 
 public class PageAnalyzer {
 	
 	private String text;
 	private int cursorLocation;
-	private DataBlock currentElement;
+	private ObjectDataBlock currentElement;
 	List<DataBlock> elements = new ArrayList<DataBlock>();
 	public PageAnalyzer(String text, int cursorLocation) {
 		this.text = text;
 		this.cursorLocation = cursorLocation;
 		scan();
+	}
+	
+	public List<ICompletionProposal> getContentAssist(){
+		ObjectDataBlock currentElement = getCurrentElement();
+		List<ICompletionProposal> result = null;
+		if(currentElement!=null){
+			DataBlock b = currentElement.getBlock(cursorLocation);
+			result = b.getContentAssist(cursorLocation);
+		}else{
+			result = getResultForNewElement();
+		}
+		return result;
+	}
+
+	private List<ICompletionProposal> getResultForNewElement() {
+		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+		result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
+		result.add(new CompletionProposal("Object ", cursorLocation, 0,"Object ".length(), null, null, null, null));
+		return result;
 	}
 	
 	private void scan(){
@@ -39,6 +61,9 @@ public class PageAnalyzer {
 			case '\n':
 				checkStartElement = true;
 				lastLine = currentLine;
+				if(startB == endB && currentLine.toString().trim().length() > 0){
+					addElement(cs, i-currentLine.length(), i+1);
+				}
 				currentLine = new StringBuilder(100);
 				break;
 			case ' ':
@@ -63,10 +88,14 @@ public class PageAnalyzer {
 				currentLine.append(cs[i]);
 			}
 		}
+		if(currentLine.toString().trim().length()>0){
+			addElement(cs, i-currentLine.length(), i);
+		}
+		
 	}
 
 	private void addElement(char[] text, int blockStart, int blockEnd) {
-		DataBlock block;
+		ObjectDataBlock block;
 		block = new ObjectDataBlock(null, text, blockStart, blockEnd);
 		elements.add(block);
 		if(blockStart <= cursorLocation && blockEnd >= cursorLocation){
@@ -74,7 +103,7 @@ public class PageAnalyzer {
 		}
 	}
 	
-	public DataBlock getCurrentElement(){
+	public ObjectDataBlock getCurrentElement(){
 		return currentElement;
 	}
 	

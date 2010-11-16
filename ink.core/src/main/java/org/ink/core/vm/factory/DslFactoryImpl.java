@@ -53,19 +53,19 @@ import org.ink.core.vm.utils.InkNotations;
  * @author Lior Schachter
  */
 public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> implements DslFactory{
-	
+
 	private static final String FACTORY_CONF_FILE = "factory_conf_file";
 	public long numberOfStateInstance=0;
 	public long numberOfBehaviorInstance=0;
 	public List<Trait> detachableTraits = new ArrayList<Trait>();
-	private ProxyFactory proxyFactory = new ProxyFactory();
+	private final ProxyFactory proxyFactory = new ProxyFactory();
 	protected transient ClassLoader classLoader;
 	protected DslLoader loader;
 	protected DslRepository repository;
-	private Map<String, Class<?>> classRepository = new ConcurrentHashMap<String, Class<?>>(200);
+	private final Map<String, Class<?>> classRepository = new ConcurrentHashMap<String, Class<?>>(200);
 	protected Map<String, DslFactory> boundedFactories;
 	protected Set<String> scope;
-	
+
 	@Override
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, Class<?>[] types, Proxiability.Kind t){
 		return proxyFactory.newBehaviorProxy(this, behaviorInstance, types, t);
@@ -74,17 +74,17 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
 		return proxyFactory.newBehaviorProxy(this, behaviorInstance, state, types, t, owner, definingProperty, definingPropertyIndex);
 	}
-	
+
 	@Override
 	public Mirror newMirrorProxy(Mirror behaviorInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
 		return proxyFactory.newMirrorProxy(behaviorInstance, types, owner, definingProperty, definingPropertyIndex);
 	}
-	
+
 	@Override
 	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
 		return proxyFactory.newStructProxy(this, stateInstance, type, owner, definingProperty, definingPropertyIndex);
 	}
-	
+
 	@Override
 	public void afterStateSet() {
 		super.afterStateSet();
@@ -122,17 +122,17 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
 		}
 	}
 
-	
+
 	@Override
 	public List<Trait> getDetachableTraits(){
 		return new ArrayList<Trait>(detachableTraits);
 	}
-	
+
 	@Override
 	public String getNamespace() {
 		return getState().getNamespace();
@@ -145,7 +145,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists){
@@ -188,7 +188,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		}
 		return (T)result;
 	}
-	
+
 
 	private void applyDetachableTraits(InkClassState cls) {
 		InkClass clsBehav = cls.getBehavior();
@@ -210,7 +210,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public <T extends InkObjectState> T getState(String id){
 		return (T)getState(id, true);
 	}
-	
+
 	@Override
 	public <T extends InkObject> T getObject(String id){
 		return getState(id, true).getBehavior();
@@ -243,7 +243,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		register(state);
 	}
 
-	
+
 
 	@Override
 	public void register(InkObject o) {
@@ -265,7 +265,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			throw new CoreException("Could not find Ink class for Java class :" +stateClass.getName());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends InkObjectState> T newInstance(Class<T> stateClass,
@@ -277,36 +277,36 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			throw new CoreException("Could not find Ink class for Java class :" +stateClass.getName());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObjectState> resolveDataClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getDataClassName(cls, this);
 		return (Class<InkObjectState>) getClass(className, true);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObjectState> resolveStructDataClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getStructDataClassName(cls, this);
 		return (Class<InkObjectState>) getClass(className, true);
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObject> resolveBehaviorClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getBehaviorClassName(cls, this);
 		return (Class<InkObject>) getClass(className, true);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObject> resolveInterfaceClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getInterfaceClassName(cls, this);
 		return (Class<InkObject>) getClass(className, true);
 	}
-	
+
 	private InstantiationStrategy getInstantiationStrategy() {
 		return VMConfig.instance().getInstantiationStrategy();
 	}
@@ -317,14 +317,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		numberOfBehaviorInstance++;
 		return (T) instantiate(stateClass);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends InkObjectState> T newVanillaStateInstance(Class<T> stateClass) {
 		numberOfStateInstance++;
 		return (T) instantiate(stateClass);
 	}
-	
+
 	private Object instantiate(Class<?> stateClass) {
 		try {
 			return stateClass.newInstance();
@@ -334,11 +334,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			throw new CoreException("Could not instantiate class : " + stateClass.getName(), e);
 		}
 	}
-	
+
 	protected Class<?> getClass(String className) {
 		return getClass(className, true);
 	}
-	
+
 	protected Class<?> getClass(String className, boolean reportErrorIfNotFound) {
 		Class<?> result = null;
 		if (className != null) {
@@ -364,7 +364,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public InkObject newBehaviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew) {
-		ClassMirror cMirror = state.reflect().getClassMirror(); 
+		ClassMirror cMirror = state.reflect().getClassMirror();
 		return cMirror.getFactory().newBehviorInstance(state, targetState, cacheResult, forceNew);
 	}
 
@@ -377,7 +377,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public Set<String> getScope() {
 		return scope;
 	}
-	
+
 	@Override
 	public Class<?> resolveCollectionClass(CollectionTypeMarker marker){
 		if(marker==CollectionTypeMarker.List){
@@ -388,13 +388,13 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		return null;
 	}
 
-	
+
 	@Override
 	public Class<?> resolveEnumClass(EnumTypeState enumState) {
 		String className = getInstantiationStrategy().getEnumClassName(enumState, this);
-		return (Class<?>) getClass(className, true);
+		return getClass(className, true);
 	}
-	
+
 	@Override
 	public Class<?> resolvePrimitiveClass(PrimitiveTypeMarker marker) {
 		Class<?> typeClass = null;
@@ -426,12 +426,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		case String:
 			typeClass = String.class;
 			break;
-			default:
-				//do nothing - maybe taken care of by descendent
+		default:
+			//do nothing - maybe taken care of by descendent
 		}
 		return typeClass;
 	}
-	
+
 	public void boot(){
 		CoreLoaderImpl<CoreLoaderState> coreLoader = new CoreLoaderImpl<CoreLoaderState>();
 		this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -441,16 +441,20 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		scope = Collections.unmodifiableSet(scope);
 		this.loader = coreLoader;
 		Collection<CoreObjectDescriptor> elements = coreLoader.start(this);
-		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
-		MirrorAPI o;
 		for(CoreObjectDescriptor elem : elements){
-			o = elem.getObject();
-			repository.setObject(elem.getId(), o);
-			repo.register(o.getBehavior());
+			repository.setObject(elem.getId(), elem.getObject());
 		}
 	}
-	
-	
+
+	@Override
+	public void afterVmStart() {
+		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
+		for(InkObjectState elem : repository){
+			repo.register(elem.getBehavior());
+		}
+	}
+
+	@Override
 	public void printElements(String toFile) throws IOException{
 		File f = new File(toFile);
 		if(!f.exists()){
@@ -507,18 +511,18 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			}
 		}
 	}
-	
-	
+
+
 	@Override
 	public String getJavaPackage() {
 		return getState().getJavaPackage();
 	}
-	
+
 	@Override
 	public String getDslPackage() {
 		return getState().getDslPackage();
 	}
-	
+
 	@Override
 	public void validateAllElements(ValidationContext vc){
 		Iterator<InkObjectState> iter = repository.iterator();
@@ -526,7 +530,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			iter.next().getBehavior().validate(vc, SystemState.Run_Time);
 		}
 	}
-	
+
 	@Override
 	public int compareTo(DslFactory o) {
 		if(o.getScope().contains(getNamespace())){
@@ -541,10 +545,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public File getConfigurationFile() {
 		return (File) reflect().get(FACTORY_CONF_FILE);
 	}
-	
+
 	@Override
 	public void setConfigurationFile(File f) {
 		reflect().put(FACTORY_CONF_FILE, f);
 	}
-	
 }

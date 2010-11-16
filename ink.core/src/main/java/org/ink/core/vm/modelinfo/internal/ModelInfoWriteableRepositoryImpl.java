@@ -1,12 +1,14 @@
 package org.ink.core.vm.modelinfo.internal;
 
+import java.util.Map;
+
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 
 public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl implements ModelInfoWriteableRepository {
 
-	public ModelInfoWriteableRepositoryImpl(ModelIndex index) {
-		this.index = index;
+	public ModelInfoWriteableRepositoryImpl(Map<String, ModelIndex> indices) {
+		this.indices = indices;
 	}
 
 	@Override
@@ -26,11 +28,19 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 
 	@Override
 	public void register(InkObject referent) {
-		index.insert(referent);
+		ModelIndex index = indices.get(referent.reflect().getNamespace());
+		if (index != null) {
+			index.insert(referent);
+		}
+		// TODO Eli else?
 	}
 
 	@Override
 	public void unregister(InkObject referent) {
-		index.delete(referent);
+		ModelIndex index = indices.get(referent.reflect().getNamespace());
+		if (index != null) {
+			index.delete(referent);
+		}
+		// TODO Eli else?
 	}
 }

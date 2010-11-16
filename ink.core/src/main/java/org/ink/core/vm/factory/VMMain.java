@@ -18,7 +18,6 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.JavaMapping;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
-import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.serialization.InkReader;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.file.FileUtils;
@@ -27,43 +26,45 @@ import org.ink.core.vm.utils.file.FileUtils;
  * @author Lior Schachter
  */
 public class VMMain {
-	
+
 	private static DslFactory factory;
 	private static DslFactory coreFactory;
 	private static String[] paths = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
-	
+	private static boolean startupInProgress = false;
+
 	public static void restart(){
 		stop();
 		start(factory.getNamespace(), paths);
 	}
-	
-	
+
+
 	public static void stop(){
 		//vm.destroy();
 	}
-	
+
 	public static DslFactory getFactory(String namespace){
 		DslFactory result = allFactories.get(namespace);
 		if(result==null){
-			
+
 		}else{
 			factory = result;
 		}
 		return result;
 	}
-	
+
 	public static DslFactory getDefaultFactory(){
 		if(factory==null){
 			throw new InkBootException("Error in intialization. The method start() should be called first.");
 		}
 		return factory;
 	}
-	
+
 	public static void start(String defaultNamespace, String[] paths){
 		if(factory==null){
 			synchronized (VMMain.class) {
-				if(factory==null){
+				if(factory==null && !startupInProgress){
+					startupInProgress = true;
 					if(paths==null){
 						String pathArgument = System.getProperty("ink.classpath");
 						if(pathArgument!=null){
@@ -93,20 +94,23 @@ public class VMMain {
 						VMMain.paths = paths;
 						loadApplication(defaultNamespace, paths);
 					}
-					
+					for (DslFactory currentFactory : allFactories.values()) {
+						currentFactory.afterVmStart();
+					}
+					startupInProgress = false;
 				}
 			}
 		}
 	}
-	
+
 	private static void loadApplication(String defaultNamespace, String[] sourcePaths) {
 		loadFactories(defaultNamespace, sourcePaths);
 	}
-	
+
 	public static DslFactory getCoreFactory(){
 		return coreFactory;
 	}
-	
+
 	private static void loadFactories(String defaultNamespace, String[] sourcePaths) {
 		if(sourcePaths==null){
 			coreFactory = factory = loadCoreFactory();
@@ -114,12 +118,13 @@ public class VMMain {
 		}else{
 			coreFactory = loadCoreFactory();
 			List<DslFactory> factories = new ArrayList<DslFactory>();
+			factories.add(coreFactory);
 			for(String p : sourcePaths){
 				factories.addAll(collectFactories(p, coreFactory));
 			}
 			for(DslFactory f : factories){
 				allFactories.put(f.getNamespace(), f);
-				ModelInfoFactory.getWriteableInstance().register(f);
+				//				ModelInfoFactory.getWriteableInstance().register(f);
 			}
 			if(factories.isEmpty()){
 				factory = coreFactory;
@@ -154,7 +159,7 @@ public class VMMain {
 							}
 						}
 					}else{
-						
+
 					}
 				}else{
 					System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
@@ -162,9 +167,9 @@ public class VMMain {
 			}
 		}
 	}
-	
+
 	private static DslFactory createFacadeFactory(DslFactory coreFactory, List<DslFactory> factories) {
-		List<DslFactoryState> imports = new ArrayList<DslFactoryState>(); 
+		List<DslFactoryState> imports = new ArrayList<DslFactoryState>();
 		DslFactory firstFactory = factories.get(0);
 		imports.add((DslFactoryState) firstFactory.reflect().edit().getEditedState());
 		DslFactoryState facadeFactory = coreFactory.cloneState();
@@ -203,7 +208,7 @@ public class VMMain {
 		}
 		return result;
 	}
-	
+
 
 	private static List<DslFactory> loadDirectory(File dir, DslFactory coreFactory) {
 		List<DslFactory> result = new ArrayList<DslFactory>();
@@ -247,7 +252,7 @@ public class VMMain {
 			throw new InkBootException("Could not open the file '"+inkFile.getAbsolutePath() +"'.", e);
 		} catch (SDLParseException e) {
 			throw new InkBootException("Could not parse the file '"+inkFile.getAbsolutePath() +"'.", e);
-		} 
+		}
 	}
 
 	private static DslFactory loadCoreFactory() {
@@ -258,8 +263,8 @@ public class VMMain {
 		return factory;
 	}
 
-	
+
 	public static void main(String[] args) {
 	}
-	
+
 }

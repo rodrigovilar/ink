@@ -24,19 +24,22 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 
 class ModelIndex {
 
-	private final ModelRelation[] relations;
+	private static final ModelRelation[] relations;
 
 	private final Map<InkObject, Map<ModelRelation, Set<InkObject>>> referentToReferrers;
 
 	private final Map<InkObject, Map<ModelRelation, Set<InkObject>>> referrerToReferents;
 
-	private ModelIndex() {
-		referentToReferrers = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
-		referrerToReferents = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
+	static {
 		relations = findRelations();
 	}
 
-	static ModelIndex initIndex() {
+	private ModelIndex() {
+		referentToReferrers = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
+		referrerToReferents = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
+	}
+
+	static ModelIndex initIndex(String namespace, ModelInfoRepositoryImpl repository) {
 		ModelIndex result = new ModelIndex();
 		return result;
 	}
@@ -82,8 +85,8 @@ class ModelIndex {
 			if (value != null && !propertyMirror.isComputed()) {
 				switch (propertyMirror.getTypeMarker()) {
 				case Class:
-					//TODO - eli - handle structs
-					if(value instanceof InkObject){
+					//TODO Eli - handle structs
+					if (value instanceof InkObject) {
 						result.addAll(recursiveFindReferents(relation, (InkObject) value));
 					}
 					break;
@@ -171,7 +174,7 @@ class ModelIndex {
 		return result;
 	}
 
-	private ModelRelation[] findRelations() {
+	private static ModelRelation[] findRelations() {
 		return new ModelRelation[] { ExtendsRelation.getInstance(), IsInstanceOfRelation.getInstance() };
 	}
 }

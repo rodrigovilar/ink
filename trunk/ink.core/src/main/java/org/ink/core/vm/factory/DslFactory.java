@@ -24,7 +24,7 @@ import org.ink.core.vm.types.PrimitiveTypeMarker;
  * @author Lior Schachter
  */
 public interface DslFactory extends InkClass, Comparable<DslFactory>{
-	
+
 	public String getDslPackage();
 	public String getJavaPackage();
 	public String getNamespace();
@@ -62,5 +62,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	//TODO - need to move this method to the mirror
 	public void setConfigurationFile(File f);
 	public void scan();
+	public void afterVmStart();
 
 }

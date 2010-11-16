@@ -8,10 +8,11 @@ import org.ink.core.vm.lang.InkObjectState;
 /**
  * @author Lior Schachter
  */
-public interface DslRepository extends InkObject {
+public interface DslRepository extends InkObject, Iterable<InkObjectState> {
 
+	@Override
 	public Iterator<InkObjectState> iterator();
-	
+
 	InkObjectState getObject(String id);
 
 	void setObject(String id, InkObjectState result);

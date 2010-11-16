@@ -118,7 +118,6 @@ public class VMMain {
 		}else{
 			coreFactory = loadCoreFactory();
 			List<DslFactory> factories = new ArrayList<DslFactory>();
-			factories.add(coreFactory);
 			for(String p : sourcePaths){
 				factories.addAll(collectFactories(p, coreFactory));
 			}
@@ -126,6 +125,7 @@ public class VMMain {
 				allFactories.put(f.getNamespace(), f);
 				//				ModelInfoFactory.getWriteableInstance().register(f);
 			}
+			allFactories.put(coreFactory.getNamespace(), coreFactory);
 			if(factories.isEmpty()){
 				factory = coreFactory;
 			}else{

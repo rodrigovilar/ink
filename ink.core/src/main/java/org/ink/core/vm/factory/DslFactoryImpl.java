@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,6 +66,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	private final Map<String, Class<?>> classRepository = new ConcurrentHashMap<String, Class<?>>(200);
 	protected Map<String, DslFactory> boundedFactories;
 	protected Set<String> scope;
+	private InstanceFactory instanceFactory;
 
 	@Override
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, Class<?>[] types, Proxiability.Kind t){
@@ -106,6 +108,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			}
 		}
 		scope = Collections.unmodifiableSet(scope);
+		for (InstanceFactory currentInstanceFactory : ServiceLoader.load(InstanceFactory.class)) {
+
+			// Later we'll add prioritization.
+			instanceFactory = currentInstanceFactory;
+		}
 	}
 
 	@Override
@@ -214,7 +221,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public <T extends InkObject> T getObject(String id){
 		return getState(id, true).getBehavior();
 	}
-	
+
 	@Override
 	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists){
 		InkObjectState result = getState(id, reportErrorIfNotExists);
@@ -334,13 +341,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	private Object instantiate(Class<?> stateClass) {
-		try {
-			return stateClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new CoreException("Could not instantiate class : " + stateClass.getName(), e);
-		} catch (IllegalAccessException e) {
-			throw new CoreException("Could not instantiate class : " + stateClass.getName(), e);
-		}
+		return instanceFactory.newInstance(getNamespace(), stateClass.getName());
 	}
 
 	protected Class<?> getClass(String className) {

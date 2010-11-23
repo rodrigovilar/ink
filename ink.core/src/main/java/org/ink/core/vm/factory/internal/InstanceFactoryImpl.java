@@ -8,7 +8,7 @@ public class InstanceFactoryImpl implements InstanceFactory {
 	@Override
 	public Object newInstance(String namespace, String className) {
 		try {
-			return Class.forName(className).newInstance();
+			return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
 		} catch (InstantiationException e) {
 			throw new CoreException("Could not instantiate class : " + className, e);
 		} catch (IllegalAccessException e) {

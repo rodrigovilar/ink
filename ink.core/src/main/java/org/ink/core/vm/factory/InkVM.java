@@ -35,6 +35,10 @@ public class InkVM implements VM {
 	public void destroy() {
 		VMMain.stop();
 	}
+	
+	public static InstanceFactory getInstanceFactory() {
+		return VMMain.getInstanceFactory();
+	}
 
 
 }

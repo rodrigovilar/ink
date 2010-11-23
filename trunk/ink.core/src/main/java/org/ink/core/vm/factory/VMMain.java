@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import org.ikayzo.sdl.SDLParseException;
 import org.ikayzo.sdl.Tag;
@@ -32,6 +33,8 @@ public class VMMain {
 	private static String[] paths = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	private static boolean startupInProgress = false;
+	private static InstanceFactory instanceFactory;
+	
 
 	public static void restart(){
 		stop();
@@ -64,6 +67,10 @@ public class VMMain {
 		if(factory==null){
 			synchronized (VMMain.class) {
 				if(factory==null && !startupInProgress){
+					for (InstanceFactory currentInstanceFactory : ServiceLoader.load(InstanceFactory.class)) {
+						// Later we'll add prioritization.
+						instanceFactory = currentInstanceFactory;
+					}
 					startupInProgress = true;
 					if(paths==null){
 						String pathArgument = System.getProperty("ink.classpath");
@@ -216,6 +223,10 @@ public class VMMain {
 			result.addAll(locateFactory(f, coreFactory));
 		}
 		return result;
+	}
+	
+	protected static InstanceFactory getInstanceFactory() {
+		return instanceFactory;
 	}
 
 

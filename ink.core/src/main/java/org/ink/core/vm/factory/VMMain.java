@@ -3,6 +3,7 @@ package org.ink.core.vm.factory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,7 +50,7 @@ public class VMMain {
 		//vm.destroy();
 	}
 
-	public static DslFactory getFactory(String namespace){
+	protected static DslFactory getFactory(String namespace){
 		DslFactory result = allFactories.get(namespace);
 		if(result==null){
 
@@ -282,6 +283,10 @@ public class VMMain {
 		factory.boot();
 		System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
 		return factory;
+	}
+	
+	protected static Collection<DslFactory> getAllFactories() {
+		return Collections.unmodifiableList(new ArrayList<DslFactory>(allFactories.values()));
 	}
 
 

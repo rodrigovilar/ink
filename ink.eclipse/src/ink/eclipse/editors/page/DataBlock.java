@@ -9,6 +9,7 @@ import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
+import org.ink.eclipse.utils.InkEclipseUtil;
 
 
 public abstract class DataBlock {
@@ -19,9 +20,11 @@ public abstract class DataBlock {
 	protected String startLine;
 	protected char[] text;
 	private String key;
+	protected String ns;
 	
 	
-	public DataBlock(ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
+	public DataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
+		this.ns = namespace;
 		this.text = text;
 		this.parent = parent;
 		this.startIndex = startIndex;
@@ -105,10 +108,10 @@ public abstract class DataBlock {
 		}else if(textString.charAt(cursorLocation-1)=='\"'){
 			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
 			if(attr.equals("class")){
-				PropertyMirror pm = InkContentAssistUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+				PropertyMirror pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 				if(pm.getTypeMarker()==DataTypeMarker.Class){
 					String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-					List<String> options = InkContentAssistUtil.getSubClasses(constraintClass);
+					List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
 					options.add(0, constraintClass);
 					for(String id : options){
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
@@ -153,7 +156,7 @@ public abstract class DataBlock {
 		boolean startElement = true;
 		int count = 0;
 		boolean toContinue = true;
-		int newLineLoc = -1;
+		int newLineLoc = 0;
 		int spaceLoc = -1;
 		String textString = new String(text);
 		for(int i=cursorLocation-1;i>0&&toContinue;i--){
@@ -209,9 +212,9 @@ public abstract class DataBlock {
 			if(attr.equals("class")){
 				List<String> options;
 				if(line.startsWith("Object")){
-					options = InkContentAssistUtil.getSubClasses(CoreNotations.Ids.INK_OBJECT);
+					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT);
 				}else{
-					options = InkContentAssistUtil.getSubClasses(CoreNotations.Ids.INK_CLASS);				
+					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_CLASS);				
 				}
 				for(String id : options){
 					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));

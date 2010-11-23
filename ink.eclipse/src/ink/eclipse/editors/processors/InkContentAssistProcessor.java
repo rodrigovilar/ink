@@ -2,8 +2,10 @@ package ink.eclipse.editors.processors;
 
 import ink.eclipse.editors.page.PageAnalyzer;
 
+import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.ITextViewer;
@@ -11,6 +13,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
+import org.ink.eclipse.utils.InkEclipseUtil;
 
 public class InkContentAssistProcessor implements IContentAssistProcessor {
 
@@ -22,11 +28,19 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 	@Override
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 			int offset) {
-		// TODO Auto-generated method stub
-		String doc = viewer.getDocument().get();
-		PageAnalyzer pageAnalyzer = new PageAnalyzer(doc, offset);
-		List<ICompletionProposal> props = pageAnalyzer.getContentAssist();
-		return props.toArray(new ICompletionProposal[]{});
+		IEditorInput ei = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+		if(ei instanceof FileEditorInput){
+			IFile sourceFile = ((FileEditorInput)ei).getFile();
+			File f = sourceFile.getLocation().toFile();
+			String doc = viewer.getDocument().get();
+			String ns = InkEclipseUtil.resolveNamespace(f);
+			if(ns!=null){
+				PageAnalyzer pageAnalyzer = new PageAnalyzer(ns, doc, offset);
+				List<ICompletionProposal> props = pageAnalyzer.getContentAssist();
+				return props.toArray(new ICompletionProposal[]{});
+			}
+		}
+		return new ICompletionProposal[]{};
 	}
 
 	@Override

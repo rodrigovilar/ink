@@ -10,12 +10,13 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.types.EnumType;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
+import org.ink.eclipse.utils.InkEclipseUtil;
 
 
 public class SimpleDataBlock extends DataBlock {
 
-	public SimpleDataBlock(ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
-		super(parent, text, startIndex, endIndex);
+	public SimpleDataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
+		super(namespace, parent, text, startIndex, endIndex);
 	}
 
 	@Override
@@ -33,7 +34,7 @@ public class SimpleDataBlock extends DataBlock {
 	@Override
 	protected List<ICompletionProposal> getInlineProposals(int cursorLocation) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
-		PropertyMirror pm = InkContentAssistUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		PropertyMirror pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 		if(pm!=null){
 			switch(pm.getTypeMarker()){
 			case Primitive:
@@ -61,19 +62,19 @@ public class SimpleDataBlock extends DataBlock {
 					}
 					String attr = attrB.reverse().toString();
 					if(attr.equals("ref")){
-						pm = InkContentAssistUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+						pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkContentAssistUtil.getInstances(constraintClass);
+							List<String> options = InkEclipseUtil.getInstances(ns, constraintClass);
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
 							}
 						}
 					}else if(attr.equals("class")){
-						pm = InkContentAssistUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+						pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkContentAssistUtil.getSubClasses(constraintClass);
+							List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
 							options.add(constraintClass);
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));

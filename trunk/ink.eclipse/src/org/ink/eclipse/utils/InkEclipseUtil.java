@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.lang.DataTypeMarker;
@@ -21,6 +22,7 @@ import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.modelinfo.ModelInfoRepository;
 import org.ink.core.vm.modelinfo.relations.ExtendsRelation;
@@ -35,9 +37,32 @@ public class InkEclipseUtil {
 		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
 	}
 	
-	public static List<String> getInstances(String ns, String classId){
-		List<String> classes = getSubClasses(ns, classId);
+	public static List<String> getAllSupers(String classId){
+		Context context = InkPlugin.getDefault().getInkContext();
+		List<String> result = new ArrayList<String>();
+		InkObject o = context.getObject(classId);
+		if(o!=null){
+			Mirror m = o.reflect();
+			while(m!=null){
+				m = m.getSuper();
+				if(m!=null){
+					result.add(m.getId());
+				}
+			}
+		}
+		return result;
+	}
+	
+	public static List<String> getInstances(String ns, String classId, boolean recrusive){
+		List<String> classes = new ArrayList<String>();
+		if(recrusive){
+			classes.addAll(getSubClasses(ns, classId));
+		}
 		classes.add(classId);
+		return getInstances(ns, classes);
+	}
+	
+	public static List<String> getInstances(String ns, List<String> classes){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		for(String clsId : classes){

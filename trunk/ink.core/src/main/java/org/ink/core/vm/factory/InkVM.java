@@ -7,13 +7,20 @@ package org.ink.core.vm.factory;
  */
 public class InkVM implements VM {
 
-	private static VM vm = new InkVM(null, null);
+	private static VM vm = null;
 
 	public static VM instance(){
 		return instance(null, null);
 	}
 
 	public static VM instance(String defaultNamespace, String[] paths){
+		if(vm==null){
+			synchronized (InkVM.class) {
+				if(vm==null){
+					vm = new InkVM(defaultNamespace, paths);
+				}
+			}
+		}
 		return vm;
 	}
 

@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.ikayzo.sdl.SDLParseException;
 import org.ikayzo.sdl.Tag;
@@ -29,6 +31,7 @@ import org.ink.core.vm.utils.file.FileUtils;
 public class VMMain {
 
 	private static DslFactory factory;
+	private static Set<String> namespaces = new HashSet<String>();
 	private static DslFactory coreFactory;
 	private static String[] paths = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
@@ -117,6 +120,10 @@ public class VMMain {
 	public static DslFactory getCoreFactory(){
 		return coreFactory;
 	}
+	
+	public static Set<String> getDsls() {
+		return namespaces;
+	}
 
 	private static void loadFactories(String defaultNamespace, String[] sourcePaths) {
 		if(sourcePaths==null){
@@ -124,13 +131,17 @@ public class VMMain {
 			allFactories.put(factory.getNamespace(), factory);
 		}else{
 			coreFactory = loadCoreFactory();
+			namespaces.add(coreFactory.getNamespace());
 			List<DslFactory> factories = new ArrayList<DslFactory>();
 			for(String p : sourcePaths){
 				factories.addAll(collectFactories(p, coreFactory));
 			}
 			for(DslFactory f : factories){
 				allFactories.put(f.getNamespace(), f);
-				//				ModelInfoFactory.getWriteableInstance().register(f);
+				namespaces.add(f.getNamespace());
+			}
+			for(DslFactory f : factories){
+				f.scan();
 			}
 			allFactories.put(coreFactory.getNamespace(), coreFactory);
 			if(factories.isEmpty()){
@@ -249,7 +260,6 @@ public class VMMain {
 							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
 							System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
 							factory.setConfigurationFile(inkFile);
-							factory.scan();
 							result.add(factory);
 						}
 					}

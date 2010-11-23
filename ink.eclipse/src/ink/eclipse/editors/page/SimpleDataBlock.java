@@ -35,6 +35,7 @@ public class SimpleDataBlock extends DataBlock {
 	protected List<ICompletionProposal> getInlineProposals(int cursorLocation) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		PropertyMirror pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		String line = new String(text, startIndex, endIndex-startIndex);
 		if(pm!=null){
 			switch(pm.getTypeMarker()){
 			case Primitive:
@@ -65,7 +66,7 @@ public class SimpleDataBlock extends DataBlock {
 						pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkEclipseUtil.getInstances(ns, constraintClass);
+							List<String> options = InkEclipseUtil.getInstances(ns, constraintClass, true);
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
 							}
@@ -80,8 +81,11 @@ public class SimpleDataBlock extends DataBlock {
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
 							}
 						}
+					}else if(attr.equals("super")){
+						for(String id : getSuperProposals(line)){
+							result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+						}
 					}else{
-						String line = new String(text, startIndex, endIndex-startIndex);
 						if(line.contains("class") && !line.contains("{")){
 							result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 						}

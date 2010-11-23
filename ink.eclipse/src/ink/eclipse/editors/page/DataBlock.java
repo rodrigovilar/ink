@@ -8,6 +8,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
 import org.ink.eclipse.utils.InkEclipseUtil;
 
@@ -105,6 +106,9 @@ public abstract class DataBlock {
 			if(!line.contains("super")){
 				result.add(createAttributeProposal("super", cursorLocation, count));
 			}
+			if(line.contains("class") && !line.contains("{")){
+				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+			}
 		}else if(textString.charAt(cursorLocation-1)=='\"'){
 			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
 			if(attr.equals("class")){
@@ -117,10 +121,15 @@ public abstract class DataBlock {
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
 					}
 				}
+			}else if(attr.equals("super")){
+				for(String id : getSuperProposals(line)){
+					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+				}
 			}
-		}
-		if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){
-			result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+		}else{
+			if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){
+				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+			}
 		}
 		return result;
 	}
@@ -207,6 +216,9 @@ public abstract class DataBlock {
 			if(!line.contains("super")){
 				result.add(createAttributeProposal("super", cursorLocation, count));
 			}
+			if(result.isEmpty() && !(text[cursorLocation-1]=='\"' && text.length > cursorLocation+1 && text[cursorLocation+1]=='\"')){
+				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+			}
 		}else if(textString.charAt(cursorLocation-1)=='\"'){
 			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
 			if(attr.equals("class")){
@@ -219,10 +231,36 @@ public abstract class DataBlock {
 				for(String id : options){
 					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
 				}
+			}else if(attr.equals("super")){
+				String elementId = extractAttributeValue(line, "id");
+				if(elementId!=null){
+					elementId = ns +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + elementId;
+				}
+				for(String id : getSuperProposals(line)){
+					if(elementId==null || !elementId.equals(id) ){
+						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+					}
+				}
 			}
 		}
-		if(result.isEmpty() && !(text[cursorLocation-1]=='\"' && text.length > cursorLocation+1 && text[cursorLocation+1]=='\"')){
-			result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+		return result;
+	}
+	
+	protected List<String> getSuperProposals(String line){
+		String classAtt = extractAttributeValue(line, "class");
+		List<String> relevantClasses = InkEclipseUtil.getAllSupers(classAtt);
+		relevantClasses.add(classAtt);
+		return InkEclipseUtil.getInstances(ns, relevantClasses);
+	}
+	
+	private String extractAttributeValue(String line, String attName){
+		String result = null;
+		int attValueStartIndex = line.indexOf(attName+ "=\"")+attName.length() + "=\"".length();
+		if(attValueStartIndex > 0){
+			int attValueEndIndex = line.indexOf("\"", attValueStartIndex);
+			if(attValueEndIndex > attValueStartIndex){
+				result = line.substring(attValueStartIndex, attValueEndIndex);
+			}
 		}
 		return result;
 	}

@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ikayzo.sdl.SDLParseException;
 import org.ink.core.utils.sdl.SdlParser;
+import org.ink.eclipse.utils.InkEclipseUtil;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 	
@@ -146,15 +147,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 	
 	private void moveInkFile(IFile file, IProgressMonitor monitor) {
-		IJavaProject jProject = JavaCore.create(getProject());
-		try {
-			IPath outputPath = jProject.getOutputLocation().removeFirstSegments(1);
-			IPath relativeFilepath = file.getFullPath().removeFirstSegments(4);
-			if(relativeFilepath.isEmpty()){
-				relativeFilepath = file.getFullPath().removeFirstSegments(1);
-			}
-			IFolder outputFolder = getProject().getFolder(outputPath);
-			IFile existingFile = outputFolder.getFile(relativeFilepath);
+		IFile existingFile = InkEclipseUtil.getOutputFile(getProject(), file);
+		try{
 			if(existingFile.exists()){
 				existingFile.delete(true, null);
 			}else{
@@ -162,7 +156,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				createFolder(folderPath, getProject());
 			}
 			file.copy(existingFile.getFullPath(), true, null);
-		} catch (Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}

@@ -455,6 +455,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			repo.register(elem.getBehavior());
 		}
 	}
+	
+	@Override
+	public boolean containsFile(File f) {
+		List<File> allFiles = loader.getInkFiles();
+		return allFiles.contains(f);
+	}
 
 	@Override
 	public void printElements(String toFile) throws IOException{
@@ -552,4 +558,5 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void setConfigurationFile(File f) {
 		reflect().put(FACTORY_CONF_FILE, f);
 	}
+	
 }

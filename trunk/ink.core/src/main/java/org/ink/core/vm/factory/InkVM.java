@@ -1,5 +1,7 @@
 package org.ink.core.vm.factory;
 
+import java.io.File;
+
 
 
 /**
@@ -45,6 +47,23 @@ public class InkVM implements VM {
 	
 	public static InstanceFactory getInstanceFactory() {
 		return VMMain.getInstanceFactory();
+	}
+	
+	@Override
+	public DslFactory getOwnerFactory(File f){
+		DslFactory result = null;
+		for(DslFactory fac : VMMain.getAllFactories()){
+			if(fac.containsFile(f)){
+				result = fac;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public DslFactory getFactory(String namespace){
+		return VMMain.getFactory(namespace);
 	}
 
 

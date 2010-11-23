@@ -13,8 +13,11 @@ public class PageAnalyzer {
 	private int cursorLocation;
 	private ObjectDataBlock currentElement;
 	List<DataBlock> elements = new ArrayList<DataBlock>();
-	public PageAnalyzer(String text, int cursorLocation) {
+	private String ns;
+	
+	public PageAnalyzer(String ns, String text, int cursorLocation) {
 		this.text = text;
+		this.ns = ns;
 		this.cursorLocation = cursorLocation;
 		scan();
 	}
@@ -96,7 +99,7 @@ public class PageAnalyzer {
 
 	private void addElement(char[] text, int blockStart, int blockEnd) {
 		ObjectDataBlock block;
-		block = new ObjectDataBlock(null, text, blockStart, blockEnd);
+		block = new ObjectDataBlock(ns, null, text, blockStart, blockEnd);
 		elements.add(block);
 		if(blockStart <= cursorLocation && blockEnd >= cursorLocation){
 			currentElement = block;

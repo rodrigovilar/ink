@@ -64,5 +64,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public void setConfigurationFile(File f);
 	public void scan();
 	public void afterVmStart();
+	public boolean containsFile(File f);
 
 }

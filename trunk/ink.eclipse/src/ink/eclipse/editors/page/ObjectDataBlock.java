@@ -14,6 +14,7 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
+import org.ink.eclipse.utils.InkEclipseUtil;
 
 public class ObjectDataBlock extends DataBlock {
 	
@@ -21,8 +22,8 @@ public class ObjectDataBlock extends DataBlock {
 	private Map<String, String> attributes = new HashMap<String, String>();
 	private Map<String, List<DataBlock>> innerBlocks = new HashMap<String, List<DataBlock>>();
 
-	public ObjectDataBlock(ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
-		super(parent, text, startIndex, endIndex);
+	public ObjectDataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
+		super(namespace, parent, text, startIndex, endIndex);
 	}
 
 	public String getAttributeValue(String key){
@@ -151,12 +152,12 @@ public class ObjectDataBlock extends DataBlock {
 	}
 
 	private DataBlock addObjectBlock(int startIndex, int endIndex, int cursorLocation) {
-		DataBlock b = new ObjectDataBlock(this, text, startIndex, endIndex);
+		DataBlock b = new ObjectDataBlock(ns, this, text, startIndex, endIndex);
 		return addBlock(b.getKey(), b, cursorLocation);
 	}
 	
 	private DataBlock addSimpleBlock(int startIndex, int endIndex, int cursorLocation) {
-		DataBlock b = new SimpleDataBlock(this, text, startIndex, endIndex);
+		DataBlock b = new SimpleDataBlock(ns, this, text, startIndex, endIndex);
 		return addBlock(b.getKey(), b, cursorLocation);
 	}
 
@@ -180,7 +181,7 @@ public class ObjectDataBlock extends DataBlock {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String classId = getClassId();
 		if(classId != null){
-			Collection<PropertyMirror> avaliableProps = InkContentAssistUtil.getPropertiesMirrors(classId, innerBlocks.keySet());
+			Collection<PropertyMirror> avaliableProps = InkEclipseUtil.getPropertiesMirrors(classId, innerBlocks.keySet());
 			for(PropertyMirror pm : avaliableProps){
 				if(pm.isMutable()){
 					getProposal(cursorLocation, result, pm);
@@ -188,7 +189,7 @@ public class ObjectDataBlock extends DataBlock {
 			}
 		}else if(parent!=null){
 			classId = parent.getClassId();
-			PropertyMirror pm = InkContentAssistUtil.getPropertyMirror(classId, getKey(), new ArrayList<String>());
+			PropertyMirror pm = InkEclipseUtil.getPropertyMirror(classId, getKey(), new ArrayList<String>());
 			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
 				switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
 				case List:

@@ -22,6 +22,7 @@ import static org.ink.core.vm.factory.internal.CoreNotations.Ids.SHORT_ATTRIBUTE
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.STRING;
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.STRING_ATTRIBUTE;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -1439,6 +1440,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	
 	public String getEnumClassName(EnumTypeState enumState) {
 		return CoreNotations.CORE_PACKAGE + "."+((MirrorAPI)enumState).getRawValue(EnumTypeState.p_java_path) + "." + CoreUtils.getShortId(enumState.getId());
+	}
+	
+	@Override
+	public List<File> getInkFiles() {
+		return new ArrayList<File>();
 	}
 
 }

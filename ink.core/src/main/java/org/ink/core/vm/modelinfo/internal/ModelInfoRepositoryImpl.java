@@ -22,7 +22,7 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 
 	public void init() {
 		indices = new HashMap<String, ModelIndex>();
-		Set<String> scope = VMMain.getDefaultFactory().getScope();
+		Set<String> scope = VMMain.getDsls();
 		for (String namespace : scope) {
 			ModelIndex newIndex = ModelIndex.initIndex(namespace, this);
 			indices.put(namespace, newIndex);
@@ -58,7 +58,10 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 			for (String namespace : namespaces) {
 				ModelIndex index = indices.get(namespace);
 				if (index != null) {
-					result.addAll(index.findReferrers(referent, relation));
+					Set<InkObject> referrers = index.findReferrers(referent, relation);
+					if(referrers!=null){
+						result.addAll(referrers);
+					}
 				}
 				// TODO Eli else?
 			}

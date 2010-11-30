@@ -24,36 +24,32 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 		return new NullProgressMonitor();
 	}
 
-	
 	@Override
-	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
-			int offset) {
+	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		IEditorInput ei = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
-		if(ei instanceof FileEditorInput){
-			IFile sourceFile = ((FileEditorInput)ei).getFile();
+		if (ei instanceof FileEditorInput) {
+			IFile sourceFile = ((FileEditorInput) ei).getFile();
 			File f = sourceFile.getLocation().toFile();
 			String doc = viewer.getDocument().get();
 			String ns = InkEclipseUtil.resolveNamespace(f);
-			if(ns!=null){
+			if (ns != null) {
 				PageAnalyzer pageAnalyzer = new PageAnalyzer(ns, doc, offset);
 				List<ICompletionProposal> props = pageAnalyzer.getContentAssist();
-				return props.toArray(new ICompletionProposal[]{});
+				return props.toArray(new ICompletionProposal[] {});
 			}
 		}
-		return new ICompletionProposal[]{};
+		return new ICompletionProposal[] {};
 	}
 
 	@Override
-	public IContextInformation[] computeContextInformation(ITextViewer viewer,
-			int offset) {
+	public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public char[] getCompletionProposalAutoActivationCharacters() {
-		// TODO Auto-generated method stub
-		return null;
+		return new char[] { ' ', '\t' };
 	}
 
 	@Override

@@ -14,16 +14,16 @@ import org.ink.eclipse.utils.InkEclipseUtil;
 
 
 public abstract class DataBlock {
-	
+
 	protected ObjectDataBlock parent = null;
 	protected int startIndex=-1;
 	protected int endIndex = -1;
 	protected String startLine;
 	protected char[] text;
-	private String key;
+	private final String key;
 	protected String ns;
-	
-	
+
+
 	public DataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
 		this.ns = namespace;
 		this.text = text;
@@ -42,20 +42,20 @@ public abstract class DataBlock {
 		}
 		key = String.valueOf(text, startIndex, i-startIndex).trim();
 	}
-	
+
 	public ObjectDataBlock getParent(){
 		return parent;
 	}
-	
+
 	public String getKey(){
 		return key;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new String(text, startIndex, endIndex-startIndex);
 	}
-	
+
 	public abstract DataBlock getBlock(int cursorLocation);
 
 	public List<ICompletionProposal> getContentAssist(int cursorLocation) {
@@ -84,12 +84,12 @@ public abstract class DataBlock {
 		}
 		return result;
 	}
-	
+
 	protected CompletionProposal createAttributeProposal(String attName, int cursorLocation,
 			int count) {
 		return new CompletionProposal(attName + "=\"\"", cursorLocation-count, count, attName.length() +"=\"\"".length()-1, null, attName, null, null);
 	}
-	
+
 	protected List<ICompletionProposal> getInnerBlockProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
@@ -118,12 +118,12 @@ public abstract class DataBlock {
 					List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
 					options.add(0, constraintClass);
 					for(String id : options){
-						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
 				}
 			}else if(attr.equals("super")){
 				for(String id : getSuperProposals(line)){
-					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 				}
 			}
 		}else{
@@ -133,7 +133,13 @@ public abstract class DataBlock {
 		}
 		return result;
 	}
-	
+
+	protected String getDisplayString(String id) {
+		int loc = id.indexOf(':');
+		String displayString = id.substring(loc+1,id.length()) + " - " + id.substring(0, loc);
+		return displayString;
+	}
+
 	protected List<String> getPathToClassBlock(){
 		List<String> result = new ArrayList<String>();
 		ObjectDataBlock p = parent;
@@ -146,10 +152,10 @@ public abstract class DataBlock {
 				p = null;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	public String getContainingClass(){
 		String result = null;
 		if(parent!=null){
@@ -187,7 +193,7 @@ public abstract class DataBlock {
 				}
 				break;
 			}
-				
+
 		}
 		if(parent==null){
 			return getNewElementProposals(cursorLocation, textString, newLineLoc, count, spaceLoc);
@@ -195,7 +201,7 @@ public abstract class DataBlock {
 			return getInnerBlockProposals(cursorLocation, textString, newLineLoc, count, spaceLoc);
 		}
 	}
-	
+
 	protected List<ICompletionProposal> getNewElementProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		int lastIndex = textString.indexOf('\n', cursorLocation);
@@ -226,10 +232,10 @@ public abstract class DataBlock {
 				if(line.startsWith("Object")){
 					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT);
 				}else{
-					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_CLASS);				
+					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_CLASS);
 				}
 				for(String id : options){
-					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 				}
 			}else if(attr.equals("super")){
 				String elementId = extractAttributeValue(line, "id");
@@ -238,21 +244,23 @@ public abstract class DataBlock {
 				}
 				for(String id : getSuperProposals(line)){
 					if(elementId==null || !elementId.equals(id) ){
-						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
 				}
+			}else{
+				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
 		}
 		return result;
 	}
-	
+
 	protected List<String> getSuperProposals(String line){
 		String classAtt = extractAttributeValue(line, "class");
 		List<String> relevantClasses = InkEclipseUtil.getAllSupers(classAtt);
 		relevantClasses.add(classAtt);
 		return InkEclipseUtil.getInstances(ns, relevantClasses);
 	}
-	
+
 	private String extractAttributeValue(String line, String attName){
 		String result = null;
 		int attValueStartIndex = line.indexOf(attName+ "=\"")+attName.length() + "=\"".length();
@@ -266,5 +274,5 @@ public abstract class DataBlock {
 	}
 
 	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation);
-	
+
 }

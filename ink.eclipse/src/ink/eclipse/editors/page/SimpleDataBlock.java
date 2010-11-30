@@ -26,7 +26,7 @@ public class SimpleDataBlock extends DataBlock {
 		}
 		return null;
 	}
-	
+
 	private CompletionProposal createValueProposal(String value, int cursorLocation) {
 		return new CompletionProposal(value, cursorLocation, 0, value.length(), null, value, null, null);
 	}
@@ -68,7 +68,7 @@ public class SimpleDataBlock extends DataBlock {
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
 							List<String> options = InkEclipseUtil.getInstances(ns, constraintClass, true);
 							for(String id : options){
-								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 							}
 						}
 					}else if(attr.equals("class")){
@@ -78,12 +78,12 @@ public class SimpleDataBlock extends DataBlock {
 							List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
 							options.add(constraintClass);
 							for(String id : options){
-								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 							}
 						}
 					}else if(attr.equals("super")){
 						for(String id : getSuperProposals(line)){
-							result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, id, null, null));
+							result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 						}
 					}else{
 						if(line.contains("class") && !line.contains("{")){
@@ -93,7 +93,7 @@ public class SimpleDataBlock extends DataBlock {
 				}else{
 					result = super.getInlineProposals(cursorLocation);
 				}
-				
+
 				break;
 			}
 		}

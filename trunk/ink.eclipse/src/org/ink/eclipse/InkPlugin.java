@@ -12,6 +12,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.VMConfig;
+import org.ink.core.vm.factory.VMMain;
 import org.ink.core.vm.factory.internal.CoreInstantiationStrategy;
 import org.ink.eclipse.builder.InkNature;
 import org.osgi.framework.BundleContext;
@@ -44,6 +45,11 @@ public class InkPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		loadInk();
+	}
+
+	public void reloadInk(){
+		VMMain.restart();
+		inkContext = InkVM.instance().getContext();
 	}
 
 	private void loadInk(){
@@ -88,6 +94,7 @@ public class InkPlugin extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		VMMain.stop();
 	}
 
 	/**

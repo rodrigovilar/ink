@@ -35,19 +35,30 @@ public class VMMain {
 	private static Set<String> namespaces = new HashSet<String>();
 	private static DslFactory coreFactory;
 	private static String[] paths = null;
+	private static String defaultNS = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	private static boolean startupInProgress = false;
 	private static InstanceFactory instanceFactory;
-	
+
 
 	public static void restart(){
 		stop();
-		start(factory.getNamespace(), paths);
+		start(defaultNS, paths);
 	}
 
 
 	public static void stop(){
-		//vm.destroy();
+		List<DslFactory> factories = new ArrayList<DslFactory>(allFactories.values());
+		Collections.sort(factories);
+		for(DslFactory f : factories){
+			f.destroy();
+		}
+		factory = null;
+		namespaces.clear();
+		coreFactory = null;
+		allFactories.clear();
+		startupInProgress = false;
+		instanceFactory = null;
 	}
 
 	protected static DslFactory getFactory(String namespace){
@@ -68,6 +79,8 @@ public class VMMain {
 	}
 
 	public static void start(String defaultNamespace, String[] paths){
+		defaultNS = defaultNamespace;
+		VMMain.paths = paths;
 		if(factory==null){
 			synchronized (VMMain.class) {
 				if(factory==null && !startupInProgress){
@@ -102,7 +115,6 @@ public class VMMain {
 							loadApplication(defaultNamespace, new String[]{"dsls.ink"});
 						}
 					}else{
-						VMMain.paths = paths;
 						loadApplication(defaultNamespace, paths);
 					}
 					for (DslFactory currentFactory : allFactories.values()) {
@@ -121,7 +133,7 @@ public class VMMain {
 	public static DslFactory getCoreFactory(){
 		return coreFactory;
 	}
-	
+
 	public static Set<String> getDsls() {
 		return namespaces;
 	}
@@ -236,7 +248,7 @@ public class VMMain {
 		}
 		return result;
 	}
-	
+
 	protected static InstanceFactory getInstanceFactory() {
 		return instanceFactory;
 	}
@@ -284,7 +296,7 @@ public class VMMain {
 		System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
 		return factory;
 	}
-	
+
 	protected static Collection<DslFactory> getAllFactories() {
 		return Collections.unmodifiableList(new ArrayList<DslFactory>(allFactories.values()));
 	}

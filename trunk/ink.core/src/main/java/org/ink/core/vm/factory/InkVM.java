@@ -15,6 +15,7 @@ public class InkVM implements VM {
 		return instance(null, null);
 	}
 
+
 	public static VM instance(String defaultNamespace, String[] paths){
 		if(vm==null){
 			synchronized (InkVM.class) {
@@ -24,6 +25,9 @@ public class InkVM implements VM {
 			}
 		}
 		return vm;
+	}
+
+	private InkVM(){
 	}
 
 	private InkVM(String defaultNamespace, String[] paths){
@@ -44,11 +48,11 @@ public class InkVM implements VM {
 	public void destroy() {
 		VMMain.stop();
 	}
-	
+
 	public static InstanceFactory getInstanceFactory() {
 		return VMMain.getInstanceFactory();
 	}
-	
+
 	@Override
 	public DslFactory getOwnerFactory(File f){
 		DslFactory result = null;
@@ -60,7 +64,7 @@ public class InkVM implements VM {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public DslFactory getFactory(String namespace){
 		return VMMain.getFactory(namespace);

@@ -19,6 +19,7 @@ import org.ink.core.utils.StringUtils;
 import org.ink.core.vm.constraints.SystemState;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.exceptions.CoreException;
+import org.ink.core.vm.exceptions.ObjectLoadingException;
 import org.ink.core.vm.exceptions.WeaveException;
 import org.ink.core.vm.factory.internal.CoreLoaderImpl;
 import org.ink.core.vm.factory.internal.CoreLoaderState;
@@ -118,7 +119,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					try{
 						getState(iter.next());
 					}catch(Exception e){
-						//TODO - log error
 						e.printStackTrace();
 					}
 				}
@@ -153,12 +153,21 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		if(result==null){
 			String ns = extractNamespace(id);
 			if(getNamespace().equals(ns)){
-				result = loader.getObject(id, getAppContext());
-				if(result!=null){
+				try {
+					result = loader.getObject(id, getAppContext());
+					if(result!=null){
+						repository.setObject(id, result);
+						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+					}else if(reportErrorIfNotExists){
+						throw new CoreException("The object with id '" +id+"', could not be found.");
+					}
+				} catch (ObjectLoadingException e) {
+					if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+						throw new RuntimeException(e);
+					}
+					result = e.getObject();
 					repository.setObject(id, result);
 					ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
-				}else if(reportErrorIfNotExists){
-					throw new CoreException("The object with id '" +id+"', could not be found.");
 				}
 			}else if(scope.contains(ns)){
 				DslFactory factory = boundedFactories.get(ns);
@@ -455,11 +464,20 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			repo.register(elem.getBehavior());
 		}
 	}
-	
+
 	@Override
 	public boolean containsFile(File f) {
 		List<File> allFiles = loader.getInkFiles();
 		return allFiles.contains(f);
+	}
+
+	@Override
+	public void destroy() {
+		getState().getRepository().clear();
+		getState().getLoader().destroy();
+		classRepository.clear();
+		scope = null;
+		boundedFactories.clear();
 	}
 
 	@Override
@@ -558,5 +576,5 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void setConfigurationFile(File f) {
 		reflect().put(FACTORY_CONF_FILE, f);
 	}
-	
+
 }

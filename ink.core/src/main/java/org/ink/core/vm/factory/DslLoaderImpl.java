@@ -35,6 +35,14 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private File folder = null;
 
 	@Override
+	public void destroy() {
+		elements.clear();
+		reader = null;
+		vc = null;
+		folder = null;
+	}
+
+	@Override
 	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException{
 		ElementDescriptor<D> desc = elements.get(id);
 		if(desc!=null){
@@ -48,7 +56,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						System.out.println("Object '" +id+"':" + er.getDescription());
 					}
 					System.out.println("=================================================================================================================================");
-					throw new ObjectLoadingException(null, errors, desc.getResource(), id);
+					throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
 				}else if(!result.validate(vc)){
 					List<ValidationMessage> errors = vc.getMessages();
 					desc.setValidationErrorMessages(errors);
@@ -57,7 +65,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						System.out.println("Object '" +id+"':" + er.getFormattedMessage());
 					}
 					System.out.println("=================================================================================================================================");
-					throw new ObjectLoadingException(errors, null, desc.getResource(), id);
+					throw new ObjectLoadingException(result, errors, null, desc.getResource(), id);
 				}
 				return result;
 			}finally{
@@ -80,7 +88,11 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		ClassMirror tc = getContext().getObject(CoreNotations.Ids.TRAIT).reflect();
 		InkObjectState o = null;
 		for(String id : startupObjects){
-			o  = getObject(id, ownerFactory.getAppContext());
+			try {
+				o  = getObject(id, ownerFactory.getAppContext());
+			} catch (ObjectLoadingException e) {
+				e.printStackTrace();
+			}
 			objects.add(o);
 		}
 		InkClass cls;
@@ -137,7 +149,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	public Iterator<String> iterator() {
 		return elements.keySet().iterator();
 	}
-	
+
 	@Override
 	public List<File> getInkFiles() {
 		return FileUtils.listInkFiles(folder);

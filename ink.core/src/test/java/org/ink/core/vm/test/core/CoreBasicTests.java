@@ -14,6 +14,7 @@ import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactoryEventDispatcher;
 import org.ink.core.vm.factory.DslFactoryState;
 import org.ink.core.vm.factory.InkVM;
+import org.ink.core.vm.factory.VMMain;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkClassState;
@@ -356,6 +357,12 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(referrers.contains(dslFactory));
 		assertTrue(referrers.contains(traitClass));
 
+	}
+
+	public void testVMRestart(){
+		VMMain.restart();
+		InkObject mirror = InkVM.instance().getContext().getObject(CoreNotations.Ids.MIRROR);
+		assertNotNull(mirror);
 	}
 
 	public void testInkConvention(){

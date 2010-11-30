@@ -13,8 +13,12 @@ public interface DslRepository extends InkObject, Iterable<InkObjectState> {
 	@Override
 	public Iterator<InkObjectState> iterator();
 
-	InkObjectState getObject(String id);
+	public InkObjectState getObject(String id);
 
-	void setObject(String id, InkObjectState result);
+	public void setObject(String id, InkObjectState result);
+
+	public void clear();
+
+
 
 }

@@ -7,9 +7,9 @@ import org.ink.core.vm.modelinfo.relations.ModelRelation;
 
 public interface ModelInfoRepository {
 
-	public Collection<InkObject> findReferrers(InkObject referent, ModelRelation relation); // recursive, inner, dsl factories
+	public Collection<InkObject> findReferrers(InkObject referent, ModelRelation relation, boolean isRecursive); // inner
 
-	public Collection<InkObject> findReferrers(InkObject referent, ModelRelation relation, String... namespaces);
+	public Collection<InkObject> findReferrers(InkObject referent, ModelRelation relation, boolean isRecursive, String... namespaces);
 
 	public void beginReadTransaction();
 

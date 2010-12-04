@@ -344,19 +344,23 @@ public class CoreBasicTests extends TestCase{
 		InkObject mirror = context.getObject(CoreNotations.Ids.MIRROR);
 		InkObject trait = context.getObject(CoreNotations.Ids.TRAIT);
 		InkObject traitClass = context.getObject(CoreNotations.Ids.TRAIT_CLASS);
-		Collection<InkObject> referrers = repo.findReferrers(trait, ExtendsRelation.getInstance());
+		Collection<InkObject> referrers = repo.findReferrers(trait, ExtendsRelation.getInstance(), false);
 		assertTrue(referrers != null);
 		assertTrue(referrers.contains(mirror));
-		referrers = repo.findReferrers(traitClass, IsInstanceOfRelation.getInstance());
+		referrers = repo.findReferrers(traitClass, IsInstanceOfRelation.getInstance(), false);
 		assertTrue(referrers != null);
 		assertTrue(referrers.contains(mirror));
 		InkObject inkClass = context.getObject(CoreNotations.Ids.INK_CLASS);
 		InkObject dslFactory = context.getObject(CoreNotations.Ids.DSL_FACTORY);
-		referrers = repo.findReferrers(inkClass, ExtendsRelation.getInstance());
+		referrers = repo.findReferrers(inkClass, ExtendsRelation.getInstance(), false);
 		assertTrue(referrers != null);
 		assertTrue(referrers.contains(dslFactory));
 		assertTrue(referrers.contains(traitClass));
 
+		// Test recursive
+		referrers = repo.findReferrers(trait, IsInstanceOfRelation.getInstance(), true);
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(context.getObject(CoreNotations.Ids.INK_OBJECT)));
 	}
 
 	public void testVMRestart(){

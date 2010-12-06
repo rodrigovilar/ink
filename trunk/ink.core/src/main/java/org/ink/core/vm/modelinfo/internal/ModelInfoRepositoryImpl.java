@@ -22,7 +22,7 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 
 	protected Map<String, ModelIndex> indices;
 
-	public void init() {
+	private void init() {
 		indices = new HashMap<String, ModelIndex>();
 		Set<String> scope = VMMain.getDsls();
 		for (String namespace : scope) {
@@ -87,6 +87,11 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 			result = Collections.emptySet();
 		}
 		return result;
+	}
+
+	@Override
+	public void reload() {
+		init();
 	}
 
 	ModelInfoWriteableRepository createWriteableInstance() {

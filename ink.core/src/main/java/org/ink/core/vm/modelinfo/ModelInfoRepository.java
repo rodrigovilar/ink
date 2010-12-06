@@ -15,4 +15,6 @@ public interface ModelInfoRepository {
 
 	public void endReadTransaction();
 
+	public void reload();
+
 }

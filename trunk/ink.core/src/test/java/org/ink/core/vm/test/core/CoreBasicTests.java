@@ -358,9 +358,13 @@ public class CoreBasicTests extends TestCase{
 		assertTrue(referrers.contains(traitClass));
 
 		// Test recursive
-		referrers = repo.findReferrers(trait, IsInstanceOfRelation.getInstance(), true);
+		InkObject classMirror = context.getObject(CoreNotations.Ids.CLASS_MIRROR);
+		referrers = repo.findReferrers(inkClass, IsInstanceOfRelation.getInstance(), false);
 		assertTrue(referrers != null);
-		assertTrue(referrers.contains(context.getObject(CoreNotations.Ids.INK_OBJECT)));
+		assertTrue(!referrers.contains(classMirror));
+		referrers = repo.findReferrers(inkClass, IsInstanceOfRelation.getInstance(), true);
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(classMirror));
 	}
 
 	public void testVMRestart(){

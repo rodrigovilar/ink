@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.ink.core.vm.factory.Context;
+import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.VMConfig;
 import org.ink.core.vm.factory.VMMain;
@@ -47,9 +48,10 @@ public class InkPlugin extends AbstractUIPlugin {
 		loadInk();
 	}
 
-	public void reloadInk(){
+	public List<InkErrorDetails> reloadInk(){
 		VMMain.restart();
 		inkContext = InkVM.instance().getContext();
+		return InkVM.instance().collectErrors();
 	}
 
 	private void loadInk(){

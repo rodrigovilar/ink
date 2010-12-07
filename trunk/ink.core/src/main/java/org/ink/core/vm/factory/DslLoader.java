@@ -18,5 +18,6 @@ public interface DslLoader extends InkObject {
 	public Iterator<String> iterator();
 	public List<File> getInkFiles();
 	public void destroy();
+	public List<InkErrorDetails> collectErrors();
 
 }

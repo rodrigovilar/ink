@@ -160,6 +160,8 @@ import org.ink.core.vm.utils.property.ReferenceKind;
 import org.ink.core.vm.utils.property.ReferenceState;
 import org.ink.core.vm.utils.property.ShortAttributeState;
 import org.ink.core.vm.utils.property.StringAttributeState;
+import org.ink.core.vm.utils.property.constraints.EnumAttributeValidatorState;
+import org.ink.core.vm.utils.property.constraints.EnumAttributeValueValidatorState;
 import org.ink.core.vm.utils.property.constraints.NumericAttributeValidatorState;
 import org.ink.core.vm.utils.property.constraints.NumericAttributeValueValidatorState;
 import org.ink.core.vm.utils.property.constraints.StringAttributeValidatorState;
@@ -191,8 +193,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	public Map<Class<?>, String> simpleTypeMapping = new HashMap<Class<?>, String>();
 	public Map<String, String> simpleTypeToAttributeMapping = new HashMap<String, String>();
 	public DslFactory factory;
-	private Context context = null; 
-	
+	private Context context = null;
+
 	public Collection<CoreObjectDescriptor> start(DslFactory factory){
 		this.factory = factory;
 		simpleTypeMapping.put(String.class, STRING);
@@ -216,7 +218,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		loadCoreElements();
 		return elements.values();
 	}
-	
+
 
 	private void loadCoreElements() {
 		try{
@@ -231,10 +233,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			activateObjects();
 			cleanUp();
 		}catch(Exception e){
+			e.printStackTrace();
 			throw new CoreException("Fatal Error. Could not boot.", e);
 		}
 	}
-	
+
 	private void createObjects() throws Exception {
 		Class<?> stateClass;
 		CoreInstanceSpec instanceSpec;
@@ -245,7 +248,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				createObject(desc, instanceSpec);
 			}
 		}
-		
+
 	}
 
 
@@ -253,13 +256,13 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		String[] ids = instanceSpec.ids();
 		CoreInstanceValuesLocation[] locationsArr = instanceSpec.locations();
 		CoreInstanceValues[] valuesArr = instanceSpec.values();
-		List<PropertyState> properties = (List<PropertyState>) classDesc.getProperties();
+		List<PropertyState> properties = classDesc.getProperties();
 		CoreObjectDescriptor desc;
 		MirrorAPI prop;
 		String id;
 		Class<?> propertyType;
 		byte[] indexes;
-		String[] values; 
+		String[] values;
 		MirrorAPI o;
 		for(int i=0;i<ids.length;i++){
 			id = ids[i];
@@ -283,11 +286,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		Set<MirrorAPI> allObjects = new HashSet<MirrorAPI>();
 		for(CoreClassDescriptor desc : classElements.values()){
 			cls = desc.getObject();
-			o = (MirrorAPI)((ClassMirrorAPI)desc.getObject()).getFactoryState();
+			o = (MirrorAPI)(desc.getObject()).getFactoryState();
 			cleanUpObject(o, allObjects);
 			insertFinalProperties(cls, desc);
 		}
-		
+
 		CoreClassDescriptor traitMirrorDesc = classElements.get(TraitMirrorState.class);
 		//resolve ink.core:TraitMirror self-dependency
 		MirrorAPI tm = traitMirrorDesc.getObject();
@@ -301,7 +304,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		elements.get(MAP).getObject().afterPropertiesSet();
 		MirrorAPI enumO;
 		for(Class<?> c : enums){
-			enumO = elements.get(createEnumId(c)).getObject(); 
+			enumO = elements.get(createEnumId(c)).getObject();
 			enumO.afterPropertiesSet();
 		}
 		cleanUpObject(tm, allObjects);
@@ -320,13 +323,13 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 
 
 	private void insertFinalProperties(MirrorAPI o, CoreClassDescriptor desc)
-			throws Exception {
+	throws Exception {
 		CoreClassSpec metadata = desc.getMetadata();
 		if(metadata!=null){
 			byte[] locs = metadata.finalValuesLocation();
 			String[] values = metadata.finalValues();
 			if(locs.length>0){
-				List<MirrorAPI> props = (List<MirrorAPI>) ((MirrorAPI)o).getRawValue(InkClassState.p_properties);
+				List<MirrorAPI> props = (List<MirrorAPI>) (o).getRawValue(InkClassState.p_properties);
 				MirrorAPI prop = props.get(locs[0]);
 				Object finalValue = null;
 				if(prop instanceof EnumAttributeState){
@@ -336,7 +339,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				}else{
 					finalValue = convertStringValue(values[0], desc.getSettter((String)prop.getRawValue(PropertyState.p_name)).getParameterTypes()[0]);
 				}
-				byte finalPropertyLocation = (byte) prop.getPropertyIndex(P_FINAL_VALUE);
+				byte finalPropertyLocation = prop.getPropertyIndex(P_FINAL_VALUE);
 				prop.setRawValue(finalPropertyLocation, finalValue);
 			}
 		}
@@ -356,7 +359,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		targetFactory.setDslPackage(CoreNotations.CORE_SOURCE_PATH);
 		((MirrorAPI)targetFactory).cacheTrait(DslFactoryState.t_app_context, context);
 	}
-	
+
 	private void cleanUpObject(MirrorAPI o, Set<MirrorAPI> allObjects) throws Exception {
 		if(allObjects.contains(o)){
 			return;
@@ -433,11 +436,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 					}
 				}
 				break;
-				default:
-					if(propertyValue!=null){
-						o.insertValue(m.getIndex(), propertyValue);
-					}
-					break;
+			default:
+				if(propertyValue!=null){
+					o.insertValue(m.getIndex(), propertyValue);
+				}
+				break;
 			}
 		}
 		o.afterPropertiesSet();
@@ -455,7 +458,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		CoreClassDescriptor classDesc = classElements.get(DslFactoryState.class);
 		MirrorAPI o = classDesc.getObject();
 		createAndBindContext(o);
-		MirrorAPI traits = (MirrorAPI)((MirrorAPI)o).getRawValue(DslFactoryState.p_personality);
+		MirrorAPI traits = (MirrorAPI)(o).getRawValue(DslFactoryState.p_personality);
 		traits.setRawValue(DslFactoryPersonalityState.p_app_context, elements.get(DEFAULT_CONTEXT).getObject());
 		classDesc = classElements.get(DslFactoryEventDispatcherState.class);
 		o = newInstance(null, classDesc.getStateClass(), classDesc.getNumberOfFields(), classDesc.getNumberOfTraits(), true);
@@ -464,7 +467,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		o.boot((InkClassState)elements.get(classDesc.getClassId()).getObject(), factory, listener, context, null);
 		traits.setRawValue(DslFactoryPersonalityState.p_event_dispatcher, o);
 	}
-	
+
 	private void activateObjects() throws Exception {
 		assembleFactoryClass();
 		CoreClassDescriptor classDesc = classElements.get(ObjectFactoryState.class);
@@ -472,7 +475,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		((ContextImpl<?>)context).setTargetState(o);
 		o.boot((InkClassState)elements.get(classDesc.getClassId()).getObject(), factory, (DslFactoryImpl<?>)factory, context, null);
 		assembleFactory((DslFactoryState) o);
-		classDesc = classElements.get(InkClassState.class); 
+		classDesc = classElements.get(InkClassState.class);
 		o = classDesc.getObject();
 		//TODO - This should be removed once we have InkMetaClass
 		o.setRawValue(InkClassState.p_component_type, ComponentType.Root);
@@ -486,7 +489,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			}
 		}
 	}
-	
+
 	private Mirror createMirror(MirrorAPI target, CoreClassDescriptor classDesc,
 			PropertyMirror definingProperty, byte loc) throws Exception {
 		MirrorImpl<?>result = null;
@@ -540,7 +543,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				throw new RuntimeException("Could not create "+classDesc.getBehaviorClass().getName() +".", e);
 			}
 		}
-		((MirrorAPI)o).boot((InkClassState) classDesc.getObject(), factory, behaviorInstance,context, createMirror(o, classDesc, definingProperty, index));
+		(o).boot(classDesc.getObject(), factory, behaviorInstance,context, createMirror(o, classDesc, definingProperty, index));
 		PropertyMirror[] mirrors = o.getPropertiesMirrors();
 		DataTypeMarker marker;
 		CoreClassDescriptor innerCoerDesc;
@@ -610,7 +613,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void activateClass(CoreClassDescriptor desc) throws Exception{
-		ClassMirrorAPI theClass = (ClassMirrorAPI)desc.getObject();
+		ClassMirrorAPI theClass = desc.getObject();
 		InkClassState cls = (InkClassState) elements.get(desc.getClassId()).getObject();
 		CoreClassDescriptor superDesc = (CoreClassDescriptor) elements.get(desc.getClassId());
 		Class<?>[] allInterfaces = null;
@@ -720,15 +723,15 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			throw new CoreException("Could not resolve collection type marker for collection property " + prop.getClass().getName());
 		}
 	}
-	
+
 	private void instantiateReferenceMirror(PropertyState prop, byte index, PropertyMirrorImpl<?>mirror, boolean isComputed, boolean hasStaticValue) {
 		DataTypeMarker marker = DataTypeMarker.Class;
-		CoreClassDescriptor typeDescriptor = (CoreClassDescriptor)elements.get(((InkObjectState)((MirrorAPI)prop).getRawValue(PropertyState.p_type)).getId()); 
+		CoreClassDescriptor typeDescriptor = (CoreClassDescriptor)elements.get(((InkObjectState)((MirrorAPI)prop).getRawValue(PropertyState.p_type)).getId());
 		Class<?> typeClass = typeDescriptor.getStateClass();
 		String name = (String)((MirrorAPI)prop).getRawValue(PropertyState.p_name);
 		mirror.boot(index, name, typeClass, marker, hasStaticValue, isComputed);
 	}
-	
+
 	private void instantiateEnumMirror(PropertyState prop, byte index, PropertyMirrorImpl<?>mirror, boolean isComputed, boolean hasStaticValue) throws Exception {
 		DataTypeMarker marker = DataTypeMarker.Enum;
 		EnumTypeState enumState = (EnumTypeState)((MirrorAPI)prop).getRawValue(PropertyState.p_type);
@@ -736,7 +739,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		String name = (String)((MirrorAPI)prop).getRawValue(PropertyState.p_name);
 		mirror.boot(index, name, typeClass, marker, hasStaticValue, isComputed);
 	}
-	
+
 	private void instantiatePrimitiveMirror(PropertyState prop, byte index, PrimitiveAttributeMirrorImpl<?>mirror, boolean isComputed, boolean hasStaticValue) {
 		DataTypeMarker marker = DataTypeMarker.Primitive;
 		PrimitiveTypeMarker primitiveMarker = null;
@@ -779,7 +782,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		return result;
 	}
-	
+
 	private PropertyState createProperty(Field f, CoreClassDescriptor desc) throws Exception {
 		PropertyState result = null;
 		Class<?> stateClass = desc.getStateClass();
@@ -796,7 +799,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		result = createProperty(f, setter, propertyName, paramClass, stateClass);
 		return result;
 	}
-	
+
 	private PropertyState createProperty(Field f, Method m, String propertyName, Class<?> typeClass, Class<?> containerClass) throws Exception{
 		boolean mandatory = false;
 		InheritanceConstraints st = InheritanceConstraints.Instance_Can_Refine_Inherited_Value;
@@ -856,7 +859,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		return result;
 	}
-	
+
 	private PropertyState createReference(Field f, Method m,
 			String propertyName, Class<?> typeClass, Class<?> containerClass, boolean mandatory) throws Exception {
 		ReferenceState result = new ReferenceState.Data();
@@ -884,7 +887,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				throw new CoreException("Could not instantiate default value for property " + propertyName +", of type " + containerClass.getName(), e);
 			}
 		}
-		InkTypeState type = (InkTypeState) typeDesc.getObject();
+		InkTypeState type = typeDesc.getObject();
 		((MirrorAPI)result).setRawValue(ReferenceState.p_type, type);
 		return result;
 	}
@@ -916,9 +919,9 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}catch(Exception e){
 			throw new CoreException("Could not resolve Map Property : "  + propertyName +", found in class " + classElements.get(containerClass).getId(), e);
 		}
-		return result;	
+		return result;
 	}
-	
+
 	private Class<?> extractItemClass(Type genericT){
 		Class<?> result = null;
 		Type itemType =((ParameterizedType)genericT).getActualTypeArguments()[0];
@@ -999,7 +1002,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				}
 			}
 		}
-		
+
 		Object defaultValue = null;
 		if(defaultEnumName!=null){
 			defaultValue = enumClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[]{String.class}).invoke(null, new Object[]{defaultEnumName});
@@ -1038,7 +1041,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			newEnumerator(e, desc);
 		}
 	}
-	
+
 	private String getRelativeJavaPackage(Class<?> c){
 		String result = c.getPackage().getName();
 		result = result.substring(CoreNotations.CORE_PACKAGE.length() +1, result.length());
@@ -1053,13 +1056,13 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		for(Object o : enumValues){
 			values.add(o.toString());
 		}
-		((MirrorAPI)object).setRawValue(EnumTypeState.p_values, values);
-		((MirrorAPI)object).setRawValue(EnumTypeState.p_java_path, getRelativeJavaPackage(enumClass));
+		(object).setRawValue(EnumTypeState.p_values, values);
+		(object).setRawValue(EnumTypeState.p_java_path, getRelativeJavaPackage(enumClass));
 		CoreObjectDescriptor desc = new CoreObjectDescriptorImpl(id, classDesc.getId(), classDesc.getStateClass(), object);
 		elements.put(id, desc);
-		
+
 	}
-	
+
 	private String createEnumId(Class<?> enumClass){
 		String id = enumClass.getSimpleName();
 		return createId(id);
@@ -1086,7 +1089,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			constraintsClass = metadata.constraintsClass();
 			genericValidatorClass = metadata.genericValidatorClass();
 		}
-		CoreClassDescriptor constraintsDesc = classElements.get(constraintsClass); 
+		CoreClassDescriptor constraintsDesc = classElements.get(constraintsClass);
 		ConstraintsState constraints = (ConstraintsState) newInstance(null, constraintsClass, constraintsDesc.getNumberOfFields(), constraintsDesc.getNumberOfTraits(), false);
 		((MirrorAPI)personality).setRawValue(PersonalityState.p_constraints, constraints);
 		CoreClassDescriptor validatorDesc = classElements.get(genericValidatorClass);
@@ -1141,7 +1144,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			((MirrorAPI)constraints).setRawValue(ConstraintsState.p_validators, validators);
 		}
 	}
-	
+
 	private PersonalityState addTraits(CoreClassDescriptor ce) throws Exception {
 		CoreClassSpec metadata = ce.getMetadata();
 		Class<?> traitsClass = PersonalityState.class;
@@ -1150,10 +1153,10 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			mirrorStateClass = metadata.mirrorClass();
 			traitsClass = metadata.traitsClass();
 		}
-		CoreClassDescriptor desc = classElements.get(traitsClass); 
+		CoreClassDescriptor desc = classElements.get(traitsClass);
 		PersonalityState traits = (PersonalityState) newInstance(null, traitsClass, desc.getNumberOfFields(), desc.getNumberOfTraits(), false);
 		CoreClassDescriptor classDesc = classElements.get(mirrorStateClass);
-		MirrorAPI mirrorState = (MirrorAPI) newInstance(null, mirrorStateClass, classDesc.getNumberOfFields(), classDesc.getNumberOfTraits(), false);
+		MirrorAPI mirrorState = newInstance(null, mirrorStateClass, classDesc.getNumberOfFields(), classDesc.getNumberOfTraits(), false);
 		Class<? extends ObjectEditorState> editorClassState = null;
 		if(ClassMirrorState.class.isAssignableFrom(mirrorStateClass)){
 			editorClassState = ClassEditorState.class;
@@ -1162,7 +1165,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		CoreClassDescriptor editorDesc = classElements.get(editorClassState);
 		MirrorAPI editorObject = newInstance(null, editorClassState, editorDesc.getNumberOfFields(), editorDesc.getNumberOfTraits(), false);
-		//InkObjectImpl<?> editorBehaviorInstance = (InkObjectImpl<?>) editorDesc.getBehaviorClass().newInstance(); 
+		//InkObjectImpl<?> editorBehaviorInstance = (InkObjectImpl<?>) editorDesc.getBehaviorClass().newInstance();
 		editorObject.boot(editorDesc.getObject(), factory, null, context, null);
 		mirrorState.setRawValue(MirrorState.p_editor, editorObject);
 		((MirrorAPI)traits).setRawValue(PersonalityState.p_reflection, mirrorState);
@@ -1174,8 +1177,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		ObjectFactoryState factory = new ObjectFactoryState.Data();
 		CoreClassDescriptor desc = classElements.get(ObjectFactoryState.class);
 		((MirrorAPI)factory).setCoreObject(desc.getNumberOfFields(), desc.getNumberOfTraits());
-		
-		((ClassMirrorAPI)ce.getObject()).setFactory(factory);
+
+		(ce.getObject()).setFactory(factory);
 	}
 
 	private void addMetadata(CoreObjectDescriptor ce) {
@@ -1198,18 +1201,18 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newCollectionType(MAP, CollectionTypeState.class, CollectionTypeMarker.Map);
 		newCollectionType(LIST, CollectionTypeState.class, CollectionTypeMarker.List);
 	}
-	
+
 	private void newCollectionType(String id, Class<?> stateInteface, CollectionTypeMarker marker) throws Exception{
 		String classId = createId(stateInteface);
 		CoreClassDescriptor classDesc = (CoreClassDescriptor) elements.get(classId);
 		MirrorAPI object = newInstance(id, stateInteface, classDesc.getNumberOfFields(), classDesc.getNumberOfTraits(), true);
 		CoreObjectDescriptor desc = new CoreObjectDescriptorImpl(id, classId, stateInteface, object);
-		((MirrorAPI)object).setRawValue(CollectionTypeState.p_type_marker, marker);
+		(object).setRawValue(CollectionTypeState.p_type_marker, marker);
 		elements.put(id, desc);
 	}
 
 	private void instantiatePrimitiveTypes() {
-		CoreClassDescriptorImpl desc = (CoreClassDescriptorImpl) elements.get(createId(PrimitiveTypeState.class)); 
+		CoreClassDescriptorImpl desc = (CoreClassDescriptorImpl) elements.get(createId(PrimitiveTypeState.class));
 		String[] ids = new String[]{BOOLEAN, SHORT, BYTE, DATE,INTEGER,DOUBLE,FLOAT,STRING, LONG};
 		String type;
 		PrimitiveTypeMarker marker;
@@ -1304,6 +1307,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(StringAttributeValidatorState.class);
 		newInkObject(NumericAttributeValueValidatorState.class);
 		newInkObject(NumericAttributeValidatorState.class);
+		newInkObject(EnumAttributeValueValidatorState.class);
+		newInkObject(EnumAttributeValidatorState.class);
 		newInkObject(InkReaderState.class);
 		newInkObject(EmptyDslLoaderState.class);
 	}
@@ -1316,7 +1321,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		return result;
 	}
-	
+
 	private void newInkObject(Class<?> stateInterface) throws Exception{
 		try{
 			String id = createId(stateInterface);
@@ -1359,12 +1364,12 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		result.setCoreObject(numberOfFields, numberOfTraits);
 		return result;
 	}
-	
+
 	private Class<?> getDataClass(Class<?> stateInterface) throws ClassNotFoundException {
 		String name = stateInterface.getName() +"$Data";
 		return loadClass(name);
 	}
-	
+
 	private Class<?> loadClass(String name) throws ClassNotFoundException{
 		try{
 			return Thread.currentThread().getContextClassLoader().loadClass(name);
@@ -1384,16 +1389,16 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	public String createId(String shortId){
-		return CoreNotations.CORE_NAMESPACE + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C +shortId; 
+		return CoreNotations.CORE_NAMESPACE + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C +shortId;
 	}
-	
+
 	private void newPrimitive(CoreClassDescriptor classDesc, String id, PrimitiveTypeMarker marker) throws Exception{
 		MirrorAPI typeInstance = newInstance(id, PrimitiveTypeState.class, classDesc.getNumberOfFields(), classDesc.getNumberOfTraits(), true);
-		((MirrorAPI)typeInstance).setRawValue(PrimitiveTypeState.p_type_marker, marker);
+		(typeInstance).setRawValue(PrimitiveTypeState.p_type_marker, marker);
 		CoreObjectDescriptor desc = new CoreObjectDescriptorImpl(id, classDesc.getId(), null, typeInstance);
 		elements.put(id, desc);
 	}
-	
+
 	private void arrangeFields(Field[] fields, int currentLoc, int listLoc, List<Field> resultList, Class<?> currentClass){
 		Field f;
 		boolean toContinue = true;
@@ -1413,7 +1418,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			listLoc++;
 		}
 	}
-	
+
 	private Field[] getFields(Class<?> interfaceClass) {
 		List<Field> result = new ArrayList<Field>();
 		List<Field> temp = new ArrayList<Field>();
@@ -1426,7 +1431,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		return result.toArray(new Field[]{});
 	}
-	
+
 	private byte getTraitsCount(Class<?> interfaceClass) {
 		byte count = 0;
 		Field[] fields = interfaceClass.getFields();
@@ -1437,11 +1442,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		}
 		return count;
 	}
-	
+
 	public String getEnumClassName(EnumTypeState enumState) {
 		return CoreNotations.CORE_PACKAGE + "."+((MirrorAPI)enumState).getRawValue(EnumTypeState.p_java_path) + "." + CoreUtils.getShortId(enumState.getId());
 	}
-	
+
 	@Override
 	public List<File> getInkFiles() {
 		return new ArrayList<File>();

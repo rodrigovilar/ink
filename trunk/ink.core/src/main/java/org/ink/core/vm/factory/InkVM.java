@@ -1,6 +1,8 @@
 package org.ink.core.vm.factory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -68,6 +70,15 @@ public class InkVM implements VM {
 	@Override
 	public DslFactory getFactory(String namespace){
 		return VMMain.getFactory(namespace);
+	}
+
+	@Override
+	public List<InkErrorDetails> collectErrors(){
+		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
+		for(DslFactory factory : VMMain.getAllFactories()){
+			result.addAll(factory.collectErrors());
+		}
+		return result;
 	}
 
 

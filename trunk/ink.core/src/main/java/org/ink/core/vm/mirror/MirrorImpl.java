@@ -13,17 +13,17 @@ import org.ink.core.vm.types.ObjectTypeMarker;
  * @author Lior Schachter
  */
 public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements Mirror{
-	
+
 	@Override
 	public void afterTargetSet() {
 		super.afterTargetSet();
 	}
-	
+
 	@Override
 	public String getShortId(){
-		return ((MirrorAPI)getTargetState()).getShortId(); 
+		return ((MirrorAPI)getTargetState()).getShortId();
 	}
-	
+
 	@Override
 	public String getId(){
 		return getTargetState().getId();
@@ -39,7 +39,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public <T extends ObjectEditor> T edit() {
 		return (T)edit(false);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends ObjectEditor> T edit(boolean transactional) {
@@ -49,6 +49,15 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public ClassMirror getClassMirror() {
 		return (ClassMirror) getTargetState().getMeta().reflect();
+	}
+
+	@Override
+	public Mirror getRootOwner() {
+		Mirror owner = getOwner();
+		if(owner == null){
+			return this;
+		}
+		return owner.getRootOwner();
 	}
 
 	@Override
@@ -70,16 +79,16 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public PropertyMirror[] getPropertiesMirrors() {
 		return ((MirrorAPI)getTargetState()).getPropertiesMirrors();
 	}
-	
+
 	@Override
 	public PropertyMirror getPropertyMirror(byte index) {
 		return ((MirrorAPI)getTargetState()).getPropertiesMirrors()[index];
 	}
-	
+
 	private Byte getPropertyIndex(String name){
-		return ((MirrorAPI)getTargetState()).getPropertyIndex(name); 
+		return ((MirrorAPI)getTargetState()).getPropertyIndex(name);
 	}
-	
+
 	@Override
 	public PropertyMirror getPropertyMirror(String name) {
 		Byte index = getPropertyIndex(name);
@@ -88,7 +97,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 		}
 		return null;
 	}
-	
+
 	@Override
 	public boolean isAbstract() {
 		return ((MirrorAPI)getTargetState()).isAbstract();
@@ -96,14 +105,14 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 
 	@Override
 	public Object getPropertyValue(String propertyName) {
-		return ((MirrorAPI)getTargetState()).getPropertyValue(propertyName);	
+		return ((MirrorAPI)getTargetState()).getPropertyValue(propertyName);
 	}
 
 	@Override
 	public Object getPropertyValue(byte index) {
 		return ((MirrorAPI)getTargetState()).getPropertyValue(index);
 	}
-	
+
 	@Override
 	public Object getPropertyStaticValue(byte index) {
 		return ((MirrorAPI)getTargetState()).getPropertyStaticValue(index);
@@ -121,14 +130,15 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 
 	@Override
 	public <T extends InkObjectState> T cloneTargetState(boolean identicalTwin){
-		return ((MirrorAPI)getTargetState()).cloneState(identicalTwin); 
+		return ((MirrorAPI)getTargetState()).cloneState(identicalTwin);
 	}
-	
+
 	@Override
 	public <T extends InkObjectState> T cloneTargetState(){
-		return ((MirrorAPI)getTargetState()).cloneState(); 
+		return ((MirrorAPI)getTargetState()).cloneState();
 	}
-	
+
+	@Override
 	public boolean isRoot() {
 		return ((MirrorAPI)getTargetState()).isRoot();
 	}
@@ -137,12 +147,12 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public boolean isClass() {
 		return ((MirrorAPI)getTargetState()).isClass();
 	}
-	
+
 	@Override
 	public ObjectTypeMarker getObjectTypeMarker() {
 		return ((MirrorAPI)getTargetState()).getObjectTypeMarker();
 	}
-	
+
 	@Override
 	public byte getDefiningPropertyIndex() {
 		return ((MirrorAPI)getTargetState()).getDefiningPropertyIndex();
@@ -162,7 +172,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public boolean isLoadOnStartup() {
 		return ((MirrorAPI)getTargetState()).isLoadOnStartup();
 	}
-	
+
 	@Override
 	public boolean isCoreObject() {
 		return ((MirrorAPI)getTargetState()).isCoreObject();
@@ -177,5 +187,5 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public void put(Object key, Object data) {
 		((MirrorAPI)getTargetState()).put(key, data);
 	}
-	
+
 }

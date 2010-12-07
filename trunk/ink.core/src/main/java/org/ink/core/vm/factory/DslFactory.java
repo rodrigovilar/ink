@@ -60,6 +60,7 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public void validateAllElements(ValidationContext vc);
 	public Context getAppContext();
 	public File getConfigurationFile();
+	public List<InkErrorDetails> collectErrors();
 	//TODO - need to move this method to the mirror
 	public void setConfigurationFile(File f);
 	public void scan();

@@ -32,11 +32,11 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 import org.ink.eclipse.InkPlugin;
 
 public class InkEclipseUtil {
-	
+
 	private static String[] getScope(String ns){
 		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
 	}
-	
+
 	public static List<String> getAllSupers(String classId){
 		Context context = InkPlugin.getDefault().getInkContext();
 		List<String> result = new ArrayList<String>();
@@ -52,7 +52,7 @@ public class InkEclipseUtil {
 		}
 		return result;
 	}
-	
+
 	public static List<String> getInstances(String ns, String classId, boolean recrusive){
 		List<String> classes = new ArrayList<String>();
 		if(recrusive){
@@ -61,14 +61,14 @@ public class InkEclipseUtil {
 		classes.add(classId);
 		return getInstances(ns, classes);
 	}
-	
+
 	public static List<String> getInstances(String ns, List<String> classes){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		for(String clsId : classes){
 			InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(clsId, false);
 			if(inkObject!=null){
-				Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), getScope(ns));
+				Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), false, getScope(ns));
 				if(temp!=null){
 					referrers.addAll(temp);
 				}
@@ -84,13 +84,13 @@ public class InkEclipseUtil {
 		Collections.sort(result);
 		return result;
 	}
-	
+
 	public static List<String> getSubClasses(String ns, String classId){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
-			referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), getScope(ns));
+			referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), false, getScope(ns));
 		}
 		List<String> result = new ArrayList<String>();
 		if(referrers!=null){
@@ -103,7 +103,7 @@ public class InkEclipseUtil {
 		Collections.sort(result);
 		return result;
 	}
-	
+
 	public static Collection<PropertyMirror> getPropertiesMirrors(String classId, Collection<String> exclude){
 		Collection<PropertyMirror> result = new ArrayList<PropertyMirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
@@ -117,7 +117,7 @@ public class InkEclipseUtil {
 		}
 		return result;
 	}
-	
+
 	public static PropertyMirror getPropertyMirror(String classId, String propertyName, List<String> path){
 		PropertyMirror result = null;
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
@@ -133,27 +133,27 @@ public class InkEclipseUtil {
 					case List:
 						result = ((ListPropertyMirror)temp).getItemMirror().getName().equals(propertyName)?
 								((ListPropertyMirror)temp).getItemMirror():null;
-					break;
+								break;
 					case Map:
 						result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
 								((MapPropertyMirror)temp).getKeyMirror():null;
-						if(result==null){
-							result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
-									((MapPropertyMirror)temp).getKeyMirror():null;
-							
-						}
-						break;
-								
+								if(result==null){
+									result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
+											((MapPropertyMirror)temp).getKeyMirror():null;
+
+								}
+								break;
+
 					}
 				}
-				
+
 			}else{
 				result = props.get(propertyName);
 			}
 		}
 		return result;
 	}
-	
+
 	public static IFile getOutputFile(IProject p, IFile sourceFile){
 		try {
 			IJavaProject jProject = JavaCore.create(p);

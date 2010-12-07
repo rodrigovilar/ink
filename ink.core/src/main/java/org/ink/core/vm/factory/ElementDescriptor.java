@@ -11,8 +11,10 @@ public interface ElementDescriptor<D>{
 	public String getId();
 	public D getRawData();
 	public File getResource();
-	public abstract void setValidationErrorMessages(List<ValidationMessage> validationErrorMessages);
-	public abstract List<ValidationMessage> getValidationErrorMessages();
-	public abstract void setParsingErrors(List<ParseError> parsingErrors);
-	public abstract List<ParseError> getParsingErrors();
+	public void setValidationErrorMessages(List<ValidationMessage> validationErrorMessages);
+	public List<ValidationMessage> getValidationErrorMessages();
+	public void setParsingErrors(List<ParseError> parsingErrors);
+	public List<ParseError> getParsingErrors();
+	public boolean containsErrors();
+	public void clearErrors();
 }

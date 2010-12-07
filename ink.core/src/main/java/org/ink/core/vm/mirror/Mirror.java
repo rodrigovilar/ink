@@ -20,6 +20,7 @@ public interface Mirror extends Trait{
 	public <T extends ObjectEditor> T edit(boolean transactional);
 	public ClassMirror getClassMirror();
 	public Mirror getOwner();
+	public Mirror getRootOwner();
 	public Mirror getSuper();
 	public boolean isAbstract();
 	public PropertyMirror getPropertyMirror(byte index);

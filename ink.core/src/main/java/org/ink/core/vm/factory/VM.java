@@ -1,6 +1,7 @@
 package org.ink.core.vm.factory;
 
 import java.io.File;
+import java.util.List;
 
 
 /**
@@ -12,5 +13,6 @@ public interface VM {
 	public Context getContext();
 	public DslFactory getFactory();
 	public void destroy();
-	
+	public List<InkErrorDetails> collectErrors();
+
 }

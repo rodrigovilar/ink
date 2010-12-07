@@ -129,6 +129,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 
 	@Override
+	public List<InkErrorDetails> collectErrors(){
+		return loader.collectErrors();
+	}
+
+
+	@Override
 	public List<Trait> getDetachableTraits(){
 		return new ArrayList<Trait>(detachableTraits);
 	}
@@ -145,6 +151,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
 		}
 	}
+
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -167,7 +174,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					}
 					result = e.getObject();
 					repository.setObject(id, result);
-					ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+					try{
+						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+					}catch(Throwable e1){
+						if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+							throw new RuntimeException(e);
+						}
+						e.printStackTrace();
+					}
 				}
 			}else if(scope.contains(ns)){
 				DslFactory factory = boundedFactories.get(ns);
@@ -461,7 +475,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void afterVmStart() {
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
 		for(InkObjectState elem : repository){
-			repo.register(elem.getBehavior());
+			try{
+				repo.register(elem.getBehavior());
+			}catch(Throwable e){
+				if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+					throw new RuntimeException(e);
+				}
+				e.printStackTrace();
+			}
 		}
 	}
 

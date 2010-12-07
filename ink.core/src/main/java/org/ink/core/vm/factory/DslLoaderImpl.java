@@ -30,14 +30,15 @@ import org.ink.core.vm.utils.file.FileUtils;
 public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
 
 	private final Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
-	InkReader<D> reader = null;
+	private DslFactory ownerFactory = null;
+	private InkClass readerCls = null;
 	ValidationContext vc = null;
 	private File folder = null;
 
 	@Override
 	public void destroy() {
 		elements.clear();
-		reader = null;
+		readerCls = null;
 		vc = null;
 		folder = null;
 	}
@@ -47,6 +48,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		ElementDescriptor<D> desc = elements.get(id);
 		if(desc!=null){
 			try{
+				InkReader<D> reader = createReader();
 				InkObjectState result = reader.read(desc.getRawData(), context);
 				if(reader.containsErrors()){
 					List<ParseError> errors = reader.getErrors();
@@ -65,11 +67,10 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						System.out.println("Object '" +id+"':" + er.getFormattedMessage());
 					}
 					System.out.println("=================================================================================================================================");
-					throw new ObjectLoadingException(result, errors, null, desc.getResource(), id);
+					throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
 				}
 				return result;
 			}finally{
-				reader.reset();
 				vc.reset();
 			}
 		}
@@ -111,12 +112,17 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		}
 	}
 
+	private InkReader<D> createReader(){
+		return readerCls.newInstance(ownerFactory.getAppContext()).getBehavior();
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void loadElements(DslFactory ownerFactory) throws IOException {
+		this.ownerFactory = ownerFactory;
 		folder = VMConfig.instance().getInstantiationStrategy().getDslResourcesLocation(ownerFactory);
 		//TODO - the reader should be a property on DSLoader
-		InkClass readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
-		reader = readerCls.newInstance(ownerFactory.getAppContext()).getBehavior();
+		readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
+		InkReader<D> reader = createReader();
 		vc = ((InkClass)ownerFactory.getObject(CoreNotations.Ids.VALIDATION_CONTEXT.toString())).newInstance().getBehavior();
 		List<ElementDescriptor<D>> fileElements;
 		String id;
@@ -153,6 +159,32 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@Override
 	public List<File> getInkFiles() {
 		return FileUtils.listInkFiles(folder);
+	}
+
+	@Override
+	public List<InkErrorDetails> collectErrors() {
+		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
+		ElementDescriptor<D> elem;
+		InkErrorDetails err;
+		for(Map.Entry<String, ElementDescriptor<D>> en : elements.entrySet()){
+			elem = en.getValue();
+			if(elem.containsErrors()){
+				if(elem.getParsingErrors()!=null){
+					for(ParseError pe : elem.getParsingErrors()){
+						err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource());
+						result.add(err);
+					}
+				}
+				if(elem.getValidationErrorMessages()!=null){
+					for(ValidationMessage vm : elem.getValidationErrorMessages()){
+						err = new InkErrorDetails(en.getKey(), vm.getErrorPath(), vm.getFormattedMessage(), elem.getResource());
+						result.add(err);
+					}
+				}
+				elem.clearErrors();
+			}
+		}
+		return result;
 	}
 
 }

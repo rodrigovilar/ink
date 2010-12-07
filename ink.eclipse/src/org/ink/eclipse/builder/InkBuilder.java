@@ -2,6 +2,10 @@ package org.ink.eclipse.builder;
 
 import ink.eclipse.editors.page.DataBlock;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +19,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.ikayzo.sdl.SDLParseException;
 import org.ink.core.utils.sdl.SdlParser;
+import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.InkEclipseUtil;
 
@@ -42,7 +49,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 		 */
 		@Override
@@ -124,12 +131,13 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
 	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
@@ -214,11 +222,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	protected void fullBuild(final IProgressMonitor monitor)
 	throws CoreException {
-		try {
-			getProject().accept(new InkResourceVisitor(monitor));
-			InkPlugin.getDefault().reloadInk();
-		} catch (CoreException e) {
-		}
+		getProject().accept(new InkResourceVisitor(monitor));
+		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
+		processErrors(errors);
 	}
 
 
@@ -227,6 +233,37 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		// the visitor does the work.
 		List<DataBlock> changedElements = new ArrayList<DataBlock>();
 		delta.accept(new InkDeltaVisitor(monitor, changedElements));
-		InkPlugin.getDefault().reloadInk();
+		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
+		processErrors(errors);
+	}
+
+	private void processErrors(List<InkErrorDetails> errors) {
+		for(InkErrorDetails err : errors){
+			try{
+				String id = err.getId();
+				id = "\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
+				File f = err.getResource();
+				int lineNumber = 0;
+				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+				try {
+					String line;
+					while ((line=reader.readLine())!=null){
+						lineNumber++;
+						if(line.contains(id)){
+							break;
+						}
+					}
+				}
+				finally{
+					reader.close();
+				}
+				IWorkspace workspace= ResourcesPlugin.getWorkspace();
+				IPath location= Path.fromOSString(f.getAbsolutePath());
+				IFile file= workspace.getRoot().getFileForLocation(location);
+				addMarker(file, err.getFormattedMessage(), lineNumber, IMarker.SEVERITY_ERROR);
+			}catch(Throwable e){
+				e.printStackTrace();
+			}
+		}
 	}
 }

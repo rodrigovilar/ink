@@ -4,11 +4,11 @@ package org.ink.core.vm.factory.internal;
  * @author Lior Schachter
  */
 public class CoreNotations {
-	
+
 	public static final String CORE_NAMESPACE = "ink.core";
 	public static final String CORE_SOURCE_PATH = "org.ink.core.vm";
 	public static final String CORE_PACKAGE = "org.ink.core.vm";
-	
+
 	public class Ids{
 		public static final String DEFAULT_CONTEXT = "ink.core:DefaultContext";
 		public static final String CORE_LOADER = "ink.core:CoreLoader";
@@ -89,13 +89,15 @@ public class CoreNotations {
 		public static final String MAX_VALUE_VIOLATION = "ink.core:max_value_violation";
 		public static final String MIN_VALUE_VIOLATION = "ink.core:min_value_violation";
 		public static final String STRING_REG_EXP_VIOLATION = "ink.core:string_reg_exp_violation";
+		public static final String ENUM_ILLEGAL_VALUE = "ink.core:enum_illegal_value";
+
 		public static final String STRING_MAX_LENGTH_VIOLATION = "ink.core:string_max_length_violation";
 		public static final String STRING_MIN_LENGTH_VIOLATION = "ink.core:string_min_length_violation";
 		public static final String COMPONENT_TYPE_VIOLATION = "ink.core:component_type_violation";
 		public static final String REFINEMENT_VIOLATION = "ink.core:refinement_violation";
 		public static final String WRONG_VALUE_TYPE = "ink.core:wrong_value_type";
 		public static final String MISSING_FIELD_DATA = "ink.core:missing_field_data";
-		
+
 	}
-	
+
 }

@@ -30,7 +30,7 @@ public class InkContentAssistProcessorOld implements IContentAssistProcessor {
 	protected IProgressMonitor createProgressMonitor() {
 		return new NullProgressMonitor();
 	}
-	
+
 	@Override
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 			int offset) {
@@ -75,7 +75,7 @@ public class InkContentAssistProcessorOld implements IContentAssistProcessor {
 					count++;
 					break;
 				}
-					
+
 			}
 			if(startElement){
 				proposals.add(new CompletionProposal("Class ", offset-count, count, "Class ".length(), null, null, null, null));
@@ -100,10 +100,10 @@ public class InkContentAssistProcessorOld implements IContentAssistProcessor {
 					Collection<InkObject> referrers;
 					if(line.startsWith("Object")){
 						InkObject inkObject = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
-						referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance());
+						referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), false);
 					}else{
 						InkObject inkObject = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
-						referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance());
+						referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), false);
 					}
 					for(InkObject o : referrers){
 						String id = o.reflect().getId();
@@ -157,7 +157,7 @@ public class InkContentAssistProcessorOld implements IContentAssistProcessor {
 										proposals.add(new CompletionProposal(pm.getName() + " \"\"", offset, 0, pm.getName().length() + " \"\"".length()-1, null, pm.getName(), null, null));
 									}
 									break;
-									
+
 								}
 							}
 						}
@@ -181,7 +181,7 @@ public class InkContentAssistProcessorOld implements IContentAssistProcessor {
 										InkClass propertyType = (InkClass) ((ReferenceMirror)pm).getPropertyType();
 										ModelInfoRepository repo = ModelInfoFactory.getInstance();
 										Collection<InkObject> referrers;
-										referrers = repo.findReferrers(propertyType, ExtendsRelation.getInstance());
+										referrers = repo.findReferrers(propertyType, ExtendsRelation.getInstance(), false);
 										String id = propertyType.reflect().getId();
 										proposals.add(new CompletionProposal(id, offset, 0, id.length()+2, null, id, null, null));
 										if(referrers!=null){

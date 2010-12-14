@@ -10,18 +10,19 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=PrimitiveAttributeMirrorState.class, constraintsClass=PropertyConstraintsState.class)
+@CoreClassSpec(mirrorClass=PrimitiveAttributeMirrorState.class,
+		constraintsClass=PropertyConstraintsState.class, isAbstract=true)
 public interface PrimitiveAttributeState extends AttributeState{
-	
+
 	@Override
 	public PrimitiveType getType();
-	
+
 	public class Data extends AttributeState.Data implements PrimitiveAttributeState{
-		
+
 		@Override
 		public PrimitiveType getType() {
 			return (PrimitiveType)getValue(p_type);
 		}
-		
+
 	}
 }

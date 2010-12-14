@@ -31,7 +31,7 @@ import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 import org.ink.eclipse.InkPlugin;
 
-public class InkEclipseUtil {
+public class InkUtils {
 
 	private static String[] getScope(String ns){
 		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
@@ -53,13 +53,31 @@ public class InkEclipseUtil {
 		return result;
 	}
 
-	public static List<String> getInstances(String ns, String classId, boolean recrusive){
-		List<String> classes = new ArrayList<String>();
-		if(recrusive){
-			classes.addAll(getSubClasses(ns, classId));
+	public static List<String> getInstances(String ns, String classId, boolean recursive){
+		Collection<InkObject> referrers = new ArrayList<InkObject>();
+		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
+		if(inkObject!=null){
+			ModelInfoRepository repo = ModelInfoFactory.getInstance();
+			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive, getScope(ns));
+			if(temp!=null){
+				referrers.addAll(temp);
+			}
 		}
-		classes.add(classId);
-		return getInstances(ns, classes);
+		return createResultList(referrers, true);
+	}
+
+	private static List<String> createResultList(Collection<InkObject> referrers, boolean includingAbstract){
+		List<String> result = new ArrayList<String>();
+		if(referrers!=null){
+			for(InkObject o : referrers){
+				Mirror m = o.reflect();
+				if(includingAbstract || !m.isAbstract()){
+					result.add(m.getId());
+				}
+			}
+		}
+		Collections.sort(result);
+		return result;
 	}
 
 	public static List<String> getInstances(String ns, List<String> classes){
@@ -74,34 +92,17 @@ public class InkEclipseUtil {
 				}
 			}
 		}
-		List<String> result = new ArrayList<String>();
-		if(referrers!=null){
-			for(InkObject o : referrers){
-				String id = o.reflect().getId();
-				result.add(id);
-			}
-		}
-		Collections.sort(result);
-		return result;
+		return createResultList(referrers, true);
 	}
 
-	public static List<String> getSubClasses(String ns, String classId){
+	public static List<String> getSubClasses(String ns, String classId, boolean recursive, boolean includingAbstract){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
-			referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), false, getScope(ns));
+			referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), recursive, getScope(ns));
 		}
-		List<String> result = new ArrayList<String>();
-		if(referrers!=null){
-			for(InkObject o : referrers){
-				String id = o.reflect().getId();
-				result.add(id);
-				result.addAll(getSubClasses(ns, id));
-			}
-		}
-		Collections.sort(result);
-		return result;
+		return createResultList(referrers, includingAbstract);
 	}
 
 	public static Collection<PropertyMirror> getPropertiesMirrors(String classId, Collection<String> exclude){

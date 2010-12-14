@@ -16,7 +16,7 @@ import org.ink.core.vm.utils.InkNotations;
  */
 public class FullInstantiationStrategy implements InstantiationStrategy {
 
-	
+
 	@Override
 	public String getBehaviorClassName(InkClassState cls, DslFactory factory) {
 		StringBuilder builder = new StringBuilder(100);
@@ -28,7 +28,7 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		}
 		return  builder.toString();
 	}
-	
+
 	@Override
 	public String getInterfaceClassName(InkClassState cls, DslFactory factory) {
 		StringBuilder builder = new StringBuilder(100);
@@ -52,7 +52,7 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		}
 		return  builder.toString();
 	}
-	
+
 	@Override
 	public String getStructDataClassName(InkClassState cls, DslFactory factory) {
 		StringBuilder builder = new StringBuilder(100);
@@ -76,21 +76,21 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		}
 		return  builder.toString();
 	}
-	
+
 	@Override
 	public boolean enableEagerFetch() {
 		return false;
 	}
-	
+
 	@Override
 	public File getDslResourcesLocation(DslFactory factory) {
 		URL dir  = Thread.currentThread().getContextClassLoader().getResource(factory.getDslPackage().replace('.', '/'));
 		if(dir==null){
 			//TODO log error
-			throw new CoreException("Could not locate dsl reources location ofr DSL factory :" + factory.getNamespace());
+			throw new CoreException("Could not locate dsl reources location for DSL factory :" + factory.getNamespace());
 		}
 		File folder = new File(dir.getPath());
 		return folder;
 	}
-	
+
 }

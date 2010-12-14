@@ -9,16 +9,17 @@ import org.ink.core.vm.lang.property.mirror.ValuePropertyMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=ValuePropertyMirrorState.class, constraintsClass=PropertyConstraintsState.class)
+@CoreClassSpec(mirrorClass=ValuePropertyMirrorState.class,
+		constraintsClass=PropertyConstraintsState.class, isAbstract=true)
 public interface ValuePropertyState extends PropertyState{
-	
+
 	public static final byte p_value_calculator = 6;
-	
+
 	public PropertyValueCalculator getValueCalculator();
 	public void setValueCalculator(PropertyValueCalculatorState value);
 
 	public class Data extends PropertyState.Data implements ValuePropertyState{
-		
+
 		@Override
 		public PropertyValueCalculator getValueCalculator() {
 			return (PropertyValueCalculator)getValue(p_value_calculator);

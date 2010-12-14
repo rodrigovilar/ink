@@ -17,6 +17,7 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.mirror.ClassMirror;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.serialization.InkReader;
 import org.ink.core.vm.serialization.ParseError;
 import org.ink.core.vm.traits.TraitClass;
@@ -59,7 +60,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 					}
 					System.out.println("=================================================================================================================================");
 					throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
-				}else if(!result.validate(vc)){
+				}else if( shouldValidateResult(result)&&!result.validate(vc)){
 					List<ValidationMessage> errors = vc.getMessages();
 					desc.setValidationErrorMessages(errors);
 					System.out.println("============================================Load Error=====================================================================================");
@@ -75,6 +76,19 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 			}
 		}
 		return null;
+	}
+
+	private boolean shouldValidateResult(InkObjectState result){
+		Mirror mirror = result.reflect();
+		ClassMirror cMirror = mirror.getClassMirror();
+		if(!cMirror.isCoreObject() && result.reflect().getClassMirror().getDescriptor().containsErrors()){
+			return false;
+		}
+		Mirror superObject = mirror.getSuper();
+		if(superObject!=null && !superObject.isCoreObject()){
+			return !superObject.getDescriptor().containsErrors() ;
+		}
+		return true;
 	}
 
 	@Override
@@ -185,6 +199,11 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public ElementDescriptor<?> getDescriptor(String id) {
+		return elements.get(id);
 	}
 
 }

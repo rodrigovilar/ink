@@ -8,9 +8,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
-import org.ink.eclipse.utils.InkEclipseUtil;
+import org.ink.eclipse.utils.InkUtils;
 
 
 public abstract class DataBlock {
@@ -90,6 +91,16 @@ public abstract class DataBlock {
 		return new CompletionProposal(attName + "=\"\"", cursorLocation-count, count, attName.length() +"=\"\"".length()-1, null, attName, null, null);
 	}
 
+	protected String calculateTabs(){
+		String tabs = "\t";
+		DataBlock parent = getParent();
+		while(parent!=null){
+			tabs += "\t";
+			parent = parent.getParent();
+		}
+		return tabs;
+	}
+
 	protected List<ICompletionProposal> getInnerBlockProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
@@ -107,16 +118,20 @@ public abstract class DataBlock {
 				result.add(createAttributeProposal("super", cursorLocation, count));
 			}
 			if(line.contains("class") && !line.contains("{")){
-				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+				String tabs = calculateTabs();
+				result.add(new CompletionProposal("{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", cursorLocation, 0, new String("{\n" + tabs+"\n}").length()-2, null, "{", null, null));
 			}
 		}else if(textString.charAt(cursorLocation-1)=='\"'){
 			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
 			if(attr.equals("class")){
-				PropertyMirror pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+				PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 				if(pm.getTypeMarker()==DataTypeMarker.Class){
-					String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-					List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
-					options.add(0, constraintClass);
+					Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+					String constraintClass = m.getId();
+					List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
+					if(!m.isAbstract()){
+						options.add(0, constraintClass);
+					}
 					for(String id : options){
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
@@ -230,9 +245,9 @@ public abstract class DataBlock {
 			if(attr.equals("class")){
 				List<String> options;
 				if(line.startsWith("Object")){
-					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT);
+					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, false);
 				}else{
-					options = InkEclipseUtil.getSubClasses(ns, CoreNotations.Ids.INK_CLASS);
+					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
 				}
 				for(String id : options){
 					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
@@ -256,9 +271,9 @@ public abstract class DataBlock {
 
 	protected List<String> getSuperProposals(String line){
 		String classAtt = extractAttributeValue(line, "class");
-		List<String> relevantClasses = InkEclipseUtil.getAllSupers(classAtt);
+		List<String> relevantClasses = InkUtils.getAllSupers(classAtt);
 		relevantClasses.add(classAtt);
-		return InkEclipseUtil.getInstances(ns, relevantClasses);
+		return InkUtils.getInstances(ns, relevantClasses);
 	}
 
 	private String extractAttributeValue(String line, String attName){

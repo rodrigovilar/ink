@@ -56,11 +56,11 @@ public class GenericInstanceValidatorImpl<S extends GenericInstanceValidatorStat
 			break;
 		case Root:
 			if(!target.reflect().isRoot()){
-				context.addError(target, this, "component.type.violation", target.getId(), cMirror.getComponentType().toString());
+				context.addError(target, this, "component.type.violation", cMirror.getId(), cMirror.getComponentType().toString());
 			}
 			break;
 		}
 	}
 
-	
+
 }

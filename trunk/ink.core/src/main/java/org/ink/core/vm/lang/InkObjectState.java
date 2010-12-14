@@ -39,7 +39,7 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
  * @author Lior Schachter
  */
 public interface InkObjectState extends Proxiable, Cloneable, Serializable{
-	
+
 	public Context getContext();
 	public String getId();
 	public <B extends InkObject> B getBehavior();
@@ -48,14 +48,14 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 	public <T extends InkObjectState> T cloneState();
 	public boolean validate(ValidationContext context);
 	public boolean validate(ValidationContext context, SystemState systemState);
-	
+
 	public static final byte t_reflection = 0;
 	public static final byte t_constraints = 1;
-	
+
 	public class Data implements MirrorAPI{
-		
+
 		public static int cache_max_entries = 100;
-		
+
 		//static state
 		private String id=null;
 		private String superId = null;
@@ -67,7 +67,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		private boolean isCoreObject = false;
 		protected DslFactory myFactory;
 		private DataHolder myData;
-		
+
 		//runtime state
 		protected PropertyMirror[] propsMirrors;
 		private InkObjectState owner = null;
@@ -76,7 +76,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		private byte definingPropertyIndex=-1;
 		protected Map<String, Byte> propertiesIndexes;
 		protected InkObject behavior;
-		protected ClassMirrorAPI myClass;		
+		protected ClassMirrorAPI myClass;
 		private byte[] realPropertiesIndex;
 		private Map<Object,Object> cache = null;
 
@@ -84,15 +84,15 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public Context getContext(){
 			return myFactory.getAppContext();
 		}
-		
+
 		@Override
 		public void init(InkClassState c){
 			init(c, InkVM.instance().getFactory());
 		}
-		
+
 		@Override
 		public void init(InkClassState c, DslFactory factory){
-			this.myClass = (ClassMirrorAPI) c; 
+			this.myClass = (ClassMirrorAPI) c;
 			this.propertiesIndexes = myClass.getClassPropertiesIndexes();
 			this.propsMirrors = myClass.getClassPropertiesMirrors();
 			this.myFactory = factory;
@@ -100,12 +100,12 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			this.traitsCache = new Trait[myClass.getTraitsCount()];
 			this.realPropertiesIndex = myClass.getRealPropertiesIndex();
 		}
-		
+
 		@Override
 		public boolean isProxied() {
 			return false;
 		}
-		
+
 		@Override
 		public void boot(InkClassState c, DslFactory factory, InkObject behavior, Context context, Mirror mirror){
 			this.myClass = (ClassMirrorAPI) c;
@@ -118,11 +118,12 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 				((InkObjectImpl<?>) behavior).setState(this, context);
 			}
 		}
-		
+
+		@Override
 		public <T extends InkObjectState> T cloneState(){
 			return cloneState(false);
 		}
-		
+
 		private void cloneData(MirrorAPI destination, boolean identicalTwin){
 			Object currentValue = null;
 			Object clonedValue = null;
@@ -138,7 +139,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 				}
 			}
 		}
-		
+
+		@Override
 		@SuppressWarnings("unchecked")
 		public <T extends InkObjectState> T cloneState(boolean identicalTwin){
 			MirrorAPI result = null;
@@ -163,7 +165,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return (T)result;
 		}
-		
+
 		@Override
 		public boolean isClass(){
 			return false;
@@ -174,7 +176,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public final <M extends Mirror> M reflect(){
 			return (M)asTrait(t_reflection);
 		}
-		
+
+		@Override
 		public Object get(Object key) {
 			if (cache == null) {
 				return null;
@@ -183,7 +186,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			result = cache.get(key);
 			return result;
 		}
-		
+
+		@Override
 		public void put(Object key, Object data){
 			if(cache==null){
 				cache = new ConcurrentHashMap<Object, Object>(8);
@@ -199,17 +203,19 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			cache.put(key, data);
 		}
-		
+
+		@Override
 		public final void cacheTrait(byte key, Trait trait){
 			traitsCache[key] = trait;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public final <T extends Trait> T getCachedTrait(byte key){
 			return (T)traitsCache[key];
 		}
-		
+
+		@Override
 		@SuppressWarnings("unchecked")
 		public <B extends InkObject> B getBehavior(){
 			if(behavior==null){
@@ -217,7 +223,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return (B)behavior;
 		}
-		
+
+		@Override
 		@SuppressWarnings("unchecked")
 		public final <T extends Trait> T asTrait(byte trait){
 			Trait result = traitsCache[trait];
@@ -226,7 +233,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return (T)result;
 		}
-		
+
 		@Override
 		public String toString() {
 			StringBuilder temp = new StringBuilder(1000);
@@ -255,14 +262,15 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return result.toString();
 		}
-		
+
+		@Override
 		public String getShortId(){
 			if(id==null){
 				return null;
 			}
 			return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
@@ -273,24 +281,25 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return false;
 		}
-		
-		
+
+
 		@Override
 		public final void insertValue(byte index, Object value) {
 			if(value!=null){
 				value = prepareValueToSet(propsMirrors[index], value, index);
 			}
-			myData.setValue(index, value);			
+			myData.setValue(index, value);
 		}
-		
+
 		protected final void setValue(byte index, Object value){
 			setPropertyValue(realPropertiesIndex[index], value);
 		}
-		
+
+		@Override
 		public boolean canHaveBehavior(){
 			return true;
 		}
-		
+
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private Object prepareValueToReturn(PropertyMirror propMirror, Object value, byte propIndex){
 			DataTypeMarker typeMarker = propMirror.getTypeMarker();
@@ -302,7 +311,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 						InkObject existingBehavior =  ((MirrorAPI)result).getBehavior();
 						Proxiability.Kind proxyType = Proxiability.Kind.BEHAVIOR_OWNER;
 						if(existingBehavior.isProxied()){
-							existingBehavior = (InkObject) ((Proxiability)existingBehavior).getVanillaBehavior();
+							existingBehavior = ((Proxiability)existingBehavior).getVanillaBehavior();
 							proxyType = Proxiability.Kind.BEHAVIOR_BOTH;
 						}
 						result = myClass.getFactory().newBehaviorProxy(existingBehavior, (MirrorAPI)result, ((ClassMirror) ((InkObjectState)result).getMeta().reflect()).getBehaviorProxyInterfaces(), proxyType, this, propMirror, propIndex);
@@ -354,7 +363,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return result;
 		}
-		
+
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private Object prepareValueToSet(PropertyMirror propMirror, Object value, byte propIndex){
 			DataTypeMarker typeMarker = propMirror.getTypeMarker();
@@ -368,14 +377,14 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 							InkObject existingBehavior =  ((MirrorAPI)result).getBehavior();
 							Proxiability.Kind proxyType = Proxiability.Kind.BEHAVIOR_OWNER;
 							if(existingBehavior.isProxied()){
-								existingBehavior = (InkObject) ((Proxiability)existingBehavior).getVanillaState().getBehavior();
+								existingBehavior = ((Proxiability)existingBehavior).getVanillaState().getBehavior();
 								proxyType = Proxiability.Kind.BEHAVIOR_BOTH;
 							}
 							result = myClass.getFactory().newBehaviorProxy(existingBehavior, (MirrorAPI)result, ((ClassMirror) state.getMeta().reflect()).getBehaviorProxyInterfaces(), proxyType, this, propMirror, propIndex);
 						}
 					}else{
 						if(state.isProxied()){
-							state = (MirrorAPI)((Proxiability)result).getVanillaState();
+							state = ((Proxiability)result).getVanillaState();
 						}
 						result = myClass.getFactory().newStructProxy(state, ((StructClassMirror)state.getMeta().reflect()).getStateProxyInterfaces(), this, propMirror, propIndex);
 					}
@@ -437,7 +446,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return result;
 		}
-		
+
 		@Override
 		public final Object getRawValue(byte index){
 			return myData.getValue(index);
@@ -447,36 +456,38 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public final void setRawValue(byte index, Object value){
 			myData.setValue(index, value);
 		}
-		
+
 		protected final Object getValue(byte index){
 			return getPropertyValue(realPropertiesIndex[index]);
 		}
-		
+
 		@Override
 		public String getNamespace(){
 			return myFactory.getNamespace();
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public final <M extends InkClass> M getMeta() {
 			return (M) myClass.getBehavior();
 		}
-		
+
 		@Override
 		public final String getId() {
 			return id;
 		}
-		
+
 		@Override
 		public final void setId(String id){
 			this.id = id;
 		}
-		
+
+		@Override
 		public Scope getScope() {
 			return scope;
 		}
 
+		@Override
 		public void setScope(Scope scope) {
 			this.scope = scope;
 		}
@@ -499,7 +510,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return getPropertyValue(loc);
 		}
-		
+
+		@Override
 		public Byte getPropertyIndex(String propertyName){
 			return propertiesIndexes.get(propertyName);
 		}
@@ -513,7 +525,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}
 			return mirror.produceValue(this, value);
 		}
-		
+
 		@Override
 		public final Object getPropertyStaticValue(byte index) {
 			Object value = myData.getValue(index);
@@ -540,9 +552,9 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			}else if(!propsMirrors[index].isMutable()){
 				throw new CoreException("Could not insert value to read-only property '" + propsMirrors[index].getName() + "', of class " + myClass.getId() + ".");
 			}
-			insertValue(index, value);			
+			insertValue(index, value);
 		}
-		
+
 		@Override
 		public final boolean isAbstract() {
 			return isAbstract;
@@ -571,17 +583,17 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 				this.superId = theSuperObject.getId();
 			}
 		}
-		
+
 		@Override
 		public void setSuperId(String id) {
 			this.superId = id;
 		}
-		
+
 		@Override
 		public String getSuperId() {
 			return superId;
 		}
-		
+
 		@Override
 		public void afterPropertiesSet(){
 			if(this.mySuper==null && this.superId!=null){
@@ -617,20 +629,24 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public final InkObject getCachedBehavior() {
 			return behavior;
 		}
-		
+
+		@Override
 		public final byte getDefiningPropertyIndex() {
 			return definingPropertyIndex;
 		}
-		
+
+		@Override
 		public final void setDefiningProperty(PropertyMirror propMirror, byte index) {
 			this.definingProperty = propMirror;
 			this.definingPropertyIndex = index;
 		}
 
+		@Override
 		public final boolean isRoot() {
 			return isRoot;
 		}
 
+		@Override
 		public final void setRoot(boolean isRoot) {
 			this.isRoot = isRoot;
 		}
@@ -639,21 +655,23 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public boolean hasBehaviorClass() {
 			return myClass.getJavaMapping().hasBeahvior();
 		}
-		
+
 		@Override
 		public boolean hasStateClass() {
 			return myClass.getJavaMapping().hasState();
 		}
-		
+
 		@Override
 		public boolean hasInterfaceClass() {
 			return myClass.getJavaMapping().hasInterface();
 		}
 
+		@Override
 		public final boolean isCoreObject() {
 			return isCoreObject;
 		}
 
+		@Override
 		public final void setCoreObject(byte propCount, byte traitCount) {
 			this.isCoreObject = true;
 			this.propsMirrors = new PropertyMirror[0];
@@ -669,7 +687,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public ObjectTypeMarker getObjectTypeMarker() {
 			return ObjectTypeMarker.Object;
 		}
-		
+
 		@Override
 		public final PropertyMirror getDefiningProperty(){
 			return this.definingProperty;
@@ -679,7 +697,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public <T extends Trait> T asTrait(String role) {
 			Byte index = myClass.getTraitIndex(role);
 			if(index!=null){
-				return asTrait(index); 
+				return asTrait(index);
 			}
 			return null;
 		}
@@ -688,7 +706,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public <T extends Trait> T asTrait(TraitClass traitClass) {
 			Byte index = myClass.getTraitIndex(traitClass);
 			if(index!=null){
-				return asTrait(index); 
+				return asTrait(index);
 			}
 			return null;
 		}
@@ -702,24 +720,24 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		public void setLoadOnStartUp(boolean loadOnStartUp) {
 			this.loadOnStartUp = loadOnStartUp;
 		}
-		
+
 		@Override
 		public Kind getObjectKind() {
 			return Proxiable.Kind.State;
 		}
-		
+
 		@Override
 		public boolean validate(ValidationContext context) {
 			return validate(context, SystemState.Run_Time);
 		}
-		
+
 		@Override
 		public boolean validate(ValidationContext context, SystemState systemState) {
 			Constraints constraints = asTrait(InkObjectState.t_constraints);
 			Mirror mirror = reflect();
 			return constraints.validateTarget(mirror.getSuper(), context, systemState);
 		}
-		
+
 	}
-	
+
 }

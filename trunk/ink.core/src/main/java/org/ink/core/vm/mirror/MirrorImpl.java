@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror;
 
+import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Scope;
@@ -186,6 +187,11 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public void put(Object key, Object data) {
 		((MirrorAPI)getTargetState()).put(key, data);
+	}
+
+	@Override
+	public ElementDescriptor<?> getDescriptor() {
+		return getTargetState().getContext().getFactory().getDescriptor(getId());
 	}
 
 }

@@ -30,7 +30,7 @@ import org.ikayzo.sdl.SDLParseException;
 import org.ink.core.utils.sdl.SdlParser;
 import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.eclipse.InkPlugin;
-import org.ink.eclipse.utils.InkEclipseUtil;
+import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 
@@ -172,7 +172,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void moveInkFile(IFile file, IProgressMonitor monitor) {
-		IFile existingFile = InkEclipseUtil.getOutputFile(getProject(), file);
+		IFile existingFile = InkUtils.getOutputFile(getProject(), file);
 		try{
 			if(existingFile.exists()){
 				existingFile.delete(true, null);
@@ -241,7 +241,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		for(InkErrorDetails err : errors){
 			try{
 				String id = err.getId();
-				id = "\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
+				id = "id=\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
 				File f = err.getResource();
 				int lineNumber = 0;
 				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));

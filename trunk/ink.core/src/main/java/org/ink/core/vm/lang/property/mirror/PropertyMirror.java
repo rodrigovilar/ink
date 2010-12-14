@@ -12,7 +12,7 @@ import org.ink.core.vm.mirror.Mirror;
  * @author Lior Schachter
  */
 public interface PropertyMirror extends Mirror{
-	
+
 	public void bind(ClassMirror holdingClass, byte index);
 	public Class<?> getTypeClass();
 	public DataTypeMarker getTypeMarker();
@@ -29,6 +29,6 @@ public interface PropertyMirror extends Mirror{
 	public boolean isValueDrillable();
 	public boolean isValueContainsInkObject();
 	public InkType getPropertyType();
-	
-	
+
+
 }

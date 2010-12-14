@@ -476,7 +476,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
 		for(InkObjectState elem : repository){
 			try{
-				repo.register(elem.getBehavior());
+				if(elem.reflect().getNamespace().equals(getNamespace())){
+					repo.register(elem.getBehavior());
+				}
 			}catch(Throwable e){
 				if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
 					throw new RuntimeException(e);
@@ -596,6 +598,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public void setConfigurationFile(File f) {
 		reflect().put(FACTORY_CONF_FILE, f);
+	}
+
+	@Override
+	public ElementDescriptor<?> getDescriptor(String id){
+		return loader.getDescriptor(id);
 	}
 
 }

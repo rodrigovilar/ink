@@ -9,6 +9,6 @@ import org.ink.core.vm.types.ReferenceTypeMarker;
  * @author Lior Schachter
  */
 public interface ReferenceMirror extends ValuePropertyMirror{
-	
-	public ReferenceTypeMarker getReferenceTypeMarker(); 
+
+	public ReferenceTypeMarker getReferenceTypeMarker();
 }

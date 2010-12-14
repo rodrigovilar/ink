@@ -24,23 +24,23 @@ public class NumericAttributeValidatorImpl<S extends NumericAttributeValidatorSt
 		Number maxValue = att.getMaxValue();
 		Number defaultValue = att.getDefaultValue();
 		if(minValue!=null && maxValue!=null && minValue.floatValue()>=maxValue.floatValue()){
-			PropertyMirror prop1 = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_max_value); 
+			PropertyMirror prop1 = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_max_value);
 			PropertyMirror prop2 = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_min_value);
 			context.addError(target, this, "values.comparison.violation", prop1.getName(), maxValue, prop2.getName(), minValue);
 		}
 		if(defaultValue!=null){
-			if(defaultValue.doubleValue() <minValue.doubleValue()){
-				PropertyMirror prop = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_default_value); 
+			if(minValue !=null && defaultValue.doubleValue() <minValue.doubleValue()){
+				PropertyMirror prop = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_default_value);
 				context.addError(target, this, "min.value.violation", prop.getName(), minValue);
 				return;
-			}else if(defaultValue.doubleValue()>maxValue.doubleValue()){
-				PropertyMirror prop = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_default_value); 
+			}else if(maxValue!=null && defaultValue.doubleValue()>maxValue.doubleValue()){
+				PropertyMirror prop = ((ClassMirror)target.getMeta().reflect()).getClassPropertyMirror(NumericAttributeState.p_default_value);
 				context.addError(target, this, "max.value.violation", prop.getName(), maxValue);
 				return;
 			}
 		}
 	}
 
-	
-	
+
+
 }

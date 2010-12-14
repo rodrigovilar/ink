@@ -67,5 +67,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public void afterVmStart();
 	public boolean containsFile(File f);
 	public void destroy();
+	public ElementDescriptor<?> getDescriptor(String id);
 
 }

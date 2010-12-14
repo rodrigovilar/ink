@@ -12,18 +12,18 @@ import org.ink.core.vm.traits.Trait;
  */
 public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	private S state = null;
-	private Context context = null; 
-	
+	private Context context = null;
+
 	@SuppressWarnings("unchecked")
 	protected void setState(InkObjectState state, Context context){
 		this.state = (S) state;
 		this.context = context;
 	}
-	
+
 	protected S getState(){
 		return state;
 	}
-	
+
 	protected Context getContext(){
 		return context;
 	}
@@ -37,7 +37,7 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	public <T extends Trait> T asTrait(byte aspect) {
 		return state.asTrait(aspect);
 	}
-	
+
 	@Override
 	public <M extends InkClass> M getMeta(){
 		return state.getMeta();
@@ -46,22 +46,22 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	@Override
 	public void afterStateSet() {
 	}
-	
+
 	@Override
 	public <T extends InkObjectState> T cloneState(){
 		return getState().cloneState();
 	}
-	
+
 	@Override
 	public boolean isProxied() {
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		return state.toString();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -73,20 +73,20 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Kind getObjectKind() {
 		return Proxiable.Kind.Behavior;
 	}
-	
+
 	@Override
 	public boolean validate(ValidationContext context) {
 		return getState().validate(context, SystemState.Run_Time);
 	}
-	
+
 	@Override
 	public boolean validate(ValidationContext context, SystemState systemState) {
 		return getState().validate(context, systemState);
 	}
-	
+
 }

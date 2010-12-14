@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror;
 
+import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Scope;
@@ -42,4 +43,5 @@ public interface Mirror extends Trait{
 	public boolean isCoreObject();
 	public Object get(Object key);
 	public void put(Object key, Object data);
+	public ElementDescriptor<?> getDescriptor();
 }

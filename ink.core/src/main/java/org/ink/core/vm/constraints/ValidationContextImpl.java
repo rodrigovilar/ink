@@ -15,16 +15,17 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	private List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
 	private boolean abort = false;
-	
+
+	@Override
 	public boolean aborted(){
 		return abort;
 	}
-	
+
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator) {
 		add(erroneousObject, validator, null, Severity.Error);
 	}
-	
+
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code) {
 		add(erroneousObject, validator, code, Severity.Error,(Object[])null);
@@ -34,12 +35,12 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 	public void addError(InkObjectState erroneousObject, Validator validator, Object... args) {
 		add(erroneousObject, validator, null, Severity.Error, args);
 	}
-	
+
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code, Object... args) {
 		add(erroneousObject, validator, code, Severity.Error, args);
 	}
-	
+
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator) {
 		add(erroneousObject, validator, null, Severity.Warning);
@@ -48,9 +49,9 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator,
 			Object... args) {
-		add(erroneousObject, validator, null,Severity.Warning, args);	
+		add(erroneousObject, validator, null,Severity.Warning, args);
 	}
-	
+
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator, String code) {
 		add(erroneousObject, validator, null, Severity.Warning);
@@ -59,12 +60,12 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator, String code,
 			Object... args) {
-		add(erroneousObject, validator, code, Severity.Warning, args);	
+		add(erroneousObject, validator, code, Severity.Warning, args);
 	}
-	
+
 	private void add(InkObjectState erroneousObject, Validator validator, String code,
 			Severity severity, Object... args){
-		ValidatorClass validatorCls = validator.getMeta(); 
+		ValidatorClass validatorCls = validator.getMeta();
 		Message msg = null;
 		if(code==null){
 			msg = validatorCls.getDefaultMessage();
@@ -82,15 +83,18 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 		abort |= (validatorCls.abortOnError() && severity.ordinal()>=Severity.Error.ordinal());
 		messages.add(validatorMsg);
 	}
-	
+
+	@Override
 	public List<ValidationMessage> getMessages(){
 		return messages;
 	}
-	
+
+	@Override
 	public boolean containsMessage(){
 		return !messages.isEmpty();
 	}
-	
+
+	@Override
 	public boolean containsMessage(Severity severity){
 		if(messages.isEmpty()){
 			return false;
@@ -102,7 +106,8 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 		}
 		return false;
 	}
-	
+
+	@Override
 	public boolean containsError(){
 		return containsMessage(Severity.Error);
 	}
@@ -112,6 +117,26 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 		messages = new ArrayList<ValidationMessage>();
 		abort = false;
 	}
-	
-	
+
+	public static int log2(int x) {
+        int y,v;
+        // No log of 0 or negative
+        if (x <= 0) {
+            throw new IllegalArgumentException(""+x+" <= 0");
+        }
+        // Calculate log2 (it's actually floor log2)
+        v = x;
+        y = -1;
+        while (v>0) {
+            v >>=1;
+            y++;
+        }
+        return y;
+    }
+
+	public static void main(String[] args) {
+		System.out.println(log2(3));
+	}
+
+
 }

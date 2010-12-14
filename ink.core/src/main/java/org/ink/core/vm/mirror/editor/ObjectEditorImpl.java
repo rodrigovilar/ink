@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkClassState;
-import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Property;
@@ -131,7 +130,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 		workOnObject.afterPropertiesSet();
 		//TODO - here we should validate the workOnObject and then redfine the editedObject with the workOnObject
 	}
-	
+
 	@Override
 	public void compile(){
 		Mirror superObject = null;
@@ -262,7 +261,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 						if(!((MirrorAPI)o).reflect().isRoot()){
 							Mirror innerSuper = null;
 							if(superObject!=null && superObject.getPropertiesCount()> pm.getIndex()){
-								InkObject innerSuperO = (InkObject)superObject.getPropertyValue(pm.getIndex());
+								Proxiable innerSuperO = (Proxiable)superObject.getPropertyValue(pm.getIndex());
 								if(innerSuperO!=null){
 									innerSuper = innerSuperO.reflect();
 								}
@@ -275,7 +274,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = (Collection<MirrorAPI>)o;
 								for(Proxiable item : col){
-									if(((Proxiable)item).isProxied()){
+									if((item).isProxied()){
 										item = ((Proxiability)item).getVanillaState();
 									}
 									if(!item.reflect().isRoot()){
@@ -301,7 +300,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((MapPropertyMirror)pm).getKeyMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = ((Map<MirrorAPI, ?>)o).keySet();
 								for(Proxiable item : col){
-									if(((Proxiable)item).isProxied()){
+									if((item).isProxied()){
 										item = ((Proxiability)item).getVanillaState();
 									}
 									if(!item.reflect().isRoot()){
@@ -312,7 +311,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(((MapPropertyMirror)pm).getValueMirror().getTypeMarker()==DataTypeMarker.Class){
 								Collection<MirrorAPI> col = ((Map<?, MirrorAPI>)o).values();
 								for(Proxiable item : col){
-									if(((Proxiable)item).isProxied()){
+									if((item).isProxied()){
 										item = ((Proxiability)item).getVanillaState();
 									}
 									if(!item.reflect().isRoot()){
@@ -321,9 +320,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 								}
 							}
 						}
-							
+
 					}
-					
+
 				}
 			}
 		}

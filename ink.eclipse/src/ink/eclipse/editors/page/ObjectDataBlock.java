@@ -14,13 +14,13 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
-import org.ink.eclipse.utils.InkEclipseUtil;
+import org.ink.eclipse.utils.InkUtils;
 
 public class ObjectDataBlock extends DataBlock {
-	
+
 	private int startData = -1;
-	private Map<String, String> attributes = new HashMap<String, String>();
-	private Map<String, List<DataBlock>> innerBlocks = new HashMap<String, List<DataBlock>>();
+	private final Map<String, String> attributes = new HashMap<String, String>();
+	private final Map<String, List<DataBlock>> innerBlocks = new HashMap<String, List<DataBlock>>();
 
 	public ObjectDataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
 		super(namespace, parent, text, startIndex, endIndex);
@@ -40,11 +40,11 @@ public class ObjectDataBlock extends DataBlock {
 		}
 		return result;
 	}
-	
+
 	public String getClassId(){
 		return getAttributeValue("class");
 	}
-	
+
 	@Override
 	public DataBlock getBlock(int cursorLocation){
 		DataBlock result = null;
@@ -64,7 +64,7 @@ public class ObjectDataBlock extends DataBlock {
 					elementStart = i-currentLine.length()-1;
 				}
 				startB++;
-				
+
 				break;
 			case '}':
 				endB++;
@@ -120,7 +120,7 @@ public class ObjectDataBlock extends DataBlock {
 				break;
 			}
 		}
-		
+
 	}
 
 	private String extractValue(int index) {
@@ -155,7 +155,7 @@ public class ObjectDataBlock extends DataBlock {
 		DataBlock b = new ObjectDataBlock(ns, this, text, startIndex, endIndex);
 		return addBlock(b.getKey(), b, cursorLocation);
 	}
-	
+
 	private DataBlock addSimpleBlock(int startIndex, int endIndex, int cursorLocation) {
 		DataBlock b = new SimpleDataBlock(ns, this, text, startIndex, endIndex);
 		return addBlock(b.getKey(), b, cursorLocation);
@@ -171,9 +171,9 @@ public class ObjectDataBlock extends DataBlock {
 		l.add(b);
 		return b.getBlock(cursorLocation);
 	}
-	
-	
-	
+
+
+
 
 
 	@Override
@@ -181,7 +181,7 @@ public class ObjectDataBlock extends DataBlock {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String classId = getClassId();
 		if(classId != null){
-			Collection<PropertyMirror> avaliableProps = InkEclipseUtil.getPropertiesMirrors(classId, innerBlocks.keySet());
+			Collection<PropertyMirror> avaliableProps = InkUtils.getPropertiesMirrors(classId, innerBlocks.keySet());
 			for(PropertyMirror pm : avaliableProps){
 				if(pm.isMutable()){
 					getProposal(cursorLocation, result, pm);
@@ -189,7 +189,7 @@ public class ObjectDataBlock extends DataBlock {
 			}
 		}else if(parent!=null){
 			classId = parent.getClassId();
-			PropertyMirror pm = InkEclipseUtil.getPropertyMirror(classId, getKey(), new ArrayList<String>());
+			PropertyMirror pm = InkUtils.getPropertyMirror(classId, getKey(), new ArrayList<String>());
 			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
 				switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
 				case List:
@@ -201,32 +201,58 @@ public class ObjectDataBlock extends DataBlock {
 					break;
 				}
 			}
-			
+
 		}
 		return result;
 	}
 
+	private String getTypeDisplayString(PropertyMirror pm){
+		String result = "";
+		switch(pm.getTypeMarker()){
+		case Collection:
+			switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
+			case List:
+				result = "List<" + getTypeDisplayString(((ListPropertyMirror)pm).getItemMirror()) + ">";
+				break;
+			case Map:
+				result = "Map<" + getTypeDisplayString(((MapPropertyMirror)pm).getKeyMirror()) +"," +getTypeDisplayString(((MapPropertyMirror)pm).getValueMirror())  + ">";
+				break;
+			}
+		break;
+		default:
+			result = pm.getPropertyType().reflect().getShortId();
+		break;
+		}
+		return result;
+	}
+
+
 	private void getProposal(int cursorLocation,
 			List<ICompletionProposal> allProposals, PropertyMirror pm) {
+		String displayString;
 		switch(pm.getTypeMarker()){
 		case Class:
-			allProposals.add(new CompletionProposal(pm.getName() +" ", cursorLocation, 0, pm.getName().length() + 1, null, pm.getName(), null, null));
+			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
+			allProposals.add(new CompletionProposal(pm.getName() +" ", cursorLocation, 0, pm.getName().length() + 1, null, displayString, null, null));
 			break;
 		case Collection:
-			allProposals.add(new CompletionProposal(pm.getName() + "{\n\t\t\n\t}", cursorLocation, 0, pm.getName().length() +"{\n\t\t\n\t}".length() -3, null, pm.getName(), null, null));
+			displayString = pm.getName() + " - " + getTypeDisplayString(pm);
+			allProposals.add(new CompletionProposal(pm.getName() + "{\n\t\t\n\t}", cursorLocation, 0, pm.getName().length() +"{\n\t\t\n\t}".length() -3, null, displayString, null, null));
 			break;
 		case Enum:
-			allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, pm.getName(), null, null));
+			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
+			allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, displayString, null, null));
 			break;
 		case Primitive:
+			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
 			PrimitiveAttribute pa = pm.getTargetBehavior();
 			if(pa.getType().isNumeric() || pa.getType().isBoolean()){
-				allProposals.add(new CompletionProposal(pm.getName() + " ", cursorLocation, 0, pm.getName().length() + 1, null, pm.getName(), null, null));
+				allProposals.add(new CompletionProposal(pm.getName() + " ", cursorLocation, 0, pm.getName().length() + 1, null, displayString, null, null));
 			}else{
-				allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, pm.getName(), null, null));
+				allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, displayString, null, null));
 			}
 			break;
-			
+
 		}
 	}
 

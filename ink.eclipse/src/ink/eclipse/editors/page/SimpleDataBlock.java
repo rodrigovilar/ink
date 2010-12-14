@@ -7,10 +7,11 @@ import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.types.EnumType;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
-import org.ink.eclipse.utils.InkEclipseUtil;
+import org.ink.eclipse.utils.InkUtils;
 
 
 public class SimpleDataBlock extends DataBlock {
@@ -34,7 +35,7 @@ public class SimpleDataBlock extends DataBlock {
 	@Override
 	protected List<ICompletionProposal> getInlineProposals(int cursorLocation) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
-		PropertyMirror pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 		String line = new String(text, startIndex, endIndex-startIndex);
 		if(pm!=null){
 			switch(pm.getTypeMarker()){
@@ -63,20 +64,23 @@ public class SimpleDataBlock extends DataBlock {
 					}
 					String attr = attrB.reverse().toString();
 					if(attr.equals("ref")){
-						pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkEclipseUtil.getInstances(ns, constraintClass, true);
+							List<String> options = InkUtils.getInstances(ns, constraintClass, true);
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 							}
 						}
 					}else if(attr.equals("class")){
-						pm = InkEclipseUtil.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
-							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkEclipseUtil.getSubClasses(ns, constraintClass);
-							options.add(constraintClass);
+							Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+							String constraintClass = m.getId();
+							List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
+							if(!m.isAbstract()){
+								options.add(constraintClass);
+							}
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 							}
@@ -87,7 +91,8 @@ public class SimpleDataBlock extends DataBlock {
 						}
 					}else{
 						if(line.contains("class") && !line.contains("{")){
-							result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+							String tabs = calculateTabs();
+							result.add(new CompletionProposal("{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", cursorLocation, 0, new String("{\n" + tabs+"\n}").length()-2, null, "{", null, null));
 						}
 					}
 				}else{

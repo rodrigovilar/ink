@@ -20,8 +20,7 @@ import org.ink.core.vm.traits.PersonalityState;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CoreClassSpec{
-	
-	public Scope scope() default Scope.all; 
+	public Scope scope() default Scope.all;
 	public boolean isAbstract() default false;
 	public Class<?> metaclass() default InkClassState.class;
 	public Class<? extends MirrorState> mirrorClass() default MirrorState.class;

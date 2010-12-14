@@ -16,7 +16,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.ink.eclipse.utils.InkEclipseUtil;
+import org.ink.eclipse.utils.InkUtils;
 
 public class InkContentAssistProcessor implements IContentAssistProcessor {
 
@@ -31,7 +31,7 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 			IFile sourceFile = ((FileEditorInput) ei).getFile();
 			File f = sourceFile.getLocation().toFile();
 			String doc = viewer.getDocument().get();
-			String ns = InkEclipseUtil.resolveNamespace(f);
+			String ns = InkUtils.resolveNamespace(f);
 			if (ns != null) {
 				PageAnalyzer pageAnalyzer = new PageAnalyzer(ns, doc, offset);
 				List<ICompletionProposal> props = pageAnalyzer.getContentAssist();

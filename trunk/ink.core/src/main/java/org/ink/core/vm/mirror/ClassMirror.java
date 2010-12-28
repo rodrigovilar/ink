@@ -49,6 +49,7 @@ public interface ClassMirror extends Mirror{
 	public JavaMapping getJavaMapping();
 	public ComponentType getComponentType();
 	public String getJavaPath();
-	
-	
+	public String getFullJavaPackage();
+	public boolean isStruct();
+
 }

@@ -22,11 +22,15 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = cls.getJavaPath();
 		if(javaPack==null || javaPack.equals("")){
-			builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.BEHAVIOR_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(getBehaviorClassName(cls));
 		}else{
-			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.BEHAVIOR_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(getBehaviorClassName(cls));
 		}
 		return  builder.toString();
+	}
+
+	private String getBehaviorClassName(InkClassState cls){
+		return cls.reflect().getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
 	}
 
 	@Override
@@ -34,35 +38,49 @@ public class FullInstantiationStrategy implements InstantiationStrategy {
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = cls.getJavaPath();
 		if(javaPack==null || javaPack.equals("")){
-			builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(cls.getId()));
+			builder.append(factory.getJavaPackage()).append(".").append(getInterfaceClassName(cls));
 		}else{
-			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(CoreUtils.getShortId(cls.getId()));
+			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(getInterfaceClassName(cls));
 		}
 		return  builder.toString();
 	}
+
+	private String getInterfaceClassName(InkClassState cls){
+		return cls.reflect().getShortId();
+	}
+
 
 	@Override
 	public String getDataClassName(InkClassState cls, DslFactory factory) {
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = cls.getJavaPath();
 		if(javaPack==null || javaPack.equals("")){
-			builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.DATA_CLASS_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(getDataClassName(cls));
 		}else{
-			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.DATA_CLASS_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(getDataClassName(cls));
 		}
 		return  builder.toString();
 	}
+
+	private String getDataClassName(InkClassState cls){
+		return cls.reflect().getShortId() + InkNotations.Names.DATA_CLASS_EXTENSION;
+	}
+
 
 	@Override
 	public String getStructDataClassName(InkClassState cls, DslFactory factory) {
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = cls.getJavaPath();
 		if(javaPack==null || javaPack.equals("")){
-			builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.STRUCT_CLASS_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(getStructDataClassName(cls));
 		}else{
-			builder.append(factory.getJavaPackage()).append(".").append(cls.getJavaPath()).append(".").append(CoreUtils.getShortId(cls.getId())).append(InkNotations.Names.STRUCT_CLASS_EXTENSION);
+			builder.append(factory.getJavaPackage()).append(".").append(cls.getJavaPath()).append(".").append(getStructDataClassName(cls));
 		}
 		return  builder.toString();
+	}
+
+	private String getStructDataClassName(InkClassState cls){
+		return cls.reflect().getShortId() + InkNotations.Names.STRUCT_CLASS_EXTENSION;
 	}
 
 	@Override

@@ -48,11 +48,13 @@ implements InkReader<Tag>{
 	private List<ParseError> errors = new ArrayList<ParseError>();
 	private URL url = null;
 	private DslFactory serializationContext = null;
+	private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
 
 	@Override
 	public void reset() {
 		errors = new ArrayList<ParseError>();
 		url = null;
+		objects = new HashMap<String, MirrorAPI>();
 	}
 
 	protected void addError(Tag t, String description) {
@@ -239,7 +241,10 @@ implements InkReader<Tag>{
 				"The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
-				InkObjectState result = serializationContext.getState(ref, false);
+				InkObjectState result = objects.get(ref);
+				if(result==null){
+					result = serializationContext.getState(ref, false);
+				}
 				if (result == null) {
 					addError(tag, "Could not find Ink object with id '" + ref
 							+ "'.");
@@ -273,6 +278,9 @@ implements InkReader<Tag>{
 			result.setRoot(!isInnerObject);
 			result.setAbstract(isAbstract);
 			result.setSuperId(superId);
+			if(id!=null){
+				objects.put(id, result);
+			}
 			List<Tag> fields = tag.getChildren();
 			PropertyMirror pm;
 			String propertyName;

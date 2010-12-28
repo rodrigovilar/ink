@@ -40,7 +40,8 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	@Override
 	public void bind(ClassMirror holdingClass, byte index) {
 		this.index = index;
-		if(index!=Property.UNBOUNDED_PROPERTY_INDEX && holdingClass.getProperty(name)!=null){
+		ClassMirror superClass = holdingClass.getSuper();
+		if(index!=Property.UNBOUNDED_PROPERTY_INDEX && superClass!=null && superClass.getProperty(name)!=null){
 			isInherited=true;
 		}else{
 			isInherited = false;
@@ -53,11 +54,11 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 			if(classSuper == null || !((ClassMirror)classSuper).getClassPropertiesIndexes().containsKey(name)){
 				found = true;
 			}else{
-				definingClass = (ClassMirror)classSuper; 
+				definingClass = (ClassMirror)classSuper;
 			}
 		}
 	}
-	
+
 	@Override
 	public void afterTargetSet() {
 		super.afterStateSet();
@@ -74,41 +75,46 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 			typeMarker = t.getTypeMarker();
 		}
 	}
-	
+
 	protected void setIsComputed(boolean value){
 		isComputed = value;
 	}
-	
+
 	protected void setHasStaticValue(boolean value){
 		hasStaticValue = value;
 	}
-	
+
 	@Override
 	public final Class<?> getTypeClass(){
 		return typeClass;
 	}
-	
+
 	@Override
 	public DataTypeMarker getTypeMarker() {
 		return typeMarker;
 	}
-	
+
+	@Override
 	public boolean isComputed(){
 		return isComputed;
 	}
-	
+
+	@Override
 	public boolean hasStaticValue(){
 		return hasStaticValue;
 	}
-	
+
+	@Override
 	public String getName(){
 		return name;
 	}
-	
+
+	@Override
 	public byte getIndex(){
 		return index;
 	}
-	
+
+	@Override
 	public boolean isInherited(){
 		return isInherited;
 	}
@@ -132,12 +138,12 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	public ClassMirror getDefiningClass() {
 		return definingClass;
 	}
-	
+
 	@Override
 	public InheritanceConstraints getInheritanceConstraints() {
 		return ((PropertyState)getTargetState()).getInheritanceConstraints();
 	}
-	
+
 	@Override
 	public boolean isValueDrillable() {
 		switch (typeMarker) {
@@ -148,15 +154,15 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean isValueContainsInkObject() {
 		return false;
 	}
-	
+
 	@Override
 	public InkType getPropertyType() {
 		return ((PropertyState)getTargetState()).getType();
 	}
-	
+
 }

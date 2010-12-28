@@ -8,6 +8,7 @@ import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.WeaveException;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
+import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 import org.ink.core.vm.lang.internal.annotations.CoreField;
 import org.ink.core.vm.lang.internal.annotations.CoreListField;
@@ -29,10 +30,10 @@ import org.ink.core.vm.utils.CoreUtils;
 @CoreClassSpec(mirrorClass=ClassMirrorState.class, javaMapping=JavaMapping.State_Behavior_Interface
 		/*,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type}*/)
 public interface InkClassState extends InkTypeState{
-	
+
 	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_java_path = 0;
-	
+
 	//TODO - should be mandatory true
 	@CoreField(mandatory=false, valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_description = 1;
@@ -47,38 +48,38 @@ public interface InkClassState extends InkTypeState{
 	@CoreListField(itemName="operation")
 	public static final byte p_operations = 6;
 	public static final byte p_personality = 7;
-	
+
 	public String getDescription();
 	public void setDescription(String value);
-	
+
 	public JavaMapping getJavaMapping();
 	public void setJavaMapping(JavaMapping value);
-	
+
 	public List<? extends Property> getProperties();
 	public void setProperties(List<? extends PropertyState> value);
-	
+
 	public List<? extends Operation> getOperations();
 	public void setOperations(List<? extends OperationState> value);
-	
+
 	public Personality getPersonality();
 	public void setPersonality(PersonalityState value);
-	
+
 	public String getJavaPath();
 	public void setJavaPath(String value);
-	
+
 	public Boolean getCanCacheBehaviorInstance();
 	public void setCanCacheBehaviorInstance(Boolean value);
-	
+
 	public ComponentType getComponentType();
 	public void setComponentType(ComponentType value);
-	
+
 	public class Data extends InkTypeState.Data implements ClassMirrorAPI{
 
 		private ObjectFactoryState factory = null;
 		private Map<String, Byte> classPropertiesIndexes;
 		private PropertyMirror[] classPropsMirrors;
 		private Class<InkObjectState> dataClass;
-		private Class<InkObjectState> stateInterface;
+		private Class<?> stateInterface;
 		private Class<InkObject> behaviorClass;
 		private Class<InkObject> interfaceClass;
 		private Class<?>[] behaviorProxyInterfaces;
@@ -97,7 +98,7 @@ public interface InkClassState extends InkTypeState{
 			this.classPropsMirrors = propsMirrors;
 			this.propsMirrors = intancePropsMirrors;
 			this.classPropertiesIndexes = propertiesIndexes;
-			this.propertiesIndexes = instancePropertiesIndexes;	
+			this.propertiesIndexes = instancePropertiesIndexes;
 			this.myClass = (ClassMirrorAPI)c;
 			this.myFactory = context;
 			this.dataClass = dataClass;
@@ -118,11 +119,12 @@ public interface InkClassState extends InkTypeState{
 			}
 			return myFactory.resolveDataClass(this);
 		}
-		
+
+		@Override
 		public Map<String, Byte> getClassPropertiesIndexes() {
 			return classPropertiesIndexes;
 		}
-		
+
 		@Override
 		public <T extends InkObjectState> T cloneState() {
 			T result = super.cloneState();
@@ -134,7 +136,7 @@ public interface InkClassState extends InkTypeState{
 		public ObjectFactory getFactory() {
 			return (ObjectFactory) this.factory.getBehavior();
 		}
-		
+
 		@Override
 		public ObjectFactoryState getFactoryState() {
 			return this.factory;
@@ -154,12 +156,12 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public void setFactory(ObjectFactoryState value) {
-			this.factory = value;			
+			this.factory = value;
 		}
 
 		@Override
 		public void setOperations(List<? extends OperationState> value) {
-			setValue(p_operations, value);			
+			setValue(p_operations, value);
 		}
 
 		@Override
@@ -186,7 +188,7 @@ public interface InkClassState extends InkTypeState{
 		public void setJavaPath(String value) {
 			setValue(p_java_path, value);
 		}
-		
+
 		@Override
 		public Boolean getCanCacheBehaviorInstance() {
 			return (Boolean)getValue(p_can_cache_behavior_instance);
@@ -201,7 +203,8 @@ public interface InkClassState extends InkTypeState{
 		public PropertyMirror[] getClassPropertiesMirrors() {
 			return classPropsMirrors;
 		}
-		
+
+		@Override
 		public void applyProperties(List<Property> properties){
 			//TODO - add basic validation (properties contains getProperties)
 			if(properties!=null){
@@ -231,7 +234,7 @@ public interface InkClassState extends InkTypeState{
 			}
 			getFactory().bind((ClassMirror)reflect());
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void afterPropertiesSet(){
@@ -239,9 +242,14 @@ public interface InkClassState extends InkTypeState{
 			applyProperties((List<Property>) getProperties());
 			behaviorClass = resolveBehaviorClass();
 			interfaceClass = resolveInterfaceClass();
-			behaviorProxyInterfaces = CoreUtils.getBehaviorProxyInterfaces(behaviorClass); 
+			behaviorProxyInterfaces = CoreUtils.getBehaviorProxyInterfaces(behaviorClass);
 			dataClass = resolveDataClass();
-			stateInterface = (Class<InkObjectState>) dataClass.getInterfaces()[0];
+			stateInterface = dataClass.getInterfaces()[0];
+			if(stateInterface.equals(MirrorAPI.class)){
+				stateInterface = InkObjectState.class;
+			}else if(stateInterface.equals(ClassMirrorAPI.class)){
+				stateInterface = InkClassState.class;
+			}
 			Personality personality = getPersonality();
 			if(personality!=null){
 				offset = personality.getTraitsCount();
@@ -253,14 +261,14 @@ public interface InkClassState extends InkTypeState{
 			}
 		}
 
-		private Class<InkObject> resolveBehaviorClass() {
+		protected Class<InkObject> resolveBehaviorClass() {
 			if(!this.getJavaMapping().hasBeahvior()){
 				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
 			}else{
 				return myFactory.resolveBehaviorClass(this);
 			}
 		}
-		
+
 		private Class<InkObject> resolveInterfaceClass() {
 			if(!this.getJavaMapping().hasInterface()){
 				return ((ClassMirrorAPI)getSuper()).getInterfaceClass();
@@ -273,7 +281,7 @@ public interface InkClassState extends InkTypeState{
 		public boolean isClass(){
 			return true;
 		}
-		
+
 		@Override
 		public boolean isMetaClass(){
 			return isMetaClass;
@@ -283,25 +291,26 @@ public interface InkClassState extends InkTypeState{
 		public Class<InkObjectState> getDataClass(){
 			return dataClass;
 		}
-		
+
 		@Override
 		public Class<InkObject> getBehaviorClass(){
 			return behaviorClass;
 		}
-		
+
 		@Override
 		public Class<InkObject> getInterfaceClass(){
 			return interfaceClass;
 		}
-		
+
 		@Override
 		public Class<?>[] getBehaviorProxyInterfaces(){
 			return behaviorProxyInterfaces;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Class<InkObjectState> getStateInterface(){
-			return stateInterface;
+			return (Class<InkObjectState>) stateInterface;
 		}
 
 		@Override
@@ -313,13 +322,13 @@ public interface InkClassState extends InkTypeState{
 		public void setComponentType(ComponentType value) {
 			setValue(p_component_type, value);
 		}
-		
+
 		@Override
 		public void init(InkClassState c, DslFactory factory) {
 			super.init(c, factory);
 			this.factory = factory.newInstance(factory.getAppContext(), false, true);
 		}
-		
+
 		@Override
 		public ObjectTypeMarker getObjectTypeMarker() {
 			if(isMetaClass()){
@@ -348,10 +357,11 @@ public interface InkClassState extends InkTypeState{
 			setValue(p_java_mapping, value);
 		}
 
+		@Override
 		public byte[] getRealPropertiesIndex(){
 			return classRealPropertiesIndex;
 		}
-		
+
 		@Override
 		public synchronized void addRole(String namespace, String role, Trait t) throws WeaveException{
 			String qualifiedRole = role;
@@ -389,7 +399,7 @@ public interface InkClassState extends InkTypeState{
 			detachableTraitsRolesToIndexes = temp1;
 			detachableTraitsIdsToIndexes = temp2;
 		}
-		
+
 		@Override
 		public boolean hasRole(String namespace, String role){
 			if(detachableTraitsRolesToIndexes==null){
@@ -402,7 +412,7 @@ public interface InkClassState extends InkTypeState{
 			}else{
 				return detachableTraitsRolesToIndexes.containsKey(qualifiedRole) | getPersonality().hasRole(role);
 			}
-			
+
 		}
 
 		@Override
@@ -422,7 +432,7 @@ public interface InkClassState extends InkTypeState{
 			}
 			return  result;
 		}
-		
+
 		@Override
 		public Trait getDetachableRole(byte index) {
 			byte loc = (byte) (index - offset);
@@ -436,7 +446,7 @@ public interface InkClassState extends InkTypeState{
 		public int getTraitsCount() {
 			return getPersonality().getTraitsCount() + (detachableRoles==null?0:detachableRoles.length);
 		}
-		
+
 	}
-	
+
 }

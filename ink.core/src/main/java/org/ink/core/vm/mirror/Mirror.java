@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror;
 
+import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
@@ -20,9 +21,9 @@ public interface Mirror extends Trait{
 	public <T extends ObjectEditor> T edit();
 	public <T extends ObjectEditor> T edit(boolean transactional);
 	public ClassMirror getClassMirror();
-	public Mirror getOwner();
-	public Mirror getRootOwner();
-	public Mirror getSuper();
+	public <M extends Mirror> M getOwner();
+	public <M extends Mirror> M getRootOwner();
+	public <M extends Mirror> M getSuper();
 	public boolean isAbstract();
 	public PropertyMirror getPropertyMirror(byte index);
 	public PropertyMirror getPropertyMirror(String name);
@@ -44,4 +45,5 @@ public interface Mirror extends Trait{
 	public Object get(Object key);
 	public void put(Object key, Object data);
 	public ElementDescriptor<?> getDescriptor();
+	public DslFactory getTragetOwnerFactory();
 }

@@ -4,6 +4,6 @@ import org.ink.core.vm.mirror.Mirror;
 
 public interface Generator {
 
-	public StringBuilder generate(Mirror mirror);
+	public void generate(Mirror mirror);
 
 }

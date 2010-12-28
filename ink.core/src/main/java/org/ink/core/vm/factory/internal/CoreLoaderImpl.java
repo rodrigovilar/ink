@@ -117,6 +117,7 @@ import org.ink.core.vm.messages.MessageClassState;
 import org.ink.core.vm.messages.MessageState;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.ClassMirrorState;
+import org.ink.core.vm.mirror.EnumTypeMirrorState;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.mirror.MirrorImpl;
 import org.ink.core.vm.mirror.MirrorState;
@@ -1272,6 +1273,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(CollectionPropertyMirrorState.class);
 		newInkObject(PrimitiveTypeState.class);
 		newInkObject(CollectionTypeState.class);
+		newInkObject(EnumTypeMirrorState.class);
 		newInkObject(EnumTypeClassState.class);
 		newInkObject(EnumTypeState.class);
 		newInkObject(NumericTypeState.class);

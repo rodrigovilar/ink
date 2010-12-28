@@ -1,6 +1,10 @@
 package org.ink.eclipse.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkVM;
+import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
@@ -35,6 +40,48 @@ public class InkUtils {
 
 	private static String[] getScope(String ns){
 		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
+	}
+
+	public static String readString(InputStream is, String encoding) {
+		if (is == null) {
+			return null;
+		}
+		BufferedReader reader= null;
+		try {
+			StringBuffer buffer= new StringBuffer();
+			char[] part= new char[2048];
+			int read= 0;
+			reader= new BufferedReader(new InputStreamReader(is, encoding));
+
+			while ((read= reader.read(part)) != -1) {
+				buffer.append(part, 0, read);
+			}
+
+			return buffer.toString();
+
+		} catch (IOException ex) {
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException ex) {
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Collection<InkObject> getAllClasses(String[] nss){
+		Collection<InkObject> result = new ArrayList<InkObject>();
+		for(String ns : nss){
+			InkObject base = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
+			ModelInfoRepository repo = ModelInfoFactory.getInstance();
+			Collection<InkObject> temp = repo.findReferrers(base, ExtendsRelation.getInstance(), true, nss);
+			if(temp!=null){
+				result.addAll(temp);
+			}
+		}
+		return result;
 	}
 
 	public static List<String> getAllSupers(String classId){
@@ -155,15 +202,24 @@ public class InkUtils {
 		return result;
 	}
 
-	public static IFile getOutputFile(IProject p, IFile sourceFile){
+	public static IFolder getJavaOutputFolder(IProject p){
 		try {
 			IJavaProject jProject = JavaCore.create(p);
 			IPath outputPath = jProject.getOutputLocation().removeFirstSegments(1);
+			return p.getFolder(outputPath);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static IFile getOutputFile(IProject p, IFile sourceFile){
+		try {
 			IPath relativeFilepath = sourceFile.getFullPath().removeFirstSegments(4);
 			if(relativeFilepath.isEmpty()){
 				relativeFilepath = sourceFile.getFullPath().removeFirstSegments(1);
 			}
-			IFolder outputFolder = p.getFolder(outputPath);
+			IFolder outputFolder = getJavaOutputFolder(p);
 			IFile result = outputFolder.getFile(relativeFilepath);
 			return result;
 		} catch (Exception e) {

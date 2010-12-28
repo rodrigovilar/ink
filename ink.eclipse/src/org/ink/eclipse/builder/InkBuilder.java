@@ -7,8 +7,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -25,11 +27,19 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.ikayzo.sdl.SDLParseException;
 import org.ink.core.utils.sdl.SdlParser;
+import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkErrorDetails;
+import org.ink.core.vm.factory.InkVM;
+import org.ink.core.vm.factory.VM;
+import org.ink.core.vm.factory.VMMain;
+import org.ink.core.vm.lang.InkObject;
 import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.generators.Generator;
+import org.ink.eclipse.generators.StateClassGenerator;
 import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
@@ -38,6 +48,29 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
+
+	String[] dsls;
+
+
+	@Override
+	protected void startupOnInitialize() {
+		super.startupOnInitialize();
+		VM vm = InkVM.instance();
+		Set<String> nss = VMMain.getDsls();
+		IFile f = getProject().getFile("dsls.ink");
+		List<String> nssList = new ArrayList<String>();
+		if(f.exists()){
+			String path = f.getLocation().toFile().getAbsolutePath();
+			for(String ns : nss){
+				DslFactory factory = vm.getFactory(ns);
+				File factoryConfFile = factory.getConfigurationFile();
+				if(factoryConfFile!=null && factoryConfFile.getAbsolutePath().equals(path)){
+					nssList.add(ns);
+				}
+			}
+		}
+		dsls = nssList.toArray(new String[]{});
+	}
 
 	class InkDeltaVisitor implements IResourceDeltaVisitor {
 
@@ -222,9 +255,19 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	protected void fullBuild(final IProgressMonitor monitor)
 	throws CoreException {
+		IFolder output = (IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent();
+		IFolder genFolder = output.getFolder("bin");
+		if(genFolder.exists()){
+			output.delete(true, new NullProgressMonitor());
+		}
 		getProject().accept(new InkResourceVisitor(monitor));
 		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
 		processErrors(errors);
+		Generator gen = new StateClassGenerator(output);
+		Collection<InkObject> allClasses = InkUtils.getAllClasses(this.dsls);
+		for(InkObject o : allClasses){
+			gen.generate(o.reflect());
+		}
 	}
 
 
@@ -235,6 +278,11 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		delta.accept(new InkDeltaVisitor(monitor, changedElements));
 		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
 		processErrors(errors);
+		Generator gen = new StateClassGenerator((IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent());
+		Collection<InkObject> allClasses = InkUtils.getAllClasses(this.dsls);
+		for(InkObject o : allClasses){
+			gen.generate(o.reflect());
+		}
 	}
 
 	private void processErrors(List<InkErrorDetails> errors) {

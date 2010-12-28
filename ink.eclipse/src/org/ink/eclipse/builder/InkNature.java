@@ -5,19 +5,24 @@ import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.utils.InkUtils;
 
 public class InkNature implements IProjectNature {
 
@@ -30,9 +35,10 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.resources.IProjectNature#configure()
 	 */
+	@Override
 	public void configure() throws CoreException {
 		IProjectDescription desc = project.getDescription();
 		IJavaProject jProject = JavaCore.create(project);
@@ -45,6 +51,13 @@ public class InkNature implements IProjectNature {
 			System.out.println(bundleLocation);
 			File f = new File(bundleLocation + File.separatorChar +"lib");
 			System.out.println(f.getAbsolutePath());
+			IFolder outputFolder = InkUtils.getJavaOutputFolder(project);
+			if(outputFolder.getFullPath().lastSegment().equals("bin")){
+				outputFolder = (IFolder) outputFolder.getParent();
+			}
+			IFolder genFolder = outputFolder.getFolder("gen");
+			IFolder binFolder = outputFolder.getFolder("bin");
+			IPath genPath = genFolder.getFullPath();
 			File[] jars = f.listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
@@ -57,36 +70,43 @@ public class InkNature implements IProjectNature {
 			System.out.println(jars);
 			List<File> jarsToAdd = new ArrayList<File>(jars.length);
 			IClasspathEntry[] entries = jProject.getRawClasspath();
+			boolean foundGenClasspath = false;
 			for(File j : jars){
 				boolean found = false;
 				for(IClasspathEntry en : entries){
 					if(en.getPath().toFile().getName().equals(j.getName())){
 						found = true;
+					}else if(en.getPath().toFile().getName().equals(genPath.toFile().getName())){
+						foundGenClasspath = true;
 					}
 				}
 				if(!found){
 					jarsToAdd.add(j);
 				}
 			}
-			if(!jarsToAdd.isEmpty()){
-				IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + jarsToAdd.size()];
-				System.arraycopy(entries, 0, newEntries, 0, entries.length);
-				File j;
-				IClasspathEntry cpe;
-				for(int i=0;i<jarsToAdd.size();i++){
-					j = jarsToAdd.get(i);
-					cpe = JavaCore.newLibraryEntry(new Path(j.getAbsolutePath()), null, null);
-					newEntries[i+entries.length] = cpe;
-				}
-				jProject.setRawClasspath(newEntries, new NullProgressMonitor());
-				
+			List<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>(Arrays.asList(entries));
+			File j;
+			IClasspathEntry cpe;
+			int i=0;
+			for(;i<jarsToAdd.size();i++){
+				j = jarsToAdd.get(i);
+				cpe = JavaCore.newLibraryEntry(new Path(j.getAbsolutePath()), null, null);
+				newEntries.add(cpe);
 			}
-			//jProject.getRawClasspath()
+			if(!foundGenClasspath){
+				jProject.setOutputLocation(binFolder.getFullPath(), new NullProgressMonitor());
+				if(!outputFolder.exists()){
+					outputFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
+				}
+				cpe = JavaCore.newSourceEntry(genPath);
+				newEntries.add(cpe);
+			}
+			jProject.setRawClasspath(newEntries.toArray(new IClasspathEntry[]{}), new NullProgressMonitor());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		ICommand[] commands = desc.getBuildSpec();
 
 		for (int i = 0; i < commands.length; ++i) {
@@ -106,9 +126,10 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.resources.IProjectNature#deconfigure()
 	 */
+	@Override
 	public void deconfigure() throws CoreException {
 		IProjectDescription description = getProject().getDescription();
 		ICommand[] commands = description.getBuildSpec();
@@ -119,7 +140,7 @@ public class InkNature implements IProjectNature {
 				System.arraycopy(commands, i + 1, newCommands, i,
 						commands.length - i - 1);
 				description.setBuildSpec(newCommands);
-				project.setDescription(description, null);			
+				project.setDescription(description, null);
 				return;
 			}
 		}
@@ -127,18 +148,20 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.resources.IProjectNature#getProject()
 	 */
+	@Override
 	public IProject getProject() {
 		return project;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
 	 */
+	@Override
 	public void setProject(IProject project) {
 		this.project = project;
 	}

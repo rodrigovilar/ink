@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror;
 
+import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
@@ -52,23 +53,25 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 		return (ClassMirror) getTargetState().getMeta().reflect();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Mirror getRootOwner() {
+	public <M extends Mirror> M getRootOwner() {
 		Mirror owner = getOwner();
 		if(owner == null){
-			return this;
+			return (M)this;
 		}
 		return owner.getRootOwner();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Mirror getOwner() {
+	public <M extends Mirror> M getOwner() {
 		InkObjectState owner = ((MirrorAPI)getTargetState()).getOwner();
-		return owner==null?null:owner.reflect();
+		return owner==null?null:(M)owner.reflect();
 	}
 
 	@Override
-	public Mirror getSuper() {
+	public <M extends Mirror> M getSuper() {
 		MirrorAPI superObject = ((MirrorAPI)getTargetState()).getSuper();
 		if(superObject!=null){
 			return superObject.reflect();
@@ -192,6 +195,11 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public ElementDescriptor<?> getDescriptor() {
 		return getTargetState().getContext().getFactory().getDescriptor(getId());
+	}
+
+	@Override
+	public DslFactory getTragetOwnerFactory() {
+		return getTargetState().getContext().getFactory();
 	}
 
 }

@@ -31,6 +31,7 @@ public class CustomerTest extends TestCase{
 		InkObject customerClass = context.getObject("example.customer:Customer");
 		assertNotNull(customerClass);
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
+		
 		assertNotNull(customer);
 
 

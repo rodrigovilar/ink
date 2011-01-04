@@ -100,17 +100,25 @@ public class InkUtils {
 		return result;
 	}
 
-	public static List<String> getInstances(String ns, String classId, boolean recursive){
+	public static Collection<InkObject> getInstances(String[] nss, String classId, boolean recursive){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
-			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive, getScope(ns));
+			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive, nss);
 			if(temp!=null){
 				referrers.addAll(temp);
 			}
 		}
-		return createResultList(referrers, true);
+		return referrers;
+	}
+
+	public static List<String> getInstancesIds(String[] nss, String classId, boolean recursive){
+		return createResultList(getInstances(nss, classId, recursive), true);
+	}
+
+	public static List<String> getInstancesIds(String ns, String classId, boolean recursive){
+		return getInstancesIds(getScope(ns), classId, recursive);
 	}
 
 	private static List<String> createResultList(Collection<InkObject> referrers, boolean includingAbstract){

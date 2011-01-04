@@ -1,15 +1,6 @@
 package org.ink.eclipse.generators;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
@@ -17,31 +8,17 @@ import org.ink.core.vm.mirror.EnumTypeMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
-import org.ink.eclipse.utils.EclipseUtils;
-import org.ink.eclipse.utils.InkUtils;
 
-public class StateClassGenerator implements Generator {
-
-	public final static String LINE_SEPARATOR = System.getProperty("line.separator");
-
-//	private final String outputFolderPath;
-	private final IFolder outputFolder;
+public class StateClassGenerator extends BaseGenerator {
 
 	public StateClassGenerator(IFolder outputFolder) {
-		this.outputFolder = outputFolder.getFolder("gen");
-		if(!this.outputFolder.exists()){
-			try {
-				this.outputFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
+		super(outputFolder);
 	}
 
 	@Override
 	public void generate(Mirror mirror) {
-		StringBuilder result = new StringBuilder(1000);
 		if(mirror.isClass() && ((ClassMirror)mirror).getJavaMapping().hasState()){
+			StringBuilder result = new StringBuilder(1000);
 			ClassMirror classMirror = (ClassMirror)mirror;
 			ClassMirror superClass = mirror.getSuper();
 			StringBuilder interfaceClass = new StringBuilder(500);
@@ -84,41 +61,6 @@ public class StateClassGenerator implements Generator {
 		}
 	}
 
-	protected IContainer createFolder(IFolder folder) throws CoreException {
-		if (!folder.exists()) {
-			createFolder((IFolder) folder.getParent());
-			folder.create(IResource.FORCE | IResource.DERIVED, true, null);
-		}
-		return folder;
-	}
-
-	private void writeFile(String data, String fullJavaPackage, String className) {
-		try{
-			String relativeFolderPath = fullJavaPackage.replace(".", File.separator);
-			IFolder folder = outputFolder.getFolder(relativeFolderPath);
-			createFolder(folder);
-			IFile f = folder.getFile(className +".java");
-			boolean shouldWrite = true;
-			String newData = EclipseUtils.format(data);
-			if(f.exists()){
-//				QualifiedName qn = new QualifiedName(null, "hash");
-//				f.setPersistentProperty(key, value);
-				InputStream str = f.getContents();
-				String oldData = InkUtils.readString(str, Charset.defaultCharset().name());
-				if(!oldData.equals(newData)){
-					f.delete(true, null);
-				}else{
-					shouldWrite = false;
-				}
-			}
-			if(shouldWrite){
-				byte[] bytes = newData.getBytes();
-				f.create(new ByteArrayInputStream(bytes, 0, bytes.length),true, null);
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
 
 	private String resolveRealStateClassName(ClassMirror m){
 		String result = null;
@@ -188,23 +130,6 @@ public class StateClassGenerator implements Generator {
 			break;
 		}
 		return typesName;
-	}
-
-	private String convertPropertyName(String name) {
-		StringBuilder result = new StringBuilder(name.length());
-		result.append(Character.toUpperCase(name.charAt(0)));
-		for (int i = 1; i < name.length(); i++) {
-			char c = name.charAt(i);
-			if (c == '_') {
-				if (i < name.length() - 1) {
-					i++;
-					result.append(Character.toUpperCase(name.charAt(i)));
-				}
-			} else {
-				result.append(c);
-			}
-		}
-		return result.toString();
 	}
 
 }

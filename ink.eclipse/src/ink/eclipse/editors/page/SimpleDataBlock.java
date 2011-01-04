@@ -67,7 +67,7 @@ public class SimpleDataBlock extends DataBlock {
 						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkUtils.getInstances(ns, constraintClass, true);
+							List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
 							for(String id : options){
 								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 							}

@@ -1,7 +1,5 @@
 package org.ink.eclipse.builder;
 
-import ink.eclipse.editors.page.DataBlock;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,8 +34,10 @@ import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.VM;
 import org.ink.core.vm.factory.VMMain;
+import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.generators.EnumGenerator;
 import org.ink.eclipse.generators.Generator;
 import org.ink.eclipse.generators.StateClassGenerator;
 import org.ink.eclipse.utils.InkUtils;
@@ -48,6 +48,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
+	private final List<IFile> changedFiles = new ArrayList<IFile>();
+	private boolean fullBuild = false;
 
 	String[] dsls;
 
@@ -74,9 +76,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	class InkDeltaVisitor implements IResourceDeltaVisitor {
 
-		IProgressMonitor monitor;
+		private final IProgressMonitor monitor;
 
-		public InkDeltaVisitor(IProgressMonitor monitor, List<DataBlock> changesElements){
+		public InkDeltaVisitor(IProgressMonitor monitor){
 			this.monitor = monitor;
 		}
 
@@ -99,18 +101,12 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					break;
 				case IResourceDelta.CHANGED:
 					// handle changed resource
-					if(processInkFile(resource, monitor)){
-						analyzeInkFile(resource);
-					}
+					processInkFile(resource, monitor);
 					break;
 				}
 			}
 			//return true to continue visiting children.
 			return true;
-		}
-
-		private void analyzeInkFile(IResource resource) {
-
 		}
 	}
 
@@ -175,7 +171,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor)
 	throws CoreException {
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
@@ -197,7 +193,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				&& (resourcePath.uptoSegment(3).equals(INK_DIR_PATH)) ||
 				DSL_DEF_FILENAME.equals(resourcePath.lastSegment())) {
 			if(checkInkFile((IFile)resource)){
-				moveInkFile((IFile)resource, monitor);
+				changedFiles.add((IFile)resource);
 				result = true;
 			}
 		}
@@ -253,35 +249,50 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	protected void fullBuild(final IProgressMonitor monitor)
-	throws CoreException {
+	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
 		IFolder output = (IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent();
 		IFolder genFolder = output.getFolder("bin");
 		if(genFolder.exists()){
 			output.delete(true, new NullProgressMonitor());
 		}
+		fullBuild = true;
 		getProject().accept(new InkResourceVisitor(monitor));
 		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
 		processErrors(errors);
+		genrateJavaFiles(output);
+		//output.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+	}
+
+	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
-		Collection<InkObject> allClasses = InkUtils.getAllClasses(this.dsls);
-		for(InkObject o : allClasses){
+		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
+		for(InkObject o : all){
+			gen.generate(o.reflect());
+		}
+		gen = new EnumGenerator(output);
+		all = InkUtils.getInstances(this.dsls, CoreNotations.Ids.ENUM_TYPE, true);
+		for(InkObject o : all){
 			gen.generate(o.reflect());
 		}
 	}
 
 
-	protected void incrementalBuild(IResourceDelta delta,
-			IProgressMonitor monitor) throws CoreException {
+	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
-		List<DataBlock> changedElements = new ArrayList<DataBlock>();
-		delta.accept(new InkDeltaVisitor(monitor, changedElements));
-		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
-		processErrors(errors);
-		Generator gen = new StateClassGenerator((IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent());
-		Collection<InkObject> allClasses = InkUtils.getAllClasses(this.dsls);
-		for(InkObject o : allClasses){
-			gen.generate(o.reflect());
+		delta.accept(new InkDeltaVisitor(monitor));
+		if(!changedFiles.isEmpty()){
+			for(IFile f : changedFiles){
+				moveInkFile(f, monitor);
+			}
+			changedFiles.clear();
+			if(!fullBuild){
+				getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+				List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
+				processErrors(errors);
+				IFolder outputFolder = (IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent();
+				genrateJavaFiles(outputFolder);
+			}
+			fullBuild = false;
 		}
 	}
 

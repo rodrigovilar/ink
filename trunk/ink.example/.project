@@ -5,7 +5,7 @@
 	<projects>
 	</projects>
 	<buildSpec>
-	<buildCommand>
+		<buildCommand>
 			<name>ink.eclipse.inkBuilder</name>
 			<arguments>
 			</arguments>
@@ -17,7 +17,7 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-	<nature>ink.eclipse.inkNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>ink.eclipse.inkNature</nature>
 	</natures>
 </projectDescription>

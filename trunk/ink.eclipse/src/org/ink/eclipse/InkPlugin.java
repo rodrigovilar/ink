@@ -1,5 +1,6 @@
 package org.ink.eclipse;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.ink.core.vm.factory.Context;
@@ -22,6 +27,8 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class InkPlugin extends AbstractUIPlugin {
+
+	public static final String INK_HOME = "INK_HOME";
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "ink.eclipse"; //$NON-NLS-1$
@@ -45,7 +52,22 @@ public class InkPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		addInkClasspath();
 		loadInk();
+	}
+
+	private void addInkClasspath() {
+		try {
+			URL url = new URL(getBundle().getLocation());
+			String bundleLocation = url.getPath();
+			bundleLocation = bundleLocation.substring("file:".length(), bundleLocation.length());
+			IPath p = Path.fromOSString(bundleLocation);
+			System.out.println(p.toFile().getAbsolutePath());
+			p = Path.fromOSString(p.toFile().getAbsolutePath());
+			JavaCore.setClasspathVariable(INK_HOME, p, new NullProgressMonitor());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public List<InkErrorDetails> reloadInk(){

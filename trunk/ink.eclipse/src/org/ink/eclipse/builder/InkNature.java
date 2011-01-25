@@ -2,8 +2,6 @@ package org.ink.eclipse.builder;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,14 +40,11 @@ public class InkNature implements IProjectNature {
 	public void configure() throws CoreException {
 		IProjectDescription desc = project.getDescription();
 		IJavaProject jProject = JavaCore.create(project);
-		String bundleLocation;
 		try {
-			URL url = new URL(InkPlugin.getDefault().getBundle().getLocation());
-			bundleLocation = url.getPath();
-			System.out.println(bundleLocation);
-			bundleLocation = bundleLocation.substring("file:".length(), bundleLocation.length());
-			System.out.println(bundleLocation);
-			File f = new File(bundleLocation + File.separatorChar +"lib");
+			IPath inkHome = JavaCore.getClasspathVariable(InkPlugin.INK_HOME);
+			IPath libFolder = inkHome.append("lib");
+
+			File f = libFolder.toFile();
 			System.out.println(f.getAbsolutePath());
 			IFolder outputFolder = InkUtils.getJavaOutputFolder(project);
 			if(outputFolder.getFullPath().lastSegment().equals("bin")){
@@ -67,7 +62,6 @@ public class InkNature implements IProjectNature {
 					return false;
 				}
 			});
-			System.out.println(jars);
 			List<File> jarsToAdd = new ArrayList<File>(jars.length);
 			IClasspathEntry[] entries = jProject.getRawClasspath();
 			boolean foundGenClasspath = false;
@@ -88,9 +82,14 @@ public class InkNature implements IProjectNature {
 			File j;
 			IClasspathEntry cpe;
 			int i=0;
+			IPath jarPath;
+			IPath pathToSet;
 			for(;i<jarsToAdd.size();i++){
 				j = jarsToAdd.get(i);
-				cpe = JavaCore.newLibraryEntry(new Path(j.getAbsolutePath()), null, null);
+				jarPath = new Path(j.getAbsolutePath()).makeRelativeTo(inkHome);
+				pathToSet = new Path(InkPlugin.INK_HOME);
+				pathToSet = pathToSet.append(jarPath);
+				cpe = JavaCore.newVariableEntry(pathToSet, null, null);
 				newEntries.add(cpe);
 			}
 			if(!foundGenClasspath){
@@ -102,7 +101,7 @@ public class InkNature implements IProjectNature {
 				newEntries.add(cpe);
 			}
 			jProject.setRawClasspath(newEntries.toArray(new IClasspathEntry[]{}), new NullProgressMonitor());
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -116,10 +115,10 @@ public class InkNature implements IProjectNature {
 		}
 
 		ICommand[] newCommands = new ICommand[commands.length + 1];
-		System.arraycopy(commands, 0, newCommands, 0, commands.length);
+		System.arraycopy(commands, 0, newCommands, 1, commands.length);
 		ICommand command = desc.newCommand();
 		command.setBuilderName(InkBuilder.BUILDER_ID);
-		newCommands[newCommands.length - 1] = command;
+		newCommands[0] = command;
 		desc.setBuildSpec(newCommands);
 		project.setDescription(desc, null);
 	}

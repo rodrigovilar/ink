@@ -119,13 +119,13 @@ implements InkReader<Tag>{
 	}
 
 	@Override
-	public List<ElementDescriptor<Tag>> extractRawData(File f) throws IOException{
+	public List<ElementDescriptor<Tag>> extractRawData(File f, Context context) throws IOException{
 		try {
 			Tag tag = SdlParser.parse(f);
 			List<Tag> tags = tag.getChildren();
 			List<ElementDescriptor<Tag>> result = new ArrayList<ElementDescriptor<Tag>>(tags.size());
 			for(Tag t : tags){
-				result.add(new SdlElementDescriptor(t, f));
+				result.add(new SdlElementDescriptor(context.getNamespace(),t, f));
 			}
 			return result;
 		} catch (SDLParseException e) {
@@ -269,40 +269,44 @@ implements InkReader<Tag>{
 			return null;
 		}else{
 			InkClass cls = clsState.getBehavior();
-			ClassMirror cMirror = cls.reflect();
-			Map<String, PropertyMirror> propertiesMap = cMirror
-			.getClassPropertiesMap();
-			//no defaults here - defaults are resolved in compilation
 			result = cls.newInstance(serializationContext, false, false);
-			result.setId(id);
-			result.setRoot(!isInnerObject);
-			result.setAbstract(isAbstract);
-			result.setSuperId(superId);
-			if(id!=null){
-				objects.put(id, result);
-			}
-			List<Tag> fields = tag.getChildren();
-			PropertyMirror pm;
-			String propertyName;
-			for (Tag field : fields) {
-				propertyName = field.getName();
-				pm = propertiesMap.get(propertyName);
-				if (pm == null) {
-					addError(field, "The property with name '" + propertyName
-							+ "' does not exist for class '" + classId + "'.");
-				} else {
-					result.setRawValue(pm.getIndex(), transformPropertyValue(
-							field, pm));
+			try{
+				ClassMirror cMirror = cls.reflect();
+				Map<String, PropertyMirror> propertiesMap = cMirror
+				.getClassPropertiesMap();
+				//no defaults here - defaults are resolved in compilation
+				result.setId(id);
+				result.setRoot(!isInnerObject);
+				result.setAbstract(isAbstract);
+				result.setSuperId(superId);
+				if(id!=null){
+					objects.put(id, result);
 				}
-			}
-			if(!containsErrors()){
-				if(!isInnerObject){
-					try{
-						result.reflect().edit().compile();
-					}catch(Exception e){
-						addError(tag, e.getMessage());
+				List<Tag> fields = tag.getChildren();
+				PropertyMirror pm;
+				String propertyName;
+				for (Tag field : fields) {
+					propertyName = field.getName();
+					pm = propertiesMap.get(propertyName);
+					if (pm == null) {
+						addError(field, "The property with name '" + propertyName
+								+ "' does not exist for class '" + classId + "'.");
+					} else {
+						result.setRawValue(pm.getIndex(), transformPropertyValue(
+								field, pm));
 					}
 				}
+				if(!containsErrors()){
+					if(!isInnerObject){
+						try{
+							result.reflect().edit().compile();
+						}catch(Exception e){
+							addError(tag, e.getMessage());
+						}
+					}
+				}
+			}catch(Throwable e){
+				addError(tag, "Could not read object '"+id +"'.");
 			}
 		}
 		return result;
@@ -349,97 +353,103 @@ implements InkReader<Tag>{
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Object transformPropertyValue(Tag tag, PropertyMirror pm) {
 		Object result = null;
-		switch (pm.getTypeMarker()) {
-		case Primitive:
-			result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
-			break;
-		case Collection:
-			switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-			case List:
-				PropertyMirror itemMirror = ((ListPropertyMirror) pm).getItemMirror();
-				switch (itemMirror.getTypeMarker()) {
-				case Primitive:
-					List<?> values = tag.getValues();
-					result = new ArrayList<Object>(values.size());
-					for(Object o : values){
-						((List)result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
-					}
-					break;
-				case Enum:
-					// result = new ArrayList<Object>(pt.getValues());
-					break;
-				default:
-					List<Tag> tags = tag.getChildren();
-					result = new ArrayList<Object>(tags.size());
-					PropertyMirror innerPM = ((ListPropertyMirror) pm)
-					.getItemMirror();
-					for (Tag t : tags) {
-						if (!t.getName().equals(innerPM.getName())) {
-							addError(t, "Invalid list item name '"
-									+ t.getName() + "'. Expected name '"
-									+ pm.getName() + "'.");
-						} else {
-							((List) result).add(transformPropertyValue(t,
-									innerPM));
-						}
-					}
-					break;
-				}
+		try{
+			switch (pm.getTypeMarker()) {
+			case Primitive:
+				result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
 				break;
-			case Map:
-				PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
-				PropertyMirror valueM = ((MapPropertyMirror) pm)
-				.getValueMirror();
-				List<Tag> tags = tag.getChildren();
-				List<Tag> keyValue;
-				result = new HashMap(tags.size());
-				for (Tag t : tags) {
-					boolean keyFound = false;
-					boolean valueFound = false;
-					keyValue = t.getChildren();
-					Object mapKey = null;
-					Object mapvalue = null;
-					for (Tag mapEn : keyValue) {
-						if (mapEn.getName().equals(keyM.getName())) {
-							keyFound = true;
-							mapKey = transformPropertyValue(mapEn, keyM);
-						} else if (mapEn.getName().equals(valueM.getName())) {
-							valueFound = true;
-							mapvalue = transformPropertyValue(mapEn, valueM);
-						} else {
-							addError(mapEn,
-									"Unexpected field found inside map item. Expected fields are '"
-									+ keyM.getName() + "','"
+			case Collection:
+				switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
+				case List:
+					PropertyMirror itemMirror = ((ListPropertyMirror) pm).getItemMirror();
+					switch (itemMirror.getTypeMarker()) {
+					case Primitive:
+						List<?> values = tag.getValues();
+						result = new ArrayList<Object>(values.size());
+						for(Object o : values){
+							((List)result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
+						}
+						break;
+					case Enum:
+						// result = new ArrayList<Object>(pt.getValues());
+						break;
+					default:
+						List<Tag> tags = tag.getChildren();
+						result = new ArrayList<Object>(tags.size());
+						PropertyMirror innerPM = ((ListPropertyMirror) pm)
+						.getItemMirror();
+						for (Tag t : tags) {
+							if (!t.getName().equals(innerPM.getName())) {
+								addError(t, "Invalid list item name '"
+										+ t.getName() + "'. Expected name '"
+										+ pm.getName() + "'.");
+							} else {
+								((List) result).add(transformPropertyValue(t,
+										innerPM));
+							}
+						}
+						break;
+					}
+					break;
+				case Map:
+					PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
+					PropertyMirror valueM = ((MapPropertyMirror) pm)
+					.getValueMirror();
+					List<Tag> tags = tag.getChildren();
+					List<Tag> keyValue;
+					result = new HashMap(tags.size());
+					for (Tag t : tags) {
+						boolean keyFound = false;
+						boolean valueFound = false;
+						keyValue = t.getChildren();
+						Object mapKey = null;
+						Object mapvalue = null;
+						for (Tag mapEn : keyValue) {
+							if (mapEn.getName().equals(keyM.getName())) {
+								keyFound = true;
+								mapKey = transformPropertyValue(mapEn, keyM);
+							} else if (mapEn.getName().equals(valueM.getName())) {
+								valueFound = true;
+								mapvalue = transformPropertyValue(mapEn, valueM);
+							} else {
+								addError(mapEn,
+										"Unexpected field found inside map item. Expected fields are '"
+										+ keyM.getName() + "','"
+										+ valueM.getName() + "'.");
+							}
+						}
+						if (!keyFound) {
+							addError(t, "could not find map key '" + keyM.getName()
+									+ "'.");
+						}
+						if (!valueFound) {
+							addError(t, "could not find map value '"
 									+ valueM.getName() + "'.");
 						}
+						if (mapKey != null && mapvalue != null) {
+							((Map) result).put(mapKey, mapvalue);
+						}
 					}
-					if (!keyFound) {
-						addError(t, "could not find map key '" + keyM.getName()
-								+ "'.");
-					}
-					if (!valueFound) {
-						addError(t, "could not find map value '"
-								+ valueM.getName() + "'.");
-					}
-					if (mapKey != null && mapvalue != null) {
-						((Map) result).put(mapKey, mapvalue);
-					}
+					break;
+				}
+				break;
+			case Class:
+				result = createInkObject(tag, true);
+				break;
+			case Enum:
+				try {
+					result = ((EnumType) ((Property) pm.getTargetBehavior())
+							.getType()).getEnumObject(tag.getValue().toString());
+				} catch (CoreException e) {
+					addError(tag, "Invalid enumeration value : '" + tag.getValue()
+							+ "'");
 				}
 				break;
 			}
-			break;
-		case Class:
-			result = createInkObject(tag, true);
-			break;
-		case Enum:
-			try {
-				result = ((EnumType) ((Property) pm.getTargetBehavior())
-						.getType()).getEnumObject(tag.getValue().toString());
-			} catch (CoreException e) {
-				addError(tag, "Invalid enumeration value : '" + tag.getValue()
-						+ "'");
-			}
-			break;
+		}catch(CoreException e){
+			addError(tag, "Invalid property value '" + pm.getName() +"':"+e.getMessage());
+		}catch(Throwable e){
+			addError(tag, "Invalid property value '" + pm.getName() +"'.");
 		}
 		return result;
 	}

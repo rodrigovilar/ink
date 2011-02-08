@@ -9,6 +9,8 @@ import org.ink.core.vm.serialization.ParseError;
 
 public interface ElementDescriptor<D>{
 	public String getId();
+	public String getSuperId();
+	public String getClassId();
 	public D getRawData();
 	public File getResource();
 	public void setValidationErrorMessages(List<ValidationMessage> validationErrorMessages);

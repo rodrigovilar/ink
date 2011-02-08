@@ -131,6 +131,7 @@ import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.serialization.InkReaderState;
 import org.ink.core.vm.traits.PersonalityState;
+import org.ink.core.vm.traits.ClassHierarchyLocatorState;
 import org.ink.core.vm.traits.TargetLocatorState;
 import org.ink.core.vm.traits.TraitClassState;
 import org.ink.core.vm.traits.TraitKind;
@@ -1313,6 +1314,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(EnumAttributeValidatorState.class);
 		newInkObject(InkReaderState.class);
 		newInkObject(EmptyDslLoaderState.class);
+		newInkObject(ClassHierarchyLocatorState.class);
 	}
 
 	private <A extends Annotation> A  findAnnotation(Class stateClass, Class<A> annotationClass){

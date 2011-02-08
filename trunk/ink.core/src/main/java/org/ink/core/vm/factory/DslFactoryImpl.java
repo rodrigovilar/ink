@@ -113,6 +113,13 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void scan() {
 		if(!reflect().isAbstract() && !reflect().isCoreObject()){
 			loader.scan(this);
+			Iterator<InkObjectState> objectIterator = repository.iterator();
+			while(objectIterator.hasNext()){
+				InkObjectState o = objectIterator.next();
+				if(o.reflect().isClass()){
+					applyDetachableTraits((InkClassState) o);
+				}
+			}
 			if(VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
 				Iterator<String> iter = loader.iterator();
 				while(iter.hasNext()){
@@ -164,6 +171,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					result = loader.getObject(id, getAppContext());
 					if(result!=null){
 						repository.setObject(id, result);
+						if(result!=null && ((MirrorAPI)result).isClass()){
+							applyDetachableTraits((InkClassState) result);
+						}
 						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 					}else if(reportErrorIfNotExists){
 						throw new CoreException("The object with id '" +id+"', could not be found.");
@@ -190,8 +200,10 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				}else{
 					for(DslFactory p : boundedFactories.values()){
 						if(p.isNamespacesInScope(ns)){
-							//TODO should add code to merge multiple detachable traits and to chache result if necessary
 							result = p.getState(id, false);
+							if(result!=null){
+								//TODO should add code to merge multiple detachable traits and to cache result if necessary
+							}
 							break;
 						}
 					}
@@ -203,9 +215,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				}
 			}else if(reportErrorIfNotExists){
 				throw new CoreException("The object with id '" +id+"', could not be found. The namespace '"+ ns +"' is unknown in this scope ( " + getNamespace()+").");
-			}
-			if(result!=null && ((MirrorAPI)result).isClass()){
-				applyDetachableTraits((InkClassState) result);
 			}
 		}
 		return (T)result;
@@ -269,9 +278,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public synchronized void registerTrait(TraitState state) {
 		if(((TraitClass)state.getMeta()).getKind().isDetachable()){
-			detachableTraits.add((Trait)state.getMeta());
+			detachableTraits.add((Trait)state.getBehavior());
+			register(state);
 		}
-		register(state);
 	}
 
 

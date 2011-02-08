@@ -1,7 +1,5 @@
 package org.ink.core.vm.traits;
 
-import java.util.Set;
-
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 
@@ -12,7 +10,7 @@ public interface Trait extends InkObject {
 
 	public void afterTargetSet();
 	public <T extends InkObject> T getTargetBehavior();
-	public Set<InkClass> getTragetClasses();
+	//public Set<InkClass> getTragetClasses();
 	public boolean isAcceptable(InkClass cls);
 
 }

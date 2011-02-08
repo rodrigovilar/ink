@@ -98,17 +98,17 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		} catch (IOException e) {
 			//TODO - log error
 		}
-		List<String> startupObjects = scan(ownerFactory.getDslPackage());
+		List<String> startupObjects = locateStartupObjects(ownerFactory.getDslPackage());
 		List<InkObjectState> objects = new ArrayList<InkObjectState>();
 		ClassMirror tc = getContext().getObject(CoreNotations.Ids.TRAIT).reflect();
 		InkObjectState o = null;
 		for(String id : startupObjects){
 			try {
 				o  = getObject(id, ownerFactory.getAppContext());
+				objects.add(o);
 			} catch (ObjectLoadingException e) {
 				e.printStackTrace();
 			}
-			objects.add(o);
 		}
 		InkClass cls;
 		for(ListIterator<InkObjectState> iter=objects.listIterator();iter.hasNext();){
@@ -141,12 +141,15 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		List<ElementDescriptor<D>> fileElements;
 		String id;
 		for(File f : getInkFiles()){
-			fileElements = reader.extractRawData(f);
+			fileElements = reader.extractRawData(f, ownerFactory.getAppContext());
 			if(!reader.containsErrors()){
 				for(ElementDescriptor desc : fileElements){
 					id = desc.getId();
 					if(id!=null){
-						elements.put(ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id, desc);
+						if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) <0){
+							id = ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
+						}
+						elements.put(id, desc);
 					}else{
 						//TODO - log error
 					}
@@ -160,9 +163,39 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		}
 	}
 
+	private String findSuperId(String id){
+		String result = null;
+		ElementDescriptor<D> superElem = elements.get(id);
+		if(superElem!=null){
+			result = superElem.getSuperId();
+		}else{
+			InkObjectState ios = ownerFactory.getState(id, false);
+			if(ios!=null){
+				Mirror superObject = ios.reflect().getSuper();
+				if(superObject!=null){
+					result = superObject.getId();
+				}
+			}else{
+				System.out.println("Could not locate object with id " + id);
+			}
+		}
+		return result;
+	}
 
-	private List<String> scan(String dslPackage) {
-		return new ArrayList<String>();
+
+	private List<String> locateStartupObjects(String dslPackage) {
+		List<String> result = new ArrayList<String>();
+		for(ElementDescriptor<D> elem : elements.values()){
+			String superId = findSuperId(elem.getClassId());
+			while(superId!=null){
+				if(superId.equals(CoreNotations.Ids.TRAIT)){
+					result.add(elem.getId());
+					break;
+				}
+				superId = findSuperId(superId);
+			}
+		}
+		return result;
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package org.ink.core.vm.traits;
 
-import java.util.Set;
-
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 
@@ -10,7 +8,6 @@ import org.ink.core.vm.lang.InkObject;
  */
 public interface TargetLocator extends InkObject {
 
-	public Set<InkClass> match();
-	public boolean isAcceptable(InkClass cls);
+	public boolean accept(InkClass cls);
 
 }

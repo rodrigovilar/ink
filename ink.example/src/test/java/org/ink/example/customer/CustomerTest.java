@@ -1,6 +1,8 @@
 package org.ink.example.customer;
 
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.ink.core.vm.constraints.ValidationContext;
@@ -10,8 +12,12 @@ import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.Property;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.traits.Trait;
+import org.ink.core.vm.traits.TraitClass;
+import org.ink.core.vm.traits.TraitClassState;
 
 /**
  * @author Lior Schachter
@@ -31,7 +37,7 @@ public class CustomerTest extends TestCase{
 		InkObject customerClass = context.getObject("example.customer:Customer");
 		assertNotNull(customerClass);
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
-		
+
 		assertNotNull(customer);
 
 
@@ -149,7 +155,7 @@ public class CustomerTest extends TestCase{
 
 	}
 
-	public void testCustomerTraits(){
+	public void testCustomerStructuralTraits(){
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
 		//TODO need to fix this in the state generator
 		//Trait t = customer.asTrait(CustomerState.t_fan);
@@ -160,6 +166,28 @@ public class CustomerTest extends TestCase{
 		customer = createState("example.customer:Customer");
 		assertNotNull(customer.reflect().getPropertyValue("fan.favorite_sport"));
 		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.FootBall);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void testCustomerDetachableTraits(){
+		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
+		Trait t = customer.asTrait("stam");
+		TraitClass tClass = t.getMeta();
+		assertNotNull(t);
+		List<Property> injectedProps = (List<Property>) tClass.reflect().getPropertyValue(TraitClassState.p_injected_properties);
+		assertFalse(injectedProps.isEmpty());
+		String name = tClass.getRole() + "." + injectedProps.get(0).getName();
+		Mirror mirror = customer.reflect();
+		assertNull(mirror.getPropertyValue(name));
+		mirror.edit().setPropertyValue(name, "kukukuku");
+		assertNotNull(mirror.getPropertyValue(name));
+
+		customer = createState("example.customer:SubCustomer");
+		mirror = customer.reflect();
+		assertNull(mirror.getPropertyValue(name));
+		mirror.edit().setPropertyValue(name, "kukukuku");
+		assertNotNull(mirror.getPropertyValue(name));
+
 	}
 
 	private String extractFirstMessageId(ValidationContext vc) {

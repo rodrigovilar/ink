@@ -93,6 +93,17 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 
 }
 
+Class id="SubCustomer" class="example.customer:CustomerClass" super="example.customer:Customer"{
+	java_path ""
+	component_type "Root"
+	java_mapping "No_Java"
+	properties{
+		property class="ink.core:StringAttribute"{
+			name "myprop"
+		}	
+	}
+}
+
 Object id="TheFirstCustomer" class="example.customer:Customer"{
 	first_name "Lior"
 	last_name "Schachter"
@@ -103,4 +114,21 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 		street "Bar Kokva"
 		number 10
 	}
+}
+
+Object id="TheSecondCustomer" class="example.customer:Customer"{
+	first_name "Lior"
+	last_name "Schachter"
+	age 32
+	fan.favorite_sport "BasketBall"
+	stam.shmupu "kuku"
+	address class="example.customer:Address"{
+		city "Tel-Aviv"
+		street "Bar Kokva"
+		number 10
+	}
+}
+
+Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example.customer:TheFirstCustomer"{
+	stam.shmupu "kuku"	
 }

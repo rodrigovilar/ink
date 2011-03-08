@@ -248,6 +248,7 @@ public abstract class DataBlock {
 					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, false);
 				}else{
 					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
+					options.add(CoreNotations.Ids.INK_CLASS);
 				}
 				for(String id : options){
 					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));

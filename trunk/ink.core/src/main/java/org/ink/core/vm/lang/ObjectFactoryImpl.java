@@ -24,32 +24,34 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	private Object[] defaultState;
 	private Byte[] finalValuesIndexes;
 	private Byte[] defaultValuesIndexes;
-	
+
 	public ObjectFactoryImpl() {}
-	
+
 
 	@Override
 	public boolean isPropertyFinal(byte index){
-		if(finalValuesIndexes!=null)
-		for(byte loc : finalValuesIndexes){
-			if(loc==index){
-				return true;
+		if(finalValuesIndexes!=null) {
+			for(byte loc : finalValuesIndexes){
+				if(loc==index){
+					return true;
+				}
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void afterStateSet() {
 		super.afterStateSet();
 		factory = getContext().getFactory();
 	}
-	
+
+	@Override
 	public void bind(ClassMirror cMirror){
 		this.cMirror = cMirror;
 		caluculateStates();
 	}
-	
+
 	private void caluculateStates() {
 		List<Byte> finalLocations = new ArrayList<Byte>();
 		List<Byte> defaultLocations = new ArrayList<Byte>();
@@ -77,7 +79,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 			defaultState = defaultData.toArray(new Object[] {});
 		}
 	}
-	
+
 	@Override
 	public String getNamespace() {
 		return ((DslFactory)getMeta()).getNamespace();
@@ -87,7 +89,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	@Override
 	public final <T extends InkObjectState> T  newInstance(DslFactory factory, InkClassState cls, boolean initObjectId, boolean initDefaults) {
 		MirrorAPI state = (MirrorAPI) factory.newVanillaStateInstance(((ClassMirror)cls.reflect()).getStateClass());
-		((MirrorAPI) state).init(cls, factory);
+		state.init(cls, factory);
 		initInstance(cls, state, initObjectId, initDefaults);
 		return (T)state;
 	}
@@ -122,21 +124,21 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 			state.setId(generateId());
 		}
 	}
-	
+
 	protected String generateId(){
 		return CoreUtils.newUUID();
 	}
-	
+
 	@Override
 	public InkObject newBehviorInstance(InkObjectState state, boolean cacheResult, boolean forceNew){
 		return createBehaviorInstance(state, null, cacheResult, forceNew);
 	}
-	
+
 	@Override
 	public InkObject newBehviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew){
 		return createBehaviorInstance(state, targetState, cacheResult, forceNew);
 	}
-	
+
 	private InkObject createBehaviorInstance(InkObjectState state, InkObjectState targetState,boolean cacheResult, boolean forceNew) {
 		InkObject result = null;
 		if(forceNew || (result = cMirror.getCachedBehavior(state)) == null){

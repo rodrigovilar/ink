@@ -23,12 +23,12 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 
 	private static final String PROPERTY_NAME_DELIMITER = ".";
 
-	
+
 	@Override
 	public void setFactory(ObjectFactoryState factoryState) {
 		((ClassMirrorAPI)workOnObject).setFactory(factoryState);
 	}
-	
+
 	@Override
 	public void weaveDetachableTrait(Trait trait) throws WeaveException{
 		TraitClass traitClass = trait.getMeta();
@@ -36,7 +36,7 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		injectProperties(role, traitClass, false);
 		((ClassMirrorAPI)workOnObject).addRole(trait.reflect().getNamespace(), role, trait);
 	}
-	
+
 	private void injectProperties(String role, TraitClass traitClass, boolean isStructural) throws WeaveException{
 		ClassMirrorAPI classObject = (ClassMirrorAPI)workOnObject;
 		String classNS = classObject.getNamespace();
@@ -54,27 +54,29 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		List<Property> newProperties = new ArrayList<Property>(superPropMirrors.size());
 		PropertyMirror[] existingProperties =  classObject.getClassPropertiesMirrors();
 		ClassMirrorAPI superClass = classObject.getSuper();
-		PropertyMirror[] superProperties = superClass.getClassPropertiesMirrors();
-		Map<String, PropertyMirror> propertiesMap = new HashMap<String, PropertyMirror>(superProperties.length);
-		for(PropertyMirror propMirror : existingProperties){
-			propertiesMap.put(propMirror.getName(), propMirror);
-		}
 		Property newProperty;
-		String name;
-		//to keep montonicity - first go through the super properties
-		for(PropertyMirror propMirror : superProperties){
-			name = propMirror.getName();
-			newProperty = getExistingProperty(name, traitNS, propertiesMap);
-			if(newProperty==null){
-				//check in the injected properties
-				newProperty = getTraitProperty(name, traitNS, injectedPropertiesMap);
-				if(newProperty==null){
-					//we arrive here if there are injected properties in the super 
-					//that were still not resolved in the sub-class (but should be soon...)
-					newProperty = propMirror.getTargetBehavior().cloneState().getBehavior();
-				}
+		Map<String, PropertyMirror> propertiesMap = new HashMap<String, PropertyMirror>();
+		if(superClass!=null){
+			PropertyMirror[] superProperties = superClass.getClassPropertiesMirrors();
+			for(PropertyMirror propMirror : existingProperties){
+				propertiesMap.put(propMirror.getName(), propMirror);
 			}
-			newProperties.add(newProperty);
+			String name;
+			//to keep montonicity - first go through the super properties
+			for(PropertyMirror propMirror : superProperties){
+				name = propMirror.getName();
+				newProperty = getExistingProperty(name, traitNS, propertiesMap);
+				if(newProperty==null){
+					//check in the injected properties
+					newProperty = getTraitProperty(name, traitNS, injectedPropertiesMap);
+					if(newProperty==null){
+						//we arrive here if there are injected properties in the super
+						//that were still not resolved in the sub-class (but should be soon...)
+						newProperty = propMirror.getTargetBehavior().cloneState().getBehavior();
+					}
+				}
+				newProperties.add(newProperty);
+			}
 		}
 		//add original properties + trait properties
 		for(PropertyMirror propMirror : existingProperties){
@@ -90,12 +92,12 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		}
 		classObject.applyProperties(newProperties);
 	}
-	
+
 	@Override
 	public void weaveStructuralTrait(String role, TraitClass traitClass) throws WeaveException{
 		injectProperties(role, traitClass, true);
 	}
-	
+
 	private Property getExistingProperty(String name, String traitNS, Map<String, PropertyMirror> existingProperties){
 		PropertyMirror result = existingProperties.remove(name);
 		if(result==null){
@@ -103,7 +105,7 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		}
 		return result==null?null:(Property)result.getTargetBehavior();
 	}
-	
+
 	private Property getTraitProperty(String name, String traitNS, Map<String, PropertyState> traitProperties){
 		PropertyState result =traitProperties.remove(name);
 		if(result==null){
@@ -111,7 +113,7 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		}
 		return result==null?null:(Property)result.getBehavior();
 	}
-	
+
 	private List<PropertyState> collectProperties(String role, TraitClass traitClass, boolean addNS, String traitNS){
 		List<? extends Property> traitProperties = traitClass.getInjectedTargetProperties();
 		List<PropertyState> injectedProperties = new ArrayList<PropertyState>(traitProperties.size());

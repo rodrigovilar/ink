@@ -64,7 +64,48 @@
       </editor>
    </extension>
    <extension
-         point="org.eclipse.ui.startup">
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="ink.eclipse.actionSet"
+            label="Ink"
+            visible="true">
+         <menu
+               id="ink.eclipse.menu"
+               label="Ink">
+         </menu>
+         <action
+               class="ink.eclipse.editors.actions.OpenElementAction"
+               definitionId="ink.eclipse.openElement"
+               icon="icons/opentype.gif"
+               id="ink.eclipse.openElementAction"
+               label="Open Ink Element"
+               menubarPath="ink.eclipse.menu/Editor"
+               style="push"
+               toolbarPath="ink.eclipse.menu">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         id="ink.eclipse.commands"
+         name="Ink Commands"
+         point="org.eclipse.ui.commands">
+      <category
+            id="ink.eclipse.editor"
+            name="Ink Editor">
+      </category>
+      <command
+            categoryId="ink.eclipse.editor"
+            id="ink.eclipse.openElement"
+            name="Open Ink Element">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="ink.eclipse.openElement"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+I">
+      </key>
    </extension>
 
 </plugin>

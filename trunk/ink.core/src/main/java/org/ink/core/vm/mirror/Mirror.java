@@ -46,4 +46,6 @@ public interface Mirror extends Trait{
 	public void put(Object key, Object data);
 	public ElementDescriptor<?> getDescriptor();
 	public DslFactory getTragetOwnerFactory();
+	public boolean isValid();
+	public <T extends Trait> T asTrait(byte trait, boolean forceNew);
 }

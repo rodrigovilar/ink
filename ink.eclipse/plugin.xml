@@ -104,7 +104,7 @@
       <key
             commandId="ink.eclipse.openElement"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+SHIFT+I">
+            sequence="CTRL+SHIFT+Q">
       </key>
    </extension>
 

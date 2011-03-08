@@ -89,6 +89,7 @@ public interface InkClassState extends InkTypeState{
 		private Trait[] detachableRoles = null;
 		private Map<String, Byte> detachableTraitsRolesToIndexes = null;
 		private Map<String, Byte> detachableTraitsIdsToIndexes = null;
+		private boolean created = false;
 
 		@Override
 		public void bootClass(InkClassState c, PropertyMirror[] propsMirrors, PropertyMirror[] intancePropsMirrors, Map<String, Byte> propertiesIndexes, Map<String, Byte> instancePropertiesIndexes, Class<?>[] behaviorProxyInterfaces, DslFactory context, Class<InkObjectState> dataClass){
@@ -126,8 +127,8 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public <T extends InkObjectState> T cloneState() {
-			T result = super.cloneState();
+		public <T extends InkObjectState> T cloneState(boolean identicalTwin) {
+			T result = super.cloneState(identicalTwin);
 			((ClassMirrorAPI)result).setFactory((ObjectFactoryState)this.factory.cloneState());
 			return result;
 		}
@@ -224,6 +225,12 @@ public interface InkClassState extends InkTypeState{
 						}
 					}
 					classPropsMirrors[i] = prop.reflect();
+					//currently can't add detachable traits to core elements need to find a way to allow this
+					if(created && (!isCoreObject())){
+						//if the class was created then instances of it hold a pointer to the property mirror
+						//need to create a new object
+						classPropsMirrors[i] = classPropsMirrors[i].asTrait(t_reflection, true);
+					}
 					classPropsMirrors[i].bind((ClassMirror) reflect(), i);
 					classPropertiesIndexes.put(prop.getName(), i);
 				}
@@ -259,6 +266,7 @@ public interface InkClassState extends InkTypeState{
 					throw new CoreException(e);
 				}
 			}
+			created = true;
 		}
 
 		protected Class<InkObject> resolveBehaviorClass() {
@@ -388,7 +396,7 @@ public interface InkClassState extends InkTypeState{
 				index = 0;
 				temp3 = new Trait[1];
 			}else{
-				temp3 = new Trait[detachableRoles.length];
+				temp3 = new Trait[detachableRoles.length + 1];
 				index = (byte) detachableRoles.length;
 				System.arraycopy(detachableRoles, 0, temp3, 0, detachableRoles.length);
 			}

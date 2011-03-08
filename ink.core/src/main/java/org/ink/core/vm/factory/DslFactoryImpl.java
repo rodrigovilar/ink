@@ -31,7 +31,6 @@ import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Struct;
-import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -117,14 +116,19 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			while(objectIterator.hasNext()){
 				InkObjectState o = objectIterator.next();
 				if(o.reflect().isClass()){
-					applyDetachableTraits((InkClassState) o);
+					applyDetachableTraits((InkClassState) o, false);
+					try{
+						o.toString();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
 				}
 			}
 			if(VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
 				Iterator<String> iter = loader.iterator();
 				while(iter.hasNext()){
 					try{
-						getState(iter.next());
+						getState(iter.next(), false);
 					}catch(Exception e){
 						e.printStackTrace();
 					}
@@ -171,8 +175,8 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					result = loader.getObject(id, getAppContext());
 					if(result!=null){
 						repository.setObject(id, result);
-						if(result!=null && ((MirrorAPI)result).isClass()){
-							applyDetachableTraits((InkClassState) result);
+						if(result!=null && result.reflect().isClass()){
+							applyDetachableTraits((InkClassState) result, false);
 						}
 						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 					}else if(reportErrorIfNotExists){
@@ -209,6 +213,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					}
 				}
 				if(result!=null){
+					if(result.reflect().isClass()){
+						InkObjectState temp = applyDetachableTraits((InkClassState) result, true);
+						if(temp!=null){
+							result = temp;
+						}
+					}
 					repository.setObject(id, result);
 				}else if(reportErrorIfNotExists){
 					throw new CoreException("The object with id '" +id+"', could not be found");
@@ -221,20 +231,29 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 
-	private void applyDetachableTraits(InkClassState cls) {
-		InkClass clsBehav = cls.getBehavior();
-		ClassMirror clsMrr = cls.reflect();
-		TraitClass traitCls;
-		for(Trait t : detachableTraits){
-			traitCls = t.getMeta();
-			if(t.isAcceptable(clsBehav) && !clsMrr.hasRole(t.reflect().getNamespace(), traitCls.getRole())){
-				try {
-					((ClassEditor)clsMrr.edit()).weaveDetachableTrait(t);
-				} catch (WeaveException e) {
-					throw new CoreException("Could not dynamically weave trait '" + t.reflect().getId() +"' to class '" +clsMrr.getId()+"'.", e);
+	private InkClassState applyDetachableTraits(InkClassState cls, boolean cloneBeforeChange) {
+		InkClassState result = null;
+		if(cls.reflect().isValid()){
+			InkClass clsBehav = cls.getBehavior();
+			ClassMirror clsMrr = cls.reflect();
+			TraitClass traitCls;
+			for(Trait t : detachableTraits){
+				traitCls = t.getMeta();
+				if(t.isAcceptable(clsBehav) && !clsMrr.hasRole(t.reflect().getNamespace(), traitCls.getRole())){
+					try {
+						if(cloneBeforeChange && result==null){
+							result = cls.reflect().cloneTargetState(true);
+							result.reflect().edit().save();
+							clsMrr = result.reflect();
+						}
+						((ClassEditor)clsMrr.edit()).weaveDetachableTrait(t);
+					} catch (WeaveException e) {
+						throw new CoreException("Could not dynamically weave trait '" + t.reflect().getId() +"' to class '" +clsMrr.getId()+"'.", e);
+					}
 				}
 			}
 		}
+		return result;
 	}
 	@SuppressWarnings("unchecked")
 	@Override

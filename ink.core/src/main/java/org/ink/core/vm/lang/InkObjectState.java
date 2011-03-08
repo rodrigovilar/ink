@@ -227,7 +227,16 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		@Override
 		@SuppressWarnings("unchecked")
 		public final <T extends Trait> T asTrait(byte trait){
-			Trait result = traitsCache[trait];
+			return asTrait(trait, false);
+		}
+
+		public <T extends Trait> T asTrait(byte trait, boolean forceNew){
+			Trait result = null;
+			if(forceNew){
+				traitsCache[trait] = null;
+			}else{
+				result = traitsCache[trait];
+			}
 			if (result==null){
 				result = myClass.getPersonality().adapt(trait, this, (ClassMirror) getMeta().reflect());
 			}

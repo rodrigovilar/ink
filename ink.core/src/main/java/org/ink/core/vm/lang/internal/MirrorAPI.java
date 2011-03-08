@@ -66,5 +66,6 @@ public interface MirrorAPI extends InkObjectState{
 	public void put(Object key, Object data);
 	public Object getPropertyStaticValue(byte index);
 	public String getSuperId();
-	
+	public <T extends Trait> T asTrait(byte trait, boolean forceNew);
+
 }

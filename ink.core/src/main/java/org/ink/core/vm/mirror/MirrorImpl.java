@@ -8,6 +8,7 @@ import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
+import org.ink.core.vm.traits.Trait;
 import org.ink.core.vm.traits.TraitImpl;
 import org.ink.core.vm.types.ObjectTypeMarker;
 
@@ -200,6 +201,20 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public DslFactory getTragetOwnerFactory() {
 		return getTargetState().getContext().getFactory();
+	}
+
+	@Override
+	public boolean isValid() {
+		ElementDescriptor<?> desc = getDescriptor();
+		if(desc!=null){
+			return !desc.containsErrors();
+		}
+		return true;
+	}
+
+	@Override
+	public <T extends Trait> T asTrait(byte trait, boolean forceNew) {
+		return ((MirrorAPI)getTargetState()).asTrait(trait, forceNew);
 	}
 
 }

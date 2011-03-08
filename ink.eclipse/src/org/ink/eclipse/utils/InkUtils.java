@@ -100,6 +100,19 @@ public class InkUtils {
 		return result;
 	}
 
+	public static Collection<InkObject> getInstances(String classId, boolean recursive){
+		Collection<InkObject> referrers = new ArrayList<InkObject>();
+		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
+		if(inkObject!=null){
+			ModelInfoRepository repo = ModelInfoFactory.getInstance();
+			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive);
+			if(temp!=null){
+				referrers.addAll(temp);
+			}
+		}
+		return referrers;
+	}
+
 	public static Collection<InkObject> getInstances(String[] nss, String classId, boolean recursive){
 		Collection<InkObject> referrers = new ArrayList<InkObject>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);

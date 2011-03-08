@@ -49,6 +49,7 @@ implements InkReader<Tag>{
 	private URL url = null;
 	private DslFactory serializationContext = null;
 	private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
+	private boolean containsError = false;
 
 	@Override
 	public void reset() {
@@ -63,6 +64,7 @@ implements InkReader<Tag>{
 
 	protected void addError(int lineNumber, int position, String description) {
 		ParseError err = new ParseError(lineNumber, position, description, url);
+		containsError = true;
 		errors.add(err);
 	}
 
@@ -267,6 +269,9 @@ implements InkReader<Tag>{
 		if (clsState == null) {
 			addError(tag, "Could not resolve class id '" + classId + "'.");
 			return null;
+		}else if(!clsState.reflect().isValid()){
+			containsError = true;
+			return null;
 		}else{
 			InkClass cls = clsState.getBehavior();
 			result = cls.newInstance(serializationContext, false, false);
@@ -456,7 +461,7 @@ implements InkReader<Tag>{
 
 	@Override
 	public boolean containsErrors() {
-		return !errors.isEmpty();
+		return containsError;
 	}
 
 }

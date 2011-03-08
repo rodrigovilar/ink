@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -33,10 +34,14 @@ public class InkPlugin extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "ink.eclipse"; //$NON-NLS-1$
 
+	public static final String EDITOR_ID = "ink.eclipse.editors.InkEditor";
+
 	// The shared instance
 	private static InkPlugin plugin;
 
 	private Context inkContext;
+
+	private int maxBuildIterations = 10;
 
 	/**
 	 * The constructor
@@ -52,8 +57,14 @@ public class InkPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		IWorkspace ws = ResourcesPlugin.getWorkspace();
+		maxBuildIterations = ws.getDescription().getMaxBuildIterations();
 		addInkClasspath();
 		loadInk();
+	}
+
+	public int getMaxBuildIterations(){
+		return maxBuildIterations;
 	}
 
 	private void addInkClasspath() {

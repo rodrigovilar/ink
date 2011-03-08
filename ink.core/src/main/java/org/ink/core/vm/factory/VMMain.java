@@ -62,13 +62,7 @@ public class VMMain {
 	}
 
 	protected static DslFactory getFactory(String namespace){
-		DslFactory result = allFactories.get(namespace);
-		if(result==null){
-
-		}else{
-			factory = result;
-		}
-		return result;
+		return allFactories.get(namespace);
 	}
 
 	public static DslFactory getDefaultFactory(){

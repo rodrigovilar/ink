@@ -5,6 +5,6 @@ public interface A_SpecialOffer {
 	boolean isEligible(A_Subscription subscription);
 	
 	double getPromotionalPrice(A_Subscription subscription);
-	int getFreePeriods(A_Subscription subscription);
+	int getFreeIssues(A_Subscription subscription);
 	String getPromotionalMessage(A_Subscription subscription);
 }

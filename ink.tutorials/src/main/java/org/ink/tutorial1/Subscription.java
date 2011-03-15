@@ -8,20 +8,20 @@ public class Subscription implements A_Subscription {
 
 	A_Product theMagazine;
 	A_Customer theCustomer;
-	int period;
+	int periods;
 	Date periodStart;
 	boolean isCommitted;
 	
-	public Subscription(Magazine product, A_Customer customer, int period, Date periodStart) {
+	public Subscription(Magazine product, A_Customer customer, int periods, Date periodStart) {
 		this.theMagazine = product;
 		this.theCustomer = customer;
-		this.period = period;
+		this.periods = periods;
 		this.isCommitted = false;
 	}
 	
 	@Override
 	public double getPrice() {
-		return theMagazine.getPrice();
+		return theMagazine.getPrice() * getPeriods();
 	}
 
 
@@ -31,12 +31,12 @@ public class Subscription implements A_Subscription {
 	}
 
 	@Override
-	public int getPeriod() {
-		return period;
+	public int getPeriods() {
+		return periods;
 	}
 	
-	public void setPeriod(int period) {
-		this.period = period;
+	public void setPeriods(int periods) {
+		this.periods = periods;
 	}
 
 	@Override

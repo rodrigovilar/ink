@@ -87,16 +87,18 @@ public class InkUtils {
 	public static List<String> getAllSupers(String classId){
 		Context context = InkPlugin.getDefault().getInkContext();
 		List<String> result = new ArrayList<String>();
-		InkObject o = context.getObject(classId);
-		if(o!=null){
-			Mirror m = o.reflect();
-			while(m!=null){
-				m = m.getSuper();
-				if(m!=null){
-					result.add(m.getId());
+		try{
+			InkObject o = context.getObject(classId);
+			if(o!=null){
+				Mirror m = o.reflect();
+				while(m!=null){
+					m = m.getSuper();
+					if(m!=null){
+						result.add(m.getId());
+					}
 				}
 			}
-		}
+		}catch(Exception e){}
 		return result;
 	}
 
@@ -178,11 +180,13 @@ public class InkUtils {
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null && inkObject.reflect().isClass()){
 			ClassMirror cm = inkObject.reflect();
-			Map<String, PropertyMirror> props = new HashMap<String, PropertyMirror>(cm.getClassPropertiesMap());
-			for(String key : exclude){
-				props.remove(key);
+			if(cm.isValid()){
+				Map<String, PropertyMirror> props = new HashMap<String, PropertyMirror>(cm.getClassPropertiesMap());
+				for(String key : exclude){
+					props.remove(key);
+				}
+				return props.values();
 			}
-			return props.values();
 		}
 		return result;
 	}

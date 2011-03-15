@@ -10,8 +10,9 @@ import org.ink.core.vm.serialization.ParseError;
  */
 public abstract class BaseElementDescriptor<D> implements ElementDescriptor<D>{
 
-	public List<ParseError> parsingErrors = null;
-	public List<ValidationMessage> validationErrorMessages = null;
+	private boolean isValid = true;
+	private List<ParseError> parsingErrors = null;
+	private List<ValidationMessage> validationErrorMessages = null;
 
 
 	@Override
@@ -39,14 +40,13 @@ public abstract class BaseElementDescriptor<D> implements ElementDescriptor<D>{
 	}
 
 	@Override
-	public boolean containsErrors() {
-		if(parsingErrors!=null){
-			return !parsingErrors.isEmpty();
-		}else if(validationErrorMessages!=null){
-			return !validationErrorMessages.isEmpty();
-		}
-		return false;
+	public void setInvalid() {
+		isValid = false;
 	}
 
+	@Override
+	public boolean isValid() {
+		return isValid;
+	}
 
 }

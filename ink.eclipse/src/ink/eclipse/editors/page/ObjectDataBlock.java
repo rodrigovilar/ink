@@ -11,6 +11,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
@@ -37,6 +38,9 @@ public class ObjectDataBlock extends DataBlock {
 				}
 			}
 			result = b.toString();
+			if(result.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+				result = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + result;
+			}
 		}
 		return result;
 	}
@@ -177,14 +181,14 @@ public class ObjectDataBlock extends DataBlock {
 
 
 	@Override
-	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation) {
+	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String classId = getClassId();
 		if(classId != null){
 			Collection<PropertyMirror> avaliableProps = InkUtils.getPropertiesMirrors(classId, innerBlocks.keySet());
 			for(PropertyMirror pm : avaliableProps){
 				if(pm.isMutable()){
-					getProposal(cursorLocation, result, pm);
+					getProposal(cursorLocation, result, pm, prefix);
 				}
 			}
 		}else if(parent!=null){
@@ -193,11 +197,11 @@ public class ObjectDataBlock extends DataBlock {
 			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
 				switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
 				case List:
-					getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror());
+					getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror(), prefix);
 					break;
 				case Map:
-					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror());
-					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror());
+					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
+					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
 					break;
 				}
 			}
@@ -228,32 +232,50 @@ public class ObjectDataBlock extends DataBlock {
 
 
 	private void getProposal(int cursorLocation,
-			List<ICompletionProposal> allProposals, PropertyMirror pm) {
+			List<ICompletionProposal> allProposals, PropertyMirror pm, String prefix) {
 		String displayString;
-		switch(pm.getTypeMarker()){
-		case Class:
-			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
-			allProposals.add(new CompletionProposal(pm.getName() +" ", cursorLocation, 0, pm.getName().length() + 1, null, displayString, null, null));
-			break;
-		case Collection:
-			displayString = pm.getName() + " - " + getTypeDisplayString(pm);
-			allProposals.add(new CompletionProposal(pm.getName() + "{\n\t\t\n\t}", cursorLocation, 0, pm.getName().length() +"{\n\t\t\n\t}".length() -3, null, displayString, null, null));
-			break;
-		case Enum:
-			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
-			allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, displayString, null, null));
-			break;
-		case Primitive:
-			displayString = pm.getName() +" - " + getTypeDisplayString(pm);
-			PrimitiveAttribute pa = pm.getTargetBehavior();
-			if(pa.getType().isNumeric() || pa.getType().isBoolean()){
-				allProposals.add(new CompletionProposal(pm.getName() + " ", cursorLocation, 0, pm.getName().length() + 1, null, displayString, null, null));
-			}else{
-				allProposals.add(new CompletionProposal(pm.getName() + " \"\"", cursorLocation, 0, pm.getName().length() + " \"\"".length()-1, null, displayString, null, null));
-			}
-			break;
+		boolean isPrefix = isPrefix(pm.getName(), prefix);
+		if(isPrefix){
+			String name = pm.getName();
+			switch(pm.getTypeMarker()){
+			case Class:
+				displayString = name +" - " + getTypeDisplayString(pm);
+				addPropertyNameCompletion(cursorLocation, 0,allProposals,
+						displayString, name," ", prefix);
+				break;
+			case Collection:
+				displayString = name + " - " + getTypeDisplayString(pm);
+				addPropertyNameCompletion(cursorLocation, 3,allProposals,
+						displayString, name,"{\n\t\t\n\t}", prefix);
+				break;
+			case Enum:
+				displayString = name +" - " + getTypeDisplayString(pm);
+				addPropertyNameCompletion(cursorLocation, 1,allProposals,
+						displayString, name," \"\"", prefix);
+				break;
+			case Primitive:
+				displayString = pm.getName() +" - " + getTypeDisplayString(pm);
+				PrimitiveAttribute pa = pm.getTargetBehavior();
+				if(pa.getType().isNumeric() || pa.getType().isBoolean()){
+					addPropertyNameCompletion(cursorLocation, 0,allProposals,
+							displayString, name, " ", prefix);
+				}else if(pa.getType().isDate()){
+					addPropertyNameCompletion(cursorLocation, 1,allProposals,
+							displayString + " (yyyy/MM/dd)", name," \"\"", prefix);
+				}else{
+					addPropertyNameCompletion(cursorLocation, 1,allProposals,
+							displayString, name," \"\"", prefix);
+				}
+				break;
 
+			}
 		}
+	}
+
+	private boolean addPropertyNameCompletion(int cursorLocation,int offset,
+			List<ICompletionProposal> allProposals, String displayString,
+			String name, String postFix, String prefix) {
+		return allProposals.add(new CompletionProposal(name + postFix, cursorLocation - prefix.length(), prefix.length(), name.length() + postFix.length()-offset, null, displayString, null, null));
 	}
 
 }

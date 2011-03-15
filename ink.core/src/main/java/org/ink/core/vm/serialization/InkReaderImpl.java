@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -189,6 +190,9 @@ implements InkReader<Tag>{
 				} else {
 					try {
 						classId = (String) en.getValue();
+						if(classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
+							classId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+classId;
+						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
@@ -201,6 +205,9 @@ implements InkReader<Tag>{
 				} else {
 					try {
 						ref = (String) en.getValue();
+						if(ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
+							ref = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+ref;
+						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
@@ -213,6 +220,9 @@ implements InkReader<Tag>{
 				} else {
 					try {
 						superId = (String) en.getValue();
+						if(superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
+							superId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+superId;
+						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
@@ -267,7 +277,10 @@ implements InkReader<Tag>{
 		InkClassState clsState = serializationContext.getState(classId, false);
 		MirrorAPI result = null;
 		if (clsState == null) {
-			addError(tag, "Could not resolve class id '" + classId + "'.");
+			containsError = true;
+			if(serializationContext.getDescriptor(classId)==null){
+				addError(tag, "Could not resolve class id '" + classId + "'.");
+			}
 			return null;
 		}else if(!clsState.reflect().isValid()){
 			containsError = true;
@@ -339,6 +352,9 @@ implements InkReader<Tag>{
 					break;
 				case Short:
 					result = ((Number)val).shortValue();
+					break;
+				case Date:
+					result = ((Calendar)val).getTime();
 					break;
 				}
 			}catch(ClassCastException e){

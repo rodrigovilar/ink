@@ -207,7 +207,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	public boolean isValid() {
 		ElementDescriptor<?> desc = getDescriptor();
 		if(desc!=null){
-			return !desc.containsErrors();
+			return desc.isValid();
 		}
 		return true;
 	}

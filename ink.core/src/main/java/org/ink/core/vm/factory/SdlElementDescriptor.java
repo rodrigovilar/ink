@@ -24,7 +24,16 @@ public class SdlElementDescriptor extends BaseElementDescriptor<Tag>{
 		}
 		this.f = f;
 		this.superId = (String) data.getAttribute(InkNotations.Path_Syntax.SUPER_ATTRIBUTE);
+		this.superId = applyNamespace(ns, this.superId);
 		this.classId = (String) data.getAttribute(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
+		this.classId = applyNamespace(ns, this.classId);
+	}
+
+	private String applyNamespace(String ns, String id){
+		if(id!=null && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+			return ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
+		}
+		return id;
 	}
 
 	@Override

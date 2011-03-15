@@ -10,7 +10,7 @@ import org.ink.core.vm.traits.Trait;
  * @author Lior Schachter
  */
 public interface Context extends Trait{
-	
+
 	public String getNamespace();
 	public <T extends InkObjectState> T newInstance(Class<T> stateClass);
 	public <T extends InkObjectState> T newInstance(Class<T> stateClass, boolean initObjectId, boolean initDefaults);
@@ -21,5 +21,6 @@ public interface Context extends Trait{
 	public void register(InkObject o);
 	public DslFactory getFactory();
 	public <T extends InkObjectState> T getState(String id);
+	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists);
 	public <T extends InkObjectState> T getState(InkObject object);
 }

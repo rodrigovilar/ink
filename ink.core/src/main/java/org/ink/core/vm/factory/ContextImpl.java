@@ -21,7 +21,7 @@ public class ContextImpl<S extends ContextState> extends TraitImpl<S> implements
 	public <T extends InkObject> T getObject(String id) {
 		return ((DslFactory)getTargetBehavior()).getObject(id);
 	}
-	
+
 	@Override
 	public <T extends InkClass> T getObject(Class<InkObjectState> stateClass) {
 		return ((DslFactory)getTargetBehavior()).getObject(stateClass);
@@ -57,12 +57,12 @@ public class ContextImpl<S extends ContextState> extends TraitImpl<S> implements
 	public DslFactory getFactory() {
 		return (DslFactory) getTargetBehavior();
 	}
-	
+
 	@Override
 	public <T extends InkObjectState> T getState(String id){
 		return getFactory().getState(id);
 	}
-	
+
 	@Override
 	public <T extends InkObjectState> T getState(InkObject object) {
 		Mirror m = object.reflect();
@@ -70,6 +70,12 @@ public class ContextImpl<S extends ContextState> extends TraitImpl<S> implements
 			getState(m.getId());
 		}
 		return null;
+	}
+
+	@Override
+	public <T extends InkObjectState> T getState(String id,
+			boolean reportErrorIfNotExists) {
+		return ((DslFactory)getTargetBehavior()).getState(id, reportErrorIfNotExists);
 	}
 
 }

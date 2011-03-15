@@ -61,26 +61,60 @@ public abstract class DataBlock {
 
 	public List<ICompletionProposal> getContentAssist(int cursorLocation) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+		StringBuilder b = new StringBuilder(10);
 		if(cursorLocation>=startIndex && cursorLocation <=endIndex){
 			boolean isNewLineProposal = true;
-			StringBuilder b = new StringBuilder(10);
 			int i=cursorLocation-1;
 			if(i >= text.length){
 				i = text.length-1;
 			}
-			for(;i>=0;i--){
-				if(text[i]=='\n'){
-					break;
-				}else if(!Character.isWhitespace(text[i])){
-					isNewLineProposal = false;
-					break;
+			if(text[i]==' '){
+				for(;i>=0;i--){
+					if(text[i]=='\n'){
+						break;
+					}else if(!Character.isWhitespace(text[i])){
+						isNewLineProposal = false;
+						break;
+					}
 				}
-				b.append(text[i]);
+			}else{
+				boolean foundChar = false;
+				boolean foundWhitspace = false;
+				boolean foundGeresh = false;
+				for(;i>=0;i--){
+					if(text[i]=='\n'){
+						break;
+					}else if(!Character.isWhitespace(text[i])){
+						if(text[i]=='\"'){
+							foundGeresh = true;
+							continue;
+						}
+						if(foundWhitspace && foundChar){
+							isNewLineProposal = false;
+							break;
+						}
+						foundChar = true;
+					}else{
+						foundWhitspace = true;
+
+					}
+					if(!foundGeresh){
+						b.append(text[i]);
+					}
+				}
+			}
+			String prefix = b.reverse().toString().trim();
+			if(prefix.length()>0){
+				if(prefix.charAt(prefix.length()-1)=='\"'){
+					prefix = "";
+				}else if(prefix.indexOf('\"')>=0){
+					prefix = prefix.substring(prefix.indexOf('\"')+1, prefix.length());
+				}
 			}
 			if(isNewLineProposal){
-				result = getNewLineProposals(cursorLocation);
+				result = getNewLineProposals(cursorLocation, prefix);
 			}else{
-				result = getInlineProposals(cursorLocation);
+				result = getInlineProposals(cursorLocation, prefix);
 			}
 		}
 		return result;
@@ -101,7 +135,7 @@ public abstract class DataBlock {
 		return tabs;
 	}
 
-	protected List<ICompletionProposal> getInnerBlockProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc){
+	protected List<ICompletionProposal> getInnerBlockProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc, String prefix){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
 		if(text[cursorLocation-1]==' '){
@@ -121,29 +155,48 @@ public abstract class DataBlock {
 				String tabs = calculateTabs();
 				result.add(new CompletionProposal("{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", cursorLocation, 0, new String("{\n" + tabs+"\n}").length()-2, null, "{", null, null));
 			}
-		}else if(textString.charAt(cursorLocation-1)=='\"'){
-			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
-			if(attr.equals("class")){
-				PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-				if(pm.getTypeMarker()==DataTypeMarker.Class){
-					Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
-					String constraintClass = m.getId();
-					List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
-					if(!m.isAbstract()){
-						options.add(0, constraintClass);
+		}else{
+			StringBuilder buf = new StringBuilder(10);
+			boolean found = false;
+			int i=cursorLocation-1;
+			for(;i>=1;i--){
+				char c = textString.charAt(i);
+				if(Character.isWhitespace(c)){
+					break;
+				}
+				else if(c=='\"'){
+					if(textString.charAt(i-1)=='='){
+						found = true;
 					}
-					for(String id : options){
+					break;
+				}
+				buf.append(c);
+			}
+			if(found){
+				String attr = textString.substring(spaceLoc + 1, cursorLocation-(2+buf.length()));
+				if(attr.equals("class")){
+					PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+					if(pm.getTypeMarker()==DataTypeMarker.Class){
+						Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+						String constraintClass = m.getId();
+						List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
+						if(!m.isAbstract()){
+							options.add(0, constraintClass);
+						}
+						for(String id : options){
+							addIdProposal(result, cursorLocation, id, prefix);
+						}
+					}
+				}else if(attr.equals("super")){
+					for(String id : getSuperProposals(line)){
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
 				}
-			}else if(attr.equals("super")){
-				for(String id : getSuperProposals(line)){
-					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
-				}
 			}
-		}else{
-			if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){
-				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
+			else if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){
+				String tabs = calculateTabs();
+				String str = "{\n"+tabs+"\n"+tabs.substring(1) +"}";
+				result.add(new CompletionProposal(str, cursorLocation, 0, str.length()-(tabs.length()+1), null, "{", null, null));
 			}
 		}
 		return result;
@@ -182,7 +235,7 @@ public abstract class DataBlock {
 		return result;
 	}
 
-	protected List<ICompletionProposal> getInlineProposals(int cursorLocation) {
+	protected List<ICompletionProposal> getInlineProposals(int cursorLocation, String prefix) {
 		boolean startElement = true;
 		int count = 0;
 		boolean toContinue = true;
@@ -211,13 +264,13 @@ public abstract class DataBlock {
 
 		}
 		if(parent==null){
-			return getNewElementProposals(cursorLocation, textString, newLineLoc, count, spaceLoc);
+			return getNewElementProposals(cursorLocation, textString, newLineLoc, count, spaceLoc, prefix);
 		}else{
-			return getInnerBlockProposals(cursorLocation, textString, newLineLoc, count, spaceLoc);
+			return getInnerBlockProposals(cursorLocation, textString, newLineLoc, count, spaceLoc, prefix);
 		}
 	}
 
-	protected List<ICompletionProposal> getNewElementProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc){
+	protected List<ICompletionProposal> getNewElementProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc, String prefix){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		int lastIndex = textString.indexOf('\n', cursorLocation);
 		if(lastIndex < 0){
@@ -240,28 +293,45 @@ public abstract class DataBlock {
 			if(result.isEmpty() && !(text[cursorLocation-1]=='\"' && text.length > cursorLocation+1 && text[cursorLocation+1]=='\"')){
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
-		}else if(textString.charAt(cursorLocation-1)=='\"'){
-			String attr = textString.substring(spaceLoc + 1, cursorLocation-2);
-			if(attr.equals("class")){
-				List<String> options;
-				if(line.startsWith("Object")){
-					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, false);
-				}else{
-					options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
-					options.add(CoreNotations.Ids.INK_CLASS);
+		}else{
+			StringBuilder buf = new StringBuilder(10);
+			boolean found = false;
+			int i=cursorLocation-1;
+			for(;i>=1;i--){
+				char c = textString.charAt(i);
+				if(Character.isWhitespace(c)){
+					break;
 				}
-				for(String id : options){
-					result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
-				}
-			}else if(attr.equals("super")){
-				String elementId = extractAttributeValue(line, "id");
-				if(elementId!=null){
-					elementId = ns +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + elementId;
-				}
-				for(String id : getSuperProposals(line)){
-					if(elementId==null || !elementId.equals(id) ){
-						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
+				else if(c=='\"'){
+					if(textString.charAt(i-1)=='='){
+						found = true;
 					}
+					break;
+				}
+				buf.append(c);
+			}
+			if(found){
+				String attr = textString.substring(spaceLoc + 1, cursorLocation-(2+buf.length()));
+				if(attr.equals("class")){
+					List<String> options;
+					if(line.startsWith("Object")){
+						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, false);
+					}else{
+						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
+						addIdProposal(result, cursorLocation, CoreNotations.Ids.INK_CLASS, prefix);
+					}
+					for(String id : options){
+						addIdProposal(result, cursorLocation, id, prefix);
+					}
+				}else if(attr.equals("super")){
+					String elementId = extractAttributeValue(line, "id");
+					for(String id : getSuperProposals(line)){
+						if(elementId==null || !elementId.equals(id) ){
+							addIdProposal(result, cursorLocation, id, prefix);
+						}
+					}
+				}else{
+					result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 				}
 			}else{
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
@@ -284,11 +354,45 @@ public abstract class DataBlock {
 			int attValueEndIndex = line.indexOf("\"", attValueStartIndex);
 			if(attValueEndIndex > attValueStartIndex){
 				result = line.substring(attValueStartIndex, attValueEndIndex);
+				if(result.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+					result = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + result;
+				}
 			}
 		}
 		return result;
 	}
 
-	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation);
+	protected String getId(String id) {
+		if(id.startsWith(ns)){
+			return id.substring(ns.length()+1, id.length());
+		}
+		return id;
+	}
+
+	protected void addIdProposal(List<ICompletionProposal> all, int cursorLocation, String id, String prefix) {
+		boolean isPrefix = isPrefix(id, prefix);
+		if(!isPrefix && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)>=0){
+			String shortId = id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
+			if(shortId.startsWith(prefix)){
+				isPrefix = isPrefix(shortId, prefix);
+			}
+		}
+		if(isPrefix){
+			String usedId = getId(id);
+			all.add(new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+		}
+	}
+
+	protected boolean isPrefix(String str, String prefix) {
+		if(prefix.length()==0){
+			return true;
+		}
+		if(str.indexOf(prefix)==0){
+			return true;
+		}
+		return false;
+	}
+
+	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix);
 
 }

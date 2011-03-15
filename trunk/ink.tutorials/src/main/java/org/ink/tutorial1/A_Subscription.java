@@ -12,7 +12,7 @@ public interface A_Subscription {
 	A_Product getMagazine();
 
 	// 1 year, 2 years, etc.
-	int getPeriod();
+	int getPeriods();
 
 	// Start period of the subscription
 	Date getPeriodStart();

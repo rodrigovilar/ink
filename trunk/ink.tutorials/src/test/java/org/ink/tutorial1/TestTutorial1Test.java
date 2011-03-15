@@ -34,4 +34,18 @@ public class TestTutorial1Test {
 		
 	}
 	
+	@Test
+	public void testFixedPercentageOffers() {
+		Magazine magazine1 = new Magazine("1", "IEEE Software", 98.0);
+		Customer customer1 = new Customer("Atzmon Hen-tov", "atzmon.hentov@gmail.com", "***********6238", true);
+		Date startDate = new Date(2012,1,1);
+		
+		Subscription subscription = new Subscription(magazine1, customer1, 5, startDate);
+		
+		double price = subscription.getPrice();
+		double promotionalPrice = subscription.getPromotionalPrice();
+		Assert.assertEquals(98.0*5, price);
+		Assert.assertEquals(98.0*5*0.4, promotionalPrice);
+	}
+	
 }

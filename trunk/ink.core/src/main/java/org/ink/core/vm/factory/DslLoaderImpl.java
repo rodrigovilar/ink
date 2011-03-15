@@ -49,16 +49,26 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		ElementDescriptor<D> desc = elements.get(id);
 		if(desc!=null){
 			try{
-				Mirror clsMirror = context.getState(desc.getClassId()).reflect();
+				Mirror clsMirror = null;
+				if(desc.getClassId()!=null){
+					InkObjectState clsState = context.getState(desc.getClassId(), false);
+					if(clsState!=null){
+						clsMirror = clsState.reflect();
+					}
+				}
 				Mirror superMirror = null;
 				if(desc.getSuperId()!=null){
-					superMirror = context.getState(desc.getSuperId()).reflect();
+					InkObjectState superState = context.getState(desc.getSuperId(), false);
+					if(superState!=null){
+						superMirror = superState.reflect();
+					}
 				}
-				if(clsMirror.isValid() && (superMirror==null || superMirror.isValid())){
+				if((clsMirror==null || clsMirror.isValid()) && (superMirror==null || superMirror.isValid())){
 					InkReader<D> reader = createReader();
 					InkObjectState result = reader.read(desc.getRawData(), context);
 					if(reader.containsErrors()){
 						List<ParseError> errors = reader.getErrors();
+						desc.setInvalid();
 						desc.setParsingErrors(errors);
 						System.out.println("============================================Load Error=====================================================================================");
 						for(ParseError er : errors){
@@ -68,6 +78,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
 					}else if( shouldValidateResult(result)&&!result.validate(vc)){
 						List<ValidationMessage> errors = vc.getMessages();
+						desc.setInvalid();
 						desc.setValidationErrorMessages(errors);
 						System.out.println("============================================Load Error=====================================================================================");
 						for(ValidationMessage er : errors){
@@ -77,6 +88,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
 					}
 					return result;
+				}else{
+					desc.setInvalid();
 				}
 			}finally{
 				vc.reset();
@@ -88,12 +101,12 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private boolean shouldValidateResult(InkObjectState result){
 		Mirror mirror = result.reflect();
 		ClassMirror cMirror = mirror.getClassMirror();
-		if(!cMirror.isCoreObject() && result.reflect().getClassMirror().getDescriptor().containsErrors()){
+		if(!cMirror.isCoreObject() && !result.reflect().getClassMirror().getDescriptor().isValid()){
 			return false;
 		}
 		Mirror superObject = mirror.getSuper();
 		if(superObject!=null && !superObject.isCoreObject()){
-			return !superObject.getDescriptor().containsErrors() ;
+			return superObject.getDescriptor().isValid();
 		}
 		return true;
 	}
@@ -112,7 +125,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		for(String id : startupObjects){
 			try {
 				ElementDescriptor<D> ed = elements.get(id);
-				if(!ed.containsErrors()){
+				if(ed.isValid()){
 					o  = getObject(id, ownerFactory.getAppContext());
 					objects.add(o);
 				}
@@ -225,7 +238,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		InkErrorDetails err;
 		for(Map.Entry<String, ElementDescriptor<D>> en : elements.entrySet()){
 			elem = en.getValue();
-			if(elem.containsErrors()){
+			if(!elem.isValid()){
 				if(elem.getParsingErrors()!=null){
 					for(ParseError pe : elem.getParsingErrors()){
 						err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource());
@@ -238,7 +251,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						result.add(err);
 					}
 				}
-				elem.clearErrors();
+				//elem.clearErrors();
 			}
 		}
 		return result;

@@ -28,12 +28,15 @@ public class SimpleDataBlock extends DataBlock {
 		return null;
 	}
 
-	private CompletionProposal createValueProposal(String value, int cursorLocation) {
-		return new CompletionProposal(value, cursorLocation, 0, value.length(), null, value, null, null);
+	private void addValueProposal(List<ICompletionProposal> all, String value, int cursorLocation, String prefix) {
+		boolean isPrefix = isPrefix(value, prefix);
+		if(isPrefix){
+			all.add(new CompletionProposal(value, cursorLocation-prefix.length(), prefix.length(), value.length(), null, value, null, null));
+		}
 	}
 
 	@Override
-	protected List<ICompletionProposal> getInlineProposals(int cursorLocation) {
+	protected List<ICompletionProposal> getInlineProposals(int cursorLocation, String prefix) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 		String line = new String(text, startIndex, endIndex-startIndex);
@@ -42,21 +45,21 @@ public class SimpleDataBlock extends DataBlock {
 			case Primitive:
 				switch(((PrimitiveAttributeMirror)pm).getPrimitiveTypeMarker()){
 				case Boolean:
-					result.add(createValueProposal("true", cursorLocation));
-					result.add(createValueProposal("false", cursorLocation));
+					addValueProposal(result, "true", cursorLocation, prefix);
+					addValueProposal(result, "false", cursorLocation, prefix);
 					break;
 				}
 				break;
 			case Enum:
 				EnumType enumT = (EnumType) pm.getPropertyType();
 				for(String val : enumT.getValues()){
-					result.add(createValueProposal(val, cursorLocation));
+					addValueProposal(result, val, cursorLocation, prefix);
 				}
 				break;
 			case Class:
-				if(text[cursorLocation-1]=='\"'){
+				if(prefix.length()>0){
 					StringBuilder attrB = new StringBuilder(10);
-					for(int i=cursorLocation-3;i>=0;i--){
+					for(int i=cursorLocation-(3+prefix.length());i>=0;i--){
 						if(text[i]==' '){
 							break;
 						}
@@ -69,7 +72,7 @@ public class SimpleDataBlock extends DataBlock {
 							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
 							List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
 							for(String id : options){
-								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
+								addIdProposal(result, cursorLocation, id, prefix);
 							}
 						}
 					}else if(attr.equals("class")){
@@ -82,12 +85,12 @@ public class SimpleDataBlock extends DataBlock {
 								options.add(constraintClass);
 							}
 							for(String id : options){
-								result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
+								addIdProposal(result, cursorLocation, id, prefix);
 							}
 						}
 					}else if(attr.equals("super")){
 						for(String id : getSuperProposals(line)){
-							result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
+							addIdProposal(result, cursorLocation, id, prefix);
 						}
 					}else{
 						if(line.contains("class") && !line.contains("{")){
@@ -96,7 +99,7 @@ public class SimpleDataBlock extends DataBlock {
 						}
 					}
 				}else{
-					result = super.getInlineProposals(cursorLocation);
+					result = super.getInlineProposals(cursorLocation, prefix);
 				}
 
 				break;
@@ -105,9 +108,10 @@ public class SimpleDataBlock extends DataBlock {
 		return result;
 	}
 
+
 	@Override
-	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation) {
-		return parent.getNewLineProposals(cursorLocation);
+	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix) {
+		return parent.getNewLineProposals(cursorLocation, prefix);
 	}
 
 }

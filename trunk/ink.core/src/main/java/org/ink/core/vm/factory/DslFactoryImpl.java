@@ -155,12 +155,15 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		return getState().getNamespace();
 	}
 
-	private String extractNamespace(String id){
+	private String extractNamespace(String id, boolean reportError){
 		try{
 			return id.substring(0, id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C));
 		}catch(StringIndexOutOfBoundsException e){
-			throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
+			if(reportError){
+				throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
+			}
 		}
+		return null;
 	}
 
 
@@ -169,62 +172,66 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists){
 		InkObjectState result = repository.getObject(id);
 		if(result==null){
-			String ns = extractNamespace(id);
-			if(getNamespace().equals(ns)){
-				try {
-					result = loader.getObject(id, getAppContext());
-					if(result!=null){
-						repository.setObject(id, result);
-						if(result!=null && result.reflect().isClass()){
-							applyDetachableTraits((InkClassState) result, false);
+			String ns = extractNamespace(id, reportErrorIfNotExists);
+			if(ns!=null){
+				if(getNamespace().equals(ns)){
+					try {
+						result = loader.getObject(id, getAppContext());
+						if(result!=null){
+							repository.setObject(id, result);
+							if(result!=null && result.reflect().isClass()){
+								applyDetachableTraits((InkClassState) result, false);
+							}
+							ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+						}else if(reportErrorIfNotExists){
+							throw new CoreException("The object with id '" +id+"', could not be found.");
 						}
-						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
-					}else if(reportErrorIfNotExists){
-						throw new CoreException("The object with id '" +id+"', could not be found.");
-					}
-				} catch (ObjectLoadingException e) {
-					if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
-						throw new RuntimeException(e);
-					}
-					result = e.getObject();
-					repository.setObject(id, result);
-					try{
-						ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
-					}catch(Throwable e1){
+					} catch (ObjectLoadingException e) {
 						if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
 							throw new RuntimeException(e);
 						}
-						e.printStackTrace();
-					}
-				}
-			}else if(scope.contains(ns)){
-				DslFactory factory = boundedFactories.get(ns);
-				if(factory!=null){
-					result = factory.getState(id, reportErrorIfNotExists);
-				}else{
-					for(DslFactory p : boundedFactories.values()){
-						if(p.isNamespacesInScope(ns)){
-							result = p.getState(id, false);
-							if(result!=null){
-								//TODO should add code to merge multiple detachable traits and to cache result if necessary
+						result = e.getObject();
+						if(result!=null){
+							repository.setObject(id, result);
+							try{
+								ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+							}catch(Throwable e1){
+								if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+									throw new RuntimeException(e);
+								}
+								e.printStackTrace();
 							}
-							break;
 						}
 					}
-				}
-				if(result!=null){
-					if(result.reflect().isClass()){
-						InkObjectState temp = applyDetachableTraits((InkClassState) result, true);
-						if(temp!=null){
-							result = temp;
+				}else if(scope.contains(ns)){
+					DslFactory factory = boundedFactories.get(ns);
+					if(factory!=null){
+						result = factory.getState(id, reportErrorIfNotExists);
+					}else{
+						for(DslFactory p : boundedFactories.values()){
+							if(p.isNamespacesInScope(ns)){
+								result = p.getState(id, false);
+								if(result!=null){
+									//TODO should add code to merge multiple detachable traits and to cache result if necessary
+								}
+								break;
+							}
 						}
 					}
-					repository.setObject(id, result);
+					if(result!=null){
+						if(result.reflect().isClass()){
+							InkObjectState temp = applyDetachableTraits((InkClassState) result, true);
+							if(temp!=null){
+								result = temp;
+							}
+						}
+						repository.setObject(id, result);
+					}else if(reportErrorIfNotExists){
+						throw new CoreException("The object with id '" +id+"', could not be found");
+					}
 				}else if(reportErrorIfNotExists){
-					throw new CoreException("The object with id '" +id+"', could not be found");
+					throw new CoreException("The object with id '" +id+"', could not be found. The namespace '"+ ns +"' is unknown in this scope ( " + getNamespace()+").");
 				}
-			}else if(reportErrorIfNotExists){
-				throw new CoreException("The object with id '" +id+"', could not be found. The namespace '"+ ns +"' is unknown in this scope ( " + getNamespace()+").");
 			}
 		}
 		return (T)result;

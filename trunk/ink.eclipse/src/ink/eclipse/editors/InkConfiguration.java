@@ -36,6 +36,7 @@ public class InkConfiguration extends SourceViewerConfiguration {
 		this.colorManager = colorManager;
 	}
 
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
 		return new String[] { IDocument.DEFAULT_CONTENT_TYPE,
 				InkPartitionScanner.INK_COMMENT,
@@ -76,6 +77,7 @@ public class InkConfiguration extends SourceViewerConfiguration {
 		return tagScanner;
 	}
 
+	@Override
 	public IPresentationReconciler getPresentationReconciler(
 			ISourceViewer sourceViewer) {
 		PresentationReconciler reconciler = new PresentationReconciler();
@@ -90,7 +92,7 @@ public class InkConfiguration extends SourceViewerConfiguration {
 		DefaultDamagerRepairer dr2 = new DefaultDamagerRepairer(multiLineScanner);
         reconciler.setDamager(dr2, InkPartitionScanner.INK_STRING);
         reconciler.setRepairer(dr2, InkPartitionScanner.INK_STRING);
-		
+
         TextAttribute textAttribute = new TextAttribute(
 				colorManager.getColor(InkColorConstants.COMMENT));
 		NonRuleBasedDamagerRepairer ndr = new NonRuleBasedDamagerRepairer(
@@ -101,6 +103,7 @@ public class InkConfiguration extends SourceViewerConfiguration {
 		return reconciler;
 	}
 
+	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 
 		ContentAssistant assistant = new ContentAssistant();
@@ -110,6 +113,9 @@ public class InkConfiguration extends SourceViewerConfiguration {
 		assistant.setAutoActivationDelay(500);
 		assistant.setProposalPopupOrientation(IContentAssistant.CONTEXT_INFO_BELOW);
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_BELOW);
+		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		assistant.enablePrefixCompletion(true);
+		assistant.enableAutoActivation(true);
 		return assistant;
 
 	}
@@ -135,7 +141,7 @@ public class InkConfiguration extends SourceViewerConfiguration {
 	 * XMLPartitionScanner.XML_START_TAG);
 	 * formatter.setFormattingStrategy(formattingStrategy,
 	 * XMLPartitionScanner.XML_END_TAG);
-	 * 
+	 *
 	 * return formatter; }
 	 */
 }

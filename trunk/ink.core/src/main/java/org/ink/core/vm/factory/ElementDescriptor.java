@@ -17,6 +17,7 @@ public interface ElementDescriptor<D>{
 	public List<ValidationMessage> getValidationErrorMessages();
 	public void setParsingErrors(List<ParseError> parsingErrors);
 	public List<ParseError> getParsingErrors();
-	public boolean containsErrors();
+	public boolean isValid();
+	public void setInvalid();
 	public void clearErrors();
 }

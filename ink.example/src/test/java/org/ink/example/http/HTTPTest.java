@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.lang.InkObject;
+import org.ink.language.example.http.F1_HTTP_Client;
 
 /**
  * @author Atzmon Hen-tov
@@ -32,6 +33,13 @@ public class HTTPTest extends TestCase {
 		showFastHTTP_Client(prefix);
 		showRobustHTTP_Client(prefix);
 		showPontisLogoRetriever_Client(prefix);
+	}
+	
+	public void testFirstGCTest() {
+		F1_HTTP_Client httpClient = (F1_HTTP_Client)context
+		.getObject("example.http:F1_PontisLogoRetriever");
+		System.out.println(httpClient.sendReceive());
+		
 	}
 
 	private void showHTTP_Client(String prefix) {

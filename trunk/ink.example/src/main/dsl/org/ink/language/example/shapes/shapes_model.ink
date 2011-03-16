@@ -1,6 +1,6 @@
 Class id="Drawing" class="ink.core:InkClass" super="ink.core:InkObject"{
 	java_path ""
-	java_mapping "No_Java"
+	java_mapping "Only_State"
 	component_type "Root"
 	properties{
 		property class="ink.core:ListProperty"{
@@ -18,7 +18,7 @@ Class id="Drawing" class="ink.core:InkClass" super="ink.core:InkObject"{
 
 Class id="Shape" class="ink.core:InkClass" super="ink.core:InkObject" {
 	java_path ""
-	java_mapping "No_Java"
+	java_mapping "Only_State"
 	component_type "Root"
 	properties{
 		property class="ink.core:LongAttribute"{

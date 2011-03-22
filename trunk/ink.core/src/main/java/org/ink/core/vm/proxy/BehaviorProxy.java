@@ -3,6 +3,8 @@ package org.ink.core.vm.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.factory.DslFactory;
@@ -17,6 +19,7 @@ import org.ink.core.vm.mirror.Mirror;
  */
 public class BehaviorProxy implements InvocationHandler {
 
+	private Map<String, Operation> operationsCache = new HashMap<String, Operation>(4);
 	private InkObject target = null;
 	private InkObjectState state = null;
 	private InkObjectState owner = null;
@@ -25,7 +28,7 @@ public class BehaviorProxy implements InvocationHandler {
 	private DslFactory factory;
 	private Mirror mirror = null;
 	private Proxiability.Kind t;
-	
+
 	private final static String GET_META= "getMeta";
 	private static final int GET_META_HASH = GET_META.hashCode();
 	private static Method getMeta = null;
@@ -35,32 +38,32 @@ public class BehaviorProxy implements InvocationHandler {
 	private static final int REFLECT_HASH = REFLECT.hashCode();
 	private static Method reflect = null;
 	private Method reflect_I = null;
-	
+
 	private static final String AS_TRAIT = "asTrait";
 	private static final int AS_TRAIT_HASH = AS_TRAIT.hashCode();
 	private static Method asTrait = null;
 	private Method asTrait_I = null;
-	
+
 	private static final String IS_PROXIED = "isProxied";
 	private static final int IS_PROXIED_HASH = IS_PROXIED.hashCode();
 	private static Method isProxied = null;
 	private Method isProxied_I = null;
-	
+
 	private static final String GET_VANILLA_STATE = "getVanillaState";
 	private static final int GET_VANILLA_STATE_HASH = GET_VANILLA_STATE.hashCode();
 	private static Method getVanillaState = null;
 	private Method getVanillaState_I = null;
-	
+
 	private static final String GET_VANILLA_BEHAVIOR = "getVanillaBehavior";
 	private static final int GET_VANILLA_BEHAVIOR_HASH = GET_VANILLA_BEHAVIOR.hashCode();
 	private static Method getVanillaBehavior = null;
 	private Method getVanillaBehavior_I = null;
-	
+
 	private static final String GET_PROXY_KIND = "getProxyKind";
 	private static final int GET_PROXY_KIND_HASH = GET_PROXY_KIND.hashCode();
 	private static Method getProxyKind = null;
 	private Method getProxyKind_I = null;
-		
+
 	static{
 		try{
 			getMeta = InkObject.class.getMethod(GET_META, (Class[]) null);
@@ -74,13 +77,13 @@ public class BehaviorProxy implements InvocationHandler {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	protected BehaviorProxy(DslFactory factory, InkObject target, Proxiability.Kind t) {
 		this.factory = factory;
 		this.target = target;
 		this.t = t;
 	}
-	
+
 	protected BehaviorProxy(DslFactory factory, InkObject target, InkObjectState state, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		this.factory = factory;
 		this.target = target;
@@ -91,11 +94,12 @@ public class BehaviorProxy implements InvocationHandler {
 		this.definingPropertyIndex = definingPropertyIndex;
 	}
 
+	@Override
 	public Object invoke(Object proxyObject, Method method, Object[] args)
 			throws Throwable {
 		String methodName = method.getName();
 		int methodNameHash = methodName.hashCode();
-		Class<?> declaringClass = method.getDeclaringClass(); 
+		Class<?> declaringClass = method.getDeclaringClass();
 		if (declaringClass.equals(Proxiability.class)) {
 			if((getVanillaState_I==null && methodNameHash == GET_VANILLA_STATE_HASH && method.equals(getVanillaState)) || method==getVanillaState_I){
 				getVanillaState_I = method;
@@ -126,7 +130,7 @@ public class BehaviorProxy implements InvocationHandler {
 			case BEHAVIOR_BOTH:
 				return getProxiedMirror();
 			default:
-				throw new CoreException("Unknown proxy type : " + t); 
+				throw new CoreException("Unknown proxy type : " + t);
 			}
 		}else if((asTrait_I==null && methodNameHash == AS_TRAIT_HASH && method.equals(asTrait)) || method == asTrait_I) {
 			asTrait_I = method;
@@ -140,10 +144,10 @@ public class BehaviorProxy implements InvocationHandler {
 		case BEHAVIOR_BOTH:
 			return runManagedMethod(method, args, methodName);
 		default:
-			throw new CoreException("Unknown proxy type : " + t); 
+			throw new CoreException("Unknown proxy type : " + t);
 		}
 	}
-	
+
 	private Object runManagedMethod(Method method, Object[] args,
 			String methodName) throws IllegalAccessException, Throwable {
 		Operation theMethod = findBehaviorMethodProfile(methodName, args);
@@ -167,13 +171,19 @@ public class BehaviorProxy implements InvocationHandler {
 	private Object getProxiedMirror() {
 		if(mirror==null){
 			Mirror vanillaMirror = target.reflect();
-			mirror = (Mirror) factory.newMirrorProxy(vanillaMirror, vanillaMirror.reflect().getClassMirror().getBehaviorProxyInterfaces(), owner, definingProperty, definingPropertyIndex);
+			mirror = factory.newMirrorProxy(vanillaMirror, vanillaMirror.reflect().getClassMirror().getBehaviorProxyInterfaces(), owner, definingProperty, definingPropertyIndex);
 		}
 		return mirror;
 	}
 
 	private Operation findBehaviorMethodProfile(String methodName, Object[] args) {
-		return target.reflect().getClassMirror().getMethod(methodName, args);
+		Operation result = null;
+		if((result=operationsCache.get(methodName))!=null){
+			return result;
+		}
+		result = target.reflect().getClassMirror().getMethod(methodName, args);
+		operationsCache.put(methodName, result);
+		return result;
 	}
-	
+
 }

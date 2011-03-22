@@ -80,8 +80,8 @@ public interface InkClassState extends InkTypeState{
 		private PropertyMirror[] classPropsMirrors;
 		private Class<InkObjectState> dataClass;
 		private Class<?> stateInterface;
-		private Class<InkObject> behaviorClass;
-		private Class<InkObject> interfaceClass;
+		private Class<? extends InkObject> behaviorClass;
+		private Class<? extends InkObject> interfaceClass;
 		private Class<?>[] behaviorProxyInterfaces;
 		private boolean isMetaClass = false;
 		private byte[] classRealPropertiesIndex;
@@ -269,7 +269,10 @@ public interface InkClassState extends InkTypeState{
 			created = true;
 		}
 
-		protected Class<InkObject> resolveBehaviorClass() {
+		protected Class<? extends InkObject> resolveBehaviorClass() {
+			if(this.isAbstract()){
+				return InkObjectImpl.class;
+			}
 			if(!this.getJavaMapping().hasBeahvior()){
 				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
 			}else{
@@ -277,7 +280,7 @@ public interface InkClassState extends InkTypeState{
 			}
 		}
 
-		private Class<InkObject> resolveInterfaceClass() {
+		private Class<? extends InkObject> resolveInterfaceClass() {
 			if(!this.getJavaMapping().hasInterface()){
 				return ((ClassMirrorAPI)getSuper()).getInterfaceClass();
 			}else{
@@ -301,12 +304,12 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public Class<InkObject> getBehaviorClass(){
+		public Class<? extends InkObject> getBehaviorClass(){
 			return behaviorClass;
 		}
 
 		@Override
-		public Class<InkObject> getInterfaceClass(){
+		public Class<? extends InkObject> getInterfaceClass(){
 			return interfaceClass;
 		}
 

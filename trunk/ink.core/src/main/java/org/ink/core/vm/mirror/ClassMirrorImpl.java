@@ -51,7 +51,7 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	}
 
 	@Override
-	public Class<InkObject> getBehaviorClass() {
+	public Class<? extends InkObject> getBehaviorClass() {
 		return ((ClassMirrorAPI)getTargetState()).getBehaviorClass();
 	}
 
@@ -92,6 +92,14 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Operation getMethod(String methodName, Object[] args) {
+		List<? extends Operation> allOps = ((InkClassState)getTargetState()).getOperations();
+		if(allOps!=null){
+			for(Operation op : allOps){
+				if(op.getName().equals(methodName)){
+					return op;
+				}
+			}
+		}
 		return null;
 	}
 

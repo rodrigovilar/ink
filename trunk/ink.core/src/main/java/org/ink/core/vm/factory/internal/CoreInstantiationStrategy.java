@@ -5,6 +5,7 @@ import java.io.File;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InstantiationStrategy;
 import org.ink.core.vm.lang.InkClassState;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.types.EnumTypeState;
 import org.ink.core.vm.types.GenericEnum;
 import org.ink.core.vm.utils.CoreUtils;
@@ -17,7 +18,8 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 
 
 	public InkClassState findCoreClass(InkClassState cls){
-		if(cls.reflect().isCoreObject()){
+		ClassMirror cm = cls.reflect();
+		if(cm.isCoreObject()){
 			return cls;
 		}
 		return findCoreClass((InkClassState) cls.reflect().getSuper().edit().getEditedState());
@@ -32,7 +34,18 @@ public class CoreInstantiationStrategy implements InstantiationStrategy {
 
 	@Override
 	public String getBehaviorClassName(InkClassState cls, DslFactory factory) {
-		InkClassState coreClass = findCoreClass(cls);
+		ClassMirror cm = cls.reflect();
+		InkClassState coreClass = null;
+		if(cm.isCoreObject()){
+			coreClass = cls;
+		}else{
+			coreClass = findCoreClass(cls);
+			ClassMirror ccm = coreClass.reflect();
+			while(ccm.isAbstract()){
+				ccm = ccm.getSuper();
+				coreClass = (InkClassState) ccm.edit().getEditedState();
+			}
+		}
 		String factoryPackage = getCoreJavaPackage(cls, coreClass, factory);
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = coreClass.getJavaPath();

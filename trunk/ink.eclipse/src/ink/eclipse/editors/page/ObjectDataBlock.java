@@ -245,8 +245,9 @@ public class ObjectDataBlock extends DataBlock {
 				break;
 			case Collection:
 				displayString = name + " - " + getTypeDisplayString(pm);
-				addPropertyNameCompletion(cursorLocation, 3,allProposals,
-						displayString, name,"{\n\t\t\n\t}", prefix);
+				String tabs = calculateTabs() + "\t";
+				addPropertyNameCompletion(cursorLocation, tabs.length()+1,allProposals,
+						displayString, name,"{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
 				break;
 			case Enum:
 				displayString = name +" - " + getTypeDisplayString(pm);

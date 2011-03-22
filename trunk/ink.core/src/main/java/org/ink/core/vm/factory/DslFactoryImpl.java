@@ -361,14 +361,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<InkObject> resolveBehaviorClass(InkClassState cls) {
+	public Class<? extends InkObject> resolveBehaviorClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getBehaviorClassName(cls, this);
 		return (Class<InkObject>) getClass(className, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<InkObject> resolveInterfaceClass(InkClassState cls) {
+	public Class<? extends InkObject> resolveInterfaceClass(InkClassState cls) {
 		String className = getInstantiationStrategy().getInterfaceClassName(cls, this);
 		return (Class<InkObject>) getClass(className, true);
 	}

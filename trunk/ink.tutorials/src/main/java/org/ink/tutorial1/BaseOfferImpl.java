@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.ink.core.vm.lang.InkObjectImpl;
 
-public class BaseOfferImpl<S extends BaseOfferState> extends
+public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 		InkObjectImpl<S> implements BaseOffer {
 
 	// Common base offer.
@@ -62,17 +62,6 @@ public class BaseOfferImpl<S extends BaseOfferState> extends
 		}
 		
 		return result;
-	}
-
-	// TODO: AAA Atzmon - Remove these methods and make the class abstract
-	@Override
-	public double getPromotionalPrice(A_Subscription subscription) {
-		return 0;
-	}
-
-	@Override
-	public String getPromotionalMessage(A_Subscription subscription) {
-		return null;
 	}
 
 	private Date now() {

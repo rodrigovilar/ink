@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.ink.core.vm.factory.InkVM;
+
 public class Subscription implements A_Subscription {
 
 	A_Product theMagazine;
@@ -71,20 +73,20 @@ public class Subscription implements A_Subscription {
 	
 	@Override
 	public double getPromotionalPrice() {
-		return getPrice();
+		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
+		return offers.getPromotionalPrice(this);
 	}
 
 	@Override
-	public int getFreePeriods() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getFreeIssues() {
+		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
+		return offers.getFreeIssues(this);
 	}
 
 	@Override
 	public String getPromotionalMessage() {
-		String result = null;
-	
-		return result;
+		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
+		return offers.getPromotionalMessage(this);
 	}
 
 }

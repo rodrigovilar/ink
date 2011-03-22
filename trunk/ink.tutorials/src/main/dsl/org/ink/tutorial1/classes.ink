@@ -1,6 +1,7 @@
-Class id="AbstractOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstract=true {
+// TODO: AAA Atzmon - Make this class abstract
+Class id="BaseOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstract=true {
 	java_path ""
-	java_mapping "State_Behavior"
+	java_mapping "State_Behavior_Interface"
 	properties{
 		property class="ink.core:BooleanAttribute"{
 			name "studentOnlyOffer"
@@ -19,16 +20,16 @@ Class id="AbstractOffer" class="ink.core:InkClass" super="ink.core:InkObject" ab
 			name "freeIssues"
 			mandatory false
 		}
-//		property class="ink.core:DateAttribute"{
-//			name "validUntil"
-//			mandatory true
-//		}
+		property class="ink.core:DateAttribute"{
+			name "validUntil"
+			mandatory true
+		}
 	}
 }
 
-Class id="FixedPercentageDiscountOffer" class="ink.core:InkClass" super="ink.tutorial1:AbstractOffer" abstract=false{
+Class id="FixedPercentageDiscountOffer" class="ink.core:InkClass" super="BaseOffer" abstract=false{
 	java_path ""
-	java_mapping "State_Behavior_Interface"
+	java_mapping "State_Behavior"
 	properties{
 		property class="ink.core:DoubleAttribute"{
 			name "percentage"
@@ -38,9 +39,9 @@ Class id="FixedPercentageDiscountOffer" class="ink.core:InkClass" super="ink.tut
 }
 
 
-Class id="FixedPriceOffer" class="ink.core:InkClass" super="ink.tutorial1:AbstractOffer" abstract=false{
+Class id="FixedPriceOffer" class="ink.core:InkClass" super="BaseOffer" abstract=false{
 	java_path ""
-	java_mapping "State_Behavior_Interface"
+	java_mapping "State_Behavior"
 	properties{
 		property class="ink.core:DoubleAttribute"{
 			name "amount"
@@ -59,7 +60,7 @@ Class id="ActiveOffers" class="ink.core:InkClass" super="ink.core:InkObject" {
 			mandatory true
 			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
 			list_item class="ink.core:Reference"{
-				type ref="ink.tutorial1:AbstractOffer"
+				type ref="ink.tutorial1:BaseOffer"
 				name "offer"
 			}
 		}

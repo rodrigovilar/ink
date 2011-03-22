@@ -166,7 +166,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 
 	@SuppressWarnings("unchecked")
 	private <T extends InkObject> T instantiateBehaviorInstance(InkObjectState state, InkObjectState targetState,boolean interceptable, boolean cacheResults) {
-		Class<InkObject> bClass = cMirror.getBehaviorClass();
+		Class<? extends InkObject> bClass = cMirror.getBehaviorClass();
 		try {
 			T result = (T) factory.newVanillaBehaviorInstance(bClass);
 			InkObject vanillaBehavior = result;

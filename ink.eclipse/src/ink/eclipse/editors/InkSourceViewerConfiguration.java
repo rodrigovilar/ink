@@ -16,13 +16,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
 public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration {
-	
+
 	private ColorManager colorManager;
-	
+
 	public InkSourceViewerConfiguration(ColorManager colorManager) {
 		this.colorManager = colorManager;
 	}
 
+	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 
 		ContentAssistant assistant= new ContentAssistant();
@@ -30,9 +31,10 @@ public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration 
 
 		IContentAssistProcessor inkProcessor= new InkContentAssistProcessor();
 		assistant.setContentAssistProcessor(inkProcessor, IDocument.DEFAULT_CONTENT_TYPE);
-		
+
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(new IInformationControlCreator() {
+			@Override
 			public IInformationControl createInformationControl(Shell parent) {
 				return new DefaultInformationControl(parent, "");
 			}
@@ -40,7 +42,8 @@ public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration 
 
 		return assistant;
 	}
-	
+
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer)
 	{
 	    return new String[]
@@ -50,7 +53,7 @@ public class InkSourceViewerConfiguration extends TextSourceViewerConfiguration 
 	            InkPartitionScanner.INK_STRING,
 	    };
 	}
-	
+
 	/*public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer)
     {
         PresentationReconciler reconciler = new PresentationReconciler();

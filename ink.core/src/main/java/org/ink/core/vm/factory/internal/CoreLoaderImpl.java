@@ -102,6 +102,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreMapField;
 import org.ink.core.vm.lang.internal.annotations.CorePropertySpec;
 import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
 import org.ink.core.vm.lang.operation.OperationState;
+import org.ink.core.vm.lang.operation.interceptors.OperationInterceptorState;
 import org.ink.core.vm.lang.property.AttributeState;
 import org.ink.core.vm.lang.property.CollectionPropertyState;
 import org.ink.core.vm.lang.property.PropertyValueCalculatorState;
@@ -1269,6 +1270,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(ObjectEditorState.class);
 		newInkObject(ClassEditorState.class);
 		newInkObject(OperationState.class);
+		newInkObject(OperationInterceptorState.class);
 		newInkObject(PropertyMirrorState.class);
 		newInkObject(ValuePropertyMirrorState.class);
 		newInkObject(CollectionPropertyMirrorState.class);

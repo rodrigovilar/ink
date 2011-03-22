@@ -3,13 +3,13 @@ package org.ink.core.vm.lang.operation;
 import java.lang.reflect.Method;
 
 import org.ink.core.vm.lang.InkObject;
-import org.ink.core.vm.lang.TypedObject;
 
 /**
  * @author Lior Schachter
  */
-public interface Operation extends TypedObject{
+public interface Operation extends InkObject{
 
-	Object execute(InkObject target, Method method, Object[] args);
+	public Object execute(InkObject target, Method method, Object[] args);
+	public String getName();
 
 }

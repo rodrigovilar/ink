@@ -256,6 +256,12 @@ implements InkReader<Tag>{
 				InkObjectState result = objects.get(ref);
 				if(result==null){
 					result = serializationContext.getState(ref, false);
+					if(result==null){
+						ElementDescriptor<?> desc = serializationContext.getDescriptor(ref);
+						if(desc!=null && !desc.isValid()){
+							return null;
+						}
+					}
 				}
 				if (result == null) {
 					addError(tag, "Could not find Ink object with id '" + ref
@@ -405,8 +411,10 @@ implements InkReader<Tag>{
 										+ t.getName() + "'. Expected name '"
 										+ pm.getName() + "'.");
 							} else {
-								((List) result).add(transformPropertyValue(t,
-										innerPM));
+								Object o = transformPropertyValue(t, innerPM);
+								if(o!=null){
+									((List) result).add(o);
+								}
 							}
 						}
 						break;

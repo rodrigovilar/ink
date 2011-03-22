@@ -39,8 +39,8 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public void register(InkObjectState state);
 	public void register(InkObject o);
 	public Class<InkObjectState> resolveDataClass(InkClassState cls);
-	public Class<InkObject> resolveBehaviorClass(InkClassState cls);
-	public Class<InkObject> resolveInterfaceClass(InkClassState cls);
+	public Class<? extends InkObject> resolveBehaviorClass(InkClassState cls);
+	public Class<? extends InkObject> resolveInterfaceClass(InkClassState cls);
 	public Class<?> resolveEnumClass(EnumTypeState enumState);
 	public <T extends InkObjectState> T newVanillaStateInstance(Class<T> stateClass);
 	public InkObject newBehaviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew);

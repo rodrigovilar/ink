@@ -23,7 +23,7 @@ public interface ClassMirror extends Mirror{
 	public PropertyMirror[] getClassPropertiesMirrors();
 	public Map<String, PropertyMirror> getClassPropertiesMap();
 	public Class<InkObjectState> getStateClass();
-	public Class<InkObject> getBehaviorClass();
+	public Class<? extends InkObject> getBehaviorClass();
 	public boolean shouldCreateProxyOnBehaviorInstance();
 	public InkObject getCachedBehavior(InkObjectState state);
 	public void cacheBeahvior(InkObjectState state, InkObject behavior);

@@ -35,11 +35,11 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 public class CoreUtils {
 
 	public final static String TAB = "\t";
-	
+
 	public static String newUUID(){
 		return UUID.randomUUID().toString();
 	}
-	
+
 	public static void toString(MirrorAPI object, ClassMirrorAPI classMirror, StringBuilder builder){
 		if(object.isRoot()){
 			builder.append(object.getObjectTypeMarker()).append(" ");
@@ -74,7 +74,7 @@ public class CoreUtils {
 		}
 		builder.append("}");
 	}
-	
+
 	private static void toString(PropertyMirror definingProperty, byte definingPropertyIndex, StringBuilder builder, Object value, boolean isItem){
 		Property prop = definingProperty.getTargetBehavior();
 		switch(definingProperty.getTypeMarker()){
@@ -145,7 +145,7 @@ public class CoreUtils {
 			}
 			break;
 		case Class:
-			Mirror m = ((Proxiable)value).reflect(); 
+			Mirror m = ((Proxiable)value).reflect();
 			if(m.getOwner()==null){
 				builder.append(value);
 				if(!isItem){
@@ -182,18 +182,22 @@ public class CoreUtils {
 			break;
 		}
 	}
-	
+
 	public static Class<?>[] getBehaviorProxyInterfaces(Class<?> behaviorClass){
 		Class<?>[] interfaces = behaviorClass.getInterfaces();
-		while(interfaces.length==0){
-			interfaces = behaviorClass.getSuperclass().getInterfaces();
+		if(interfaces.length==0){
+			Class<?> s = behaviorClass.getSuperclass();
+			while(interfaces.length==0 && s!=null){
+				interfaces = s.getInterfaces();
+				s = s.getSuperclass();
+			}
 		}
 		Class<?>[] behaviorProxyInterfaces = new Class<?>[interfaces.length+1];
 		System.arraycopy(interfaces, 0, behaviorProxyInterfaces, 0, interfaces.length);
 		behaviorProxyInterfaces[behaviorProxyInterfaces.length-1] = Proxiability.class;
 		return behaviorProxyInterfaces;
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Object cloneOneValue(PropertyMirror mirror, Object value, boolean identicalTwin) {
 		Object result = null;
@@ -216,7 +220,7 @@ public class CoreUtils {
 				result = value;
 			} else {
 				result = ((MirrorAPI) value).cloneState(identicalTwin);
-			} 
+			}
 			break;
 		case Collection:
 			CollectionTypeMarker cMarker = ((CollectionPropertyMirror)mirror).getCollectionTypeMarker();
@@ -259,11 +263,11 @@ public class CoreUtils {
 		}
 		return result;
 	}
-	
+
 	public static String getShortId(String id){
 		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
 	}
-	
-	
-	
+
+
+
 }

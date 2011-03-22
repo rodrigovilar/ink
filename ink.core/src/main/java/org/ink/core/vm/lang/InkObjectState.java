@@ -230,6 +230,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			return asTrait(trait, false);
 		}
 
+		@Override
 		public <T extends Trait> T asTrait(byte trait, boolean forceNew){
 			Trait result = null;
 			if(forceNew){

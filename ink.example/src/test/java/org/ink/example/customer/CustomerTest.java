@@ -77,7 +77,7 @@ public class CustomerTest extends TestCase{
 		assertNotNull(customer.getAddress());
 		assertEquals(customer.getAddress().reflect().getPropertyValue(CITY), "Tel Aviv");
 		Customer customerBehav = customer.getBehavior();
-		customerBehav.sendLetter("Hello !!!!!");
+		assertNotNull(customerBehav.sendLetter("Hello !!!!!"));
 		boolean exception = false;
 		try{
 			addr.getBehavior();
@@ -187,6 +187,27 @@ public class CustomerTest extends TestCase{
 		assertNull(mirror.getPropertyValue(name));
 		mirror.edit().setPropertyValue(name, "kukukuku");
 		assertNotNull(mirror.getPropertyValue(name));
+
+	}
+
+	public void testCustomerInterceptor(){
+		CustomerState customer = createState("example.customer:Customer");
+		customer.setFirstName("Lior");
+		customer.setLastName("Schachter");
+		customer.setAge((byte)32);
+
+		Address addr = createState("example.customer:Address");
+		addr.setCity("Tel Aviv");
+		addr.setStreet("Bar Kokva");
+		addr.setNumber((short)1001);
+		customer.setAddress(addr);
+
+		Customer customerImpl = customer.getBehavior();
+
+		assertNotNull(customerImpl.sendLetter("kuku"));
+		customer.setFirstName("Atzmon");
+
+		assertNull(customerImpl.sendLetter("kuku"));
 
 	}
 

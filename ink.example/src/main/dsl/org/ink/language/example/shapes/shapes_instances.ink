@@ -9,7 +9,7 @@ Object id="myFirstShape2" class="example.shapes:Shape" super="example.shapes:myF
 
 Object id="drawing1" class="example.shapes:Drawing" {
 	elements {
-		element ref="example.shapes:myFirstShape"
-		element ref="example.shapes:myFirstShape2"
+		element ref="myFirstShape"
+		element ref="myFirstShape2"
 	}
 }		

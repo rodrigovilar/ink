@@ -57,9 +57,30 @@ Object id="SportsKind" class="ink.core:EnumType"{
 	values "BasketBall" "Tennis" "FootBall" "Rugby"
 }
 
+Class id="SendLetterInterceptor" class="ink.core:InkClass" super="ink.core:OperationInterceptor"{
+	java_path ""
+	java_mapping "State_Behavior"
+	properties{
+		property class="ink.core:StringAttribute"{
+			name "restrictedFirstName"
+			mandatory true
+		}	
+	}
+}
+
 Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkObject"{
 	java_path ""
 	component_type "Root"
+	operations{
+		operation class="ink.core:Operation"{
+			name "sendLetter"
+			interceptors{
+				interceptor class="SendLetterInterceptor"{
+					restrictedFirstName "Atzmon"
+				}			
+			}
+		}
+	}
 	properties{
 		property class="ink.core:StringAttribute"{
 			name "first_name"

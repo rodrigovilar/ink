@@ -7,6 +7,7 @@ import org.ink.core.vm.lang.InkObject;
  */
 public interface Customer extends InkObject{
 
-	public void sendLetter(String text);
+	public String sendLetter(String text);
+	public String getFirstName();
 	
 }

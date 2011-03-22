@@ -27,7 +27,7 @@ public interface A_Subscription {
 	A_Customer getCustomer();
 
 	double getPromotionalPrice();
-	int getFreePeriods();
+	int getFreeIssues();
 	String getPromotionalMessage();
 
 }

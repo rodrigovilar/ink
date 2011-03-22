@@ -1,7 +1,7 @@
 package org.ink.tutorial1;
 
 public class FixedPercentageDiscountOfferImpl<S extends FixedPercentageDiscountOfferState>
-		extends AbstractOfferImpl<S> implements A_SpecialOffer {
+		extends BaseOfferImpl<S> implements BaseOffer {
 
 	@Override
 	public double getPromotionalPrice(A_Subscription subscription) {
@@ -10,7 +10,8 @@ public class FixedPercentageDiscountOfferImpl<S extends FixedPercentageDiscountO
 		if (isEligible(subscription)) {
 
 			result = subscription.getPrice()
-					* (100.0 - getState().getPercentage());
+					* (100.0 - getState().getPercentage())
+					/ 100.0;
 
 		} else {
 			result = subscription.getPrice();
@@ -25,7 +26,7 @@ public class FixedPercentageDiscountOfferImpl<S extends FixedPercentageDiscountO
 
 		if (isEligible(subscription)) {
 			result = "Save $" + subscription.getPrice()
-					* (getState().getPercentage());
+					* (getState().getPercentage() / 100.0);
 			if (getFreeIssues(subscription) > 0) {
 				result = result + " and get " + getFreeIssues(subscription)
 						+ " issues for free.";

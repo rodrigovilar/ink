@@ -44,8 +44,10 @@ public class TestTutorial1Test {
 		
 		double price = subscription.getPrice();
 		double promotionalPrice = subscription.getPromotionalPrice();
+		String promotionalMessage = subscription.getPromotionalMessage();
 		Assert.assertEquals(98.0*5, price);
 		Assert.assertEquals(98.0*5*0.4, promotionalPrice);
+		Assert.assertEquals("Save $294.0 and get 3 issues for free.", promotionalMessage);
 	}
 	
 }

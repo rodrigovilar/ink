@@ -28,3 +28,11 @@ Object id="Active_offers" class="ActiveOffers" {
 		offer ref="students_60_percent_discount_for_3_years"
 	}
 }
+
+Object id="ExampleOffer" class="FixedPercentageDiscountOffer" {
+	percentage 20.0
+	renewalOnlyOffer false
+	freeIssues 0
+	validUntil 2011/11/01 
+	studentOnlyOffer true
+}

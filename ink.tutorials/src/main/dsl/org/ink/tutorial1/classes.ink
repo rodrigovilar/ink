@@ -1,4 +1,3 @@
-// TODO: AAA Atzmon - Make this class abstract
 Class id="BaseOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstract=true {
 	java_path ""
 	java_mapping "State_Behavior_Interface"

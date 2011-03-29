@@ -28,16 +28,14 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public String getDslPackage();
 	public String getJavaPackage();
 	public String getNamespace();
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass);
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass, boolean initObjectId, boolean initDefaults);
+	public <T extends InkObjectState> T newInstance(String classId);
+	public <T extends InkObjectState> T newInstance(String classId, boolean initObjectId, boolean initDefaults);
 	public <T extends Struct> T getStruct(String id);
 	public <T extends InkObject> T getObject(String id);
 	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists);
-	public <T extends InkClass> T getObject(Class<InkObjectState> stateClass);
 	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists);
 	public <T extends InkObjectState> T getState(String id);
 	public void register(InkObjectState state);
-	public void register(InkObject o);
 	public Class<InkObjectState> resolveDataClass(InkClassState cls);
 	public Class<? extends InkObject> resolveBehaviorClass(InkClassState cls);
 	public Class<? extends InkObject> resolveInterfaceClass(InkClassState cls);
@@ -45,7 +43,7 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public <T extends InkObjectState> T newVanillaStateInstance(Class<T> stateClass);
 	public InkObject newBehaviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew);
 	public <T extends InkObject> T newVanillaBehaviorInstance(Class<T> stateClass);
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, Class<?>[] types, Proxiability.Kind t);
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t);
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex);
 	public Mirror newMirrorProxy(Mirror behaviorInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex);
 	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex);

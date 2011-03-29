@@ -13,25 +13,26 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=MapPropertyMirrorState.class, constraintsClass=PropertyConstraintsState.class, 
-		javaMapping=JavaMapping.State_Behavior, 
+@CoreClassSpec(mirrorClass=MapPropertyMirrorState.class, constraintsClass=PropertyConstraintsState.class,
+		javaMapping=JavaMapping.State_Behavior,
 		finalValuesLocation={PropertyState.p_type}, finalValues={"ink.core:Map"})
 public interface MapPropertyState extends CollectionPropertyState{
-	
+	@CoreField(mandatory=true)
 	public static final byte p_map_value = 8;
+	@CoreField(mandatory=true)
 	public static final byte p_map_key = 9;
 	@CoreField(defaultValue="false")
 	public static final byte p_is_sorted = 10;
-	
+
 	public Property getMapValue();
 	public void setMapValue(PropertyState value);
-	
+
 	public Property getMapKey();
 	public void setMapKey(PropertyState value);
-	
+
 	public Boolean getIsSorted();
 	public void setIsSorted(Boolean value);
-	
+
 	public class Data extends CollectionPropertyState.Data implements MapPropertyState{
 
 		@Override
@@ -43,7 +44,7 @@ public interface MapPropertyState extends CollectionPropertyState{
 		public void setMapValue(PropertyState value) {
 			setValue(p_map_value, value);
 		}
-		
+
 		@Override
 		public Property getMapKey() {
 			return (Property)getValue(p_map_key);

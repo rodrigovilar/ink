@@ -67,8 +67,8 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	protected Set<String> scope;
 
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, Class<?>[] types, Proxiability.Kind t){
-		return proxyFactory.newBehaviorProxy(this, behaviorInstance, types, t);
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t){
+		return proxyFactory.newBehaviorProxy(this, behaviorInstance, state, types, t);
 	}
 	@Override
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
@@ -284,12 +284,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkClass> T getObject(Class<InkObjectState> stateClass) {
-		return (T)getInkClass(stateClass);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
 	public <T extends Struct> T getStruct(String id) {
 		return (T) getState(id, true);
 	}
@@ -311,36 +305,27 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 
 
-	@Override
-	public void register(InkObject o) {
-		// TODO maybe to remove
-	}
-
-
-	private InkClass getInkClass(Class<?> stateClass) {
-		return null;
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass) {
-		InkClass cls = getInkClass(stateClass);
+	public <T extends InkObjectState> T newInstance(String classId) {
+		InkClass cls = getObject(classId);
 		if(cls!=null){
 			return (T) cls.newInstance(getContext());
 		}else{
-			throw new CoreException("Could not find Ink class for Java class :" +stateClass.getName());
+			throw new CoreException("Could not find Ink class with ID :" +classId);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass,
+	public <T extends InkObjectState> T newInstance(String classId,
 			boolean initObjectId, boolean initDefaults) {
-		InkClass cls = getInkClass(stateClass);
+		InkClass cls = getObject(classId);
 		if(cls!=null){
 			return (T) cls.newInstance(this.getContext(), initObjectId, initDefaults);
 		}else{
-			throw new CoreException("Could not find Ink class for Java class :" +stateClass.getName());
+			throw new CoreException("Could not find Ink class with ID :" +classId);
 		}
 	}
 

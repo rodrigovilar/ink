@@ -12,8 +12,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ikayzo.sdl.SDLParseException;
 import org.ikayzo.sdl.Tag;
@@ -174,43 +176,61 @@ implements InkReader<Tag>{
 				} else if (id != null) {
 					addError(tag, "Duplicate attribute '" + attName
 							+ "' was found.");
+					return null;
 				} else {
 					try {
 						id = (String) en.getValue();
+						if(id==null || id.trim().length()==0){
+							addError(tag, "Attribute '" + attName
+									+ "' should not be empty.");
+						}
 						id = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
+						return null;
 					}
 				}
 			} else if (attName.equals(CLASS_ATTRIBUTE)) {
 				if (classId != null) {
 					addError(tag, "Duplicate attribute '" + attName
 							+ "' was found.");
+					return null;
 				} else {
 					try {
 						classId = (String) en.getValue();
+						if(classId==null || classId.trim().length()==0){
+							addError(tag, "Attribute '" + attName
+									+ "' should not be empty.");
+						}
 						if(classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							classId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+classId;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
+						return null;
 					}
 				}
 			} else if (attName.equals(REF_ATTRIBUTE)) {
 				if (ref != null) {
 					addError(tag, "Duplicate attribute '" + attName
 							+ "' was found.");
+					return null;
 				} else {
 					try {
 						ref = (String) en.getValue();
+						if(ref==null || ref.trim().length()==0){
+							addError(tag, "Attribute '" + attName
+									+ "' should not be empty.");
+						}
 						if(ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							ref = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+ref;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
+						return null;
 					}
 				}
 			} else if (attName.equals(SUPER_ATTRIBUTE)) {
@@ -220,12 +240,18 @@ implements InkReader<Tag>{
 				} else {
 					try {
 						superId = (String) en.getValue();
+						if(superId==null || superId.trim().length()==0){
+							addError(tag, "Attribute '" + attName
+									+ "' should not be empty.");
+							return null;
+						}
 						if(superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							superId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+superId;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName
 								+ "' should be of a string type.");
+						return null;
 					}
 				}
 			} else if (attName.equals(ABSTRACT_ATTRIBUTE)) {
@@ -309,8 +335,14 @@ implements InkReader<Tag>{
 				List<Tag> fields = tag.getChildren();
 				PropertyMirror pm;
 				String propertyName;
+				Set<String> visited = new HashSet<String>(fields.size());
 				for (Tag field : fields) {
 					propertyName = field.getName();
+					if(visited.contains(propertyName)){
+						addError(field, "The property with name '" + propertyName +"' appears more than once.");
+						continue;
+					}
+					visited.add(propertyName);
 					pm = propertiesMap.get(propertyName);
 					if (pm == null) {
 						addError(field, "The property with name '" + propertyName

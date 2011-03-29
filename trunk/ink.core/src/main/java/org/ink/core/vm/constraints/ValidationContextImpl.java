@@ -118,24 +118,19 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 		abort = false;
 	}
 
-	public static int log2(int x) {
-        int y,v;
-        // No log of 0 or negative
-        if (x <= 0) {
-            throw new IllegalArgumentException(""+x+" <= 0");
-        }
-        // Calculate log2 (it's actually floor log2)
-        v = x;
-        y = -1;
-        while (v>0) {
-            v >>=1;
-            y++;
-        }
-        return y;
-    }
+	@Override
+	public void logMessages() {
+		logMessages(Severity.Warning);
+	}
 
-	public static void main(String[] args) {
-		System.out.println(log2(3));
+	@Override
+	public void logMessages(Severity severity) {
+		for(ValidationMessage msg : messages){
+			if(severity.ordinal()<=msg.getSeverity().ordinal()){
+				//TODO - change to logger
+				System.out.println(msg.getFormattedMessage());
+			}
+		}
 	}
 
 

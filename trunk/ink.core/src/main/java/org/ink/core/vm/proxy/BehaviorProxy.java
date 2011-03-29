@@ -78,9 +78,10 @@ public class BehaviorProxy implements InvocationHandler {
 		}
 	}
 
-	protected BehaviorProxy(DslFactory factory, InkObject target, Proxiability.Kind t) {
+	protected BehaviorProxy(DslFactory factory, InkObject target, InkObjectState state,Proxiability.Kind t) {
 		this.factory = factory;
 		this.target = target;
+		this.state = state;
 		this.t = t;
 	}
 
@@ -149,7 +150,7 @@ public class BehaviorProxy implements InvocationHandler {
 	}
 
 	private Object runManagedMethod(Method method, Object[] args,
-			String methodName) throws IllegalAccessException, Throwable {
+			String methodName) throws Throwable {
 		Operation theMethod = findBehaviorMethodProfile(methodName, args);
 		if (theMethod != null) {
 			return theMethod.execute(target, method, args);
@@ -159,7 +160,7 @@ public class BehaviorProxy implements InvocationHandler {
 	}
 
 	private Object runMethod(Method method, Object[] args)
-			throws IllegalAccessException, Throwable {
+			throws Throwable {
 		try {
 			return method.invoke(target, args);
 		} catch (InvocationTargetException e) {

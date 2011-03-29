@@ -8,12 +8,11 @@ import org.ink.core.vm.lang.operation.interceptors.OperationInterceptorImpl;
 public class SendLetterInterceptorImpl<S extends SendLetterInterceptorState> extends OperationInterceptorImpl<S> {
 
 	@Override
-	public boolean beforeExceution(Method method, Object[] args,
+	public void beforeExceution(Method method, Object[] args,
 			Object workOnObject, Map<?, ?> context) {
 		if(((Customer)workOnObject).getFirstName().equals(getState().getRestrictedFirstName())){
-			return false;
+			throw new RuntimeException();
 		}
-		return true;
 	}
 
 	@Override

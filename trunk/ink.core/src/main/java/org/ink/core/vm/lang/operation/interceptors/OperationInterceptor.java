@@ -10,12 +10,11 @@ import org.ink.core.vm.lang.InkObject;
  */
 public interface OperationInterceptor extends InkObject{
 
-	public boolean beforeExceution(Method method, Object[] args, Object workOnObject, Map<?, ?> context);
+	public void beforeExceution(Method method, Object[] args, Object workOnObject, Map<?, ?> context);
 
 	public void afterExceution(Method method, Object args[],
 			Object workOnObject, Object response, Map<?, ?> context);
 
 	public void afterException(Method method, Object args[], Object workOnObject, Throwable e, Map<?, ?> context);
-
 
 }

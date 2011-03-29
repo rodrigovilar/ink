@@ -171,7 +171,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 			T result = (T) factory.newVanillaBehaviorInstance(bClass);
 			InkObject vanillaBehavior = result;
 			if (interceptable) {
-				result = (T) newBehaviorProxy(result, cMirror.getBehaviorProxyInterfaces(), Proxiability.Kind.BEHAVIOR_INTERCEPTION);
+				result = (T) newBehaviorProxy(result,state, cMirror.getBehaviorProxyInterfaces(), Proxiability.Kind.BEHAVIOR_INTERCEPTION);
 			}
 			if (cacheResults) {
 				cMirror.cacheBeahvior(state, result);
@@ -194,8 +194,8 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	}
 
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, Class<?>[] types, Proxiability.Kind t) {
-		return  factory.newBehaviorProxy(behaviorInstance, types, t);
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t) {
+		return  factory.newBehaviorProxy(behaviorInstance, state, types, t);
 	}
 
 	@Override

@@ -135,6 +135,18 @@ public abstract class DataBlock {
 		return tabs;
 	}
 
+	protected void addRefPropsals(int cursorLocation, String prefix, List<ICompletionProposal> result) {
+		PropertyMirror pm;
+		pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		if(pm.getTypeMarker()==DataTypeMarker.Class){
+			String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
+			List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
+			for(String id : options){
+				addIdProposal(result, cursorLocation, id, prefix);
+			}
+		}
+	}
+
 	protected List<ICompletionProposal> getInnerBlockProposals(int cursorLocation, String textString, int newLineLoc, int count, int spaceLoc, String prefix){
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
@@ -191,6 +203,8 @@ public abstract class DataBlock {
 					for(String id : getSuperProposals(line)){
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
+				}else if(attr.equals("ref")){
+					addRefPropsals(cursorLocation, prefix, result);
 				}
 			}
 			else if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){

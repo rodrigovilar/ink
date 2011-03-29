@@ -7,6 +7,7 @@ import org.ink.core.vm.lang.InkObject;
  */
 public interface Customer extends InkObject{
 
+	public boolean isFriend(Customer otherCustomer);
 	public String sendLetter(String text);
 	public String getFirstName();
 	

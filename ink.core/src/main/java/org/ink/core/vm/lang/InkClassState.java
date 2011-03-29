@@ -428,18 +428,24 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public Byte getTraitIndex(String role) {
-			Byte result = detachableTraitsRolesToIndexes.get(role);
-			if(result!=null){
-				result = (byte) (result+offset);
+			Byte result= null;
+			if(detachableTraitsRolesToIndexes!=null){
+				result = detachableTraitsRolesToIndexes.get(role);
+				if(result!=null){
+					result = (byte) (result+offset);
+				}
 			}
 			return  result;
 		}
 
 		@Override
 		public Byte getTraitIndex(TraitClass traitClass) {
-			Byte result = detachableTraitsIdsToIndexes.get(traitClass.reflect().getId());
-			if(result!=null){
-				result = (byte) (result+offset);
+			Byte result= null;
+			if(detachableTraitsRolesToIndexes!=null){
+				result = detachableTraitsIdsToIndexes.get(traitClass.reflect().getId());
+				if(result!=null){
+					result = (byte) (result+offset);
+				}
 			}
 			return  result;
 		}

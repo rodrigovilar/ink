@@ -67,14 +67,7 @@ public class SimpleDataBlock extends DataBlock {
 					}
 					String attr = attrB.reverse().toString();
 					if(attr.equals("ref")){
-						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-						if(pm.getTypeMarker()==DataTypeMarker.Class){
-							String constraintClass = ((ReferenceMirror)pm).getPropertyType().reflect().getId();
-							List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
-							for(String id : options){
-								addIdProposal(result, cursorLocation, id, prefix);
-							}
-						}
+						addRefPropsals(cursorLocation, prefix, result);
 					}else if(attr.equals("class")){
 						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 						if(pm.getTypeMarker()==DataTypeMarker.Class){

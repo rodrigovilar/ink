@@ -103,6 +103,7 @@ import org.ink.core.vm.lang.internal.annotations.CorePropertySpec;
 import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
 import org.ink.core.vm.lang.operation.OperationState;
 import org.ink.core.vm.lang.operation.interceptors.OperationInterceptorState;
+import org.ink.core.vm.lang.operation.interceptors.ValidationInterceptorState;
 import org.ink.core.vm.lang.property.AttributeState;
 import org.ink.core.vm.lang.property.CollectionPropertyState;
 import org.ink.core.vm.lang.property.PropertyValueCalculatorState;
@@ -1317,6 +1318,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(InkReaderState.class);
 		newInkObject(EmptyDslLoaderState.class);
 		newInkObject(ClassHierarchyLocatorState.class);
+		newInkObject(ValidationInterceptorState.class);
 	}
 
 	private <A extends Annotation> A  findAnnotation(Class stateClass, Class<A> annotationClass){

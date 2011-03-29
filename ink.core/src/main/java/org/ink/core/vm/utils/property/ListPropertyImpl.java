@@ -3,6 +3,7 @@ package org.ink.core.vm.utils.property;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.property.CollectionPropertyImpl;
 
 
@@ -16,10 +17,13 @@ public class ListPropertyImpl<S extends ListPropertyState> extends CollectionPro
 	@Override
 	public Object getDefaultValue() {
 		List result = null;
-		Object value = getState().getListItem().getDefaultValue();
-		if(value!=null){
-			result = new ArrayList();
-			result.add(value);
+		Property itemDesc = getState().getListItem();
+		if(itemDesc!=null){
+			Object value = itemDesc.getDefaultValue();
+			if(value!=null){
+				result = new ArrayList();
+				result.add(value);
+			}
 		}
 		return result;
 	}
@@ -28,12 +32,15 @@ public class ListPropertyImpl<S extends ListPropertyState> extends CollectionPro
 	@Override
 	public Object getFinalValue() {
 		List result = null;
-		Object value = getState().getListItem().getFinalValue();
-		if(value!=null){
-			result = new ArrayList();
-			result.add(value);
+		Property itemDesc = getState().getListItem();
+		if(itemDesc!=null){
+			Object value = itemDesc.getFinalValue();
+			if(value!=null){
+				result = new ArrayList();
+				result.add(value);
+			}
 		}
 		return result;
 	}
-	
+
 }

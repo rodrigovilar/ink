@@ -80,6 +80,12 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 				}			
 			}
 		}
+		operation class="ink.core:Operation"{
+			name "isFriend"
+			interceptors{
+				interceptor class="ink.core:ValidationInterceptor"
+			}
+		}
 	}
 	properties{
 		property class="ink.core:StringAttribute"{
@@ -105,6 +111,14 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 			type ref="example.customer:Gender"
 			name "gender"
 			default_value "Male"
+		}
+		property class="ink.core:ListProperty"{
+			name "friends"
+			mandatory false
+			list_item class="ink.core:Reference"{
+				name "friend"
+				type ref="Customer"
+			}
 		}
 	}
 	personality class="example.customer:CustomerPersonality"{
@@ -151,5 +165,8 @@ Object id="TheSecondCustomer" class="example.customer:Customer"{
 }
 
 Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example.customer:TheFirstCustomer"{
-	stam.shmupu "kuku"	
+	stam.shmupu "kuku2"
+	friends{
+		friend ref="TheFirstCustomer"
+	}	
 }

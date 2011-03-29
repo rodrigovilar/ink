@@ -1,6 +1,5 @@
 package org.ink.core.vm.factory;
 
-import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Struct;
@@ -23,34 +22,24 @@ public class ContextImpl<S extends ContextState> extends TraitImpl<S> implements
 	}
 
 	@Override
-	public <T extends InkClass> T getObject(Class<InkObjectState> stateClass) {
-		return ((DslFactory)getTargetBehavior()).getObject(stateClass);
-	}
-
-	@Override
 	public <T extends Struct> T getStruct(String id) {
 		return ((DslFactory)getTargetBehavior()).getStruct(id);
 	}
 
 	@Override
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass) {
-		return ((DslFactory)getTargetBehavior()).newInstance(stateClass);
+	public <T extends InkObjectState> T newInstance(String classId) {
+		return ((DslFactory)getTargetBehavior()).newInstance(classId);
 	}
 
 	@Override
-	public <T extends InkObjectState> T newInstance(Class<T> stateClass,
+	public <T extends InkObjectState> T newInstance(String classId,
 			boolean initObjectId, boolean initDefaults) {
-		return ((DslFactory)getTargetBehavior()).newInstance(stateClass, initObjectId, initDefaults);
+		return ((DslFactory)getTargetBehavior()).newInstance(classId, initObjectId, initDefaults);
 	}
 
 	@Override
 	public void register(InkObjectState state) {
 		((DslFactory)getTargetBehavior()).register(state);
-	}
-
-	@Override
-	public void register(InkObject o) {
-		((DslFactory)getTargetBehavior()).register(o);
 	}
 
 	@Override

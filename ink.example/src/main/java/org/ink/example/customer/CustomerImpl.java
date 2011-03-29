@@ -21,4 +21,12 @@ public class CustomerImpl extends InkObjectImpl<CustomerState> implements Custom
 		return getState().getFirstName();
 	}
 
+	@Override
+	public boolean isFriend(Customer otherCustomer) {
+		if(getState().getFriends()!=null){
+			return getState().getFriends().contains(otherCustomer);
+		}
+		return false;
+	}
+
 }

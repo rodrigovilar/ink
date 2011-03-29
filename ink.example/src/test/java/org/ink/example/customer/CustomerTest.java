@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.ink.core.vm.constraints.ValidationContext;
+import org.ink.core.vm.exceptions.ValidationException;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.internal.CoreNotations;
@@ -207,8 +208,21 @@ public class CustomerTest extends TestCase{
 		assertNotNull(customerImpl.sendLetter("kuku"));
 		customer.setFirstName("Atzmon");
 
-		assertNull(customerImpl.sendLetter("kuku"));
-
+		boolean exception=false;
+		try{
+			customerImpl.sendLetter("kuku");
+		}catch(RuntimeException e){
+			exception = true;
+		}
+		assertTrue(exception);
+		exception = false;
+		try{
+			customerImpl.isFriend(customerImpl);
+		}catch(ValidationException e){
+			exception = true;
+		}
+		assertTrue(exception);
+		assertFalse(customerImpl.isFriend((Customer) context.getObject("example.customer:TheFirstCustomer")));
 	}
 
 	private String extractFirstMessageId(ValidationContext vc) {

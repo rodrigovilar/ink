@@ -44,14 +44,16 @@ public class StateClassGenerator extends BaseGenerator {
 					.append(lastPM==null?" = 0": "= p_" +lastPM.getName().toLowerCase()+"+1").append(";");
 					String fielName = convertPropertyName(pm.getName());
 					String[] types = resolveGetterType(pm);
-					String getterSig = "public " + types[0] +" get" + fielName + "()";
-					String setterSig = "public void set" + fielName + "("+types[1]+" value)";
-					interfaceClass.append(getterSig).append(";");
-					interfaceClass.append(setterSig).append(";");
-					innerClass.append(getterSig).append("{return (").append(types[0]).append(")getValue(")
-					.append(staticName).append(");}");
-					innerClass.append(setterSig).append("{").append("setValue(")
-					.append(staticName).append(",value);}");//setValue(p_namespace, value);
+					if(types!=null){
+						String getterSig = "public " + types[0] +" get" + fielName + "()";
+						String setterSig = "public void set" + fielName + "("+types[1]+" value)";
+						interfaceClass.append(getterSig).append(";");
+						interfaceClass.append(setterSig).append(";");
+						innerClass.append(getterSig).append("{return (").append(types[0]).append(")getValue(")
+						.append(staticName).append(");}");
+						innerClass.append(setterSig).append("{").append("setValue(")
+						.append(staticName).append(",value);}");//setValue(p_namespace, value);
+					}
 
 				}
 				lastPM = pm;
@@ -83,7 +85,7 @@ public class StateClassGenerator extends BaseGenerator {
 	private String resolveRealBehaviorClassName(ClassMirror m){
 		String result = null;
 		if(m.getJavaMapping().hasBeahvior()){
-			result = m.getFullJavaPackage() + "." + m.getShortId() +"Impl";
+			result = m.getFullJavaPackage() + "." + m.getShortId();
 		}else{
 			return resolveRealStateClassName((ClassMirror) m.getSuper());
 		}
@@ -91,6 +93,9 @@ public class StateClassGenerator extends BaseGenerator {
 	}
 
 	private String[] resolveGetterType(PropertyMirror pm) {
+		if(pm==null || pm.getTypeMarker()==null){
+			return null;
+		}
 		String[] typesName=new String[2];
 		switch(pm.getTypeMarker()){
 		case Collection:
@@ -98,12 +103,18 @@ public class StateClassGenerator extends BaseGenerator {
 			switch(cpm.getCollectionTypeMarker()){
 			case List:
 				String[] itemTypes = resolveGetterType(((ListPropertyMirror)pm).getItemMirror());
+				if(itemTypes==null){
+					return null;
+				}
 				typesName[0] = cpm.getTypeClass().getName() +"<" +itemTypes[0]+">";
 				typesName[1] = cpm.getTypeClass().getName() +"<" +itemTypes[1]+">";
 				break;
 			case Map:
 				String[] keyTypes = resolveGetterType(((MapPropertyMirror)pm).getKeyMirror());
 				String[] valTypes = resolveGetterType(((MapPropertyMirror)pm).getValueMirror());
+				if(keyTypes==null || valTypes==null){
+					return null;
+				}
 				typesName[0] = cpm.getTypeClass().getName() +"<" +keyTypes[0]+","+valTypes[0]+">";
 				typesName[1] = cpm.getTypeClass().getName() +"<" +keyTypes[1]+","+valTypes[1]+">";
 				break;

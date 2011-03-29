@@ -1,6 +1,7 @@
 package org.ink.core.vm.utils.property.mirror;
 
 import org.ink.core.vm.lang.DataTypeMarker;
+import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirrorImpl;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
@@ -12,7 +13,7 @@ import org.ink.core.vm.utils.property.MapPropertyState;
  * @author Lior Schachter
  */
 public class MapPropertyMirrorImpl<S extends MapPropertyMirrorState> extends CollectionPropertyMirrorImpl<S> implements MapPropertyMirror{
-	
+
 	private PropertyMirror valueMirror;
 	private PropertyMirror keyMirror;
 
@@ -23,22 +24,32 @@ public class MapPropertyMirrorImpl<S extends MapPropertyMirrorState> extends Col
 		this.valueMirror = valueMirror;
 		this.keyMirror = keyMirror;
 	}
-	
-	
+
+
 	@Override
 	public void afterTargetSet() {
 		super.afterTargetSet();
-		valueMirror = (PropertyMirror)((MapPropertyState)getTargetState()).getMapValue().reflect();
-		keyMirror = (PropertyMirror)((MapPropertyState)getTargetState()).getMapKey().reflect();
+		Property desc = ((MapPropertyState)getTargetState()).getMapValue();
+		if(desc!=null){
+			valueMirror = (PropertyMirror)desc.reflect();
+		}
+		desc = ((MapPropertyState)getTargetState()).getMapKey();
+		if(desc!=null){
+			keyMirror = (PropertyMirror)desc.reflect();
+		}
 	}
 
 	@Override
 	public void bind(ClassMirror holdingClass, byte index) {
 		super.bind(holdingClass, index);
-		valueMirror.bind(getDefiningClass(), getIndex());
-		keyMirror.bind(getDefiningClass(), getIndex());
+		if(valueMirror!=null){
+			valueMirror.bind(getDefiningClass(), getIndex());
+		}
+		if(keyMirror!=null){
+			keyMirror.bind(getDefiningClass(), getIndex());
+		}
 	}
-	
+
 	@Override
 	public PropertyMirror getKeyMirror() {
 		return keyMirror;
@@ -48,11 +59,11 @@ public class MapPropertyMirrorImpl<S extends MapPropertyMirrorState> extends Col
 	public PropertyMirror getValueMirror() {
 		return valueMirror;
 	}
-	
+
 	@Override
 	public boolean isValueContainsInkObject() {
 		return valueMirror.isValueContainsInkObject() || keyMirror.isValueContainsInkObject();
 	}
-	
+
 
 }

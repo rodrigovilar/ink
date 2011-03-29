@@ -9,7 +9,7 @@ import org.ink.core.vm.lang.InkObject;
  */
 public interface Operation extends InkObject{
 
-	public Object execute(InkObject target, Method method, Object[] args);
+	public Object execute(InkObject target, Method method, Object[] args) throws Throwable;
 	public String getName();
 
 }

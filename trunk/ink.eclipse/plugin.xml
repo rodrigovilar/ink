@@ -2,39 +2,24 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <extension
-         id="inkBuilder"
-         name="Ink Project Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            hasNature="true">
-         <run
-               class="org.ink.eclipse.builder.InkBuilder">
+   <extension id="inkBuilder" name="Ink Project Builder" point="org.eclipse.core.resources.builders">
+      <builder hasNature="true">
+         <run class="org.ink.eclipse.builder.InkBuilder">
          </run>
       </builder>
    </extension>
-   <extension
-         id="inkNature"
-         name="Ink Project Nature"
-         point="org.eclipse.core.resources.natures">
+   <extension id="inkNature" name="Ink Project Nature" point="org.eclipse.core.resources.natures">
       <runtime>
-         <run
-               class="org.ink.eclipse.builder.InkNature">
+         <run class="org.ink.eclipse.builder.InkNature">
          </run>
       </runtime>
-      <builder
-            id="ink.eclipse.inkBuilder">
+      <builder id="ink.eclipse.inkBuilder">
       </builder>
    </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="true"
-            objectClass="org.eclipse.core.resources.IProject"
-            nameFilter="*"
-            id="ink.eclipse.contribution1">
-         <action
-               label="Add/Remove Ink Nature"
+   <extension point="org.eclipse.ui.popupMenus">
+      <objectContribution adaptable="true" objectClass="org.eclipse.core.resources.IProject" nameFilter="*"
+            id="ink.eclipse.contribution.nature">
+         <action label="Add/Remove Ink Nature"
                class="org.ink.eclipse.builder.ToggleNatureAction"
                menubarPath="additions"
                enablesFor="+"
@@ -42,18 +27,13 @@
          </action>
       </objectContribution>
    </extension>
-    <extension
-         id="inkProblem"
-         name="Ink Problem"
-         point="org.eclipse.core.resources.markers">
+    <extension id="inkProblem" name="Ink Problem" point="org.eclipse.core.resources.markers">
       	<super type="org.eclipse.core.resources.problemmarker"/>
-      	<super type="org.eclipse.core.resources.textmarker"/>      	
-       <persistent
-            value="true"/>
+		<super type="org.eclipse.core.resources.textmarker"/>      	
+       	<persistent value="true"/>
    </extension>
    
-   <extension
-         point="org.eclipse.ui.editors">
+   <extension point="org.eclipse.ui.editors">
       <editor
             class="ink.eclipse.editors.InkEditor"
             contributorClass="ink.eclipse.editors.InkEditorActionContributor"
@@ -74,10 +54,10 @@
                label="Ink">
          </menu>
          <action
-               class="ink.eclipse.editors.actions.OpenElementAction"
-               definitionId="ink.eclipse.openElement"
+               class="ink.eclipse.editors.actions.BrowseElementAction"
+               definitionId="ink.eclipse.browseElement"
                icon="icons/opentype.gif"
-               id="ink.eclipse.openElementAction"
+               id="ink.eclipse.browseElementAction"
                label="Open Ink Element"
                menubarPath="ink.eclipse.menu/Editor"
                style="push"
@@ -95,17 +75,34 @@
       </category>
       <command
             categoryId="ink.eclipse.editor"
-            id="ink.eclipse.openElement"
+            id="ink.eclipse.browseElement"
             name="Open Ink Element">
       </command>
+      <command
+            categoryId="ink.eclipse.editor"
+            id="ink.eclipse.gotoElement"
+            name="Goto Ink Element">
+      </command>
    </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="ink.eclipse.openElement"
+   <extension point="org.eclipse.ui.bindings">
+      <key commandId="ink.eclipse.browseElement"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+SHIFT+Q">
+            sequence="Ctrl+Shift+Q"
+            contextId="org.eclipse.ui.contexts.dialogAndWindow">
       </key>
+      <key commandId="ink.eclipse.gotoElement"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3"
+            contextId="ink.eclipse.context.editor">
+      </key>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="ink.eclipse.context.editor"
+            name="In Ink Editor">
+      </context>
    </extension>
 
 </plugin>

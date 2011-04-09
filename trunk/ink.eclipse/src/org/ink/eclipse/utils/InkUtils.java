@@ -242,6 +242,22 @@ public class InkUtils {
 		return result;
 	}
 
+	public static List<IClasspathEntry> getJavaLibs(IProject p){
+		List<IClasspathEntry> result = new ArrayList<IClasspathEntry>();
+		try {
+			IJavaProject jProject = JavaCore.create(p);
+			IClasspathEntry[] paths = jProject.getResolvedClasspath(true);
+			for(IClasspathEntry cpe : paths){
+				if(cpe.getEntryKind()==IClasspathEntry.CPE_LIBRARY){
+					result.add(cpe);
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	public static IFolder getJavaOutputFolder(IProject p){
 		try {
 			IJavaProject jProject = JavaCore.create(p);

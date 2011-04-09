@@ -41,7 +41,7 @@ public class BrowseElementAction implements IWorkbenchWindowActionDelegate,
 				+ InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C
 				+ label.substring(0, loc - 1);
 		InkObject o = InkPlugin.getDefault().getInkContext().getFactory().getObject(fullId, false);
-		if(o==null){
+		if(o!=null){
 			EclipseUtils.openEditor(o);
 		}
 	}

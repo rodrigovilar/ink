@@ -83,6 +83,11 @@
             id="ink.eclipse.gotoElement"
             name="Goto Ink Element">
       </command>
+      <command
+            categoryId="ink.eclipse.editor"
+            id="ink.eclipse.gotoJava"
+            name="Goto Java">
+      </command>
    </extension>
    <extension point="org.eclipse.ui.bindings">
       <key commandId="ink.eclipse.browseElement"
@@ -95,11 +100,17 @@
             sequence="F3"
             contextId="ink.eclipse.context.editor">
       </key>
+      <key commandId="ink.eclipse.gotoJava"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F4"
+            contextId="ink.eclipse.context.editor">
+      </key>
    </extension>
    
    <extension
          point="org.eclipse.ui.contexts">
       <context
+      		parentId="org.eclipse.ui.textEditorScope"
             id="ink.eclipse.context.editor"
             name="In Ink Editor">
       </context>

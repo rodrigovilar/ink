@@ -11,7 +11,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.EclipseUtils;
 
 public class BrowseElementAction implements IWorkbenchWindowActionDelegate,
@@ -38,7 +40,10 @@ public class BrowseElementAction implements IWorkbenchWindowActionDelegate,
 		String fullId = label.substring(loc + 2, label.length())
 				+ InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C
 				+ label.substring(0, loc - 1);
-		EclipseUtils.openEditor(fullId);
+		InkObject o = InkPlugin.getDefault().getInkContext().getFactory().getObject(fullId, false);
+		if(o==null){
+			EclipseUtils.openEditor(o);
+		}
 	}
 
 	@Override

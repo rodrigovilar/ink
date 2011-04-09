@@ -25,6 +25,7 @@ public class ObjectDataBlock extends DataBlock {
 
 	public ObjectDataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
 		super(namespace, parent, text, startIndex, endIndex);
+		extractAttributes();
 	}
 
 	public String getAttributeValue(String key){
@@ -52,7 +53,6 @@ public class ObjectDataBlock extends DataBlock {
 	@Override
 	public DataBlock getBlock(int cursorLocation){
 		DataBlock result = null;
-		extractAttributes();
 		StringBuilder currentLine = new StringBuilder(150);
 		int startB=0;
 		int endB = 0;

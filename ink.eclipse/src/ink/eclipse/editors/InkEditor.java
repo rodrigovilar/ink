@@ -2,6 +2,8 @@ package ink.eclipse.editors;
 
 
 import ink.eclipse.editors.document.InkDocumentProvider;
+import ink.eclipse.editors.page.ObjectDataBlock;
+import ink.eclipse.editors.page.PageAnalyzer;
 import ink.eclipse.editors.utils.ColorManager;
 
 import java.util.ResourceBundle;
@@ -22,7 +24,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.TextOperationAction;
+import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.EclipseUtils;
 import org.ink.eclipse.utils.InkUtils;
 
@@ -30,7 +34,7 @@ public class InkEditor extends TextEditor{
 
 	public static final String EDITOR_ID = "ink.eclipse.editors.InkEditor";
 
-	public static final String EDITOR_CONTEXT = EDITOR_ID + ".context";
+/*	public static final String EDITOR_CONTEXT = EDITOR_ID + ".context";
 
 	public static final String RULER_CONTEXT = EDITOR_CONTEXT + ".ruler";
 
@@ -40,14 +44,18 @@ public class InkEditor extends TextEditor{
 		setEditorContextMenuId(EDITOR_CONTEXT);
 		setRulerContextMenuId(RULER_CONTEXT);
 	}
-
+*/
 	private final ColorManager colorManager;
 
 	public InkEditor() {
 		colorManager = new ColorManager();
 		setSourceViewerConfiguration(new InkConfiguration(colorManager));
 		setDocumentProvider(new InkDocumentProvider());
+	}
 
+	@Override
+	protected void initializeKeyBindingScopes() {
+		setKeyBindingScopes(new String[] { "ink.eclipse.context.editor" });  //$NON-NLS-1$
 	}
 
 	/*
@@ -75,7 +83,15 @@ public class InkEditor extends TextEditor{
 		action.setText("Goto Ink Element");
 		action.setToolTipText("Goto Ink Element");
 		action.setActionDefinitionId("ink.eclipse.gotoElement");
+		action.setEnabled(true);
 		setAction("ink.eclipse.gotoElement", action);
+
+		action= new TextOperationAction(ResourceBundle.getBundle(InkMessages.class.getName()),"Goto Java.", this, 200, true);
+		action.setText("Goto Java");
+		action.setToolTipText("Goto Java");
+		action.setActionDefinitionId("ink.eclipse.gotoJava");
+		action.setEnabled(true);
+		setAction("ink.eclipse.gotoJava", action);
 	}
 
 	@Override
@@ -83,6 +99,11 @@ public class InkEditor extends TextEditor{
 		super.editorContextMenuAboutToShow(menu);
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
 		IAction action= getAction("ink.eclipse.gotoElement");
+		action.setEnabled(true);
+		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
+
+		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
+		action= getAction("ink.eclipse.gotoJava");
 		action.setEnabled(true);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 	}
@@ -117,17 +138,34 @@ public class InkEditor extends TextEditor{
 					builder.append(c);
 				}
 				String id = builder.toString();
+				IEditorInput ei = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+				IFile sourceFile = ((FileEditorInput) ei).getFile();
+				String ns = InkUtils.resolveNamespace(sourceFile.getLocation().toFile());
 				if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
-					IEditorInput ei = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
-					IFile sourceFile = ((FileEditorInput) ei).getFile();
-					String ns = InkUtils.resolveNamespace(sourceFile.getLocation().toFile());
 					id = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 				}
-				switch (operation) {
-				case 100:
-					EclipseUtils.openEditor(id);
+				InkObject o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
+				if(o==null){
+					PageAnalyzer pa = new PageAnalyzer(ns, text, offset);
+					ObjectDataBlock element = pa.getCurrentElement();
+					if(element!=null){
+						while(element.getParent()!=null){
+							element = element.getParent();
+						}
+						id = element.getAttributeValue(InkNotations.Path_Syntax.ID_ATTRIBUTE);
+						o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
+					}
 				}
-				return;
+				if(o!=null){
+					switch (operation) {
+					case 100:
+						EclipseUtils.openEditor(o);
+						return;
+					case 200:
+						EclipseUtils.openJava(o);
+						return;
+					}
+				}
 			}
 			super.doOperation(operation);
 		}

@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -15,10 +17,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -29,11 +34,14 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IGotoMarker;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.ink.core.vm.lang.InkObject;
-import org.ink.eclipse.InkPlugin;
+import org.ink.core.vm.mirror.ClassMirror;
+import org.ink.core.vm.mirror.Mirror;
+import org.ink.core.vm.utils.InkNotations;
 
 public class EclipseUtils {
 
@@ -72,9 +80,44 @@ public class EclipseUtils {
 		}
 	}
 
-	public static void openEditor(String fullId){
-		InkObject o = InkPlugin.getDefault().getInkContext().getObject(fullId);
-		if (o != null && !o.reflect().isCoreObject()) {
+	public static void openJava(InkObject o){
+		if (!o.reflect().isCoreObject()) {
+			Mirror m = o.reflect();
+			if(!m.isClass()){
+				m = m.getClassMirror();
+			}
+			ClassMirror cm = (ClassMirror)m;
+			String javaPath = cm.getFullJavaPackage();
+			String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
+			IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			File f = o.reflect().getDescriptor().getResource();
+			IPath location = Path.fromOSString(f.getAbsolutePath());
+			IFile file = workspace.getRoot().getFileForLocation(location);
+			List<IClasspathEntry> paths = InkUtils.getJavaSrcPaths(file.getProject());
+			IFile theFile = null;
+			for(IClasspathEntry cpe : paths){
+				IFolder folder = file.getProject().getFolder(cpe.getPath().removeFirstSegments(1));
+				theFile = folder.getFile(p);
+				if(theFile.exists()){
+					break;
+				}
+			}
+			if(theFile!=null){
+				IEditorInput ei = new FileEditorInput(theFile);
+				try {
+					IJavaElement je = JavaUI.getEditorInputJavaElement(ei);
+					JavaUI.openInEditor(je);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	public static void openEditor(InkObject o){
+		if (!o.reflect().isCoreObject()) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = o.reflect().getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
@@ -82,7 +125,7 @@ public class EclipseUtils {
 			IEditorInput ei = new FileEditorInput(file);
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().openEditor(ei, InkPlugin.EDITOR_ID);
+						.getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
 				revealInEditor(
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 								.getActivePage().getActiveEditor(),

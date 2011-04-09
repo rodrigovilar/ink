@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ink.core.vm.factory.Context;
@@ -73,13 +74,11 @@ public class InkUtils {
 
 	public static Collection<InkObject> getAllClasses(String[] nss){
 		Collection<InkObject> result = new ArrayList<InkObject>();
-		for(String ns : nss){
-			InkObject base = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
-			ModelInfoRepository repo = ModelInfoFactory.getInstance();
-			Collection<InkObject> temp = repo.findReferrers(base, ExtendsRelation.getInstance(), true, nss);
-			if(temp!=null){
-				result.addAll(temp);
-			}
+		InkObject base = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
+		ModelInfoRepository repo = ModelInfoFactory.getInstance();
+		Collection<InkObject> temp = repo.findReferrers(base, ExtendsRelation.getInstance(), true, nss);
+		if(temp!=null){
+			result.addAll(temp);
 		}
 		return result;
 	}
@@ -223,6 +222,22 @@ public class InkUtils {
 			}else{
 				result = props.get(propertyName);
 			}
+		}
+		return result;
+	}
+
+	public static List<IClasspathEntry> getJavaSrcPaths(IProject p){
+		List<IClasspathEntry> result = new ArrayList<IClasspathEntry>();
+		try {
+			IJavaProject jProject = JavaCore.create(p);
+			IClasspathEntry[] paths = jProject.getResolvedClasspath(true);
+			for(IClasspathEntry cpe : paths){
+				if(cpe.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+					result.add(cpe);
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		return result;
 	}

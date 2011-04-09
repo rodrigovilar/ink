@@ -2,6 +2,7 @@ package ink.eclipse.editors;
 
 
 import ink.eclipse.editors.document.InkDocumentProvider;
+import ink.eclipse.editors.page.DataBlock;
 import ink.eclipse.editors.page.ObjectDataBlock;
 import ink.eclipse.editors.page.PageAnalyzer;
 import ink.eclipse.editors.utils.ColorManager;
@@ -84,7 +85,7 @@ public class InkEditor extends TextEditor{
 		action.setToolTipText("Goto Ink Element");
 		action.setActionDefinitionId("ink.eclipse.gotoElement");
 		action.setEnabled(true);
-		setAction("ink.eclipse.gotoElement", action);
+		setAction("in.eclipse.gotoElement", action);
 
 		action= new TextOperationAction(ResourceBundle.getBundle(InkMessages.class.getName()),"Goto Java.", this, 200, true);
 		action.setText("Goto Java");
@@ -147,13 +148,23 @@ public class InkEditor extends TextEditor{
 				InkObject o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
 				if(o==null){
 					PageAnalyzer pa = new PageAnalyzer(ns, text, offset);
-					ObjectDataBlock element = pa.getCurrentElement();
+					DataBlock element = pa.getCurrentElement().getBlock(offset);
 					if(element!=null){
-						while(element.getParent()!=null){
-							element = element.getParent();
+						while(o==null && element!=null){
+							if(element instanceof ObjectDataBlock){
+								id = ((ObjectDataBlock)element).getAttributeValue(InkNotations.Path_Syntax.ID_ATTRIBUTE);
+								if(id==null){
+									id = ((ObjectDataBlock)element).getAttributeValue(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
+								}
+								if(id==null){
+									element = element.getParent();
+								}else{
+									o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
+								}
+							}else{
+								element = element.getParent();
+							}
 						}
-						id = element.getAttributeValue(InkNotations.Path_Syntax.ID_ATTRIBUTE);
-						o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
 					}
 				}
 				if(o!=null){

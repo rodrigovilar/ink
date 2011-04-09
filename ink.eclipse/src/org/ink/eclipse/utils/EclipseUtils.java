@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -81,15 +82,18 @@ public class EclipseUtils {
 	}
 
 	public static void openJava(InkObject o){
+		Mirror m = o.reflect();
+		if(!m.isClass()){
+			m = m.getClassMirror();
+		}
+		ClassMirror cm = (ClassMirror)m;
+		if(!cm.getJavaMapping().hasBeahvior()){
+			cm = cm.getSuper();
+		}
+		String javaPath = cm.getFullJavaPackage();
+		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
+		IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
 		if (!o.reflect().isCoreObject()) {
-			Mirror m = o.reflect();
-			if(!m.isClass()){
-				m = m.getClassMirror();
-			}
-			ClassMirror cm = (ClassMirror)m;
-			String javaPath = cm.getFullJavaPackage();
-			String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
-			IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = o.reflect().getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
@@ -112,6 +116,14 @@ public class EclipseUtils {
 					e.printStackTrace();
 				}
 			}
+		}else{
+			FileEditorInput fei = (FileEditorInput) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+			try{
+				IJavaProject jProject = JavaCore.create(fei.getFile().getProject());
+				IJavaElement je = jProject.findElement(p);
+				JavaUI.openInEditor(je);
+			}catch(Exception e){
+			}
 		}
 	}
 
@@ -133,6 +145,25 @@ public class EclipseUtils {
 						0);
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+		}else{
+			FileEditorInput fei = (FileEditorInput) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+			try{
+				Mirror m = o.reflect();
+				if(!m.isClass()){
+					m = m.getClassMirror();
+				}
+				ClassMirror cm = (ClassMirror)m;
+				if(!cm.getJavaMapping().hasState()){
+					cm = cm.getSuper();
+				}
+				String javaPath = cm.getFullJavaPackage();
+				String javaFileName = cm.getShortId() + InkNotations.Names.STATE_CLASS_EXTENSION + ".java";
+				IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
+				IJavaProject jProject = JavaCore.create(fei.getFile().getProject());
+				IJavaElement je = jProject.findElement(p);
+				JavaUI.openInEditor(je);
+			}catch(Exception e){
 			}
 		}
 

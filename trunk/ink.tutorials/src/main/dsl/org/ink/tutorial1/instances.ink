@@ -16,6 +16,14 @@ Object id="students_50_percent_discount_for_2_years" super="Student_Offers_Templ
  freeIssues 2
 }
 
+Object id="ExampleOffer" class="FixedPercentageDiscountOffer" {
+	percentage 20.0
+	studentOnlyOffer true
+	validUntil 2011/11/01 
+	renewalOnlyOffer false
+	
+}
+
 Object id="students_60_percent_discount_for_3_years" super="Student_Offers_Template_For_2010" class="ink.tutorial1:FixedPercentageDiscountOffer"{
  percentage 60.0
  conditionForPeriodsSigned 3
@@ -29,10 +37,3 @@ Object id="Active_offers" class="ActiveOffers" {
 	}
 }
 
-Object id="ExampleOffer" class="FixedPercentageDiscountOffer" {
-	percentage 20.0
-	renewalOnlyOffer false
-	freeIssues 0
-	validUntil 2011/11/01 
-	studentOnlyOffer true
-}

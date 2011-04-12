@@ -5,44 +5,51 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IGotoMarker;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.DocumentProviderRegistry;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.jobs.ErrorMessageJob;
 
 public class EclipseUtils {
 
@@ -87,80 +94,96 @@ public class EclipseUtils {
 			m = m.getClassMirror();
 		}
 		ClassMirror cm = (ClassMirror)m;
-		if(!cm.getJavaMapping().hasBeahvior()){
+		while(!cm.getJavaMapping().hasBeahvior() && cm.getSuper()!=null){
 			cm = cm.getSuper();
 		}
 		String javaPath = cm.getFullJavaPackage();
 		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
 		IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
-		if (!o.reflect().isCoreObject()) {
+		IProject project = null;
+		if (!cm.reflect().isCoreObject()) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = o.reflect().getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
 			IFile file = workspace.getRoot().getFileForLocation(location);
-			List<IClasspathEntry> paths = InkUtils.getJavaSrcPaths(file.getProject());
-			IFile theFile = null;
-			for(IClasspathEntry cpe : paths){
-				IFolder folder = file.getProject().getFolder(cpe.getPath().removeFirstSegments(1));
-				theFile = folder.getFile(p);
-				if(theFile.exists()){
-					break;
-				}
-			}
-			if(theFile!=null){
-				IEditorInput ei = new FileEditorInput(theFile);
-				try {
-					IJavaElement je = JavaUI.getEditorInputJavaElement(ei);
-					JavaUI.openInEditor(je);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			project = file.getProject();
 		}else{
-			FileEditorInput fei = (FileEditorInput) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
-			try{
-				IJavaProject jProject = JavaCore.create(fei.getFile().getProject());
-				IJavaElement je = jProject.findElement(p);
-				JavaUI.openInEditor(je);
-			}catch(Exception e){
-			}
+			project = InkPlugin.getDefault().getInkProjects().get(0);
 		}
+		try{
+			IJavaProject jProject = JavaCore.create(project);
+			IJavaElement je = jProject.findElement(p);
+			openJavaElement(je);
+		}catch(Exception e){
+		}
+	}
+
+	private static void openJavaElement(IJavaElement je)
+			throws JavaModelException, PartInitException {
+		if(je.exists()){
+			JavaUI.openInEditor(je);
+		}else{
+			Job errorJ = new ErrorMessageJob("Could not find the class '" +je.getElementName() +"'.");
+			errorJ.setPriority(Job.INTERACTIVE);
+			errorJ.schedule();
+		}
+	}
+
+	public static IFile getFile(File f){
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IPath location = Path.fromOSString(f.getAbsolutePath());
+		return workspace.getRoot().getFileForLocation(location);
+	}
+
+	public static int findLineNumber(IFile file, String token){
+		IEditorInput ei = new FileEditorInput(file);
+		try{
+			int offset = findOffset(ei, token);
+			IDocument doc = getDocument(ei);
+			return doc.getLineOfOffset(offset) + 1;
+		}catch(Exception e){
+				e.printStackTrace();
+			}
+
+		return 0;
 	}
 
 
 	public static void openEditor(InkObject o){
 		if (!o.reflect().isCoreObject()) {
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = o.reflect().getDescriptor().getResource();
-			IPath location = Path.fromOSString(f.getAbsolutePath());
-			IFile file = workspace.getRoot().getFileForLocation(location);
+			IFile file = getFile(f);
 			IEditorInput ei = new FileEditorInput(file);
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 						.getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
-				revealInEditor(
-						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				revealInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 								.getActivePage().getActiveEditor(),
-						findOffset(f, "id=\"" + o.reflect().getShortId() + "\""),
+						findOffset(ei, "id=\"" + o.reflect().getShortId() + "\""),
 						0);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}else{
-			FileEditorInput fei = (FileEditorInput) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+			IProject project = InkPlugin.getDefault().getInkProjects().get(0);
 			try{
 				Mirror m = o.reflect();
 				if(!m.isClass()){
 					m = m.getClassMirror();
 				}
 				ClassMirror cm = (ClassMirror)m;
-				if(!cm.getJavaMapping().hasState()){
+				while(!cm.getJavaMapping().hasState() && cm.getSuper()!=null){
 					cm = cm.getSuper();
 				}
 				String javaPath = cm.getFullJavaPackage();
-				String javaFileName = cm.getShortId() + InkNotations.Names.STATE_CLASS_EXTENSION + ".java";
+				String javaFileName;
+				if(cm.isStruct()){
+					javaFileName = cm.getShortId() + ".java";
+				}else{
+					javaFileName = cm.getShortId() + InkNotations.Names.STATE_CLASS_EXTENSION + ".java";
+				}
 				IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
-				IJavaProject jProject = JavaCore.create(fei.getFile().getProject());
+				IJavaProject jProject = JavaCore.create(project);
 				IJavaElement je = jProject.findElement(p);
 				JavaUI.openInEditor(je);
 			}catch(Exception e){
@@ -220,6 +243,23 @@ public class EclipseUtils {
 		}
 	}
 
+	private static IDocument getDocument(IEditorInput ei) throws CoreException{
+		IDocumentProvider dp = DocumentProviderRegistry.getDefault().getDocumentProvider(ei);
+		dp.connect(ei);
+		return dp.getDocument(ei);
+	}
+
+	private static int findOffset(IEditorInput ei, String token) throws Exception {
+		IDocument doc = getDocument(ei);
+
+		FindReplaceDocumentAdapter searcher= new FindReplaceDocumentAdapter(doc);
+		IRegion r = searcher.find(0, token, true, true, false, false);
+		if(r!=null){
+			return r.getOffset();
+		}
+		return 0;
+	}
+
 	private static int findOffset(File f, String token) throws Exception {
 		int offset = 0;
 		boolean found = false;
@@ -232,7 +272,7 @@ public class EclipseUtils {
 					found = true;
 					break;
 				}
-				offset += line.length() + 2;
+				offset += line.length() + 1;
 			}
 		} finally {
 			reader.close();

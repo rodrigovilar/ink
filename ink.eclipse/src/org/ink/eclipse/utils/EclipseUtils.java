@@ -101,7 +101,7 @@ public class EclipseUtils {
 		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
 		IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
 		IProject project = null;
-		if (!cm.reflect().isCoreObject()) {
+		if (!cm.isCoreObject()) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = o.reflect().getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());

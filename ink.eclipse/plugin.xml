@@ -26,6 +26,16 @@
                id="ink.eclipse.addRemoveNatureAction">
          </action>
       </objectContribution>
+      <viewerContribution  id="ink.eclipse.contribution.contribution.popup.java.editor"
+		   targetID="#CompilationUnitEditorContext"> 
+		   <action
+               class="org.ink.eclipse.editors.actions.Java2InkAction"
+               definitionId="ink.eclipse.java2Ink"
+               label="Goto Ink"
+               id="ink.eclipse.java2InkAction"
+               menubarPath="additions"
+               />
+   </viewerContribution>
    </extension>
     <extension id="inkProblem" name="Ink Problem" point="org.eclipse.core.resources.markers">
       	<super type="org.eclipse.core.resources.problemmarker"/>
@@ -35,8 +45,8 @@
    
    <extension point="org.eclipse.ui.editors">
       <editor
-            class="ink.eclipse.editors.InkEditor"
-            contributorClass="ink.eclipse.editors.InkEditorActionContributor"
+            class="org.ink.eclipse.editors.InkEditor"
+            contributorClass="org.ink.eclipse.editors.InkEditorActionContributor"
             extensions="ink"
             icon="icons/sample.gif"
             id="ink.eclipse.editors.InkEditor"
@@ -49,20 +59,17 @@
             id="ink.eclipse.actionSet"
             label="Ink"
             visible="true">
-         <menu
-               id="ink.eclipse.menu"
-               label="Ink">
+         <menu id="ink.eclipse.menu" label="Ink">
          </menu>
          <action
-               class="ink.eclipse.editors.actions.BrowseElementAction"
-               definitionId="ink.eclipse.browseElement"
+               class="org.ink.eclipse.editors.actions.OpenElementAction"
+               definitionId="ink.eclipse.openElement"
                icon="icons/opentype.gif"
-               id="ink.eclipse.browseElementAction"
+               id="ink.eclipse.openElementAction"
                label="Open Ink Element"
                menubarPath="ink.eclipse.menu/Editor"
                style="push"
-               toolbarPath="ink.eclipse.menu">
-         </action>
+               toolbarPath="ink.eclipse.menu"/>
       </actionSet>
    </extension>
    <extension
@@ -75,7 +82,7 @@
       </category>
       <command
             categoryId="ink.eclipse.editor"
-            id="ink.eclipse.browseElement"
+            id="ink.eclipse.openElement"
             name="Open Ink Element">
       </command>
       <command
@@ -85,15 +92,20 @@
       </command>
       <command
             categoryId="ink.eclipse.editor"
+            id="ink.eclipse.java2Ink"
+            name="Goto Ink Element">
+      </command>
+      <command
+            categoryId="ink.eclipse.editor"
             id="ink.eclipse.gotoJava"
             name="Goto Java">
       </command>
    </extension>
    <extension point="org.eclipse.ui.bindings">
-      <key commandId="ink.eclipse.browseElement"
+      <key commandId="ink.eclipse.openElement"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="Ctrl+Shift+Q"
-            contextId="org.eclipse.ui.contexts.dialogAndWindow">
+            sequence="M1+Shift+Q"
+            contextId="org.eclipse.ui.contexts.window">
       </key>
       <key commandId="ink.eclipse.gotoElement"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
@@ -104,6 +116,11 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F4"
             contextId="ink.eclipse.context.editor">
+      </key>
+      <key commandId="ink.eclipse.java2Ink"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+F3"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
       </key>
    </extension>
    

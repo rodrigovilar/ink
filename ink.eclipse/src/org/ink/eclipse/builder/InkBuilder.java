@@ -1,9 +1,6 @@
 package org.ink.eclipse.builder;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +17,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -41,6 +37,7 @@ import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.generators.EnumGenerator;
 import org.ink.eclipse.generators.Generator;
 import org.ink.eclipse.generators.StateClassGenerator;
+import org.ink.eclipse.utils.EclipseUtils;
 import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
@@ -270,7 +267,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		genrateJavaFiles(output);
 	}
 
-	private void setMaxBuildIterations() {
+	/*private void setMaxBuildIterations() {
 		IWorkspaceDescription wsDesc = getProject().getWorkspace().getDescription();
 		if (wsDesc.getMaxBuildIterations() != InkPlugin.getDefault().getMaxBuildIterations()) {
 			wsDesc.setMaxBuildIterations(InkPlugin.getDefault().getMaxBuildIterations());
@@ -279,23 +276,27 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			} catch (CoreException e) {
 			}
 		}
-	}
+	}*/
 
 
-	private void handleBuildFailed() {
+	/*private void handleBuildFailed() {
 		IWorkspaceDescription wsDescription = getProject().getWorkspace().getDescription();
 		wsDescription.setMaxBuildIterations(0);
 		try {
 			getProject().getWorkspace().setDescription(wsDescription);
 		} catch (CoreException e) {
 		}
-	}
+	}*/
 
 	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
 		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
 		for(InkObject o : all){
-			gen.generate(o.reflect());
+			try{
+				gen.generate(o.reflect());
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		gen = new EnumGenerator(output);
 		all = InkUtils.getInstances(this.dsls, CoreNotations.Ids.ENUM_TYPE, true);
@@ -331,7 +332,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					String id = err.getId();
 					id = "id=\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
 					File f = err.getResource();
-					int lineNumber = 0;
+					int lineNumber = EclipseUtils.findLineNumber(EclipseUtils.getFile(f), id);
+					/*int lineNumber = 0;
 					BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
 					try {
 						String line;
@@ -344,7 +346,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					}
 					finally{
 						reader.close();
-					}
+					}*/
 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
 					IPath location= Path.fromOSString(f.getAbsolutePath());
 					IFile file= workspace.getRoot().getFileForLocation(location);

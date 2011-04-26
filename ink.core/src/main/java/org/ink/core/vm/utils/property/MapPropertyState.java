@@ -17,12 +17,12 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirrorState;
 		javaMapping=JavaMapping.State_Behavior,
 		finalValuesLocation={PropertyState.p_type}, finalValues={"ink.core:Map"})
 public interface MapPropertyState extends CollectionPropertyState{
+	@CoreField(defaultValue="item")
+	public static final byte p_item_name = 8;
 	@CoreField(mandatory=true)
-	public static final byte p_map_value = 8;
+	public static final byte p_map_value = 9;
 	@CoreField(mandatory=true)
-	public static final byte p_map_key = 9;
-	@CoreField(defaultValue="false")
-	public static final byte p_is_sorted = 10;
+	public static final byte p_map_key = 10;
 
 	public Property getMapValue();
 	public void setMapValue(PropertyState value);
@@ -30,8 +30,8 @@ public interface MapPropertyState extends CollectionPropertyState{
 	public Property getMapKey();
 	public void setMapKey(PropertyState value);
 
-	public Boolean getIsSorted();
-	public void setIsSorted(Boolean value);
+	public String getItemName();
+	public void setItemName(String value);
 
 	public class Data extends CollectionPropertyState.Data implements MapPropertyState{
 
@@ -56,13 +56,13 @@ public interface MapPropertyState extends CollectionPropertyState{
 		}
 
 		@Override
-		public Boolean getIsSorted() {
-			return (Boolean)getValue(p_is_sorted);
+		public String getItemName() {
+			return (String)getValue(p_item_name);
 		}
 
 		@Override
-		public void setIsSorted(Boolean value) {
-			setValue(p_is_sorted, value);
+		public void setItemName(String value) {
+			setValue(p_item_name, value);
 		}
 	}
 }

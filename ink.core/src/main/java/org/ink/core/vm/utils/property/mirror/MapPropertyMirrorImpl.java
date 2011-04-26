@@ -66,4 +66,10 @@ public class MapPropertyMirrorImpl<S extends MapPropertyMirrorState> extends Col
 	}
 
 
+	@Override
+	public String getItemName() {
+		return ((MapPropertyState)getTargetState()).getItemName();
+	}
+
+
 }

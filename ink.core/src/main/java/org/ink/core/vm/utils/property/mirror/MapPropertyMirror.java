@@ -7,8 +7,9 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
  * @author Lior Schachter
  */
 public interface MapPropertyMirror extends CollectionPropertyMirror{
-	
+
+	public String getItemName();
 	public PropertyMirror getValueMirror();
 	public PropertyMirror getKeyMirror();
-	
+
 }

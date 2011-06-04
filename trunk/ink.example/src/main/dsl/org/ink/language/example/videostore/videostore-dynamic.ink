@@ -1,3 +1,4 @@
+// Dynamically created subclasses of Videotape
 Class id="Terminator" class="Movie" super="Videotape" {
 	java_path ""
 	java_mapping "No_Java"

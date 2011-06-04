@@ -1,3 +1,4 @@
+// Movie meta-class
 Class id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
@@ -14,6 +15,7 @@ Class id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
 	}
 }
 
+// Videotape class
 Class id="Videotape" class="Movie" super="ink.core:InkObject" {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
@@ -33,6 +35,7 @@ Class id="Videotape" class="Movie" super="ink.core:InkObject" {
 	}
 }
 
+// Customer class
 Class id="Customer" class="ink.core:InkClass" super="ink.core:InkObject" {
 	java_path ""
 	java_mapping "Only_State"
@@ -49,8 +52,7 @@ Class id="Customer" class="ink.core:InkClass" super="ink.core:InkObject" {
 	}
 }
 
-// Restricted movies
-
+// Restricted movies - metaclass and class
 Class id="RestrictedMovie" class="ink.core:InkClass" super="Movie" {
 	java_path ""
 	java_mapping "State_Behavior_Interface"

@@ -4,7 +4,8 @@ public class RestrictedVideotapeImpl<S extends RestrictedVideotapeState> extends
 
 	@Override
 	public boolean canRent(CustomerState customer) {
-		int minimumAge = ((RestrictedMovie) getMeta()).getMinimumAge();
+		RestrictedMovie meta = getMeta();
+		int minimumAge = meta.getMinimumAge();
 		int customerAge = customer.getAge();
 		return super.canRent(customer) && customerAge >= minimumAge;
 	}

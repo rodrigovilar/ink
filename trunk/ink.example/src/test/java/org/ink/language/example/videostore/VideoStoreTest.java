@@ -38,16 +38,13 @@ public class VideoStoreTest {
 		CustomerState customer1 = context.getState("example.videostore:Customer1");
 		InkObjectState videotape = context.getState("example.videostore:Videotape");
 
-		InkObjectState dynamicVideotape = videotape.cloneState();
-		ObjectEditor dynamicVideotapeEditor = dynamicVideotape.reflect().edit();
-		dynamicVideotapeEditor.setSuper(videotape);
-		dynamicVideotapeEditor.setId("example.videostore:Shrek");
+		ObjectEditor dynamicVideotapeEditor = createDescendent(videotape, "example.videostore:Shrek");
 		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
 		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_title, "Shrek (2001)");
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_rating, "PG");
 		dynamicVideotapeEditor.save();
-		context.register(dynamicVideotape);
+		context.register(dynamicVideotapeEditor.getEditedState());
 
 		Movie shrek = context.getState("example.videostore:Shrek").getBehavior();
 
@@ -58,16 +55,13 @@ public class VideoStoreTest {
 		assertTrue(shrekTape1.canRent(customer1));
 
 		InkObjectState restrictedVideotape = context.getState("example.videostore:RestrictedVideotape");
-		InkObjectState dynamicRestrictedVideotape = restrictedVideotape.cloneState();
-		ObjectEditor dynamicRestrictedVideotapeEditor = dynamicRestrictedVideotape.reflect().edit();
-		dynamicRestrictedVideotapeEditor.setSuper(restrictedVideotape);
-		dynamicRestrictedVideotapeEditor.setId("example.videostore:FightClub");
+		ObjectEditor dynamicRestrictedVideotapeEditor = createDescendent(restrictedVideotape, "example.videostore:FightClub");
 		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
 		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(MovieState.p_title, "Fight Club (1999)");
 		dynamicRestrictedVideotapeEditor.setPropertyValue(RestrictedMovieState.p_minimumage, 21);
 		dynamicRestrictedVideotapeEditor.save();
-		context.register(dynamicRestrictedVideotape);
+		context.register(dynamicRestrictedVideotapeEditor.getEditedState());
 
 		Movie fightClub = context.getState("example.videostore:FightClub").getBehavior();
 
@@ -76,5 +70,13 @@ public class VideoStoreTest {
 		fightClubTape1State.setRenter(null);
 		Videotape fightClubTape1 = fightClubTape1State.getBehavior();
 		assertTrue(!fightClubTape1.canRent(customer1));
+	}
+
+	private ObjectEditor createDescendent(InkObjectState superState, String descendentId) {
+		InkObjectState descendentState = superState.cloneState();
+		ObjectEditor descendentEditor = descendentState.reflect().edit();
+		descendentEditor.setSuper(superState);
+		descendentEditor.setId(descendentId);
+		return descendentEditor;
 	}
 }

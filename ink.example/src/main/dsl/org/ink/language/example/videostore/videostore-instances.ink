@@ -14,7 +14,7 @@ Object id="TerminatorTape1" class="Terminator" {
 
 Object id="TerminatorTape2" class="Terminator" {
 	isRented true
-	renter ref="Customer1"
+	renter ref="Customer2"
 }
 
 Object id="SpidermanTape1" class="Spiderman" {

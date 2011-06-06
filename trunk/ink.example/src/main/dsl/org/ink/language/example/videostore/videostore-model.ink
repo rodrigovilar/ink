@@ -1,5 +1,5 @@
 // Movie meta-class
-Class id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
+Metaclass id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
 	component_type "Root"
@@ -53,7 +53,7 @@ Class id="Customer" class="ink.core:InkClass" super="ink.core:InkObject" {
 }
 
 // Restricted movies - metaclass and class
-Class id="RestrictedMovie" class="ink.core:InkClass" super="Movie" {
+Metaclass id="RestrictedMovie" class="ink.core:InkClass" super="Movie" {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
 	component_type "Root"

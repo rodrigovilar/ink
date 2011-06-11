@@ -34,22 +34,22 @@ public class VideoStoreTest {
 
 	@Test
 	public void testMOP() {
-		Context context = InkVM.instance().getContext();
-		CustomerState customer1 = context.getState("example.videostore:Customer1");
+		CustomerState customer1 = InkVM.instance().getContext().getState("example.videostore:Customer1");
 
 		createMovie("example.videostore:Shrek", "Shrek (2001)", "PG");
-		VideotapeState shrekTape1State = context.newInstance("example.videostore:Shrek");
-		shrekTape1State.setIsRented(false);
-		shrekTape1State.setRenter(null);
-		Videotape shrekTape1 = shrekTape1State.getBehavior();
+		Videotape shrekTape1 = createTape("example.videostore:Shrek");
 		assertTrue(shrekTape1.canRent(customer1));
 
 		createRestrictedMovie("example.videostore:FightClub", "Fight Club (1999)", 21);
-		VideotapeState fightClubTape1State = context.newInstance("example.videostore:FightClub");
-		fightClubTape1State.setIsRented(false);
-		fightClubTape1State.setRenter(null);
-		Videotape fightClubTape1 = fightClubTape1State.getBehavior();
+		Videotape fightClubTape1 = createTape("example.videostore:FightClub");
 		assertTrue(!fightClubTape1.canRent(customer1));
+	}
+
+	private Videotape createTape(String videotapeId) {
+		VideotapeState newTapeState = InkVM.instance().getContext().newInstance(videotapeId);
+		newTapeState.setIsRented(false);
+		newTapeState.setRenter(null);
+		return newTapeState.getBehavior();
 	}
 
 	public void createRestrictedMovie(String id, String title, int minimumAge) {

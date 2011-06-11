@@ -26,7 +26,7 @@ Class id="BaseOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstra
 	}
 }
 
-Class id="FixedPercentageDiscountOffer" class="ink.core:InkClass" super="BaseOffer" abstract=false{
+Class id="PercentageDiscountOffer" class="ink.core:InkClass" super="BaseOffer" abstract=false{
 	java_path ""
 	java_mapping "State_Behavior"
 	properties{
@@ -57,7 +57,6 @@ Class id="ActiveOffers" class="ink.core:InkClass" super="ink.core:InkObject" {
 			type ref="ink.core:List"
 			name "offers"
 			mandatory true
-			inheritance_constraints "Instance_Can_Refine_Inherited_Value"
 			list_item class="ink.core:Reference"{
 				type ref="ink.tutorial1:BaseOffer"
 				name "offer"

@@ -22,7 +22,7 @@ public class Subscription implements A_Subscription {
 	}
 	
 	@Override
-	public double getPrice() {
+	public double getSubscriptionTotalPrice() {
 		return theMagazine.getPrice() * getPeriods();
 	}
 
@@ -71,22 +71,12 @@ public class Subscription implements A_Subscription {
 		return theCustomer;
 	}
 	
-	@Override
-	public double getPromotionalPrice() {
+	
+	public A_SpecialOffer getBestOffer() {
+		A_SpecialOffer bestOffer;
 		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
-		return offers.getPromotionalPrice(this);
-	}
-
-	@Override
-	public int getFreeIssues() {
-		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
-		return offers.getFreeIssues(this);
-	}
-
-	@Override
-	public String getPromotionalMessage() {
-		ActiveOffers offers = InkVM.instance().getContext().getState("ink.tutorial1:Active_offers").getBehavior();
-		return offers.getPromotionalMessage(this);
+		bestOffer = offers.getBestOffer(this);
+		return bestOffer;
 	}
 
 }

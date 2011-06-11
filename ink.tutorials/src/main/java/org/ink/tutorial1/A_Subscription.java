@@ -5,11 +5,14 @@ import java.util.List;
 
 public interface A_Subscription {
 
-	// List price
-	double getPrice();
+	// The customer
+	A_Customer getCustomer();
 
 	// Subscription is to this magazine
 	A_Product getMagazine();
+
+	// List price
+	double getSubscriptionTotalPrice();
 
 	// 1 year, 2 years, etc.
 	int getPeriods();
@@ -17,17 +20,14 @@ public interface A_Subscription {
 	// Start period of the subscription
 	Date getPeriodStart();
 
-	// Indicates if this subscription is in effect or just draft
-	boolean isCommitted();
-
 	// When the customer commits to the subscription, call commit()
 	boolean commit();
 
-	// The customer
-	A_Customer getCustomer();
+	// Indicates if this subscription is in effect or just draft
+	boolean isCommitted();
 
-	double getPromotionalPrice();
-	int getFreeIssues();
-	String getPromotionalMessage();
+
+	// Find the best promotional offer
+	A_SpecialOffer getBestOffer();
 
 }

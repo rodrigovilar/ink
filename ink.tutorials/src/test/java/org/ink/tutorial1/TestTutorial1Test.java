@@ -30,21 +30,21 @@ public class TestTutorial1Test {
 		Date startDate = new Date(2012,1,1);
 		
 		Subscription subscription = new Subscription(magazine1, customer1, 5, startDate);
-		Assert.assertEquals(98.0*5, subscription.getPrice());
+		Assert.assertEquals(98.0*5, subscription.getSubscriptionTotalPrice());
 		
 	}
 	
 	@Test
-	public void testFixedPercentageOffers() {
+	public void testPercentageOffers() {
 		Magazine magazine1 = new Magazine("1", "IEEE Software", 98.0);
 		Customer customer1 = new Customer("Atzmon Hen-tov", "atzmon.hentov@gmail.com", "***********6238", true);
 		Date startDate = new Date(2012,1,1);
 		
 		Subscription subscription = new Subscription(magazine1, customer1, 5, startDate);
 		
-		double price = subscription.getPrice();
-		double promotionalPrice = subscription.getPromotionalPrice();
-		String promotionalMessage = subscription.getPromotionalMessage();
+		double price = subscription.getSubscriptionTotalPrice();
+		double promotionalPrice = subscription.getBestOffer().getPromotionalPrice();
+		String promotionalMessage = subscription.getBestOffer().getPromotionalMessage();
 		Assert.assertEquals(98.0*5, price);
 		Assert.assertEquals(98.0*5*0.4, promotionalPrice);
 		Assert.assertEquals("Save $294.0 and get 3 issues for free.", promotionalMessage);

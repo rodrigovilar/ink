@@ -9,7 +9,6 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 
 	// Common base offer.
 
-	@Override
 	public boolean isEligible(A_Subscription subscription) {
 		boolean result = false;
 		if (
@@ -22,7 +21,6 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 		return result;
 	}
 	
-	@Override
 	public int getFreeIssues(A_Subscription subscription) {
 		int result = 0;
 		

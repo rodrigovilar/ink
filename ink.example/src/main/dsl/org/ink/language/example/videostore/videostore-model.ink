@@ -16,12 +16,10 @@ Metaclass id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
 }
 
 // Videotape class
-Class id="Videotape" class="Movie" super="ink.core:InkObject" {
+Class id="Videotape" class="Movie" super="ink.core:InkObject" abstract=true {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
 	component_type "Root"
-	title ""
-	rating ""
 	properties {
 		property class="ink.core:BooleanAttribute" {
 			name "isRented"
@@ -61,6 +59,8 @@ Metaclass id="RestrictedMovie" class="ink.core:InkClass" super="Movie" {
 		property class="ink.core:IntegerAttribute" {
 			name "minimumAge"
 			mandatory true
+			min_value 10
+			max_value 100
 		}
 		property class="ink.core:StringAttribute" {
 			name "rating"
@@ -69,15 +69,8 @@ Metaclass id="RestrictedMovie" class="ink.core:InkClass" super="Movie" {
 	}
 }
 
-Class id="RestrictedVideotape" class="RestrictedMovie" super="Videotape" {
+Class id="RestrictedVideotape" class="RestrictedMovie" super="Videotape" abstract=true {
 	java_path ""
-	java_mapping "State_Behavior_Interface"
+	java_mapping "State_Behavior"
 	component_type "Root"
-	minimumAge 21
-	properties {
-		property class="ink.core:StringAttribute" {
-			name "ageVerification"
-			mandatory false
-		}
-	}
 }

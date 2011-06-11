@@ -2,5 +2,5 @@ package org.ink.language.example.videostore;
 
 public interface RestrictedMovie extends Movie {
 
-	public int getMinimumAge();
+	public boolean canRent(CustomerState customer);
 }

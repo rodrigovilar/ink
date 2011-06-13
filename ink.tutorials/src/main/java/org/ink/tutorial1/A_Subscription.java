@@ -12,7 +12,7 @@ public interface A_Subscription {
 	A_Product getMagazine();
 
 	// List price
-	double getSubscriptionTotalPrice();
+	double getPriceForSubscriptionPeriod();
 
 	// 1 year, 2 years, etc.
 	int getPeriods();

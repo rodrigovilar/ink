@@ -30,7 +30,7 @@ public class TestTutorial1Test {
 		Date startDate = new Date(2012,1,1);
 		
 		Subscription subscription = new Subscription(magazine1, customer1, 5, startDate);
-		Assert.assertEquals(98.0*5, subscription.getSubscriptionTotalPrice());
+		Assert.assertEquals(98.0*5, subscription.getPriceForSubscriptionPeriod());
 		
 	}
 	
@@ -42,7 +42,7 @@ public class TestTutorial1Test {
 		
 		Subscription subscription = new Subscription(magazine1, customer1, 5, startDate);
 		
-		double price = subscription.getSubscriptionTotalPrice();
+		double price = subscription.getPriceForSubscriptionPeriod();
 		double promotionalPrice = subscription.getBestOffer().getPromotionalPrice();
 		String promotionalMessage = subscription.getBestOffer().getPromotionalMessage();
 		Assert.assertEquals(98.0*5, price);

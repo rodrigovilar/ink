@@ -22,7 +22,7 @@ public class Subscription implements A_Subscription {
 	}
 	
 	@Override
-	public double getSubscriptionTotalPrice() {
+	public double getPriceForSubscriptionPeriod() {
 		return theMagazine.getPrice() * getPeriods();
 	}
 

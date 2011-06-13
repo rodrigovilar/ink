@@ -9,11 +9,11 @@ public class PercentageDiscountOfferImpl<S extends PercentageDiscountOfferState>
 
 		if (isEligible(subscription)) {
 
-			result = subscription.getSubscriptionTotalPrice()
+			result = subscription.getPriceForSubscriptionPeriod()
 					* (100.0 - getState().getPercentage()) / 100.0;
 
 		} else {
-			result = subscription.getSubscriptionTotalPrice();
+			result = subscription.getPriceForSubscriptionPeriod();
 		}
 
 		return result;
@@ -24,7 +24,7 @@ public class PercentageDiscountOfferImpl<S extends PercentageDiscountOfferState>
 		String result = null;
 
 		if (isEligible(subscription)) {
-			result = "Save $" + subscription.getSubscriptionTotalPrice()
+			result = "Save $" + subscription.getPriceForSubscriptionPeriod()
 					* (getState().getPercentage() / 100.0);
 			if (getFreeIssues(subscription) > 0) {
 				result = result + " and get " + getFreeIssues(subscription)

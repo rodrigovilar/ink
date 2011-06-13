@@ -22,7 +22,7 @@ InkObjectImpl<S> implements ActiveOffers {
 			result = new SpecialOffer(bestOffer.getPromotionalPrice(subscription), bestOffer.getFreeIssues(subscription), bestOffer.getPromotionalMessage(subscription));
 		}
 		else {
-			result = new SpecialOffer(subscription.getSubscriptionTotalPrice(), 0, "Sorry, No special offer for you.");
+			result = new SpecialOffer(subscription.getPriceForSubscriptionPeriod(), 0, "Sorry, No special offer for you.");
 		}
 		
 		return result;

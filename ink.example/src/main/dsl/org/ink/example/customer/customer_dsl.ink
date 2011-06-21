@@ -120,6 +120,32 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 				type ref="Customer"
 			}
 		}
+		property class="ink.core:MapProperty"{
+			name "keyValueMap"
+			mandatory false
+			specifications class="ink.core:KeyValueDictionary"{
+				entry_name "item"
+				key class="ink.core:StringAttribute"{
+					name "key"
+				}
+				value class="ink.core:IntegerAttribute"{
+					name "value"
+				}
+			}
+		}	
+		property class="ink.core:MapProperty"{
+			name "elementsMap"
+			mandatory false
+			specifications class="ink.core:ElementsDictionary"{
+				key_property "first_name"
+				item class="ink.core:Reference"{
+					name "item"
+					type ref="Customer"
+				}
+			}
+		}
+			
+
 	}
 	personality class="example.customer:CustomerPersonality"{
 		fan class="example.customer:SportFan"{
@@ -149,6 +175,19 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 		street "Bar Kokva"
 		number 10
 	}
+	elementsMap{
+		item ref="TheSecondCustomer"
+	}
+	keyValueMap{
+		item{
+			key "one"
+			value 1
+		}
+		item{
+			key "two"
+			value 2
+		}
+	}
 }
 
 Object id="TheSecondCustomer" class="example.customer:Customer"{
@@ -168,5 +207,6 @@ Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example
 	stam.shmupu "kuku2"
 	friends{
 		friend ref="TheFirstCustomer"
+		friend ref="TheSecondCustomer"
 	}	
 }

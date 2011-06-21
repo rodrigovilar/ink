@@ -210,8 +210,8 @@ public class InkUtils {
 						result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
 								((MapPropertyMirror)temp).getKeyMirror():null;
 								if(result==null){
-									result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
-											((MapPropertyMirror)temp).getKeyMirror():null;
+									result = ((MapPropertyMirror)temp).getValueMirror().getName().equals(propertyName)?
+											((MapPropertyMirror)temp).getValueMirror():null;
 
 								}
 								break;

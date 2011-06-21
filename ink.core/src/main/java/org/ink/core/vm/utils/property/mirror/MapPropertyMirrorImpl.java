@@ -1,11 +1,14 @@
 package org.ink.core.vm.utils.property.mirror;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.ink.core.vm.lang.DataTypeMarker;
-import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirrorImpl;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.types.CollectionTypeMarker;
+import org.ink.core.vm.utils.property.Dictionary;
 import org.ink.core.vm.utils.property.MapPropertyState;
 
 
@@ -21,54 +24,69 @@ public class MapPropertyMirrorImpl<S extends MapPropertyMirrorState> extends Col
 			DataTypeMarker typeMarker, boolean hasStaticValue,
 			boolean isComputed, CollectionTypeMarker collectionMarker, PropertyMirror valueMirror, PropertyMirror keyMirror) {
 		super.boot(index, name, typeClass, typeMarker, hasStaticValue, isComputed, collectionMarker);
+		if(valueMirror==null || keyMirror==null){
+			System.out.println("");
+		}
 		this.valueMirror = valueMirror;
 		this.keyMirror = keyMirror;
 	}
 
 
-	@Override
-	public void afterTargetSet() {
-		super.afterTargetSet();
-		Property desc = ((MapPropertyState)getTargetState()).getMapValue();
-		if(desc!=null){
-			valueMirror = (PropertyMirror)desc.reflect();
-		}
-		desc = ((MapPropertyState)getTargetState()).getMapKey();
-		if(desc!=null){
-			keyMirror = (PropertyMirror)desc.reflect();
+
+	public void init() {
+		Dictionary dic = ((MapPropertyState)getTargetState()).getSpecifications();
+		if(dic!=null){
+			keyMirror = dic.getKeyMirror();
+			valueMirror = dic.getValueMirror();
 		}
 	}
 
 	@Override
 	public void bind(ClassMirror holdingClass, byte index) {
 		super.bind(holdingClass, index);
-		if(valueMirror!=null){
+		if(getValueMirror()!=null){
 			valueMirror.bind(getDefiningClass(), getIndex());
 		}
-		if(keyMirror!=null){
+		if(getKeyMirror()!=null){
 			keyMirror.bind(getDefiningClass(), getIndex());
 		}
 	}
 
 	@Override
 	public PropertyMirror getKeyMirror() {
+		if(keyMirror==null){
+			init();
+		}
 		return keyMirror;
 	}
 
 	@Override
 	public PropertyMirror getValueMirror() {
+		if(valueMirror==null){
+			init();
+		}
 		return valueMirror;
 	}
 
 	@Override
 	public boolean isValueContainsInkObject() {
-		return valueMirror.isValueContainsInkObject() || keyMirror.isValueContainsInkObject();
+		return getValueMirror().isValueContainsInkObject() || keyMirror.isValueContainsInkObject();
 	}
 
 
 	@Override
-	public String getItemName() {
-		return ((MapPropertyState)getTargetState()).getItemName();
+	public Map<?, ?> getNewInstance() {
+		Dictionary dic = ((MapPropertyState)getTargetState()).getSpecifications();
+		if(dic!=null){
+			return dic.getNewInstance();
+		}
+		return new HashMap<Object, Object>();
+	}
+
+
+	@Override
+	public Dictionary getSpecifictation() {
+		return ((MapPropertyState)getTargetState()).getSpecifications();
 	}
 
 

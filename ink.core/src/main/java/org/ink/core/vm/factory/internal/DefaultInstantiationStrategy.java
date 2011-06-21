@@ -14,7 +14,7 @@ import org.ink.core.vm.utils.InkNotations;
 /**
  * @author Lior Schachter
  */
-public class FullInstantiationStrategy implements InstantiationStrategy {
+public class DefaultInstantiationStrategy implements InstantiationStrategy {
 
 
 	@Override

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -49,6 +51,7 @@ import org.ink.core.vm.utils.property.StringAttributeState;
 /**
  * @author Lior Schachter
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CoreBasicTests extends TestCase{
 
 	private final Context context = InkVM.instance().getContext();
@@ -99,15 +102,15 @@ public class CoreBasicTests extends TestCase{
 		ClassMirror mirror = stringAttClass.reflect();
 		assertTrue(mirror==((InkObject)mirror.getPropertyValue(InkClassState.p_personality)).reflect().getOwner());
 		assertTrue(InkClassState.p_personality==((InkObject)mirror.getPropertyValue(InkClassState.p_personality)).reflect().getDefiningPropertyIndex());
-		List<Property> properties = (List<Property>)mirror.getPropertyValue(InkClassState.p_properties);
+		Map<String, Property> properties = (Map<String, Property>)mirror.getPropertyValue(InkClassState.p_properties);
 		assertNotNull(properties);
 		assertFalse(properties.isEmpty());
-		for(Property prop : properties){
+		for(Property prop : properties.values()){
 			assertTrue(mirror==prop.reflect().getOwner());
 			assertTrue(InkClassState.p_properties==prop.reflect().getDefiningPropertyIndex());
 		}
 		//test MirrorProxy
-		Property prop = properties.get(0);
+		Property prop = properties.values().iterator().next();
 		InkObject type = prop.getType();
 		assertTrue(type.reflect().getOwner().getOwner()==mirror);
 		assertTrue(type.reflect().getDefiningPropertyIndex()==PropertyState.p_type);
@@ -184,12 +187,12 @@ public class CoreBasicTests extends TestCase{
 		((ClassMirrorAPI)subClass).afterPropertiesSet();
 		//assemble properties
 		StringAttributeState stringState2 = stringState.cloneState();
-		List props = new ArrayList();
-		List<? extends Property> existingProperties =  subClass.getProperties();
-		for(Property prop : existingProperties){
-			props.add(prop.cloneState());
+		Map props = new HashMap();
+		Map<String, ? extends Property> existingProperties =  subClass.getProperties();
+		for(Property prop : existingProperties.values()){
+			props.put(prop.getName(), prop.cloneState());
 		}
-		props.add(stringState2);
+		props.put(stringState2.getName(), stringState2);
 		subClass.setProperties(props);
 		((ClassMirrorAPI)subClass).afterPropertiesSet();
 		//weave
@@ -211,7 +214,7 @@ public class CoreBasicTests extends TestCase{
 
 
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void testDetachableTraitWeave() throws WeaveException{
 		InkClass tClass = context.getObject(CoreNotations.Ids.PRIMITIVE_ATTRIBUTE_MIRROR);
 		TraitClassState newTrait = tClass.cloneState();
@@ -314,8 +317,8 @@ public class CoreBasicTests extends TestCase{
 		stringState.setMinLength(5);
 		stringState.setMaxLength(10);
 		stringState.setRegExp(".*");
-		List<PropertyState> props = new ArrayList<PropertyState>();
-		props.add(stringState);
+		Map props = new HashMap();
+		props.put(stringState.getName(), stringState);
 		newLoaderClass.setJavaMapping(JavaMapping.No_Java);
 		newLoaderClass.setProperties(props);
 		cEditor.save();

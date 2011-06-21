@@ -1,5 +1,7 @@
 package org.ink.core.vm.lang;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,7 @@ import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 import org.ink.core.vm.lang.internal.annotations.CoreField;
 import org.ink.core.vm.lang.internal.annotations.CoreListField;
+import org.ink.core.vm.lang.internal.annotations.CoreMapField;
 import org.ink.core.vm.lang.operation.Operation;
 import org.ink.core.vm.lang.operation.OperationState;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
@@ -43,7 +46,7 @@ public interface InkClassState extends InkTypeState{
 	public static final byte p_can_cache_behavior_instance = 3;
 	@CoreField(defaultValue="Root_or_Pure_Component")
 	public static final byte p_component_type = 4;
-	@CoreListField(itemName="property")
+	@CoreMapField(keyName="name", valueName="property", kind=org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.elements, ordered=true)
 	public static final byte p_properties = 5;
 	@CoreListField(itemName="operation")
 	public static final byte p_operations = 6;
@@ -55,8 +58,8 @@ public interface InkClassState extends InkTypeState{
 	public JavaMapping getJavaMapping();
 	public void setJavaMapping(JavaMapping value);
 
-	public List<? extends Property> getProperties();
-	public void setProperties(List<? extends PropertyState> value);
+	public Map<String, ? extends Property> getProperties();
+	public void setProperties(Map<String, ? extends PropertyState> value);
 
 	public List<? extends Operation> getOperations();
 	public void setOperations(List<? extends OperationState> value);
@@ -151,8 +154,8 @@ public interface InkClassState extends InkTypeState{
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public List<? extends Property> getProperties() {
-			return (List<? extends Property>) getValue(p_properties);
+		public Map<String, ? extends Property> getProperties() {
+			return (Map<String, ? extends Property>) getValue(p_properties);
 		}
 
 		@Override
@@ -166,7 +169,7 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public void setProperties(List<? extends PropertyState> value) {
+		public void setProperties(Map<String, ? extends PropertyState> value) {
 			setValue(p_properties, value);
 		}
 
@@ -209,7 +212,7 @@ public interface InkClassState extends InkTypeState{
 		public void applyProperties(List<Property> properties){
 			//TODO - add basic validation (properties contains getProperties)
 			if(properties!=null){
-				List<? extends Property> originalProperties = getProperties();
+				Collection<? extends Property> originalProperties = getProperties().values();
 				classRealPropertiesIndex = new byte[originalProperties.size()];
 				classPropertiesIndexes = new HashMap<String, Byte>(properties.size());
 				classPropsMirrors = new PropertyMirror[properties.size()];
@@ -217,12 +220,14 @@ public interface InkClassState extends InkTypeState{
 				byte counter=0;
 				for(byte i=0;i<properties.size();i++){
 					prop = properties.get(i);
-					for(byte k=counter;k<originalProperties.size();k++){
-						if(originalProperties.get(k).getName().equals(prop.getName())){
+					byte k = counter;
+					for(Property p : originalProperties){
+						if(p.getName().equals(prop.getName())){
 							classRealPropertiesIndex[counter]=i;
 							counter++;
 							break;
 						}
+						k++;
 					}
 					classPropsMirrors[i] = prop.reflect();
 					//currently can't add detachable traits to core elements need to find a way to allow this
@@ -246,7 +251,7 @@ public interface InkClassState extends InkTypeState{
 		@Override
 		public void afterPropertiesSet(){
 			super.afterPropertiesSet();
-			applyProperties((List<Property>) getProperties());
+			applyProperties( new ArrayList<Property>(getProperties().values()));
 			behaviorClass = resolveBehaviorClass();
 			interfaceClass = resolveInterfaceClass();
 			behaviorProxyInterfaces = CoreUtils.getBehaviorProxyInterfaces(behaviorClass);

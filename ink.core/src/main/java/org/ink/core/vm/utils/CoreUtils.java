@@ -1,8 +1,8 @@
 package org.ink.core.vm.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +25,8 @@ import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.proxy.Proxiable.Kind;
 import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.types.PrimitiveTypeMarker;
+import org.ink.core.vm.utils.property.Dictionary;
+import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
@@ -84,59 +86,38 @@ public class CoreUtils {
 			case List:
 				builder.append(prop.getDisplayName()).append("{");
 				PropertyMirror itemMirror = ((ListPropertyMirror)definingProperty).getItemMirror();
-				boolean isClass = itemMirror.getTypeMarker()==DataTypeMarker.Class;
-				if(!((List<?>)value).isEmpty() && isClass){
-					builder.append(StringUtils.LINE_SEPARATOR);
-				}
-				StringBuilder listBuilder = null;
-				if(isClass){
-					listBuilder = new StringBuilder(1000);
-				}else{
-					listBuilder = builder;
-				}
-				List<?> l = (List<?>)value;
-				Object o;
-				for(int i=0;i<l.size();i++){
-					o = l.get(i);
-					toString(itemMirror, definingPropertyIndex, listBuilder, o, true);
-					if(isClass){
-						listBuilder.append(StringUtils.LINE_SEPARATOR);
-					}
-				}
-				if(listBuilder.length()>0 && isClass){
-					builder.append(CoreUtils.TAB);
-					char c;
-					for(int i=0;i<listBuilder.length();i++){
-						c = listBuilder.charAt(i);
-						builder.append(c);
-						if(c=='\n' && i<listBuilder.length()-1){
-							builder.append(CoreUtils.TAB);
-						}
-					}
-				}
+				serializeCollection(definingPropertyIndex, builder, (Collection<?>)value,
+						itemMirror);
 				builder.append("}").append(StringUtils.LINE_SEPARATOR);
 				break;
 			case Map:
 				builder.append(prop.getDisplayName()).append("{");
-				Map<?,?> mapValue = (Map<?, ?>)value;
+				Dictionary dic = ((MapPropertyMirror)definingProperty).getSpecifictation();
 				PropertyMirror keyMirror = ((MapPropertyMirror)definingProperty).getKeyMirror();
 				PropertyMirror valueMirror = ((MapPropertyMirror)definingProperty).getValueMirror();
-				if(!mapValue.isEmpty()){
-					builder.append(StringUtils.LINE_SEPARATOR);
-				}
-				Iterator<?> iter = mapValue.entrySet().iterator();
-				Map.Entry<?, ?> en;
-				while(iter.hasNext()){
-					en = (Entry<?, ?>) iter.next();
-					builder.append(CoreUtils.TAB).append("item{");
-					builder.append(StringUtils.LINE_SEPARATOR);
-					builder.append(CoreUtils.TAB).append("     ");
-					toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true);
-					builder.append(CoreUtils.TAB).append("     ");//.append(valueMirror.getName()).append("=");
-					toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true);
-					builder.append(StringUtils.LINE_SEPARATOR);
-					builder.append(CoreUtils.TAB).append("}");
-					builder.append(StringUtils.LINE_SEPARATOR);
+				Map<?,?> mapValue = (Map<?, ?>)value;
+				if(dic instanceof ElementsDictionary){
+					serializeCollection(definingPropertyIndex, builder, mapValue.values(),
+							valueMirror);
+				}else{
+
+					if(!mapValue.isEmpty()){
+						builder.append(StringUtils.LINE_SEPARATOR);
+					}
+					Iterator<?> iter = mapValue.entrySet().iterator();
+					Map.Entry<?, ?> en;
+					while(iter.hasNext()){
+						en = (Entry<?, ?>) iter.next();
+						builder.append(CoreUtils.TAB).append("item{");
+						builder.append(StringUtils.LINE_SEPARATOR);
+						builder.append(CoreUtils.TAB).append("     ");
+						toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true);
+						builder.append(CoreUtils.TAB).append("     ");//.append(valueMirror.getName()).append("=");
+						toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true);
+						builder.append(StringUtils.LINE_SEPARATOR);
+						builder.append(CoreUtils.TAB).append("}");
+						builder.append(StringUtils.LINE_SEPARATOR);
+					}
 				}
 				builder.append("}").append(StringUtils.LINE_SEPARATOR);
 				break;
@@ -180,6 +161,38 @@ public class CoreUtils {
 				builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
 			}
 			break;
+		}
+	}
+
+	private static void serializeCollection(byte definingPropertyIndex,
+			StringBuilder builder, Collection<?> value, PropertyMirror itemMirror) {
+		boolean isClass = itemMirror.getTypeMarker()==DataTypeMarker.Class;
+		if(!value.isEmpty() && isClass){
+			builder.append(StringUtils.LINE_SEPARATOR);
+		}
+		StringBuilder listBuilder = null;
+		if(isClass){
+			listBuilder = new StringBuilder(1000);
+		}else{
+			listBuilder = builder;
+		}
+		Collection<?> col = value;
+		for(Object o : col){
+			toString(itemMirror, definingPropertyIndex, listBuilder, o, true);
+			if(isClass){
+				listBuilder.append(StringUtils.LINE_SEPARATOR);
+			}
+		}
+		if(listBuilder.length()>0 && isClass){
+			builder.append(CoreUtils.TAB);
+			char c;
+			for(int i=0;i<listBuilder.length();i++){
+				c = listBuilder.charAt(i);
+				builder.append(c);
+				if(c=='\n' && i<listBuilder.length()-1){
+					builder.append(CoreUtils.TAB);
+				}
+			}
 		}
 	}
 
@@ -235,7 +248,7 @@ public class CoreUtils {
 				break;
 			case Map:
 				Map<?, ?> map = (Map) value;
-				result = new HashMap(map.size());
+				result = ((MapPropertyMirror)mirror).getNewInstance();
 				PropertyMirror innerKeyType = ((MapPropertyMirror) mirror).getKeyMirror();
 				innerType = ((MapPropertyMirror) mirror).getValueMirror();
 				for (Map.Entry<?,?> en : map.entrySet()) {

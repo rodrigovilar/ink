@@ -16,9 +16,9 @@ import org.ink.core.vm.types.CollectionType;
 public interface CollectionPropertyState extends PropertyState{
 
 	@CoreField(mandatory=false)
-	public static final byte p_lower_bound = 6;
+	public static final byte p_lower_bound = p_inheritance_constraints+1;
 	@CoreField(mandatory=false)
-	public static final byte p_upper_bound = 7;
+	public static final byte p_upper_bound = p_lower_bound+1;
 
 	@Override
 	public CollectionType getType();

@@ -12,6 +12,8 @@ import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.core.vm.utils.property.Dictionary;
+import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
@@ -193,19 +195,50 @@ public class ObjectDataBlock extends DataBlock {
 			}
 		}else if(parent!=null){
 			classId = parent.getClassId();
-			PropertyMirror pm = InkUtils.getPropertyMirror(classId, getKey(), new ArrayList<String>());
-			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
-				switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
-				case List:
-					getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror(), prefix);
-					break;
-				case Map:
-					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
-					getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
-					break;
+			String key = getKey();
+			boolean mapItem = false;
+			if(classId== null && parent.getParent()!=null){
+				classId = parent.getParent().getClassId();
+				key = parent.getKey();
+				mapItem = true;
+			}
+			if(classId!=null){
+				PropertyMirror pm = InkUtils.getPropertyMirror(classId, key, new ArrayList<String>());
+				if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
+					switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
+					case List:
+						getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror(), prefix);
+						break;
+					case Map:
+						PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
+						PropertyMirror valueMirror = ((MapPropertyMirror)pm).getValueMirror();
+						if(keyMirror !=null && valueMirror!=null){
+							if(mapItem){
+								String keyName = keyMirror.getName();
+								String valueName = valueMirror.getName();
+								if(!innerBlocks.containsKey(keyName)){
+									getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
+								}
+								if(!innerBlocks.containsKey(valueName)){
+									getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+								}
+							}else{
+								Dictionary dic = ((MapPropertyMirror)pm).getSpecifictation();
+								if(dic instanceof ElementsDictionary){
+									getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+								}else{
+									String name = dic.getEntryName();
+									String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) +","+getTypeDisplayString(valueMirror) +">";
+									String tabs = calculateTabs() + "\t";
+									addPropertyNameCompletion(cursorLocation, tabs.length()+1,result,
+											 displayString, name, "{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
+								}
+							}
+						}
+						break;
+					}
 				}
 			}
-
 		}
 		return result;
 	}

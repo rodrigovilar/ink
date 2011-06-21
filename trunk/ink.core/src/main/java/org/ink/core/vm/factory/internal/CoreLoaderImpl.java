@@ -151,10 +151,13 @@ import org.ink.core.vm.utils.property.AcquiredPropertyValueState;
 import org.ink.core.vm.utils.property.BooleanAttributeState;
 import org.ink.core.vm.utils.property.ByteAttributeState;
 import org.ink.core.vm.utils.property.DateAttributeState;
+import org.ink.core.vm.utils.property.DictionaryState;
 import org.ink.core.vm.utils.property.DoubleAttributeState;
+import org.ink.core.vm.utils.property.ElementsDictionaryState;
 import org.ink.core.vm.utils.property.EnumAttributeState;
 import org.ink.core.vm.utils.property.FloatAttributeState;
 import org.ink.core.vm.utils.property.IntegerAttributeState;
+import org.ink.core.vm.utils.property.KeyValueDictionaryState;
 import org.ink.core.vm.utils.property.ListPropertyState;
 import org.ink.core.vm.utils.property.LongAttributeState;
 import org.ink.core.vm.utils.property.MapPropertyState;
@@ -260,7 +263,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		String[] ids = instanceSpec.ids();
 		CoreInstanceValuesLocation[] locationsArr = instanceSpec.locations();
 		CoreInstanceValues[] valuesArr = instanceSpec.values();
-		List<PropertyState> properties = classDesc.getProperties();
+		List<PropertyState> properties = classDesc.getPropertiesList();
 		CoreObjectDescriptor desc;
 		MirrorAPI prop;
 		String id;
@@ -333,8 +336,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			byte[] locs = metadata.finalValuesLocation();
 			String[] values = metadata.finalValues();
 			if(locs.length>0){
-				List<MirrorAPI> props = (List<MirrorAPI>) (o).getRawValue(InkClassState.p_properties);
-				MirrorAPI prop = props.get(locs[0]);
+				List props = desc.getPropertiesList();
+				MirrorAPI prop = (MirrorAPI) props.get(locs[0]);
 				Object finalValue = null;
 				if(prop instanceof EnumAttributeState){
 					finalValue = values[0];
@@ -368,8 +371,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		if(allObjects.contains(o)){
 			return;
 		}
-		else if(o.getSuper()!=null && !allObjects.contains(o.getSuper())){
+		if(o.getSuper()!=null && !allObjects.contains(o.getSuper())){
 			cleanUpObject((MirrorAPI)o.getSuper(), allObjects);
+		}
+		if(o.isClass()){
+			o.afterPropertiesSet();
 		}
 		PropertyMirror[] mirrors = o.getPropertiesMirrors();
 		allObjects.add(o);
@@ -446,6 +452,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				}
 				break;
 			}
+			m.afterTargetSet();
 		}
 		o.afterPropertiesSet();
 	}
@@ -496,7 +503,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 
 	private Mirror createMirror(MirrorAPI target, CoreClassDescriptor classDesc,
 			PropertyMirror definingProperty, byte loc) throws Exception {
-		MirrorImpl<?>result = null;
+		MirrorImpl<?>result = target.getCachedTrait(InkObjectState.t_reflection);
 		Class<? extends MirrorState> mirrorStateClass = null;
 		if(classDesc.getMetadata()!=null){
 			mirrorStateClass = classDesc.getMetadata().mirrorClass();
@@ -504,11 +511,13 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			mirrorStateClass = MirrorState.class;
 		}
 		CoreClassDescriptor classMirrorDesc =  classElements.get(mirrorStateClass);
-		if(loc>-1){
-			result = (PropertyMirrorImpl<?>)definingProperty;
-		}else{
-			Class<?> mirrorClass = getBehaviorClass(classMirrorDesc);
-			result = (MirrorImpl<?>) mirrorClass.newInstance();
+		if(result==null){
+			if(loc>-1){
+				result = (PropertyMirrorImpl<?>)definingProperty;
+			}else{
+				Class<?> mirrorClass = getBehaviorClass(classMirrorDesc);
+				result = (MirrorImpl<?>) mirrorClass.newInstance();
+			}
 		}
 		MirrorAPI traits = (MirrorAPI)classDesc.getObject().getRawValue(InkClassState.p_personality);
 		MirrorAPI mirrorState = (MirrorAPI) traits.getRawValue(PersonalityState.p_reflection);
@@ -547,7 +556,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				throw new RuntimeException("Could not create "+classDesc.getBehaviorClass().getName() +".", e);
 			}
 		}
-		(o).boot(classDesc.getObject(), factory, behaviorInstance,context, createMirror(o, classDesc, definingProperty, index));
+		o.boot(classDesc.getObject(), factory, behaviorInstance,context, createMirror(o, classDesc, definingProperty, index));
 		PropertyMirror[] mirrors = o.getPropertiesMirrors();
 		DataTypeMarker marker;
 		CoreClassDescriptor innerCoerDesc;
@@ -633,36 +642,45 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void buildProperties() throws Exception {
-		List<PropertyState> props;
-		PropertyMirror[] mirrors;
-		Map<String, Byte> indexes;
 		for(CoreObjectDescriptor desc : elements.values()){
-			if(desc.isClass()){
-				Field[] fields = ((CoreClassDescriptor)desc).getFields();
-				props = createProperties(fields, (CoreClassDescriptor)desc);
-				mirrors = createPropertiesMirrors(props, (CoreClassDescriptor) desc);
-				indexes = createPropertiesIndexes(props);
-				((CoreClassDescriptor) desc).setPropertyMirrors(mirrors);
-				((CoreClassDescriptor) desc).setProperties(props);
-				((CoreClassDescriptor) desc).setPropertiesIndexes(indexes);
+			if(desc.isClass() && ((CoreClassDescriptor)desc).getPropertiesIndexes()==null){
+				createProperties(desc);
 			}
 		}
 	}
 
-	private Map<String, Byte> createPropertiesIndexes(List<PropertyState> props) {
+
+	private void createProperties(CoreObjectDescriptor desc) throws Exception {
+		Map<String, ? extends PropertyState> props;
+		PropertyMirror[] mirrors;
+		Map<String, Byte> indexes;
+		Field[] fields = ((CoreClassDescriptor)desc).getFields();
+		props = createProperties(fields, (CoreClassDescriptor)desc);
+		mirrors = createPropertiesMirrors(props.values(), (CoreClassDescriptor) desc);
+		indexes = createPropertiesIndexes(props.values());
+		((CoreClassDescriptor) desc).setPropertyMirrors(mirrors);
+		((CoreClassDescriptor) desc).setProperties(props);
+		((CoreClassDescriptor) desc).setPropertiesIndexes(indexes);
+	}
+
+	private Map<String, Byte> createPropertiesIndexes(Collection<? extends PropertyState> props) {
 		Map<String, Byte> result = new HashMap<String, Byte>();
-		for(byte i=0;i<props.size();i++){
-			String name = (String)((MirrorAPI)props.get(i)).getRawValue(PropertyState.p_name);
+		byte i=0;
+		for(PropertyState ps : props){
+			String name = (String)((MirrorAPI)ps).getRawValue(PropertyState.p_name);
 			result.put(name, i);
+			i++;
 		}
 		return result;
 	}
 
 
-	private PropertyMirror[] createPropertiesMirrors(List<PropertyState> props, CoreClassDescriptor desc) throws Exception {
+	private PropertyMirror[] createPropertiesMirrors(Collection<? extends PropertyState> props, CoreClassDescriptor desc) throws Exception {
 		List<PropertyMirror> mirrors = new ArrayList<PropertyMirror>();
-		for(byte i=0;i<props.size();i++){
-			mirrors.add(createPropertyMirror(props.get(i), desc, i));
+		byte i=0;
+		for(PropertyState ps : props){
+			mirrors.add(createPropertyMirror(ps, desc, i));
+			i++;
 		}
 		return mirrors.toArray(new PropertyMirror[]{});
 	}
@@ -715,9 +733,25 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		if(prop.getClass()==MapPropertyState.Data.class){
 			collectionMarker = CollectionTypeMarker.Map;
 			typeClass = factory.resolveCollectionClass(collectionMarker);
-			PropertyMirror valueMirror = createPropertyMirror((PropertyState)((MirrorAPI)prop).getRawValue(MapPropertyState.p_map_value), desc, Property.UNBOUNDED_PROPERTY_INDEX);
-			PropertyMirror keyMirror = createPropertyMirror((PropertyState)((MirrorAPI)prop).getRawValue(MapPropertyState.p_map_key), desc, Property.UNBOUNDED_PROPERTY_INDEX);
-			((MapPropertyMirrorImpl<?>)mirror).boot(index, (String)((MirrorAPI)prop).getRawValue(MapPropertyState.p_name), typeClass, marker, hasStaticValue, isComputed, collectionMarker, valueMirror, keyMirror);
+			DictionaryState ds = (DictionaryState)((MirrorAPI)prop).getRawValue(MapPropertyState.p_specifications);
+			if(ds.getClass()==KeyValueDictionaryState.Data.class){
+				PropertyMirror valueMirror = createPropertyMirror((PropertyState)((MirrorAPI)ds).getRawValue(KeyValueDictionaryState.p_value), desc, Property.UNBOUNDED_PROPERTY_INDEX);
+				PropertyMirror keyMirror = createPropertyMirror((PropertyState)((MirrorAPI)ds).getRawValue(KeyValueDictionaryState.p_key), desc, Property.UNBOUNDED_PROPERTY_INDEX);
+				((MapPropertyMirrorImpl<?>)mirror).boot(index, (String)((MirrorAPI)prop).getRawValue(MapPropertyState.p_name), typeClass, marker, hasStaticValue, isComputed, collectionMarker, valueMirror, keyMirror);
+			}else{
+				//elements
+				PropertyState itemPropertyDesc = (PropertyState)((MirrorAPI)ds).getRawValue(ElementsDictionaryState.p_item);
+				InkTypeState theType = (InkTypeState)((MirrorAPI)itemPropertyDesc).getRawValue(PropertyState.p_type);
+				CoreClassDescriptor cd = (CoreClassDescriptor) elements.get(theType.getId());
+				if(cd.getPropertiesIndexes()==null){
+					createProperties(cd);
+				}
+				String keyProperty = (String)((MirrorAPI)ds).getRawValue(ElementsDictionaryState.p_key_property);
+				PropertyMirror valueMirror = createPropertyMirror(itemPropertyDesc, desc, Property.UNBOUNDED_PROPERTY_INDEX);
+				PropertyMirror keyMirror = cd.getPropertyMirrors()[cd.getPropertiesIndexes().get(keyProperty)];
+				((MapPropertyMirrorImpl<?>)mirror).boot(index, (String)((MirrorAPI)prop).getRawValue(MapPropertyState.p_name), typeClass, marker, hasStaticValue, isComputed, collectionMarker, valueMirror, keyMirror);
+			}
+
 		}else if(prop.getClass()==ListPropertyState.Data.class){
 			collectionMarker = CollectionTypeMarker.List;
 			PropertyMirror itemMirror = createPropertyMirror((PropertyState)((MirrorAPI)prop).getRawValue(ListPropertyState.p_list_item), desc, Property.UNBOUNDED_PROPERTY_INDEX);
@@ -774,14 +808,15 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 
-	private List<PropertyState> createProperties(Field[] fields,
+	private Map<String, ? extends PropertyState> createProperties(Field[] fields,
 			CoreClassDescriptor desc) throws Exception {
-		List<PropertyState> result = new ArrayList<PropertyState>();
+		Map result = new LinkedHashMap(fields.length);
 		PropertyState prop;
 		for(Field f : fields){
 			prop = createProperty(f, desc);
 			if(prop != null){
-				result.add(prop);
+				String name = (String)((MirrorAPI)prop).getRawValue(PropertyState.p_name);
+				result.put(name, prop);
 			}
 		}
 		return result;
@@ -898,10 +933,10 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 
 	private PropertyState createMapProperty(Field f, Method m,
 			String propertyName, Class<?> typeClass, Class<?> containerClass,
-			boolean mandatory) {
-		MapPropertyState result = new MapPropertyState.Data();
-		CoreClassDescriptor desc = classElements.get(MapPropertyState.class);
-		((MirrorAPI)result).setCoreObject(desc.getNumberOfFields(), desc.getNumberOfTraits());
+			boolean mandatory) throws Exception {
+		Class<?> mapClass = MapPropertyState.class;
+		CoreClassDescriptor mapDesc = classElements.get(mapClass);
+		MapPropertyState result = (MapPropertyState) newInstance(null, mapClass, mapDesc.getNumberOfFields(), mapDesc.getNumberOfTraits(), false);
 		((MirrorAPI)result).setRawValue(PropertyState.p_mandatory, mandatory);
 		((MirrorAPI)result).setRawValue(ReferenceState.p_name, propertyName);
 		InkTypeState type = (InkTypeState) elements.get(MAP).getObject();
@@ -911,15 +946,51 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			Type keyGenericT = genericT.getActualTypeArguments()[0];
 			Type valueGenericT = genericT.getActualTypeArguments()[1];
 			Class<?> keyClass = (Class<?>)keyGenericT;
-			Class<?> valueClass = (Class<?>)valueGenericT;
+			Class<?> valueClass;
+			if(valueGenericT instanceof WildcardType){
+				valueClass = (Class<?>) ((WildcardType)valueGenericT).getUpperBounds()[0];
+			}else{
+				valueClass = (Class<?>) valueGenericT;
+			}
 			CoreMapField mapAnnot = f.getAnnotation(CoreMapField.class);
 			if(mapAnnot==null){
 				throw new CoreException("The field " + propertyName +", of class "+ classElements.get(containerClass).getId()+ ", must have Map annotation.");
 			}
-			PropertyState keyProperty = createProperty(f, m, mapAnnot.keyName(), keyClass, containerClass);
-			PropertyState valueProperty = createProperty(f, m, mapAnnot.valueName(), valueClass, containerClass);
-			((MirrorAPI)result).setRawValue(MapPropertyState.p_map_key, keyProperty);
-			((MirrorAPI)result).setRawValue(MapPropertyState.p_map_value, valueProperty);
+			DictionaryState dictionary = null;
+			PropertyState keyProperty;
+			PropertyState valueProperty;
+			Class<?> dictionaryClass;
+			CoreClassDescriptor dictionaryDesc;
+			switch(mapAnnot.kind()){
+			case key_value:
+				keyProperty = createProperty(f, m, mapAnnot.keyName(), keyClass, containerClass);
+				valueProperty = createProperty(f, m, mapAnnot.valueName(), valueClass, containerClass);
+				dictionaryClass = KeyValueDictionaryState.class;
+				dictionaryDesc = classElements.get(dictionaryClass);
+				dictionary = (DictionaryState) newInstance(null, dictionaryClass, dictionaryDesc.getNumberOfFields(), dictionaryDesc.getNumberOfTraits(), false);
+				((MirrorAPI)dictionary).setRawValue(KeyValueDictionaryState.p_key, keyProperty);
+				((MirrorAPI)dictionary).setRawValue(KeyValueDictionaryState.p_value, valueProperty);
+				((MirrorAPI)dictionary).setRawValue(KeyValueDictionaryState.p_ordered, mapAnnot.ordered());
+				((MirrorAPI)result).setRawValue(MapPropertyState.p_specifications, dictionary);
+				break;
+			case elements:
+				valueProperty = createProperty(f, m, mapAnnot.valueName(), valueClass, containerClass);
+				dictionaryClass = ElementsDictionaryState.class;
+				dictionaryDesc = classElements.get(dictionaryClass);
+				dictionary = (DictionaryState) newInstance(null, dictionaryClass, dictionaryDesc.getNumberOfFields(), dictionaryDesc.getNumberOfTraits(), false);
+				((MirrorAPI)dictionary).setRawValue(ElementsDictionaryState.p_key_property, mapAnnot.keyName());
+				((MirrorAPI)dictionary).setRawValue(ElementsDictionaryState.p_item, valueProperty);
+				((MirrorAPI)dictionary).setRawValue(KeyValueDictionaryState.p_ordered, mapAnnot.ordered());
+				((MirrorAPI)result).setRawValue(MapPropertyState.p_specifications, dictionary);
+				break;
+			default:
+				throw new CoreException("Unknown map kind " + mapAnnot.kind());
+			}
+			if(mapAnnot.kind()==org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.key_value){
+
+			}else if(mapAnnot.kind()==org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.key_value){
+
+			}
 		}catch(Exception e){
 			throw new CoreException("Could not resolve Map Property : "  + propertyName +", found in class " + classElements.get(containerClass).getId(), e);
 		}
@@ -1301,6 +1372,9 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(MapPropertyMirrorState.class);
 		newInkObject(PrimitiveAttributeMirrorState.class);
 		newInkObject(ReferenceMirrorState.class);
+		newInkObject(DictionaryState.class);
+		newInkObject(KeyValueDictionaryState.class);
+		newInkObject(ElementsDictionaryState.class);
 		newInkObject(ContextState.class);
 		newInkObject(DslLoaderState.class);
 		newInkObject(DslRepositoryState.class);

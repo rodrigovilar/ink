@@ -35,8 +35,11 @@ import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
+import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.EnumType;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.core.vm.utils.property.Dictionary;
+import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
@@ -453,44 +456,7 @@ implements InkReader<Tag>{
 					}
 					break;
 				case Map:
-					PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
-					PropertyMirror valueM = ((MapPropertyMirror) pm)
-					.getValueMirror();
-					List<Tag> tags = tag.getChildren();
-					List<Tag> keyValue;
-					result = new HashMap(tags.size());
-					for (Tag t : tags) {
-						boolean keyFound = false;
-						boolean valueFound = false;
-						keyValue = t.getChildren();
-						Object mapKey = null;
-						Object mapvalue = null;
-						for (Tag mapEn : keyValue) {
-							if (mapEn.getName().equals(keyM.getName())) {
-								keyFound = true;
-								mapKey = transformPropertyValue(mapEn, keyM);
-							} else if (mapEn.getName().equals(valueM.getName())) {
-								valueFound = true;
-								mapvalue = transformPropertyValue(mapEn, valueM);
-							} else {
-								addError(mapEn,
-										"Unexpected field found inside map item. Expected fields are '"
-										+ keyM.getName() + "','"
-										+ valueM.getName() + "'.");
-							}
-						}
-						if (!keyFound) {
-							addError(t, "could not find map key '" + keyM.getName()
-									+ "'.");
-						}
-						if (!valueFound) {
-							addError(t, "could not find map value '"
-									+ valueM.getName() + "'.");
-						}
-						if (mapKey != null && mapvalue != null) {
-							((Map) result).put(mapKey, mapvalue);
-						}
-					}
+					result = loadMap(tag, pm);
 					break;
 				}
 				break;
@@ -510,7 +476,64 @@ implements InkReader<Tag>{
 		}catch(CoreException e){
 			addError(tag, "Invalid property value '" + pm.getName() +"':"+e.getMessage());
 		}catch(Throwable e){
+			e.printStackTrace();
 			addError(tag, "Invalid property value '" + pm.getName() +"'.");
+		}
+		return result;
+	}
+
+	private Object loadMap(Tag tag, PropertyMirror pm) {
+		Object result;
+		MapPropertyMirror mapPM = (MapPropertyMirror) pm;
+		PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
+		PropertyMirror valueM = ((MapPropertyMirror) pm).getValueMirror();
+		List<Tag> tags = tag.getChildren();
+		List<Tag> entries;
+		result = mapPM.getNewInstance();
+		Dictionary spec = mapPM.getSpecifictation();
+		boolean isKeyValue = true;
+		if(spec instanceof ElementsDictionary){
+			isKeyValue = false;
+		}
+		for (Tag t : tags) {
+			boolean keyFound = false;
+			boolean valueFound = false;
+			entries = t.getChildren();
+			Object mapKey = null;
+			Object mapvalue = null;
+			if(isKeyValue){
+				for (Tag mapEn : entries) {
+					if (mapEn.getName().equals(keyM.getName())) {
+						keyFound = true;
+						mapKey = transformPropertyValue(mapEn, keyM);
+					} else if (mapEn.getName().equals(valueM.getName())) {
+						valueFound = true;
+						mapvalue = transformPropertyValue(mapEn, valueM);
+					} else {
+						addError(mapEn,
+								"Unexpected field found inside map item. Expected fields are '"
+								+ keyM.getName() + "','"
+								+ valueM.getName() + "'.");
+					}
+				}
+			}else{
+				mapvalue = transformPropertyValue(t, valueM);
+				mapKey = ((Proxiable)mapvalue).reflect().getPropertyValue(keyM.getName());
+				keyFound = true;
+				valueFound = true;
+			}
+
+			if (!keyFound) {
+				addError(t, "could not find map key '" + keyM.getName()
+						+ "'.");
+			}
+			if (!valueFound) {
+				addError(t, "could not find map value '"
+						+ valueM.getName() + "'.");
+			}
+			if (mapKey != null && mapvalue != null) {
+				((Map) result).put(mapKey, mapvalue);
+			}
 		}
 		return result;
 	}

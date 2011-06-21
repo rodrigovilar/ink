@@ -66,6 +66,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	protected Map<String, DslFactory> boundedFactories;
 	protected Set<String> scope;
 
+
 	@Override
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t){
 		return proxyFactory.newBehaviorProxy(this, behaviorInstance, state, types, t);
@@ -131,6 +132,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 						getState(iter.next(), false);
 					}catch(Exception e){
 						e.printStackTrace();
+						throw new CoreException("Internal Error.",e);
 					}
 				}
 
@@ -176,6 +178,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			if(ns!=null){
 				if(getNamespace().equals(ns)){
 					try {
+						if(id.endsWith("CustomerClass")){
+							System.out.println("");
+						}
 						result = loader.getObject(id, getAppContext());
 						if(result!=null){
 							repository.setObject(id, result);

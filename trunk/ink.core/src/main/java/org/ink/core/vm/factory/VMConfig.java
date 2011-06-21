@@ -1,6 +1,6 @@
 package org.ink.core.vm.factory;
 
-import org.ink.core.vm.factory.internal.FullInstantiationStrategy;
+import org.ink.core.vm.factory.internal.DefaultInstantiationStrategy;
 
 /**
  * @author Lior Schachter
@@ -8,7 +8,7 @@ import org.ink.core.vm.factory.internal.FullInstantiationStrategy;
 public class VMConfig {
 	
 	private static final VMConfig INSTANCE = new VMConfig();
-	private static InstantiationStrategy initStrategy = new FullInstantiationStrategy();
+	private static InstantiationStrategy initStrategy = new DefaultInstantiationStrategy();
 	
 	private VMConfig() {
 	}

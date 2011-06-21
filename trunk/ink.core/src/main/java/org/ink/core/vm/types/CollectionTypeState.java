@@ -10,11 +10,11 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 @CoreClassSpec(javaMapping=JavaMapping.State_Behavior_Interface)
 public interface CollectionTypeState extends InkTypeState{
 
-public static final byte p_type_marker = 0;
-	
+	public static final byte p_type_marker = 0;
+
 	public CollectionTypeMarker getTypeMarker();
 	public void setTypeMarker(CollectionTypeMarker value);
-	
+
 	public class Data extends InkTypeState.Data implements CollectionTypeState{
 
 		@Override
@@ -26,8 +26,8 @@ public static final byte p_type_marker = 0;
 		public void setTypeMarker(CollectionTypeMarker value) {
 			setValue(p_type_marker, value);
 		}
-		
-		
+
+
 	}
-	
+
 }

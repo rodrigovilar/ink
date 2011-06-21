@@ -2,7 +2,6 @@ package org.ink.core.vm.lang;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -347,25 +346,26 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 					break;
 				case Map:
 					Map<?, ?> map = (Map<?,?>) value;
-					result = new HashMap();
-					PropertyMirror innerKeyType = ((MapPropertyMirror) propMirror).getKeyMirror();
-					innerType = ((MapPropertyMirror) propMirror).getValueMirror();
-					boolean isKeyDrillable = innerKeyType.isValueDrillable();
-					boolean isValueDrillable =  innerType.isValueDrillable();
-					if(isKeyDrillable || isValueDrillable){
-						Object mapValue;
-						for (Object mapKey : map.keySet()) {
-							mapValue = map.get(mapKey);
-							if(isKeyDrillable && mapKey!=null){
-								mapKey = prepareValueToReturn(innerKeyType, mapKey, propIndex);
+					result = map;
+					if(!map.isEmpty()){
+						result = ((MapPropertyMirror) propMirror).getNewInstance();
+						PropertyMirror innerKeyType = ((MapPropertyMirror) propMirror).getKeyMirror();
+						innerType = ((MapPropertyMirror) propMirror).getValueMirror();
+						boolean isKeyDrillable = innerKeyType.isValueDrillable();
+						boolean isValueDrillable =  innerType.isValueDrillable();
+						if(isKeyDrillable || isValueDrillable){
+							Object mapValue;
+							for (Object mapKey : map.keySet()) {
+								mapValue = map.get(mapKey);
+								if(isKeyDrillable && mapKey!=null){
+									mapKey = prepareValueToReturn(innerKeyType, mapKey, propIndex);
+								}
+								if(isValueDrillable && mapValue!=null){
+									mapValue = prepareValueToReturn(innerType, mapValue, propIndex);
+								}
+								((Map)result).put(mapKey, mapValue);
 							}
-							if(isValueDrillable && mapValue!=null){
-								mapValue = prepareValueToReturn(innerType, mapValue, propIndex);
-							}
-							((Map)result).put(mapKey, mapValue);
 						}
-					}else{
-						result = map;
 					}
 					break;
 				}

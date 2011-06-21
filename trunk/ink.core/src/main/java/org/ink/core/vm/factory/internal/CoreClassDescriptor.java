@@ -27,12 +27,13 @@ public interface CoreClassDescriptor extends CoreObjectDescriptor{
 	public void setBehaviorClass(Class<?> behaviorClass);
 	public byte getNumberOfTraits();
 	public CoreClassSpec getMetadata();
-	public void setProperties(List<PropertyState> props);
+	public void setProperties(Map<String, ? extends PropertyState> props);
 	public void setPropertiesIndexes(Map<String, Byte> indexes);
 	public Map<String, Byte> getPropertiesIndexes();
 	public void setPropertyMirrors(PropertyMirror[] mirrors);
-	public List<PropertyState> getProperties();
+	public Map<String,  ? extends PropertyState> getProperties();
+	public List<PropertyState> getPropertiesList();
 	public PropertyMirror[] getPropertyMirrors();
 	public Class<?> getBehaviorClass();
-	
+
 }

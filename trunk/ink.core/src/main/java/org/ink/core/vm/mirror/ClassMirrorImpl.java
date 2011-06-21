@@ -164,9 +164,9 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	@Override
 	public List<? extends PropertyMirror> getOriginalProperties() {
 		InkClassState target = getTargetState();
-		List<? extends Property> properties = target.getProperties();
+		Map<String, ? extends Property> properties = target.getProperties();
 		List<PropertyMirror> result = new ArrayList<PropertyMirror>(properties.size());
-		for(Property prop : properties){
+		for(Property prop : properties.values()){
 			result.add((PropertyMirror)prop.reflect());
 		}
 		return result;

@@ -1,6 +1,6 @@
 package org.ink.core.vm.lang;
 
-import java.util.List;
+import java.util.Map;
 
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
@@ -15,14 +15,14 @@ import org.ink.core.vm.utils.property.PrimitiveAttribute;
 public interface StructClassState extends InkClassState{
 
 	@Override
-	public List<? extends PrimitiveAttribute> getProperties();
+	public Map<String, ? extends PrimitiveAttribute> getProperties();
 
 	public class Data extends InkClassState.Data implements StructClassState{
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public List<? extends PrimitiveAttribute> getProperties() {
-			return (List<? extends PrimitiveAttribute>) super.getProperties();
+		public Map<String, ? extends PrimitiveAttribute> getProperties() {
+			return (Map<String, ? extends PrimitiveAttribute>) super.getProperties();
 		}
 
 		@Override

@@ -181,9 +181,9 @@ public class CoreBasicTests extends TestCase{
 		targetEditor = targetMirror.edit();
 		targetEditor.weaveStructuralTrait("stam_role", (TraitClass)newTrait.getBehavior());
 		//create the sub class
-		InkClassState subClass = superClass.cloneState();
+		InkClassState subClass = (InkClassState) superClass.reflect().edit().createDescendent(null).getEditedState();
 		((ClassMirrorAPI)subClass).setJavaMapping(JavaMapping.No_Java);
-		((ClassMirrorAPI)subClass).setSuper(superClass);
+
 		((ClassMirrorAPI)subClass).afterPropertiesSet();
 		//assemble properties
 		StringAttributeState stringState2 = stringState.cloneState();

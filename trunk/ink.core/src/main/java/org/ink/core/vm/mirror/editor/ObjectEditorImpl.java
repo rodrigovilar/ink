@@ -354,4 +354,15 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 		return (T)workOnObject;
 	}
 
+	@Override
+	public ObjectEditor createDescendent(String	descendentId){
+		InkObjectState descendentState = workOnObject.cloneState();
+		ObjectEditor descendentEditor =	descendentState.reflect().edit();
+		descendentEditor.setSuper(workOnObject);
+		if(descendentId!=null){
+			descendentEditor.setId(descendentId);
+		}
+		return descendentEditor;
+	}
+
 }

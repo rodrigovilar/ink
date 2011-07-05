@@ -10,10 +10,11 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
  * @author Lior Schachter
  */
 public interface ObjectEditor extends InkObject{
-	
+
 	public ObjectEditor startEdit(InkObjectState object);
 	public ObjectEditor startEdit(InkObjectState object, boolean transactional);
 	public <T extends InkObjectState> T getEditedState();
+	public ObjectEditor createDescendent(String	descendentId);
 	public void setId(String id);
 	public void setOwner(InkObjectState owner);
 	public void setAbstract(boolean isAbstract);

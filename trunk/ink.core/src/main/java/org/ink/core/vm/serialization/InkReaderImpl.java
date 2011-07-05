@@ -418,7 +418,12 @@ implements InkReader<Tag>{
 		try{
 			switch (pm.getTypeMarker()) {
 			case Primitive:
-				result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
+				if(tag.getValues().size() > 1){
+					addError(tag, "Invalid property value '"
+							+ tag.getName() + "'. Expected 1 value but found " + tag.getValues().size() +" values.");
+				}else{
+					result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
+				}
 				break;
 			case Collection:
 				switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {

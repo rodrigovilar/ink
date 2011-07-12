@@ -179,7 +179,6 @@ public class InkUtils {
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null && inkObject.reflect().isClass()){
 			ClassMirror cm = inkObject.reflect();
-			//new org.ink.eclipse.vm.EclipseResourceResolver().getClassDetails((org.ink.core.vm.lang.InkClassState)cm.getTragetOwnerFactory().getState(cm.getId()));
 			if(cm.isValid()){
 				Map<String, PropertyMirror> props = new HashMap<String, PropertyMirror>(cm.getClassPropertiesMap());
 				for(String key : exclude){

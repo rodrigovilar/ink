@@ -180,12 +180,8 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 	}
 	keyValueMap{
 		item{
-			key "one"
-			value 1
-		}
-		item{
-			key "two"
-			value 2
+			key "ads"
+			value 23
 		}
 	}
 }

@@ -15,6 +15,7 @@ Metaclass id="Movie" class="ink.core:InkClass" super="ink.core:InkClass" {
 	}
 }
 
+
 // Videotape class
 Class id="Videotape" class="Movie" super="ink.core:InkObject" abstract=true {
 	java_path ""
@@ -31,6 +32,10 @@ Class id="Videotape" class="Movie" super="ink.core:InkObject" abstract=true {
 			mandatory false
 		}
 	}
+}
+
+Object id="sad" class="KillBill" super="KillBillTape1"{
+	isRented true
 }
 
 // Customer class

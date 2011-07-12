@@ -88,12 +88,11 @@ public class EclipseUtils {
 		}
 	}
 
-	public static void openJava(InkObject o){
-		Mirror m = o.reflect();
-		if(!m.isClass()){
-			m = m.getClassMirror();
-		}
-		ClassMirror cm = (ClassMirror)m;
+	public static IJavaElement getJavaElement(String className){
+		return null;
+	}
+
+	public static IJavaElement getJavaElement(ClassMirror cm){
 		while(!cm.getJavaMapping().hasBeahvior() && cm.getSuper()!=null){
 			cm = cm.getSuper();
 		}
@@ -103,16 +102,30 @@ public class EclipseUtils {
 		IProject project = null;
 		if (!cm.isCoreObject()) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			File f = o.reflect().getDescriptor().getResource();
+			File f = cm.getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
 			IFile file = workspace.getRoot().getFileForLocation(location);
 			project = file.getProject();
 		}else{
 			project = InkPlugin.getDefault().getInkProjects().get(0);
 		}
+		IJavaProject jProject = JavaCore.create(project);
+		IJavaElement je;
+		try {
+			je = jProject.findElement(p);
+			return je;
+		} catch (JavaModelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void openJava(InkObject o){
+		Mirror m = o.reflect();
+		if(!m.isClass()){
+			m = m.getClassMirror();
+		}
 		try{
-			IJavaProject jProject = JavaCore.create(project);
-			IJavaElement je = jProject.findElement(p);
+			IJavaElement je = getJavaElement((ClassMirror)m);
 			openJavaElement(je);
 		}catch(Exception e){
 		}

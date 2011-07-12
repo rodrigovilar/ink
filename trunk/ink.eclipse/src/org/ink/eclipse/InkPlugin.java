@@ -20,8 +20,8 @@ import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.VMConfig;
 import org.ink.core.vm.factory.VMMain;
-import org.ink.core.vm.factory.internal.CoreInstantiationStrategy;
 import org.ink.eclipse.builder.InkNature;
+import org.ink.eclipse.vm.EclipseResourceResolver;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -88,7 +88,7 @@ public class InkPlugin extends AbstractUIPlugin {
 	}
 
 	private void loadInk(){
-		VMConfig.setInstantiationStrategy(new CoreInstantiationStrategy());
+		VMConfig.setInstantiationStrategy(new EclipseResourceResolver());
 		List<IProject> inkProjects = getInkProjects();
 		List<String> paths = new ArrayList<String>();
 		IFile f;

@@ -1,27 +1,28 @@
 package org.ink.core.vm.factory;
 
-import org.ink.core.vm.factory.internal.DefaultInstantiationStrategy;
+import org.ink.core.vm.factory.resources.DefaultResourceResolver;
+import org.ink.core.vm.factory.resources.ResourceResolver;
 
 /**
  * @author Lior Schachter
  */
 public class VMConfig {
-	
+
 	private static final VMConfig INSTANCE = new VMConfig();
-	private static InstantiationStrategy initStrategy = new DefaultInstantiationStrategy();
-	
+	private static ResourceResolver initStrategy = new DefaultResourceResolver();
+
 	private VMConfig() {
 	}
-	
+
 	public static VMConfig instance() {
 		return INSTANCE;
 	}
-	
-	public static void setInstantiationStrategy(InstantiationStrategy strategy){
+
+	public static void setInstantiationStrategy(ResourceResolver strategy){
 		initStrategy = strategy;
 	}
 
-	public InstantiationStrategy getInstantiationStrategy() {
+	public ResourceResolver getInstantiationStrategy() {
 		return initStrategy;
 	}
 }

@@ -25,6 +25,7 @@ import org.ink.core.vm.factory.internal.CoreLoaderImpl;
 import org.ink.core.vm.factory.internal.CoreLoaderState;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.factory.internal.CoreObjectDescriptor;
+import org.ink.core.vm.factory.resources.ResourceResolver;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkClassImpl;
 import org.ink.core.vm.lang.InkClassState;
@@ -337,14 +338,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObjectState> resolveDataClass(InkClassState cls) {
-		String className = getInstantiationStrategy().getDataClassName(cls, this);
+		String className = getInstantiationStrategy().getDataClassName(cls);
 		return (Class<InkObjectState>) getClass(className, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InkObjectState> resolveStructDataClass(InkClassState cls) {
-		String className = getInstantiationStrategy().getStructDataClassName(cls, this);
+		String className = getInstantiationStrategy().getStructDataClassName(cls);
 		return (Class<InkObjectState>) getClass(className, true);
 	}
 
@@ -352,18 +353,18 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends InkObject> resolveBehaviorClass(InkClassState cls) {
-		String className = getInstantiationStrategy().getBehaviorClassName(cls, this);
+		String className = getInstantiationStrategy().getBehaviorClassName(cls);
 		return (Class<InkObject>) getClass(className, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends InkObject> resolveInterfaceClass(InkClassState cls) {
-		String className = getInstantiationStrategy().getInterfaceClassName(cls, this);
+		String className = getInstantiationStrategy().getInterfaceClassName(cls);
 		return (Class<InkObject>) getClass(className, true);
 	}
 
-	private InstantiationStrategy getInstantiationStrategy() {
+	private ResourceResolver getInstantiationStrategy() {
 		return VMConfig.instance().getInstantiationStrategy();
 	}
 
@@ -441,7 +442,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public Class<?> resolveEnumClass(EnumTypeState enumState) {
-		String className = getInstantiationStrategy().getEnumClassName(enumState, this);
+		String className = getInstantiationStrategy().getEnumClassName(enumState);
 		return getClass(className, true);
 	}
 

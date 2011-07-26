@@ -48,7 +48,7 @@
             class="org.ink.eclipse.editors.InkEditor"
             contributorClass="org.ink.eclipse.editors.InkEditorActionContributor"
             extensions="ink"
-            icon="icons/sample.gif"
+            icon="resources/icons/sample.gif"
             id="ink.eclipse.editors.InkEditor"
             name="Ink Editor">
       </editor>
@@ -64,7 +64,7 @@
          <action
                class="org.ink.eclipse.editors.actions.OpenElementAction"
                definitionId="ink.eclipse.openElement"
-               icon="icons/opentype.gif"
+               icon="resources/icons/opentype.gif"
                id="ink.eclipse.openElementAction"
                label="Open Ink Element"
                menubarPath="ink.eclipse.menu/Editor"

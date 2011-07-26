@@ -42,7 +42,8 @@ import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 
-	private static final IPath INK_DIR_PATH = new Path("src"+IPath.SEPARATOR +"main"+IPath.SEPARATOR+"dsl");
+	private static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR
+			+ "main" + IPath.SEPARATOR + "dsl");
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
@@ -51,7 +52,6 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	String[] dsls;
 
-
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
@@ -59,36 +59,39 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		Set<String> nss = VMMain.getDsls();
 		IFile f = getProject().getFile("dsls.ink");
 		List<String> nssList = new ArrayList<String>();
-		if(f.exists()){
+		if (f.exists()) {
 			String path = f.getLocation().toFile().getAbsolutePath();
-			for(String ns : nss){
+			for (String ns : nss) {
 				DslFactory factory = vm.getFactory(ns);
 				File factoryConfFile = factory.getConfigurationFile();
-				if(factoryConfFile!=null && factoryConfFile.getAbsolutePath().equals(path)){
+				if (factoryConfFile != null
+						&& factoryConfFile.getAbsolutePath().equals(path)) {
 					nssList.add(ns);
 				}
 			}
 		}
-		dsls = nssList.toArray(new String[]{});
+		dsls = nssList.toArray(new String[] {});
 	}
 
 	class InkDeltaVisitor implements IResourceDeltaVisitor {
 
 		private final IProgressMonitor monitor;
 
-		public InkDeltaVisitor(IProgressMonitor monitor){
+		public InkDeltaVisitor(IProgressMonitor monitor) {
 			this.monitor = monitor;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
+		 * @see
+		 * org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse
+		 * .core.resources.IResourceDelta)
 		 */
 		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
-			if(resource.getType()==IResource.FILE){
+			if (resource.getType() == IResource.FILE) {
 				switch (delta.getKind()) {
 				case IResourceDelta.ADDED:
 					// handle added resource
@@ -103,7 +106,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					break;
 				}
 			}
-			//return true to continue visiting children.
+			// return true to continue visiting children.
 			return true;
 		}
 	}
@@ -112,33 +115,34 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 		IProgressMonitor monitor;
 
-		public InkResourceVisitor(IProgressMonitor monitor){
+		public InkResourceVisitor(IProgressMonitor monitor) {
 			this.monitor = monitor;
 		}
 
 		@Override
 		public boolean visit(IResource resource) {
 			processInkFile(resource, monitor);
-			//return true to continue visiting children.
+			// return true to continue visiting children.
 			return true;
 		}
 	}
 
-	class InkErrorHandler{
+	class InkErrorHandler {
 
-		private void addMarker(IFile file, String msg, int lineNumber, int severity) {
+		private void addMarker(IFile file, String msg, int lineNumber,
+				int severity) {
 			InkBuilder.this.addMarker(file, msg, lineNumber, severity);
 		}
 
-		public void error(IFile file, String msg, int lineNumber){
+		public void error(IFile file, String msg, int lineNumber) {
 			addMarker(file, msg, lineNumber, IMarker.SEVERITY_ERROR);
 		}
 
-		public void fatalError(IFile file, String msg, int lineNumber){
+		public void fatalError(IFile file, String msg, int lineNumber) {
 			addMarker(file, msg, lineNumber, IMarker.SEVERITY_ERROR);
 		}
 
-		public void warning(IFile file, String msg, int lineNumber){
+		public void warning(IFile file, String msg, int lineNumber) {
 			addMarker(file, msg, lineNumber, IMarker.SEVERITY_WARNING);
 		}
 	}
@@ -166,12 +170,13 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	 * (non-Javadoc)
 	 *
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
-	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
+	 * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor)
-	throws CoreException {
-		try{
+	protected IProject[] build(int kind,
+			@SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor)
+			throws CoreException {
+		try {
 			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
 			} else {
@@ -182,9 +187,10 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					incrementalBuild(delta, monitor);
 				}
 			}
-		}catch(Throwable e){
+		} catch (Throwable e) {
 			e.printStackTrace();
-			addMarker(getProject(), "internal error.", 0, IMarker.SEVERITY_ERROR);
+			addMarker(getProject(), "internal error.", 0,
+					IMarker.SEVERITY_ERROR);
 		}
 		return getProject().getReferencedProjects();
 	}
@@ -193,10 +199,10 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		IPath resourcePath = resource.getProjectRelativePath();
 		boolean result = false;
 		if (resource instanceof IFile && resource.getName().endsWith(".ink")
-				&& (resourcePath.uptoSegment(3).equals(INK_DIR_PATH)) ||
-				DSL_DEF_FILENAME.equals(resourcePath.lastSegment())) {
-			if(checkInkFile((IFile)resource)){
-				changedFiles.add((IFile)resource);
+				&& (resourcePath.uptoSegment(3).equals(INK_DIR_PATH))
+				|| DSL_DEF_FILENAME.equals(resourcePath.lastSegment())) {
+			if (checkInkFile((IFile) resource)) {
+				changedFiles.add((IFile) resource);
 				result = true;
 			}
 		}
@@ -205,20 +211,22 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	private void moveInkFile(IFile file, IProgressMonitor monitor) {
 		IFile existingFile = InkUtils.getOutputFile(getProject(), file);
-		try{
-			if(existingFile.exists()){
+		try {
+			if (existingFile.exists()) {
 				existingFile.delete(true, null);
-			}else{
-				IPath folderPath = existingFile.getFullPath().removeLastSegments(1).removeFirstSegments(1);
+			} else {
+				IPath folderPath = existingFile.getFullPath()
+						.removeLastSegments(1).removeFirstSegments(1);
 				createFolder(folderPath, getProject());
 			}
 			file.copy(existingFile.getFullPath(), true, null);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
+	protected IContainer createFolder(IPath packagePath, IContainer outputFolder)
+			throws CoreException {
 		if (packagePath.isEmpty()) {
 			return outputFolder;
 		}
@@ -234,11 +242,10 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		deleteMarkers(file);
 		try {
 			SdlParser.parse(file.getLocationURI().toURL());
-		}catch(SDLParseException e){
+		} catch (SDLParseException e) {
 			errorHandler.error(file, e.getMessage(), e.getLine());
 			return false;
-		}
-		catch (Exception e1) {
+		} catch (Exception e1) {
 			errorHandler.error(file, "Could not parse file.", 0);
 			return false;
 		}
@@ -252,11 +259,13 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
+	protected void fullBuild(final IProgressMonitor monitor)
+			throws CoreException {
 		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-		IFolder output = (IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent();
+		IFolder output = (IFolder) InkUtils.getJavaOutputFolder(getProject())
+				.getParent();
 		IFolder genFolder = output.getFolder("gen");
-		if(genFolder.exists()){
+		if (genFolder.exists()) {
 			genFolder.delete(true, new NullProgressMonitor());
 		}
 		genFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
@@ -267,57 +276,59 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		genrateJavaFiles(output);
 	}
 
-	/*private void setMaxBuildIterations() {
-		IWorkspaceDescription wsDesc = getProject().getWorkspace().getDescription();
-		if (wsDesc.getMaxBuildIterations() != InkPlugin.getDefault().getMaxBuildIterations()) {
-			wsDesc.setMaxBuildIterations(InkPlugin.getDefault().getMaxBuildIterations());
-			try {
-				getProject().getWorkspace().setDescription(wsDesc);
-			} catch (CoreException e) {
-			}
-		}
-	}*/
+	/*
+	 * private void setMaxBuildIterations() { IWorkspaceDescription wsDesc =
+	 * getProject().getWorkspace().getDescription(); if
+	 * (wsDesc.getMaxBuildIterations() !=
+	 * InkPlugin.getDefault().getMaxBuildIterations()) {
+	 * wsDesc.setMaxBuildIterations
+	 * (InkPlugin.getDefault().getMaxBuildIterations()); try {
+	 * getProject().getWorkspace().setDescription(wsDesc); } catch
+	 * (CoreException e) { } } }
+	 */
 
-
-	/*private void handleBuildFailed() {
-		IWorkspaceDescription wsDescription = getProject().getWorkspace().getDescription();
-		wsDescription.setMaxBuildIterations(0);
-		try {
-			getProject().getWorkspace().setDescription(wsDescription);
-		} catch (CoreException e) {
-		}
-	}*/
+	/*
+	 * private void handleBuildFailed() { IWorkspaceDescription wsDescription =
+	 * getProject().getWorkspace().getDescription();
+	 * wsDescription.setMaxBuildIterations(0); try {
+	 * getProject().getWorkspace().setDescription(wsDescription); } catch
+	 * (CoreException e) { } }
+	 */
 
 	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
 		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
-		for(InkObject o : all){
-			try{
+		for (InkObject o : all) {
+			try {
 				gen.generate(o.reflect());
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		gen = new EnumGenerator(output);
-		all = InkUtils.getInstances(this.dsls, CoreNotations.Ids.ENUM_TYPE, true);
-		for(InkObject o : all){
+		all = InkUtils.getInstances(this.dsls, CoreNotations.Ids.ENUM_TYPE,
+				true);
+		for (InkObject o : all) {
 			gen.generate(o.reflect());
 		}
 	}
 
-
-	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
+	protected void incrementalBuild(IResourceDelta delta,
+			IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
 		delta.accept(new InkDeltaVisitor(monitor));
-		if(!changedFiles.isEmpty()){
-			for(IFile f : changedFiles){
+		if (!changedFiles.isEmpty()) {
+			for (IFile f : changedFiles) {
 				moveInkFile(f, monitor);
 			}
-			if(!fullBuild){
-				getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-				List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
+			if (!fullBuild) {
+				getProject().deleteMarkers(MARKER_TYPE, true,
+						IResource.DEPTH_INFINITE);
+				List<InkErrorDetails> errors = InkPlugin.getDefault()
+						.reloadInk();
 				processErrors(errors, monitor);
-				IFolder outputFolder = (IFolder) InkUtils.getJavaOutputFolder(getProject()).getParent();
+				IFolder outputFolder = (IFolder) InkUtils.getJavaOutputFolder(
+						getProject()).getParent();
 				genrateJavaFiles(outputFolder);
 			}
 			changedFiles.clear();
@@ -325,33 +336,33 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	private void processErrors(List<InkErrorDetails> errors, IProgressMonitor monitor) {
-		if(!errors.isEmpty()){
-			for(InkErrorDetails err : errors){
-				try{
+	private void processErrors(List<InkErrorDetails> errors,
+			IProgressMonitor monitor) {
+		if (!errors.isEmpty()) {
+			for (InkErrorDetails err : errors) {
+				try {
 					String id = err.getId();
-					id = "id=\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
+					id = "id=\""
+							+ id.substring(id.indexOf(":") + 1, id.length())
+							+ "\"";
 					File f = err.getResource();
-					int lineNumber = EclipseUtils.findLineNumber(EclipseUtils.getFile(f), id);
-					/*int lineNumber = 0;
-					BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
-					try {
-						String line;
-						while ((line=reader.readLine())!=null){
-							lineNumber++;
-							if(line.contains(id)){
-								break;
-							}
-						}
-					}
-					finally{
-						reader.close();
-					}*/
-					IWorkspace workspace= ResourcesPlugin.getWorkspace();
-					IPath location= Path.fromOSString(f.getAbsolutePath());
-					IFile file= workspace.getRoot().getFileForLocation(location);
-					addMarker(file, err.getFormattedMessage(), lineNumber, IMarker.SEVERITY_ERROR);
-				}catch(Throwable e){
+					int lineNumber = EclipseUtils.findLineNumber(
+							EclipseUtils.getFile(f), id);
+					/*
+					 * int lineNumber = 0; BufferedReader reader = new
+					 * BufferedReader(new InputStreamReader(new
+					 * FileInputStream(f), "UTF-8")); try { String line; while
+					 * ((line=reader.readLine())!=null){ lineNumber++;
+					 * if(line.contains(id)){ break; } } } finally{
+					 * reader.close(); }
+					 */
+					IWorkspace workspace = ResourcesPlugin.getWorkspace();
+					IPath location = Path.fromOSString(f.getAbsolutePath());
+					IFile file = workspace.getRoot().getFileForLocation(
+							location);
+					addMarker(file, err.getFormattedMessage(), lineNumber,
+							IMarker.SEVERITY_ERROR);
+				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 			}

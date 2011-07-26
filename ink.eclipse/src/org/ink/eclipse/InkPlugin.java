@@ -120,6 +120,24 @@ public class InkPlugin extends AbstractUIPlugin {
 		return inkProjects;
 	}
 
+	public List<IProject> getInkProjects(IProject dependentProject){
+		List<IProject> inkProjects = new ArrayList<IProject>();
+		if(dependentProject.isOpen()){
+			try {
+				IProject[]  projects = dependentProject.getReferencedProjects();
+				for(IProject p : projects){
+					if(p.isOpen() && p.hasNature(InkNature.NATURE_ID)){
+						inkProjects.add(p);
+					}
+				}
+			} catch (CoreException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return inkProjects;
+
+	}
+
 
 	/*
 	 * (non-Javadoc)

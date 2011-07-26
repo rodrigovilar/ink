@@ -75,7 +75,7 @@ public class CoreBasicTests extends TestCase{
 		InkClassState referenceType = context.getState(CoreNotations.Ids.PROPERTY);
 		assertNotNull(referenceAttClass);
 		ReferenceState referenceAttribute = (ReferenceState) referenceAttClass.newInstance();
-		referenceAttribute.setName("myoBJECT");
+		referenceAttribute.setName("myObject");
 		referenceAttribute.setType(referenceType);
 		assertNotNull(referenceAttribute);
 		Reference refObject = (Reference) referenceAttribute.getBehavior();

@@ -17,4 +17,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/ink-core.jar,
  lib/ink-sdl.jar,
+ resources/,
  .

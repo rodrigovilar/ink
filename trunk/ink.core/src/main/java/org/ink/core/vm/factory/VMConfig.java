@@ -22,7 +22,7 @@ public class VMConfig {
 		initStrategy = strategy;
 	}
 
-	public ResourceResolver getInstantiationStrategy() {
+	public ResourceResolver getResourceResolver() {
 		return initStrategy;
 	}
 }

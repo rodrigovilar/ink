@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ink.core.vm.constraints.ActivationMode;
+import org.ink.core.vm.constraints.ClassConstraintsState;
 import org.ink.core.vm.constraints.ConstraintsState;
 import org.ink.core.vm.constraints.InstanceValidatorState;
 import org.ink.core.vm.constraints.PropertyConstraintsState;
@@ -1325,6 +1326,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(DslFactoryPersonalityState.class);
 		newInkObject(PersonalityState.class);
 		newInkObject(ConstraintsState.class);
+		newInkObject(ClassConstraintsState.class);
 		newInkObject(PropertyConstraintsState.class);
 		newInkObject(MessageClassState.class);
 		newInkObject(MessageState.class);

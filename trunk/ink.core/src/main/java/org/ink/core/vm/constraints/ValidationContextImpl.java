@@ -23,22 +23,22 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator) {
-		add(erroneousObject, validator, null, Severity.Error);
+		add(erroneousObject, validator, null, Severity.INK_Error);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code) {
-		add(erroneousObject, validator, code, Severity.Error,(Object[])null);
+		add(erroneousObject, validator, code, Severity.INK_Error,(Object[])null);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, Object... args) {
-		add(erroneousObject, validator, null, Severity.Error, args);
+		add(erroneousObject, validator, null, Severity.INK_Error, args);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code, Object... args) {
-		add(erroneousObject, validator, code, Severity.Error, args);
+		add(erroneousObject, validator, code, Severity.INK_Error, args);
 	}
 
 	@Override
@@ -78,9 +78,23 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 		if(msg==null){
 			//TODO - should add generic error message
 		}
+
+		add(erroneousObject, msg, severity, validatorCls.abortOnError(), args);
+
+	}
+
+	@Override
+	public void add(InkObjectState erroneousObject, Message msg,
+			Severity severity,boolean abortOnError, Object... args){
+		add(erroneousObject, msg, severity, ResourceType.INK, abortOnError, args);
+	}
+
+	@Override
+	public void add(InkObjectState erroneousObject, Message msg,
+			Severity severity,ResourceType resourceType, boolean abortOnError, Object... args){
 		ValidationMessage validatorMsg = ((ValidationContextClass)getMeta()).instantiateErrorMessage();
-		validatorMsg.fill(erroneousObject, msg, severity, args);
-		abort |= (validatorCls.abortOnError() && severity.ordinal()>=Severity.Error.ordinal());
+		validatorMsg.fill(erroneousObject, msg, severity, resourceType,args);
+		abort |= (abortOnError && severity.getLevel()>=Severity.INK_Error.getLevel());
 		messages.add(validatorMsg);
 	}
 
@@ -100,7 +114,7 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 			return false;
 		}
 		for(ValidationMessage msg : messages){
-			if(severity.ordinal()<=msg.getSeverity().ordinal()){
+			if(severity.getLevel()<=msg.getSeverity().getLevel()){
 				return true;
 			}
 		}
@@ -126,12 +140,13 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 	@Override
 	public void logMessages(Severity severity) {
 		for(ValidationMessage msg : messages){
-			if(severity.ordinal()<=msg.getSeverity().ordinal()){
+			if(severity.getLevel()<=msg.getSeverity().getLevel()){
 				//TODO - change to logger
 				System.out.println(msg.getFormattedMessage());
 			}
 		}
 	}
+
 
 
 }

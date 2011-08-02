@@ -67,7 +67,7 @@ public class VMMain {
 
 	public static DslFactory getDefaultFactory(){
 		if(factory==null){
-			throw new InkBootException("Error in intialization. The method start() should be called first.");
+			throw new InkBootException("Error in intialization. The start method should be called first.");
 		}
 		return factory;
 	}
@@ -138,6 +138,7 @@ public class VMMain {
 			allFactories.put(factory.getNamespace(), factory);
 		}else{
 			coreFactory = loadCoreFactory();
+			allFactories.put(coreFactory.getNamespace(), coreFactory);
 			namespaces.add(coreFactory.getNamespace());
 			List<DslFactory> factories = new ArrayList<DslFactory>();
 			for(String p : sourcePaths){
@@ -150,7 +151,6 @@ public class VMMain {
 			for(DslFactory f : factories){
 				f.scan();
 			}
-			allFactories.put(coreFactory.getNamespace(), coreFactory);
 			if(factories.isEmpty()){
 				factory = coreFactory;
 			}else{

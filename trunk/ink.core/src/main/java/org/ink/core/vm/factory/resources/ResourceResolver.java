@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.lang.InkClassState;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.types.EnumTypeState;
 import org.ink.core.vm.utils.InkNotations;
 
@@ -26,21 +27,23 @@ public abstract class ResourceResolver {
 
 	public abstract File getDslResourcesLocation(DslFactory factory);
 
-	public abstract ClassStructure getClassDetails(InkClassState cls);
+	public abstract JavaClassDescription getBehaviorClassDescription(ClassMirror cm);
 
-	protected String getBehaviorShortClassName(InkClassState cls){
-		return cls.reflect().getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
+	public abstract JavaClassDescription getInterfaceDescription(ClassMirror cm);
+
+	protected String getBehaviorShortClassName(ClassMirror cm){
+		return cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
 	}
 
-	protected String getInterfaceClassShortName(InkClassState cls){
-		return cls.reflect().getShortId();
+	protected String getInterfaceClassShortName(ClassMirror cm){
+		return cm.getShortId();
 	}
 
-	protected String getDataClassShortName(InkClassState cls){
-		return cls.reflect().getShortId() + InkNotations.Names.DATA_CLASS_EXTENSION;
+	protected String getDataClassShortName(ClassMirror cm){
+		return cm.getShortId() + InkNotations.Names.DATA_CLASS_EXTENSION;
 	}
 
-	protected String getStructDataClassShortName(InkClassState cls){
-		return cls.reflect().getShortId() + InkNotations.Names.STRUCT_CLASS_EXTENSION;
+	protected String getStructDataClassShortName(ClassMirror cm){
+		return cm.getShortId() + InkNotations.Names.STRUCT_CLASS_EXTENSION;
 	}
 }

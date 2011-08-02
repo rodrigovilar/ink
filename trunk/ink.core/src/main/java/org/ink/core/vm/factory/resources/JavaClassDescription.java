@@ -2,7 +2,7 @@ package org.ink.core.vm.factory.resources;
 
 import java.util.Set;
 
-public class ClassStructure {
+public class JavaClassDescription {
 
 	private String sClass;
 	private Set<String> interfaces;

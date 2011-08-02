@@ -2,6 +2,7 @@ package org.ink.core.vm.factory;
 
 import java.util.List;
 
+import org.ink.core.vm.constraints.ClassConstraintsState;
 import org.ink.core.vm.lang.InheritanceConstraints;
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
@@ -12,7 +13,7 @@ import org.ink.core.vm.mirror.ClassMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(traitsClass=DslFactoryPersonalityState.class, mirrorClass=ClassMirrorState.class, finalValuesLocation={InkClassState.p_component_type}, finalValues={"Pure_Component"})
+@CoreClassSpec(constraintsClass=ClassConstraintsState.class,traitsClass=DslFactoryPersonalityState.class, mirrorClass=ClassMirrorState.class, finalValuesLocation={InkClassState.p_component_type}, finalValues={"Pure_Component"})
 public interface DslFactoryState extends InkClassState{
 
 	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)

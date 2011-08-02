@@ -15,17 +15,21 @@ public enum JavaMapping {
 	Only_Behavior,
 	Only_Interface,
 	No_Java;
-	
+
+	public boolean hasJava(){
+		return this!=No_Java;
+	}
+
 	public boolean hasState(){
 		return this==State_Behavior_Interface | this==JavaMapping.State_Behavior
 					| this==Only_State | this==State_Interface;
 	}
-	
+
 	public boolean hasBeahvior(){
 		return this==State_Behavior_Interface | this==JavaMapping.State_Behavior
 					| this==Only_Behavior | this==Behavior_Interface;
 	}
-	
+
 	public boolean hasInterface(){
 		return this==State_Behavior_Interface | this==JavaMapping.State_Interface
 					| this==Only_Interface | this==Behavior_Interface;

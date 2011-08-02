@@ -88,19 +88,9 @@ public class EclipseUtils {
 		}
 	}
 
-	public static IJavaElement getJavaElement(String className){
-		return null;
-	}
-
-	public static IJavaElement getJavaElement(ClassMirror cm){
-		while(!cm.getJavaMapping().hasBeahvior() && cm.getSuper()!=null){
-			cm = cm.getSuper();
-		}
-		String javaPath = cm.getFullJavaPackage();
-		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION + ".java";
-		IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
+	public static IJavaElement getJavaElement(ClassMirror cm, IPath p, boolean isCoreObject){
 		IProject project = null;
-		if (!cm.isCoreObject()) {
+		if (!isCoreObject) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = cm.getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
@@ -119,13 +109,81 @@ public class EclipseUtils {
 		}
 	}
 
+	public static IFile getJavaInterfaceFile(ClassMirror cm){
+		if(!cm.getJavaMapping().hasInterface() || cm.isCoreObject()){
+			return null;
+		}
+		return getJavaFile(cm, getJavaInterfacePath(cm));
+	}
+
+	public static IFile getJavaBehaviorFile(ClassMirror cm){
+		if(!cm.getJavaMapping().hasBeahvior() || cm.isCoreObject()){
+			return null;
+		}
+		return getJavaFile(cm, getJavaBehaviorPath(cm));
+	}
+
+	private static IFile getJavaFile(ClassMirror cm, IPath p) {
+		try{
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			File f = cm.getDescriptor().getResource();
+			IPath location = Path.fromOSString(f.getAbsolutePath());
+			IFile file = workspace.getRoot().getFileForLocation(location);
+			IProject project = file.getProject();
+			IJavaProject jProject = JavaCore.create(project);
+			IJavaElement je = jProject.findElement(p);
+			IFile result = (IFile) je.getResource();
+			return result;
+		}catch(Exception e){
+			e.fillInStackTrace();
+		}
+		return null;
+	}
+
+
+
+	public static IJavaElement getJavaBehaviorElement(ClassMirror cm){
+		while(!cm.getJavaMapping().hasBeahvior() && cm.getSuper()!=null){
+			cm = cm.getSuper();
+		}
+		IPath p = getJavaBehaviorPath(cm);
+		return getJavaElement(cm, p, cm.isCoreObject());
+	}
+
+	private static IPath getJavaBehaviorPath(ClassMirror cm) {
+		String javaPath = cm.getFullJavaPackage();
+		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
+		String className = javaPath + "." + javaFileName;
+		IPath p = new Path(className.replace(".", File.separator) + ".java");
+		return p;
+	}
+
+	private static IPath getJavaInterfacePath(ClassMirror cm) {
+		String javaPath = cm.getFullJavaPackage();
+		String javaFileName = cm.getShortId();
+		String className = javaPath + "." + javaFileName;
+		IPath p = new Path(className.replace(".", File.separator) + ".java");
+		return p;
+	}
+
+	public static IJavaElement getJavaInterfaceElement(ClassMirror cm){
+		while(!cm.getJavaMapping().hasInterface() && cm.getSuper()!=null){
+			cm = cm.getSuper();
+		}
+		String javaPath = cm.getFullJavaPackage();
+		String javaFileName = cm.getShortId();
+		String className = javaPath + "." + javaFileName;
+		IPath p = new Path(className.replace(".", File.separator) + ".java");
+		return getJavaElement(cm, p, cm.isCoreObject());
+	}
+
 	public static void openJava(InkObject o){
 		Mirror m = o.reflect();
 		if(!m.isClass()){
 			m = m.getClassMirror();
 		}
 		try{
-			IJavaElement je = getJavaElement((ClassMirror)m);
+			IJavaElement je = getJavaBehaviorElement((ClassMirror)m);
 			openJavaElement(je);
 		}catch(Exception e){
 		}

@@ -20,33 +20,12 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 		return findCoreClass((InkClassState) cls.reflect().getSuper().edit().getEditedState());
 	}
 
-	private DslFactory getFactory(InkClassState cls){
-		return cls.reflect().getTragetOwnerFactory();
-	}
-
-	private String getCoreJavaPackage(InkClassState originalClass, InkClassState coreClass){
-		if(originalClass.reflect().isCoreObject()){
-			return getFactory(originalClass).getJavaPackage();
-		}
-		return coreClass.getContext().getFactory().getJavaPackage();
-	}
 
 	@Override
 	public String getBehaviorClassName(InkClassState cls) {
-		ClassMirror cm = cls.reflect();
-		InkClassState coreClass = null;
-		if(cm.isCoreObject()){
-			coreClass = cls;
-		}else{
-			coreClass = findCoreClass(cls);
-			ClassMirror ccm = coreClass.reflect();
-			while(ccm.isAbstract()){
-				ccm = ccm.getSuper();
-				coreClass = (InkClassState) ccm.edit().getEditedState();
-			}
-		}
-		cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getBehaviorShortClassName(coreClass);
+		InkClassState coreClass = findCoreClass(cls);
+		ClassMirror cm = coreClass.reflect();
+		String result = cm.getFullJavaPackage() + "."+ getBehaviorShortClassName(cm);
 		return result;
 	}
 
@@ -54,7 +33,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getInterfaceClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getInterfaceClassShortName(coreClass);
+		String result = cm.getFullJavaPackage() + "."+ getInterfaceClassShortName(cm);
 		return result;
 	}
 
@@ -62,7 +41,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getDataClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getDataClassShortName(coreClass);
+		String result = cm.getFullJavaPackage() + "."+ getDataClassShortName(cm);
 		return result;
 	}
 
@@ -70,7 +49,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getStructDataClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(coreClass);
+		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(cm);
 		return result;
 	}
 

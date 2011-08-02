@@ -5,5 +5,17 @@ package org.ink.core.vm.constraints;
  */
 
 public enum Severity {
-	Warning, Error;
+	Warning(10), Error(50), MAPPING_ERROR(51), INK_Error(52);
+
+	private int level;
+
+	private Severity(int level){
+		this.level = level;
+	}
+
+	public int getLevel(){
+		return this.level;
+	}
+
+
 }

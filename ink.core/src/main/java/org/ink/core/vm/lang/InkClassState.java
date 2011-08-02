@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ink.core.vm.constraints.ClassConstraintsState;
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.WeaveException;
 import org.ink.core.vm.factory.DslFactory;
@@ -30,7 +31,7 @@ import org.ink.core.vm.utils.CoreUtils;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=ClassMirrorState.class, javaMapping=JavaMapping.State_Behavior_Interface
+@CoreClassSpec(constraintsClass=ClassConstraintsState.class,mirrorClass=ClassMirrorState.class, javaMapping=JavaMapping.State_Behavior_Interface
 		/*,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type}*/)
 public interface InkClassState extends InkTypeState{
 
@@ -220,14 +221,12 @@ public interface InkClassState extends InkTypeState{
 				byte counter=0;
 				for(byte i=0;i<properties.size();i++){
 					prop = properties.get(i);
-					byte k = counter;
 					for(Property p : originalProperties){
 						if(p.getName().equals(prop.getName())){
 							classRealPropertiesIndex[counter]=i;
 							counter++;
 							break;
 						}
-						k++;
 					}
 					classPropsMirrors[i] = prop.reflect();
 					//currently can't add detachable traits to core elements need to find a way to allow this
@@ -247,7 +246,6 @@ public interface InkClassState extends InkTypeState{
 			getFactory().bind((ClassMirror)reflect());
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void afterPropertiesSet(){
 			super.afterPropertiesSet();

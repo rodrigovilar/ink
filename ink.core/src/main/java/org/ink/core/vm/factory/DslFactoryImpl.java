@@ -126,7 +126,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					}
 				}
 			}
-			if(VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+			if(VMConfig.instance().getResourceResolver().enableEagerFetch()){
 				Iterator<String> iter = loader.iterator();
 				while(iter.hasNext()){
 					try{
@@ -193,7 +193,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 							throw new CoreException("The object with id '" +id+"', could not be found.");
 						}
 					} catch (ObjectLoadingException e) {
-						if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+						if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
 							throw new RuntimeException(e);
 						}
 						result = e.getObject();
@@ -202,7 +202,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 							try{
 								ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
 							}catch(Throwable e1){
-								if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+								if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
 									throw new RuntimeException(e);
 								}
 								e.printStackTrace();
@@ -365,7 +365,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	private ResourceResolver getInstantiationStrategy() {
-		return VMConfig.instance().getInstantiationStrategy();
+		return VMConfig.instance().getResourceResolver();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -506,7 +506,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					repo.register(elem.getBehavior());
 				}
 			}catch(Throwable e){
-				if(!VMConfig.instance().getInstantiationStrategy().enableEagerFetch()){
+				if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
 					throw new RuntimeException(e);
 				}
 				e.printStackTrace();

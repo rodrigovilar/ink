@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.ink.core.vm.constraints.Severity;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
 import org.ink.core.vm.exceptions.ObjectLoadingException;
@@ -70,22 +71,29 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 						List<ParseError> errors = reader.getErrors();
 						desc.setInvalid();
 						desc.setParsingErrors(errors);
-						System.out.println("============================================Load Error=====================================================================================");
-						for(ParseError er : errors){
-							System.out.println("Object '" +id+"':" + er.getDescription());
+						if(!errors.isEmpty()){
+							System.out.println("============================================Load Error=====================================================================================");
+							for(ParseError er : errors){
+								System.out.println("Object '" +id+"':" + er.getDescription());
+							}
+							System.out.println("=================================================================================================================================");
 						}
-						System.out.println("=================================================================================================================================");
 						throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
 					}else if( shouldValidateResult(result)&&!result.validate(vc)){
 						List<ValidationMessage> errors = vc.getMessages();
-						desc.setInvalid();
 						desc.setValidationErrorMessages(errors);
-						System.out.println("============================================Load Error=====================================================================================");
-						for(ValidationMessage er : errors){
-							System.out.println("Object '" +id+"':" + er.getFormattedMessage());
+						if(!errors.isEmpty()){
+							System.out.println("============================================Load Error=====================================================================================");
+							for(ValidationMessage er : errors){
+								System.out.println("Object '" +id+"':" + er.getFormattedMessage());
+							}
+							System.out.println("=================================================================================================================================");
 						}
-						System.out.println("=================================================================================================================================");
-						throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
+						//todo -this is a hack
+						if(vc.containsMessage(Severity.INK_Error)){
+							desc.setInvalid();
+							throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
+						}
 					}
 					return result;
 				}else{
@@ -156,7 +164,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void loadElements(DslFactory ownerFactory) throws IOException {
 		this.ownerFactory = ownerFactory;
-		folder = VMConfig.instance().getInstantiationStrategy().getDslResourcesLocation(ownerFactory);
+		folder = VMConfig.instance().getResourceResolver().getDslResourcesLocation(ownerFactory);
 		//TODO - the reader should be a property on DSLoader
 		readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
 		InkReader<D> reader = createReader();
@@ -238,20 +246,17 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		InkErrorDetails err;
 		for(Map.Entry<String, ElementDescriptor<D>> en : elements.entrySet()){
 			elem = en.getValue();
-			if(!elem.isValid()){
-				if(elem.getParsingErrors()!=null){
-					for(ParseError pe : elem.getParsingErrors()){
-						err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource());
-						result.add(err);
-					}
+			if(elem.getParsingErrors()!=null){
+				for(ParseError pe : elem.getParsingErrors()){
+					err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource());
+					result.add(err);
 				}
-				if(elem.getValidationErrorMessages()!=null){
-					for(ValidationMessage vm : elem.getValidationErrorMessages()){
-						err = new InkErrorDetails(en.getKey(), vm.getErrorPath(), vm.getFormattedMessage(), elem.getResource());
-						result.add(err);
-					}
+			}
+			if(elem.getValidationErrorMessages()!=null){
+				for(ValidationMessage vm : elem.getValidationErrorMessages()){
+					err = new InkErrorDetails(en.getKey(), vm.getErrorPath(), vm.getFormattedMessage(), elem.getResource(), vm.getResourceType());
+					result.add(err);
 				}
-				//elem.clearErrors();
 			}
 		}
 		return result;

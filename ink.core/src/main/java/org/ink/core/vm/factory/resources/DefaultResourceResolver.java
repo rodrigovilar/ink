@@ -27,7 +27,11 @@ public class DefaultResourceResolver extends ResourceResolver{
 	@Override
 	public String getBehaviorClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		String result = cm.getFullJavaPackage() + "." + getBehaviorShortClassName(cls);
+		return getBehaviorClassName(cm);
+	}
+
+	public String getBehaviorClassName(ClassMirror cm) {
+		String result = cm.getFullJavaPackage() + "." + getBehaviorShortClassName(cm);
 		return result;
 	}
 
@@ -35,7 +39,11 @@ public class DefaultResourceResolver extends ResourceResolver{
 	@Override
 	public String getInterfaceClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		String result = cm.getFullJavaPackage() + "." +getInterfaceClassShortName(cls);
+		return getInterfaceClassName(cm);
+	}
+
+	public String getInterfaceClassName(ClassMirror cm) {
+		String result = cm.getFullJavaPackage() + "." +getInterfaceClassShortName(cm);
 		return result;
 	}
 
@@ -43,7 +51,7 @@ public class DefaultResourceResolver extends ResourceResolver{
 	@Override
 	public String getDataClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		String result = cm.getFullJavaPackage() + "." +getDataClassShortName(cls);
+		String result = cm.getFullJavaPackage() + "." +getDataClassShortName(cm);
 		return result;
 	}
 
@@ -51,7 +59,7 @@ public class DefaultResourceResolver extends ResourceResolver{
 	@Override
 	public String getStructDataClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(cls);
+		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(cm);
 		return result;
 	}
 
@@ -84,11 +92,10 @@ public class DefaultResourceResolver extends ResourceResolver{
 		return folder;
 	}
 
-	@Override
-	public ClassStructure getClassDetails(InkClassState cls) {
+	private JavaClassDescription getClassDetails(String className) {
 		try {
-			Class<?> javaCls = Thread.currentThread().getContextClassLoader().loadClass(getBehaviorShortClassName(cls));
-			ClassStructure result = new ClassStructure();
+			Class<?> javaCls = Thread.currentThread().getContextClassLoader().loadClass(className);
+			JavaClassDescription result = new JavaClassDescription();
 			Class<?> sClass = javaCls.getSuperclass();
 			if(sClass!=null){
 				result.setSuperClass(sClass.getName());
@@ -112,6 +119,16 @@ public class DefaultResourceResolver extends ResourceResolver{
 			return result;
 		} catch (ClassNotFoundException e) {}
 		return null;
+	}
+
+	@Override
+	public JavaClassDescription getBehaviorClassDescription(ClassMirror cm) {
+		return getClassDetails(getBehaviorClassName(cm));
+	}
+
+	@Override
+	public JavaClassDescription getInterfaceDescription(ClassMirror cm) {
+		return getClassDetails(getInterfaceClassName(cm));
 	}
 
 }

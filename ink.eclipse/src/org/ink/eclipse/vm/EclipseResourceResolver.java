@@ -11,9 +11,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.ink.core.vm.factory.DslFactory;
-import org.ink.core.vm.factory.resources.ClassStructure;
 import org.ink.core.vm.factory.resources.CoreResourceResolver;
-import org.ink.core.vm.lang.InkClassState;
+import org.ink.core.vm.factory.resources.JavaClassDescription;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.eclipse.utils.EclipseUtils;
 
@@ -28,19 +27,16 @@ public class EclipseResourceResolver extends CoreResourceResolver{
 		return result;
 	}
 
-	@Override
-	public ClassStructure getClassDetails(InkClassState cls) {
-		ClassMirror cm = cls.reflect();
-		IJavaElement je = EclipseUtils.getJavaElement(cm);
+	private JavaClassDescription getClassDetails(ClassMirror cm, IJavaElement je, String shortClassName) {
 		IType t;
 		if(je instanceof IClassFile){
 			t = ((IClassFile)je).getType();
 		}else{
-			t = ((ICompilationUnit)je).getType(getBehaviorShortClassName(cls));
+			t = ((ICompilationUnit)je).getType(shortClassName);
 		}
 		try{
 			ITypeHierarchy hier = t.newSupertypeHierarchy(null);
-			ClassStructure result = new ClassStructure();
+			JavaClassDescription result = new JavaClassDescription();
 			IType superClass = hier.getSuperclass(t);
 			if(superClass!=null){
 				result.setSuperClass(superClass.getFullyQualifiedName());
@@ -56,6 +52,24 @@ public class EclipseResourceResolver extends CoreResourceResolver{
 			return result;
 		}catch(JavaModelException e){
 			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public JavaClassDescription getBehaviorClassDescription(ClassMirror cm) {
+		IJavaElement je = EclipseUtils.getJavaBehaviorElement(cm);
+		if(je!=null){
+			return getClassDetails(cm, je, getBehaviorShortClassName(cm));
+		}
+		return null;
+	}
+
+	@Override
+	public JavaClassDescription getInterfaceDescription(ClassMirror cm) {
+		IJavaElement je = EclipseUtils.getJavaInterfaceElement(cm);
+		if(je!=null){
+			return getClassDetails(cm, je, getInterfaceClassShortName(cm));
 		}
 		return null;
 	}

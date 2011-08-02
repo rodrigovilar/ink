@@ -4,11 +4,15 @@ import java.util.List;
 
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.messages.Message;
 
 /**
  * @author Lior Schachter
  */
 public interface ValidationContext extends InkObject{
+
+	public void add(InkObjectState erroneousObject, Message msg, Severity severity, boolean abortOnError, Object... args);
+	public void add(InkObjectState erroneousObject, Message msg, Severity severity,ResourceType resourceType, boolean abortOnError, Object... args);
 
 	public void addError(InkObjectState erroneousObject, Validator validator);
 	public void addError(InkObjectState erroneousObject, Validator validator, String code);

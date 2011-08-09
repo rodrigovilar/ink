@@ -20,5 +20,6 @@ public interface DslLoader extends InkObject {
 	public void destroy();
 	public List<InkErrorDetails> collectErrors();
 	public ElementDescriptor<?> getDescriptor(String id);
+	public List<String> getElements(String filepath);
 
 }

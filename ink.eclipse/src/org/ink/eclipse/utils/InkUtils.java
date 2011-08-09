@@ -12,10 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -258,31 +255,6 @@ public class InkUtils {
 		return result;
 	}
 
-	public static IFolder getJavaOutputFolder(IProject p){
-		try {
-			IJavaProject jProject = JavaCore.create(p);
-			IPath outputPath = jProject.getOutputLocation().removeFirstSegments(1);
-			return p.getFolder(outputPath);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public static IFile getOutputFile(IProject p, IFile sourceFile){
-		try {
-			IPath relativeFilepath = sourceFile.getFullPath().removeFirstSegments(4);
-			if(relativeFilepath.isEmpty()){
-				relativeFilepath = sourceFile.getFullPath().removeFirstSegments(1);
-			}
-			IFolder outputFolder = getJavaOutputFolder(p);
-			IFile result = outputFolder.getFile(relativeFilepath);
-			return result;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	public static String resolveNamespace(File f) {
 		DslFactory factory = InkVM.instance().getOwnerFactory(f);

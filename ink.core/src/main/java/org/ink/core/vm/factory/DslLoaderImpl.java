@@ -8,7 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.ink.core.vm.constraints.ResourceType;
 import org.ink.core.vm.constraints.Severity;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
@@ -32,6 +34,7 @@ import org.ink.core.vm.utils.file.FileUtils;
 public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
 
 	private final Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
+	private static final Map<String, List<String>> file2Elements = new ConcurrentHashMap<String, List<String>>(1000);
 	private DslFactory ownerFactory = null;
 	private InkClass readerCls = null;
 	ValidationContext vc = null;
@@ -174,6 +177,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		for(File f : getInkFiles()){
 			fileElements = reader.extractRawData(f, ownerFactory.getAppContext());
 			if(!reader.containsErrors()){
+				List<String> ids = new ArrayList<String>(25);
+				file2Elements.put(f.getAbsolutePath(), ids);
 				for(ElementDescriptor desc : fileElements){
 					id = desc.getId();
 					if(id!=null){
@@ -181,6 +186,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							id = ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
 						}
 						elements.put(id, desc);
+						ids.add(id);
 					}else{
 						//TODO - log error
 					}
@@ -248,7 +254,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 			elem = en.getValue();
 			if(elem.getParsingErrors()!=null){
 				for(ParseError pe : elem.getParsingErrors()){
-					err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource());
+					err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource(), ResourceType.INK);
 					result.add(err);
 				}
 			}
@@ -265,6 +271,11 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@Override
 	public ElementDescriptor<?> getDescriptor(String id) {
 		return elements.get(id);
+	}
+
+	@Override
+	public List<String> getElements(String filepath) {
+		return file2Elements.get(new File(filepath).getAbsolutePath());
 	}
 
 }

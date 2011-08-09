@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -17,6 +18,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -52,6 +54,15 @@ import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.jobs.ErrorMessageJob;
 
 public class EclipseUtils {
+
+
+	public static IFile getEclipseFile(File f){
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IPath location = Path.fromOSString(f.getAbsolutePath());
+		IFile file = workspace.getRoot().getFileForLocation(
+				location);
+		return file;
+	}
 
 	@SuppressWarnings("unchecked")
 	public static String format(String code) {
@@ -131,9 +142,18 @@ public class EclipseUtils {
 			IFile file = workspace.getRoot().getFileForLocation(location);
 			IProject project = file.getProject();
 			IJavaProject jProject = JavaCore.create(project);
-			IJavaElement je = jProject.findElement(p);
-			IFile result = (IFile) je.getResource();
-			return result;
+			IClasspathEntry[] entries = jProject.getRawClasspath();
+			IFile result = null;
+			for(IClasspathEntry en : entries){
+				if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+					IPath fullPath = en.getPath().append(p);
+					fullPath = fullPath.makeRelativeTo(project.getFullPath());
+					result = project.getFile(fullPath);
+					if(result!=null){
+						return result;
+					}
+				}
+			}
 		}catch(Exception e){
 			e.fillInStackTrace();
 		}
@@ -150,7 +170,7 @@ public class EclipseUtils {
 		return getJavaElement(cm, p, cm.isCoreObject());
 	}
 
-	private static IPath getJavaBehaviorPath(ClassMirror cm) {
+	public static IPath getJavaBehaviorPath(ClassMirror cm) {
 		String javaPath = cm.getFullJavaPackage();
 		String javaFileName = cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
 		String className = javaPath + "." + javaFileName;
@@ -158,7 +178,7 @@ public class EclipseUtils {
 		return p;
 	}
 
-	private static IPath getJavaInterfacePath(ClassMirror cm) {
+	public static IPath getJavaInterfacePath(ClassMirror cm) {
 		String javaPath = cm.getFullJavaPackage();
 		String javaFileName = cm.getShortId();
 		String className = javaPath + "." + javaFileName;
@@ -187,6 +207,32 @@ public class EclipseUtils {
 			openJavaElement(je);
 		}catch(Exception e){
 		}
+	}
+
+	public static IFolder getJavaOutputFolder(IProject p){
+		try {
+			IJavaProject jProject = JavaCore.create(p);
+			IPath outputPath = jProject.getOutputLocation().removeFirstSegments(1);
+			return p.getFolder(outputPath);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static IFile getOutputFile(IProject p, IFile sourceFile){
+		try {
+			IPath relativeFilepath = sourceFile.getFullPath().removeFirstSegments(4);
+			if(relativeFilepath.isEmpty()){
+				relativeFilepath = sourceFile.getFullPath().removeFirstSegments(1);
+			}
+			IFolder outputFolder = getJavaOutputFolder(p);
+			IFile result = outputFolder.getFile(relativeFilepath);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private static void openJavaElement(IJavaElement je)

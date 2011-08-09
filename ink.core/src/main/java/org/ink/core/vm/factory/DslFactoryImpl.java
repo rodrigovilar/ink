@@ -631,4 +631,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		return loader.getDescriptor(id);
 	}
 
+	@Override
+	public List<String> getElements(String filepath){
+		return loader.getElements(filepath);
+	}
+
 }

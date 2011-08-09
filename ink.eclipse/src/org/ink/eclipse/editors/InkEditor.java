@@ -45,7 +45,7 @@ public class InkEditor extends TextEditor{
 		setEditorContextMenuId("#InkEditorContext");
 		//setRulerContextMenuId("#InkEditorContext");
 		colorManager = new ColorManager();
-		setSourceViewerConfiguration(new InkConfiguration(colorManager));
+		setSourceViewerConfiguration(new InkSourceViewerConfiguration(colorManager));
 		setDocumentProvider(new InkDocumentProvider());
 	}
 

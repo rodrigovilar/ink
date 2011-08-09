@@ -40,7 +40,7 @@ Class id="PercentageDiscountOffer" class="ink.core:InkClass" super="BaseOffer" a
 
 Class id="FixedPriceOffer" class="ink.core:InkClass" super="BaseOffer" abstract=false{
 	java_path ""
-	java_mapping "State_Behavior"
+	java_mapping "Only_State"
 	properties{
 		property class="ink.core:DoubleAttribute"{
 			name "amount"

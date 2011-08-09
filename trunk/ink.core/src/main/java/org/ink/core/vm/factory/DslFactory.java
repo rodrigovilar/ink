@@ -66,5 +66,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public boolean containsFile(File f);
 	public void destroy();
 	public ElementDescriptor<?> getDescriptor(String id);
+	public List<String> getElements(String filepath);
 
 }

@@ -22,11 +22,12 @@ public class InkErrorDetails {
 		this.resourceType = resourceType;
 	}
 
-	public InkErrorDetails(String id, int lineNumber, String formattedMessage, File resource) {
+	public InkErrorDetails(String id, int lineNumber, String formattedMessage, File resource, ResourceType resourceType) {
 		this.id = id;
 		this.lineNumber = lineNumber;
 		this.formattedMessage = formattedMessage;
 		this.inkSourceDefinition = resource;
+		this.resourceType = resourceType;
 	}
 
 	public String getId() {

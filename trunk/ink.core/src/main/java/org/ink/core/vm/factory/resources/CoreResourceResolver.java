@@ -14,7 +14,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 
 	public InkClassState findCoreClass(InkClassState cls){
 		ClassMirror cm = cls.reflect();
-		if(cm.isCoreObject()){
+		if(cm.isCoreObject() && !cm.isAbstract()){
 			return cls;
 		}
 		return findCoreClass((InkClassState) cls.reflect().getSuper().edit().getEditedState());

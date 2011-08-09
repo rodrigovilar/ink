@@ -329,7 +329,7 @@ public abstract class DataBlock {
 				if(attr.equals("class")){
 					List<String> options;
 					if(line.startsWith("Object")){
-						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, false);
+						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, true);
 					}else{
 						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
 						addIdProposal(result, cursorLocation, CoreNotations.Ids.INK_CLASS, prefix);

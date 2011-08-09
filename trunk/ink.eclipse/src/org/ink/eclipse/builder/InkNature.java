@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.ink.eclipse.InkPlugin;
-import org.ink.eclipse.utils.InkUtils;
+import org.ink.eclipse.utils.EclipseUtils;
 
 public class InkNature implements IProjectNature {
 
@@ -46,7 +46,7 @@ public class InkNature implements IProjectNature {
 
 			File f = libFolder.toFile();
 			System.out.println(f.getAbsolutePath());
-			IFolder outputFolder = InkUtils.getJavaOutputFolder(project);
+			IFolder outputFolder = EclipseUtils.getJavaOutputFolder(project);
 			IFolder genFolder;
 			IFolder binFolder;
 			if(outputFolder.getParent().getType()==IResource.PROJECT){

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -29,11 +28,7 @@ import org.ink.core.vm.constraints.ResourceType;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
 import org.ink.core.vm.factory.Context;
-import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkErrorDetails;
-import org.ink.core.vm.factory.InkVM;
-import org.ink.core.vm.factory.VM;
-import org.ink.core.vm.factory.VMMain;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
@@ -64,21 +59,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
-		VM vm = InkVM.instance();
-		Set<String> nss = VMMain.getDsls();
-		IFile f = getProject().getFile("dsls.ink");
-		List<String> nssList = new ArrayList<String>();
-		if (f.exists()) {
-			String path = f.getLocation().toFile().getAbsolutePath();
-			for (String ns : nss) {
-				DslFactory factory = vm.getFactory(ns);
-				File factoryConfFile = factory.getConfigurationFile();
-				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
-					nssList.add(ns);
-				}
-			}
-		}
-		this.dsls = nssList.toArray(new String[] {});
+		this.dsls =  InkUtils.getProjectDSLs(getProject());
 		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
 		for (InkObject o : all) {
 			try {

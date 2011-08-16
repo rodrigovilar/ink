@@ -11,7 +11,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -19,6 +21,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkVM;
+import org.ink.core.vm.factory.VM;
+import org.ink.core.vm.factory.VMMain;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObject;
@@ -78,6 +82,24 @@ public class InkUtils {
 			result.addAll(temp);
 		}
 		return result;
+	}
+
+	public static String[] getProjectDSLs(IProject p) {
+		VM vm = InkVM.instance();
+		Set<String> nss = VMMain.getDsls();
+		IFile f = p.getFile("dsls.ink");
+		List<String> nssList = new ArrayList<String>();
+		if (f.exists()) {
+			String path = f.getLocation().toFile().getAbsolutePath();
+			for (String ns : nss) {
+				DslFactory factory = vm.getFactory(ns);
+				File factoryConfFile = factory.getConfigurationFile();
+				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+					nssList.add(ns);
+				}
+			}
+		}
+		return nssList.toArray(new String[] {});
 	}
 
 	public static List<String> getAllSupers(String classId){

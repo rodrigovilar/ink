@@ -25,7 +25,7 @@ public enum JavaMapping {
 					| this==Only_State | this==State_Interface;
 	}
 
-	public boolean hasBeahvior(){
+	public boolean hasBehavior(){
 		return this==State_Behavior_Interface | this==JavaMapping.State_Behavior
 					| this==Only_Behavior | this==Behavior_Interface;
 	}
@@ -33,5 +33,21 @@ public enum JavaMapping {
 	public boolean hasInterface(){
 		return this==State_Behavior_Interface | this==JavaMapping.State_Interface
 					| this==Only_Interface | this==Behavior_Interface;
+	}
+
+	public JavaMapping withState(){
+		JavaMapping result = null;
+		if(hasState()){
+			result = this;
+		}else if(this==No_Java){
+			result = Only_State;
+		}else if(hasBehavior() && hasInterface()){
+			result = State_Behavior_Interface;
+		}else if(hasBehavior()){
+			result = State_Behavior;
+		}else{
+			result = State_Interface;
+		}
+		return result;
 	}
 }

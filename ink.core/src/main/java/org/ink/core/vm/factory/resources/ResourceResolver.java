@@ -31,19 +31,23 @@ public abstract class ResourceResolver {
 
 	public abstract JavaClassDescription getInterfaceDescription(ClassMirror cm);
 
-	protected String getBehaviorShortClassName(ClassMirror cm){
+	public String getBehaviorShortClassName(ClassMirror cm){
 		return cm.getShortId() + InkNotations.Names.BEHAVIOR_EXTENSION;
 	}
 
-	protected String getInterfaceClassShortName(ClassMirror cm){
+	public String getInterfaceClassShortName(ClassMirror cm){
 		return cm.getShortId();
 	}
 
-	protected String getDataClassShortName(ClassMirror cm){
+	public String getDataClassShortName(ClassMirror cm){
 		return cm.getShortId() + InkNotations.Names.DATA_CLASS_EXTENSION;
 	}
 
-	protected String getStructDataClassShortName(ClassMirror cm){
+	public String getStateClassShortName(ClassMirror cm){
+		return cm.getShortId() + InkNotations.Names.STATE_CLASS_EXTENSION;
+	}
+
+	public String getStructDataClassShortName(ClassMirror cm){
 		return cm.getShortId() + InkNotations.Names.STRUCT_CLASS_EXTENSION;
 	}
 }

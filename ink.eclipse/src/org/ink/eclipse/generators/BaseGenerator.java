@@ -22,7 +22,11 @@ public abstract class BaseGenerator implements Generator {
 
 
 	public BaseGenerator(IFolder outputFolder) {
-		this.outputFolder = outputFolder.getFolder("gen");
+		if(sourceGenerator()){
+			this.outputFolder = outputFolder;
+		}else{
+			this.outputFolder = outputFolder.getFolder("gen");
+		}
 		if(!this.outputFolder.exists()){
 			try {
 				createFolder(outputFolder);
@@ -30,6 +34,10 @@ public abstract class BaseGenerator implements Generator {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	protected boolean sourceGenerator() {
+		return false;
 	}
 
 	protected void writeFile(String data, String fullJavaPackage, String className) {

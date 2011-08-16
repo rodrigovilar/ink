@@ -101,4 +101,8 @@ public class CoreNotations {
 
 	}
 
+	public class Properties{
+		public static final String  CLASS_JAVA_MAPPING = "java_mapping";
+	}
+
 }

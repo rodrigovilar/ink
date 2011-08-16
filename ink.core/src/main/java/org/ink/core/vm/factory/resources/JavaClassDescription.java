@@ -1,12 +1,14 @@
 package org.ink.core.vm.factory.resources;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class JavaClassDescription {
 
-	private String sClass;
-	private Set<String> interfaces;
-	private Set<String> methods;
+	private static final Set<String> EMPTY = new HashSet<String>();
+	private String sClass = null;
+	private Set<String> interfaces = EMPTY;
+	private Set<String> methods = EMPTY;
 
 
 	public String getsClass() {

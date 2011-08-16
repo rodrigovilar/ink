@@ -25,7 +25,7 @@ public class ClassConstraintsImpl<S extends ClassConstraintsState> extends Const
 			ClassMirror cm = getTargetBehavior().reflect();
 			ResourceResolver rr = VMConfig.instance().getResourceResolver();
 			JavaClassDescription interfaceDesc = null;
-			if(cm.getJavaMapping().hasBeahvior()){
+			if(cm.getJavaMapping().hasBehavior()){
 				JavaClassDescription desc = rr.getBehaviorClassDescription(cm);
 				if(desc==null){
 					context.add(getTargetState(), getMessage(), Severity.MAPPING_ERROR, false, "missing Behavior class '" + defaultResolver.getBehaviorClassName(cm) +"'");
@@ -36,7 +36,7 @@ public class ClassConstraintsImpl<S extends ClassConstraintsState> extends Const
 						}
 					}else if(cm.getSuper()!=null){
 						ClassMirror sm = cm.getSuper();
-						while(sm!=null && !sm.getJavaMapping().hasBeahvior()){
+						while(sm!=null && !sm.getJavaMapping().hasBehavior()){
 							sm = sm.getSuper();
 						}
 						String superClassName = defaultResolver.getBehaviorClassName(sm);

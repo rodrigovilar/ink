@@ -383,6 +383,10 @@ public abstract class DataBlock {
 		return id;
 	}
 
+	public char[] getText(){
+		return text;
+	}
+
 	protected void addIdProposal(List<ICompletionProposal> all, int cursorLocation, String id, String prefix) {
 		boolean isPrefix = isPrefix(id, prefix);
 		if(!isPrefix && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)>=0){
@@ -405,6 +409,10 @@ public abstract class DataBlock {
 			return true;
 		}
 		return false;
+	}
+
+	public int getStartIndex() {
+		return startIndex;
 	}
 
 	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix);

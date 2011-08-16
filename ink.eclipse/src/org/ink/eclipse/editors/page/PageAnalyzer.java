@@ -8,20 +8,20 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 
 public class PageAnalyzer {
-	
+
 	private String text;
 	private int cursorLocation;
 	private ObjectDataBlock currentElement;
 	List<DataBlock> elements = new ArrayList<DataBlock>();
 	private String ns;
-	
+
 	public PageAnalyzer(String ns, String text, int cursorLocation) {
 		this.text = text;
 		this.ns = ns;
 		this.cursorLocation = cursorLocation;
 		scan();
 	}
-	
+
 	public List<ICompletionProposal> getContentAssist(){
 		ObjectDataBlock currentElement = getCurrentElement();
 		List<ICompletionProposal> result = null;
@@ -34,13 +34,21 @@ public class PageAnalyzer {
 		return result;
 	}
 
+	public ObjectDataBlock getRootElement(){
+		DataBlock result = getCurrentElement();
+		while(result.getParent()!=null){
+			result = result.getParent();
+		}
+		return (ObjectDataBlock) result;
+	}
+
 	private List<ICompletionProposal> getResultForNewElement() {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
 		result.add(new CompletionProposal("Object ", cursorLocation, 0,"Object ".length(), null, null, null, null));
 		return result;
 	}
-	
+
 	private void scan(){
 		StringBuilder currentLine = new StringBuilder(150);
 		int startB=0;
@@ -94,7 +102,7 @@ public class PageAnalyzer {
 		if(currentLine.toString().trim().length()>0){
 			addElement(cs, i-currentLine.length(), i);
 		}
-		
+
 	}
 
 	private void addElement(char[] text, int blockStart, int blockEnd) {
@@ -105,11 +113,11 @@ public class PageAnalyzer {
 			currentElement = block;
 		}
 	}
-	
+
 	public ObjectDataBlock getCurrentElement(){
 		return currentElement;
 	}
-	
-	
+
+
 
 }

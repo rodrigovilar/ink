@@ -179,7 +179,9 @@ public class ObjectDataBlock extends DataBlock {
 	}
 
 
-
+	public List<DataBlock> getBlocks(String key){
+		return innerBlocks.get(key);
+	}
 
 
 	@Override

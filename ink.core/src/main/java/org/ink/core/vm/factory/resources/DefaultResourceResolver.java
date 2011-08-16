@@ -51,6 +51,10 @@ public class DefaultResourceResolver extends ResourceResolver{
 	@Override
 	public String getDataClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
+		return getDataClassName(cm);
+	}
+
+	public String getDataClassName(ClassMirror cm) {
 		String result = cm.getFullJavaPackage() + "." +getDataClassShortName(cm);
 		return result;
 	}

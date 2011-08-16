@@ -132,5 +132,19 @@
             name="In Ink Editor">
       </context>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.ink.eclipse"
+            name="Dsl Wizard">
+      </category>
+      <wizard
+            category="org.ink.eclipse"
+            class="org.ink.eclipse.wizards.NewDslFileWizard"
+            icon="icons/sample.gif"
+            id="org.ink.eclipse.wizards.NewDslFileWizard"
+            name="New Dsl File">
+      </wizard>
+   </extension>
 
 </plugin>

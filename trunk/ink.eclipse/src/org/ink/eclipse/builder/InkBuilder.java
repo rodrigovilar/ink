@@ -355,7 +355,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					}else{
 						sourceFile = EclipseUtils.getJavaInterfaceFile((ClassMirror) o.reflect());
 					}
-					if(sourceFile.exists()){
+					if(sourceFile!=null && sourceFile.exists()){
 						sourceFile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_ZERO);
 					}
 					File inkFile = o.reflect().getDescriptor().getResource();
@@ -413,6 +413,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 								javaFile = EclipseUtils.getJavaInterfaceFile(cm);
 
 							}
+							deleteMarkers(javaFile);
 							addMarker(javaFile, err.getFormattedMessage(), 1, IMarker.SEVERITY_ERROR);
 						}
 						break;

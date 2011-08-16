@@ -128,10 +128,28 @@ public class EclipseUtils {
 	}
 
 	public static IFile getJavaBehaviorFile(ClassMirror cm){
-		if(!cm.getJavaMapping().hasBeahvior() || cm.isCoreObject()){
+		if(!cm.getJavaMapping().hasBehavior() || cm.isCoreObject()){
 			return null;
 		}
 		return getJavaFile(cm, getJavaBehaviorPath(cm));
+	}
+
+	public static IFolder getJavaSourceFolder(IFile inkFile) throws Exception{
+		IFolder result = null;
+		IProject project = inkFile.getProject();
+		IJavaProject jProject = JavaCore.create(project);
+		IClasspathEntry[] entries = jProject.getRawClasspath();
+		boolean isMain = inkFile.getFullPath().toOSString().contains(File.separator + "main" +File.separator+"dsl" );
+		for(IClasspathEntry en : entries){
+			if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+				if(isMain && en.getPath().toOSString().contains("main" +File.separator+"java")){
+					return project.getFolder(en.getPath().removeFirstSegments(1));
+				}else if(!isMain && en.getPath().toOSString().contains("test" +File.separator+"java")){
+					return project.getFolder(en.getPath().removeFirstSegments(1));
+				}
+			}
+		}
+		return result;
 	}
 
 	private static IFile getJavaFile(ClassMirror cm, IPath p) {
@@ -160,10 +178,31 @@ public class EclipseUtils {
 		return null;
 	}
 
+	public static IFile getJavaFile(IProject project, IPath p) {
+		try{
+			IJavaProject jProject = JavaCore.create(project);
+			IClasspathEntry[] entries = jProject.getRawClasspath();
+			IFile result = null;
+			for(IClasspathEntry en : entries){
+				if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+					IPath fullPath = en.getPath().append(p);
+					fullPath = fullPath.makeRelativeTo(project.getFullPath());
+					result = project.getFile(fullPath);
+					if(result!=null){
+						return result;
+					}
+				}
+			}
+		}catch(Exception e){
+			e.fillInStackTrace();
+		}
+		return null;
+	}
+
 
 
 	public static IJavaElement getJavaBehaviorElement(ClassMirror cm){
-		while(!cm.getJavaMapping().hasBeahvior() && cm.getSuper()!=null){
+		while(!cm.getJavaMapping().hasBehavior() && cm.getSuper()!=null){
 			cm = cm.getSuper();
 		}
 		IPath p = getJavaBehaviorPath(cm);

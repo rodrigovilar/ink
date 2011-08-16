@@ -276,7 +276,7 @@ public interface InkClassState extends InkTypeState{
 			if(this.isAbstract()){
 				return InkObjectImpl.class;
 			}
-			if(!this.getJavaMapping().hasBeahvior()){
+			if(!this.getJavaMapping().hasBehavior()){
 				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
 			}else{
 				return myFactory.resolveBehaviorClass(this);

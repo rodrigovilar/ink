@@ -12,7 +12,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 /**
  * Simple extension of DefaultPartitioner with printPartitions() method to assist with printing out partition
  * information
- * 
+ *
  * @author Phil Zoio
  */
 public class InkPartitioner extends FastPartitioner
@@ -23,15 +23,17 @@ public class InkPartitioner extends FastPartitioner
 		super(scanner, legalContentTypes);
 	}
 
+	@Override
 	public ITypedRegion[] computePartitioning(int offset, int length, boolean includeZeroLengthPartitions)
 	{
 		return super.computePartitioning(offset, length, includeZeroLengthPartitions);
 	}
 
+	@Override
 	public void connect(IDocument document, boolean delayInitialization)
 	{
 		super.connect(document, delayInitialization);
-		printPartitions(document);
+		//printPartitions(document);
 	}
 
 	public void printPartitions(IDocument document)

@@ -64,7 +64,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreInstanceValuesLocation;
 				@CoreInstanceValues(values={"The field ''{0}'' value is not a vaild regular expression."}),
 				@CoreInstanceValues(values={"The field ''{0}'' value ({1}) should be greater or equals to field ''{2}'' value ({3})."}),
 				@CoreInstanceValues(values={"The value ''{0}'' is not part of ''{1}'' enumeration. Please select one of the following: [{2}]."}),
-				@CoreInstanceValues(values={"Java-Mapping Error:{0}"}),
+				@CoreInstanceValues(values={"Java-Mapping Error : {0}"}),
 		})
 		public interface MessageState extends InkObjectState{
 

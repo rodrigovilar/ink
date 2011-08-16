@@ -663,7 +663,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 
 		@Override
 		public boolean hasBehaviorClass() {
-			return myClass.getJavaMapping().hasBeahvior();
+			return myClass.getJavaMapping().hasBehavior();
 		}
 
 		@Override

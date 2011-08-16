@@ -1,1 +1,14 @@
-a
+Class id=${NAME} class="ink.core:DslFactory" super="ink.core:ObjectFactory"{
+	java_path "factory"
+	java_mapping "No_Java"
+	imports{
+		[imports]
+		import ref="ink.tutorial1:CustomerFactory"//user selection from existing DSLs in the classpath
+		import ref="ink.core:ObjectFactory"//if no user selection then insert reference to the core factory
+	}
+	loader class="ink.core:DslLoader"
+	repository class="ink.core:DslRepository"
+	namespace "[NAMESPACE]"
+	dsl_package "[DSL_PACKAGE]"
+	java_package "[JAVA_PACKAGE]"
+}

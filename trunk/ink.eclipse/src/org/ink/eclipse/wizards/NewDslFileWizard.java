@@ -7,13 +7,19 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.operation.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import java.io.*;
+
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
+import org.ink.eclipse.InkPlugin;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -55,10 +61,13 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		final String containerName = page.getContainerName();
 		final String fileName = page.getFileName();
+		final Map<String, String> tokens = new HashMap<String, String>();
+		tokens.put("NAME", page.getClassId());
+		//final String classId = page.getClassId();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, fileName, monitor);
+					doFinish(containerName, fileName,tokens, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -87,6 +96,7 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	private void doFinish(
 		String containerName,
 		String fileName,
+		Map<String, String> tokenMap,
 		IProgressMonitor monitor)
 		throws CoreException {
 		// create a sample file
@@ -99,7 +109,7 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 		IContainer container = (IContainer) resource;
 		final IFile file = container.getFile(new Path(fileName));
 		try {
-			InputStream stream = openContentStream();
+			InputStream stream = openContentStream(tokenMap);
 			if (file.exists()) {
 				file.setContents(stream, true, true, monitor);
 			} else {
@@ -127,10 +137,51 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	 * We will initialize file contents with a sample text.
 	 */
 
-	private InputStream openContentStream() {
-		String contents =
+	private InputStream openContentStream(Map<String, String> tokenMap) throws CoreException {
+		/*String contents =
 			"This is the initial file contents for *.ink file that should be word-sorted in the Preview page of the multi-page editor";
-		return new ByteArrayInputStream(contents.getBytes());
+		return new ByteArrayInputStream(contents.getBytes()); */
+		//final String newline = "\n";
+		//String line;
+		StringBuffer sb = new StringBuffer();
+		MapTokenResolver resolver = new MapTokenResolver(tokenMap);
+		URL templateUrl = InkPlugin.getDefault().getBundle().getResource("templates/test.txt");
+		try
+		{
+			InputStream input = templateUrl.openStream();
+			Reader reader = new TokenReplacingReader(
+			        new InputStreamReader(input), resolver);
+			/*BufferedReader source = new BufferedReader(
+										new InputStreamReader(input));*/
+			try
+			{
+				/*while((line = reader.readLine()) != null)
+				{
+					line = line.replace("[NAME]", classId);
+					sb.append(line);
+					sb.append(newline);
+				}*/
+				int data = reader.read();
+			    while(data != -1){
+			        sb.append((char) data);
+			        data = reader.read();
+			    }
+			}
+			finally
+			{
+				reader.close();
+			}
+		}
+		catch(IOException e)
+		{
+			IStatus status = new Status(IStatus.ERROR, "newDslFileWizard", 
+										IStatus.OK, e.getLocalizedMessage(), null);
+			throw new CoreException(status);
+		}
+		
+		return new ByteArrayInputStream(sb.toString().getBytes());
+		//return this.getClass().getResourceAsStream("test.txt");
+		
 	}
 
 	private void throwCoreException(String message) throws CoreException {

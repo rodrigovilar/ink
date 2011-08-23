@@ -24,6 +24,13 @@ public class HTTPTest extends TestCase {
 		showPontisLogoRetriever_Client(prefix);
 	}
 
+	public void testFirstGCTest() {
+		F1_HTTP_Client httpClient = (F1_HTTP_Client)context
+		.getObject("example.http:F1_PontisLogoRetriever");
+		System.out.println(httpClient.sendReceive());
+		
+	}
+	
 	public void testFigure3Test() {
 		String prefix = "F3";
 		System.out.println("Figure3");
@@ -40,23 +47,24 @@ public class HTTPTest extends TestCase {
 		System.out.println("Figure4");
 		System.out.println("-------");
 		showMetaCache(prefix);
-		showHTTP_Client(prefix);
+		InkObject o1 = context
+		.getObject("example.http:F4_CNN_NewsRetriever");
+		assertNotNull(o1);	
+		System.out.println(o1);
 	}
 	
 	public void testFigure5Test() {
 		String prefix = "F5";
-		System.out.println("Figure4");
+		System.out.println("Figure5");
 		System.out.println("-------");
-		showMetaCache(prefix);
-		showHTTP_Client(prefix);
-	}
+		InkObject httpClientClass = context
+		.getObject("example.http:F5_BankBalanceRetriever");
+		assertNotNull(httpClientClass);
+
+		System.out.println(httpClientClass);	
+		}
 	
-	public void testFirstGCTest() {
-		F1_HTTP_Client httpClient = (F1_HTTP_Client)context
-		.getObject("example.http:F1_PontisLogoRetriever");
-		System.out.println(httpClient.sendReceive());
-		
-	}
+
 
 	private void showHTTP_Client(String prefix) {
 		InkObject httpClientClass = context

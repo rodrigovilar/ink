@@ -84,7 +84,7 @@ public class InkUtils {
 		return result;
 	}
 
-	public static String[] getProjectDSLs(IProject p) {
+	public static String[] getProjectNamespaces(IProject p) {
 		VM vm = InkVM.instance();
 		Set<String> nss = VMMain.getDsls();
 		IFile f = p.getFile("dsls.ink");
@@ -101,6 +101,40 @@ public class InkUtils {
 		}
 		return nssList.toArray(new String[] {});
 	}
+
+	public static String[] getProjectDSLs(IProject p) {
+		Collection<DslFactory> factories = VMMain.getAllFactories();
+		IFile f = p.getFile("dsls.ink");
+		List<String> ids = new ArrayList<String>();
+		if (f.exists()) {
+			String path = f.getLocation().toFile().getAbsolutePath();
+			for (DslFactory factory : factories) {
+				File factoryConfFile = factory.getConfigurationFile();
+				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+					ids.add(factory.reflect().getId());
+				}
+			}
+		}
+		return ids.toArray(new String[] {});
+	}
+
+	public static DslFactory[] getProjectDSLFactories(IProject p) {
+		Collection<DslFactory> factories = VMMain.getAllFactories();
+		IFile f = p.getFile("dsls.ink");
+		List<DslFactory> result = new ArrayList<DslFactory>();
+		if (f.exists()) {
+			String path = f.getLocation().toFile().getAbsolutePath();
+			for (DslFactory factory : factories) {
+				File factoryConfFile = factory.getConfigurationFile();
+				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+					result.add(factory);
+				}
+			}
+		}
+		return result.toArray(new DslFactory[] {});
+	}
+
+
 
 	public static List<String> getAllSupers(String classId){
 		Context context = InkPlugin.getDefault().getInkContext();

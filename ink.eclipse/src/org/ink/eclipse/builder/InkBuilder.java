@@ -59,7 +59,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
-		this.dsls =  InkUtils.getProjectDSLs(getProject());
+		this.dsls =  InkUtils.getProjectNamespaces(getProject());
 		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
 		for (InkObject o : all) {
 			try {

@@ -23,22 +23,22 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator) {
-		add(erroneousObject, validator, null, Severity.INK_Error);
+		add(erroneousObject, validator, null, Severity.INK_ERROR);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code) {
-		add(erroneousObject, validator, code, Severity.INK_Error,(Object[])null);
+		add(erroneousObject, validator, code, Severity.INK_ERROR,(Object[])null);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, Object... args) {
-		add(erroneousObject, validator, null, Severity.INK_Error, args);
+		add(erroneousObject, validator, null, Severity.INK_ERROR, args);
 	}
 
 	@Override
 	public void addError(InkObjectState erroneousObject, Validator validator, String code, Object... args) {
-		add(erroneousObject, validator, code, Severity.INK_Error, args);
+		add(erroneousObject, validator, code, Severity.INK_ERROR, args);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 			Severity severity,ResourceType resourceType, boolean abortOnError, Object... args){
 		ValidationMessage validatorMsg = ((ValidationContextClass)getMeta()).instantiateErrorMessage();
 		validatorMsg.fill(erroneousObject, msg, severity, resourceType,args);
-		abort |= (abortOnError && severity.getLevel()>=Severity.INK_Error.getLevel());
+		abort |= (abortOnError && severity.getLevel()>=Severity.INK_ERROR.getLevel());
 		messages.add(validatorMsg);
 	}
 

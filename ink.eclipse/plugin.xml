@@ -97,6 +97,11 @@
       </command>
       <command
             categoryId="ink.eclipse.editor"
+            id="ink.eclipse.generateJava"
+            name="Goto Ink Element">
+      </command>
+      <command
+            categoryId="ink.eclipse.editor"
             id="ink.eclipse.gotoJava"
             name="Goto Java">
       </command>
@@ -106,6 +111,11 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+Shift+Q"
             contextId="org.eclipse.ui.contexts.window">
+      </key>
+      <key commandId="ink.eclipse.generateJava"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+Shift+G"
+            contextId="ink.eclipse.context.editor">
       </key>
       <key commandId="ink.eclipse.gotoElement"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"

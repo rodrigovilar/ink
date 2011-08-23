@@ -12,6 +12,7 @@ import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.CollectionTypeMarker;
@@ -35,9 +36,9 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 			PropertyMirror pMirror = property.reflect();
 			validatePropertyTypeConstraints(propertyValue, dataContainer,
 					context, pMirror);
-			
+
 		}
-		
+
 	}
 
 	protected void validatePropertyTypeConstraints(Object propertyValue,
@@ -47,7 +48,7 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 		switch (pMirror.getTypeMarker()) {
 		case Class:
 			validateClassValue(propertyValue, dataContainer,
-					context, pMirror, propertyTypeClass);
+					context, pMirror);
 			break;
 		case Collection:
 			validateCollectionValue(propertyValue, dataContainer,
@@ -116,17 +117,17 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 
 	protected void validateClassValue(Object propertyValue,
 			InkObjectState dataContainer, ValidationContext context,
-			PropertyMirror pMirror, Class<?> propertyTypeClass) {
+			PropertyMirror pMirror) {
 		try{
 			Mirror vMirror = ((Proxiable)propertyValue).reflect();
-			Class<?> valueClass = vMirror.getClassMirror().getStateClass();
-			if(!propertyTypeClass.isAssignableFrom(valueClass)){
+			ClassMirror propertyType = pMirror.getPropertyType().reflect();
+			if(!vMirror.getClassMirror().isSubClassOf(propertyType)){
 				context.addError(dataContainer, this, "wrong.value.type", pMirror.getName(), pMirror.getPropertyType().reflect().getId(), vMirror.getClassMirror().getId());
 			}
 		}catch(ClassCastException e){
 			context.addError(dataContainer, this, "wrong.value.type", pMirror.getName(), pMirror.getPropertyType().reflect().getId(), propertyValue.getClass().getName());
 		}
 	}
-	
-	
+
+
 }

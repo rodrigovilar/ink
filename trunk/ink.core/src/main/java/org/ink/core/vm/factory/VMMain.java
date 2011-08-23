@@ -291,7 +291,7 @@ public class VMMain {
 		return factory;
 	}
 
-	protected static Collection<DslFactory> getAllFactories() {
+	public static Collection<DslFactory> getAllFactories() {
 		return Collections.unmodifiableList(new ArrayList<DslFactory>(allFactories.values()));
 	}
 

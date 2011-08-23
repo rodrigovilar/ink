@@ -19,6 +19,7 @@ import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.messages.Message;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.serialization.InkReader;
@@ -93,7 +94,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							System.out.println("=================================================================================================================================");
 						}
 						//todo -this is a hack
-						if(vc.containsMessage(Severity.INK_Error)){
+						if(vc.containsMessage(Severity.INK_ERROR)){
 							desc.setInvalid();
 							throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
 						}
@@ -174,30 +175,53 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		vc = ((InkClass)ownerFactory.getObject(CoreNotations.Ids.VALIDATION_CONTEXT.toString())).newInstance().getBehavior();
 		List<ElementDescriptor<D>> fileElements;
 		String id;
-		for(File f : getInkFiles()){
-			fileElements = reader.extractRawData(f, ownerFactory.getAppContext());
-			if(!reader.containsErrors()){
-				List<String> ids = new ArrayList<String>(25);
-				file2Elements.put(f.getAbsolutePath(), ids);
-				for(ElementDescriptor desc : fileElements){
-					id = desc.getId();
-					if(id!=null){
-						if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) <0){
-							id = ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
+		try{
+			for(File f : getInkFiles()){
+				fileElements = reader.extractRawData(f, ownerFactory.getAppContext());
+				if(!reader.containsErrors()){
+					List<String> ids = new ArrayList<String>(25);
+					file2Elements.put(f.getAbsolutePath(), ids);
+					ElementDescriptor existingDesc;
+					for(ElementDescriptor desc : fileElements){
+						id = desc.getId();
+						if(id!=null){
+							if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) <0){
+								id = ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
+							}
+							if((existingDesc=elements.get(id))!=null){
+								String postfix = "";
+								if(existingDesc.getResource().equals(desc.getResource())){
+									postfix = "file " + existingDesc.getResource().getName();
+								}else{
+									postfix = "the following files: " + existingDesc.getResource().getName() +","+desc.getResource().getName();
+								}
+								vc.add(null, getMessage(), Severity.INK_ERROR, ResourceType.INK, false, id, postfix);
+								List<ValidationMessage> errors = vc.getMessages();
+								existingDesc.setValidationErrorMessages(errors);
+								vc.reset();
+								continue;
+							}
+							elements.put(id, desc);
+							ids.add(id);
+						}else{
+							//TODO - log error
 						}
-						elements.put(id, desc);
-						ids.add(id);
-					}else{
-						//TODO - log error
+					}
+				}else{
+					for(ParseError pe : reader.getErrors()){
+						//TODO - should refactor this
+						System.out.println("Error while parsing ink file '" + f.getAbsolutePath() +"', line number " + pe.getLineNumber() +";" + pe.getDescription());
 					}
 				}
-			}else{
-				for(ParseError pe : reader.getErrors()){
-					//TODO - should refactor this
-					System.out.println("Error while parsing ink file '" + f.getAbsolutePath() +"', line number " + pe.getLineNumber() +";" + pe.getDescription());
-				}
 			}
+		}finally{
+			vc.reset();
 		}
+	}
+
+	private Message getMessage() {
+		//this is to solve eclipse bootsrapping problem. need to fixed using metaclass
+		return VMMain.getCoreFactory().getObject(CoreNotations.Ids.DUPLICATE_ID);
 	}
 
 	private String findSuperId(String id){

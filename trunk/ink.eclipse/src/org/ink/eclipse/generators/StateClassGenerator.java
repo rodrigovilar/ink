@@ -26,7 +26,11 @@ public class StateClassGenerator extends BaseGenerator {
 			String fullJavaPackage = classMirror.getFullJavaPackage();
 			interfaceClass.append("package ").append(fullJavaPackage).append(';').append(LINE_SEPARATOR);
 			String className = classMirror.getShortId();
+			while(!superClass.getJavaMapping().hasState()){
+				superClass = superClass.getSuper();
+			}
 			String superClassName = superClass.getFullJavaPackage() +"." + superClass.getShortId();
+
 			if(!classMirror.isStruct()){
 				className +="State";
 				superClassName +="State";

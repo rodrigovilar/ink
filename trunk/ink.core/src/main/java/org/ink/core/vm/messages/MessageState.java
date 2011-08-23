@@ -1,6 +1,7 @@
 package org.ink.core.vm.messages;
 
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.COMPONENT_TYPE_VIOLATION;
+import static org.ink.core.vm.factory.internal.CoreNotations.Ids.DUPLICATE_ID;
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.ENUM_ILLEGAL_VALUE;
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.JAVA_MAPPING_ERROR;
 import static org.ink.core.vm.factory.internal.CoreNotations.Ids.MAX_VALUE_VIOLATION;
@@ -37,9 +38,11 @@ import org.ink.core.vm.lang.internal.annotations.CoreInstanceValuesLocation;
 				REG_EXP_SYNATX_ERROR,
 				VALUES_COMPARISON_VIOLATION,
 				ENUM_ILLEGAL_VALUE,
-				JAVA_MAPPING_ERROR
+				JAVA_MAPPING_ERROR,
+				DUPLICATE_ID
 		},
 		locations = {@CoreInstanceValuesLocation(indexes = { MessageState.p_text }),
+				@CoreInstanceValuesLocation(indexes = { MessageState.p_text }),
 				@CoreInstanceValuesLocation(indexes = { MessageState.p_text }),
 				@CoreInstanceValuesLocation(indexes = { MessageState.p_text }),
 				@CoreInstanceValuesLocation(indexes = { MessageState.p_text }),
@@ -65,6 +68,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreInstanceValuesLocation;
 				@CoreInstanceValues(values={"The field ''{0}'' value ({1}) should be greater or equals to field ''{2}'' value ({3})."}),
 				@CoreInstanceValues(values={"The value ''{0}'' is not part of ''{1}'' enumeration. Please select one of the following: [{2}]."}),
 				@CoreInstanceValues(values={"Java-Mapping Error : {0}"}),
+				@CoreInstanceValues(values={"The Ink element with ID ''{0}'' appears more than once in {1}."}),
 		})
 		public interface MessageState extends InkObjectState{
 

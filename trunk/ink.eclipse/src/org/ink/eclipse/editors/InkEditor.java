@@ -74,7 +74,7 @@ public class InkEditor extends TextEditor{
 		super.createActions();
 
 		ResourceBundle bundle = ResourceBundle.getBundle(InkMessages.class.getName());
-		TextOperationAction action= new TextOperationAction(bundle,"generate_ ink", this, 300, true);
+		TextOperationAction action= new TextOperationAction(bundle,"generate_ java", this, 300, true);
 		action.setText("Generate Java Classes");
 		action.setToolTipText("Generate Java Classes");
 		action.setActionDefinitionId(INK_ECLIPSE_GENERATE_JAVA);
@@ -94,6 +94,7 @@ public class InkEditor extends TextEditor{
 		action.setActionDefinitionId(INK_ECLIPSE_GOTO_ELEMENT);
 		action.setEnabled(true);
 		setAction(INK_ECLIPSE_GOTO_ELEMENT, action);
+		action= new TextOperationAction(bundle,"goto_ink", this, 100, true);
 
 	}
 

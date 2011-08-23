@@ -273,7 +273,13 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	protected void fullBuild(final IProgressMonitor monitor)
 			throws CoreException {
-		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+		//todo - this is a hack until I fix that project full
+		//build causes the kernel to restart
+		List<IProject> inkProkects = InkPlugin.getDefault().getInkProjects();
+		for(IProject p : inkProkects){
+			p.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+		}
+
 		IFolder output = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
 		IFolder genFolder = output.getFolder("gen");
 		if (genFolder.exists()) {

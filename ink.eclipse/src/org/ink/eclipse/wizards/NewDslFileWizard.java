@@ -62,7 +62,12 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 		final String containerName = page.getContainerName();
 		final String fileName = page.getFileName();
 		final Map<String, String> tokens = new HashMap<String, String>();
-		tokens.put("NAME", page.getClassId());
+		tokens.put("NAME", "\"" + page.getClassId() + "\"");
+		tokens.put("IMPORTS", getImportsString());
+		tokens.put("NAMESPACE", "\"" + page.getNamaspace() + "\"");
+		tokens.put("DSL_PACKAGE", "\"" + page.getDslPackage() + "\"");
+		tokens.put("JAVA_PACKAGE", "\"" + page.getJavaPackage() + "\"");
+	
 		//final String classId = page.getClassId();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
@@ -87,6 +92,18 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 		return true;
 	}
 	
+	String getImportsString()
+	{
+		StringBuilder importString = new StringBuilder();
+		String [] importsList = page.getImportsList();
+		for (String importItem : importsList)
+		{
+			importString.append("import ref=\"").append(importItem)
+						.append("\"\n\t\t");
+		}
+		importString.append("import ref=\"ink.core:ObjectFactory\"\n");
+		return importString.toString();
+	}
 	/**
 	 * The worker method. It will find the container, create the
 	 * file if missing or just replace its contents, and open
@@ -107,6 +124,7 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 			throwCoreException("Container \"" + containerName + "\" does not exist.");
 		}
 		IContainer container = (IContainer) resource;
+		
 		final IFile file = container.getFile(new Path(fileName));
 		try {
 			InputStream stream = openContentStream(tokenMap);

@@ -1,11 +1,17 @@
 package org.ink.eclipse.wizards;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Collections;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.ui.actions.RemoveBlockCommentAction;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -27,6 +33,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.ink.eclipse.utils.InkUtils;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well
@@ -42,8 +49,12 @@ public class NewDslFileWizardPage extends WizardPage {
 	private ISelection selection;
 	
 	private Text classIdText;
+	private Text namespaceText;
+	private Text dslPackageText;
+	private Text javaPackageText;
 	private List importsListControl;
-	private java.util.List<String> importsList;
+	private java.util.List<String>  importsList;
+	private Button removeBtn;
 	
 	public String getClassId() {
 		return classIdText.getText();
@@ -56,11 +67,12 @@ public class NewDslFileWizardPage extends WizardPage {
 	 */
 	public NewDslFileWizardPage(ISelection selection) {
 		super("wizardPage");
-		setTitle("Multi-page Editor File");
-		setDescription("This wizard creates a new file with *.ink extension that can be opened by a multi-page editor.");
+		setTitle("Dsl File");
+		setDescription("This wizard creates a new file with *.ink extension");
 		this.selection = selection;
 		
 		importsList = new ArrayList<String>();
+		
 	}
 
 	/**
@@ -139,9 +151,6 @@ public class NewDslFileWizardPage extends WizardPage {
 		gd.grabExcessVerticalSpace= true;
 		importsListControl.setLayoutData(gd);
 		
-		importsList.add("test1");
-		importsList.add("test2");
-		
 		Composite buttons= getButtonBox(container);
 		gd= new GridData();
 		gd.horizontalAlignment= GridData.FILL;
@@ -151,12 +160,92 @@ public class NewDslFileWizardPage extends WizardPage {
 		gd.horizontalSpan= 1;
 		buttons.setLayoutData(gd);
 		
+		label = new Label(container, SWT.LEFT | SWT.WRAP);;
+		label.setText("&Namespace:");
 		
+		namespaceText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		namespaceText.setLayoutData(gd);
+		namespaceText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				dialogChanged();
+			}
+		});
+		
+		label = new Label(container, SWT.NULL);
+		label.setText("");
+		
+		label = new Label(container, SWT.LEFT | SWT.WRAP);;
+		label.setText("&Dsl package:");
+		
+		dslPackageText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		dslPackageText.setLayoutData(gd);
+		dslPackageText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				dialogChanged();
+			}
+		});
+		
+		label = new Label(container, SWT.NULL);
+		label.setText("");
+		
+		label = new Label(container, SWT.LEFT | SWT.WRAP);;
+		label.setText("&Java package:");
+		
+		javaPackageText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		javaPackageText.setLayoutData(gd);
+		javaPackageText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				dialogChanged();
+			}
+		});
+		
+		label = new Label(container, SWT.NULL);
+		label.setText("");
 		initialize();
 		dialogChanged();
 		setControl(container);
 	}
 
+	private void buildImportsList()
+	{
+		String containerName = getContainerName();
+		if (containerName.length() != 0)
+		{
+			importsList.clear();
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource resource = root.findMember(new Path(containerName));
+			
+			// ToDo : Add validation check when user enter the container name
+			// if (!resource.exists() || !(resource instanceof IContainer)) {
+			// throwCoreException("Container \"" + containerName + "\" does not exist.");
+			
+			IContainer container = (IContainer) resource;
+			IProject project = container.getProject();
+			String[] dsls = InkUtils.getProjectDSLs(project); 
+			Collections.addAll(importsList, dsls);
+			try
+			{
+				IProject[] referencedProjects = project.getReferencedProjects();
+				if (referencedProjects.length > 0)
+				{
+					for (IProject iProject : referencedProjects) 
+					{
+						dsls = InkUtils.getProjectDSLs(iProject); 
+						Collections.addAll(importsList, dsls);
+					}
+				}
+			}
+			catch (CoreException e)
+			{
+				updateStatus("Error in getting referenced projects");
+			}
+						
+		}
+		
+	}
 	protected Button createButton(Composite parent, String label, SelectionListener listener) {
 		Button button= new Button(parent, SWT.PUSH);
 		button.setFont(parent.getFont());
@@ -192,10 +281,10 @@ public class NewDslFileWizardPage extends WizardPage {
 					
 		//createSeparator(contents);
 		
-		button = new Button(contents, SWT.PUSH);
-		button.setText("Remove...");
-		button.setEnabled(false);
-		button.addSelectionListener(new SelectionAdapter() {
+		removeBtn = new Button(contents, SWT.PUSH);
+		removeBtn.setText("Remove...");
+		removeBtn.setEnabled(false);
+		removeBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				handleRemoveImports();
 			}
@@ -207,7 +296,7 @@ public class NewDslFileWizardPage extends WizardPage {
 
 	private void handleAddImports()
 	{
-		
+		buildImportsList();
 		ListDialog importsDialog = new ListDialog(getShell());
 		importsDialog.setAddCancelButton(true);
 		importsDialog.setContentProvider(new ArrayContentProvider());
@@ -217,14 +306,42 @@ public class NewDslFileWizardPage extends WizardPage {
 		importsDialog.setTitle("Select dsl to import : ");
 		if (importsDialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = importsDialog.getResult();
-			if (result.length == 1) {
-				importsListControl.add((String) result[0]);
+			if (result.length > 0)
+			{
+				for (Object resultItem : result)
+				{
+					if (!existInImportsList((String) resultItem))
+					{
+						importsListControl.add((String) resultItem);
+					}	
+				}
+				removeBtn.setEnabled(true);			
 			}
 		}
+	}
+	private boolean existInImportsList(String itemToCheck)
+	{
+		String [] importsItems = importsListControl.getItems();
+		for(String item : importsItems)
+		{
+			if(item.equals(itemToCheck))
+				return true;
+		}
+		return false;
 	}
 	private void handleRemoveImports()
 	{
 		
+		String[] selectedItems = importsListControl.getSelection();
+		for (String item : selectedItems)
+		{
+			importsListControl.remove(item);
+		}
+		if (importsListControl.getItems().length == 0)
+		{
+			removeBtn.setEnabled(false);
+		}
+	
 	}
 	private Label createSeparator(Composite parent) {
 		Label separator= new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -282,6 +399,7 @@ public class NewDslFileWizardPage extends WizardPage {
 				containerText.setText(((Path) result[0]).toString());
 			}
 		}
+		
 	}
 
 	/**
@@ -342,5 +460,19 @@ public class NewDslFileWizardPage extends WizardPage {
 
 	public String getFileName() {
 		return fileText.getText();
+	}
+	
+	public String getNamaspace() {
+		return namespaceText.getText();
+	}
+	public String getDslPackage() {
+		return dslPackageText.getText();
+	}
+	public String getJavaPackage() {
+		return javaPackageText.getText();
+	}
+	
+	public String[] getImportsList() {
+		return importsListControl.getItems();
 	}
 }

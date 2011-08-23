@@ -35,6 +35,22 @@ public class HTTPTest extends TestCase {
 		showPontisLogoRetriever_Client(prefix);
 	}
 	
+	public void testFigure4Test() {
+		String prefix = "F4";
+		System.out.println("Figure4");
+		System.out.println("-------");
+		showMetaCache(prefix);
+		showHTTP_Client(prefix);
+	}
+	
+	public void testFigure5Test() {
+		String prefix = "F5";
+		System.out.println("Figure4");
+		System.out.println("-------");
+		showMetaCache(prefix);
+		showHTTP_Client(prefix);
+	}
+	
 	public void testFirstGCTest() {
 		F1_HTTP_Client httpClient = (F1_HTTP_Client)context
 		.getObject("example.http:F1_PontisLogoRetriever");

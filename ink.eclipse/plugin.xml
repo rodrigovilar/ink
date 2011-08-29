@@ -105,6 +105,11 @@
             id="ink.eclipse.gotoJava"
             name="Goto Java">
       </command>
+      <command
+            categoryId="ink.eclipse.editor"
+            id="ink.eclipse.quickHierarchy"
+            name="Quick Hierarchy">
+      </command>
    </extension>
    <extension point="org.eclipse.ui.bindings">
       <key commandId="ink.eclipse.openElement"
@@ -131,6 +136,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+F3"
             contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ink.eclipse.quickHierarchy"
+            contextId="ink.eclipse.context.editor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+T">
       </key>
    </extension>
    

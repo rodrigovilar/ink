@@ -25,6 +25,7 @@ import org.ink.eclipse.editors.operations.GenerateJavaOperation;
 import org.ink.eclipse.editors.operations.GotoInkOperation;
 import org.ink.eclipse.editors.operations.GotoJavaOperation;
 import org.ink.eclipse.editors.operations.InkEditorOperation;
+import org.ink.eclipse.editors.operations.QuickHierarchyOperation;
 import org.ink.eclipse.editors.utils.ColorManager;
 
 public class InkEditor extends TextEditor{
@@ -34,6 +35,8 @@ public class InkEditor extends TextEditor{
 	private static final String INK_ECLIPSE_GOTO_JAVA = "ink.eclipse.gotoJava";
 
 	private static final String INK_ECLIPSE_GENERATE_JAVA = "ink.eclipse.generateJava";
+
+	private static final String INK_ECLIPSE_QUICK_HIERARCHY = "ink.eclipse.quickHierarchy";
 
 	public static final String EDITOR_ID = "ink.eclipse.editors.InkEditor";
 
@@ -74,7 +77,15 @@ public class InkEditor extends TextEditor{
 		super.createActions();
 
 		ResourceBundle bundle = ResourceBundle.getBundle(InkMessages.class.getName());
-		TextOperationAction action= new TextOperationAction(bundle,"generate_ java", this, 300, true);
+
+		TextOperationAction action = new TextOperationAction(bundle, "quick_hierarchy", this, 400, true);
+		action.setText("Quick Hierarchy");
+		action.setToolTipText("Quick Hierarchy");
+		action.setActionDefinitionId(INK_ECLIPSE_QUICK_HIERARCHY);
+		action.setEnabled(true);
+		setAction(INK_ECLIPSE_QUICK_HIERARCHY, action);
+
+		action= new TextOperationAction(bundle,"generate_ java", this, 300, true);
 		action.setText("Generate Java Classes");
 		action.setToolTipText("Generate Java Classes");
 		action.setActionDefinitionId(INK_ECLIPSE_GENERATE_JAVA);
@@ -95,7 +106,6 @@ public class InkEditor extends TextEditor{
 		action.setEnabled(true);
 		setAction(INK_ECLIPSE_GOTO_ELEMENT, action);
 		action= new TextOperationAction(bundle,"goto_ink", this, 100, true);
-
 	}
 
 	@Override
@@ -103,7 +113,11 @@ public class InkEditor extends TextEditor{
 		super.editorContextMenuAboutToShow(menu);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		IAction action= getAction(INK_ECLIPSE_GENERATE_JAVA);
+		IAction action= getAction(INK_ECLIPSE_QUICK_HIERARCHY);
+		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
+
+		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
+		action= getAction(INK_ECLIPSE_GENERATE_JAVA);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
@@ -128,6 +142,7 @@ public class InkEditor extends TextEditor{
 			codeToOps.put(100, new GotoInkOperation());
 			codeToOps.put(200, new GotoJavaOperation());
 			codeToOps.put(300, new GenerateJavaOperation());
+			codeToOps.put(400, new QuickHierarchyOperation());
 		}
 
 		@Override

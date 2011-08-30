@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ink.core.vm.exceptions.CompilationException;
 import org.ink.core.vm.exceptions.WeaveException;
 import org.ink.core.vm.lang.ObjectFactoryState;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.PropertyState;
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
+import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.traits.Trait;
@@ -112,6 +114,15 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 			result = traitProperties.remove(traitNS + PROPERTY_NAME_DELIMITER + name);
 		}
 		return result==null?null:(Property)result.getBehavior();
+	}
+
+	@Override
+	protected void prepareForCompilation()  throws CompilationException{
+		super.prepareForCompilation();
+		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
+		if(superState==null){
+			throw new CompilationException("An Ink class must extend another Ink class.");
+		}
 	}
 
 	private List<PropertyState> collectProperties(String role, TraitClass traitClass, boolean addNS, String traitNS){

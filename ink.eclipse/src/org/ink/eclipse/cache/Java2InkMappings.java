@@ -1,5 +1,6 @@
 package org.ink.eclipse.cache;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +16,10 @@ public class Java2InkMappings {
 
 	public static final void put(String resource, String inkId){
 		memory.put(resource, inkId);
+	}
+
+	public static final Iterator<Map.Entry<String, String>> iterate(){
+		return memory.entrySet().iterator();
 	}
 
 

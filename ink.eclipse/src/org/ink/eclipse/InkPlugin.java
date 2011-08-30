@@ -1,8 +1,16 @@
 package org.ink.eclipse;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -15,12 +23,14 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.ink.core.utils.StringUtils;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.VMConfig;
 import org.ink.core.vm.factory.VMMain;
 import org.ink.eclipse.builder.InkNature;
+import org.ink.eclipse.cache.Java2InkMappings;
 import org.ink.eclipse.vm.EclipseResourceResolver;
 import org.osgi.framework.BundleContext;
 
@@ -56,6 +66,27 @@ public class InkPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		File f = getBundle().getDataFile("ink_mapping.csv");
+		if(f!=null && f.exists()){
+			BufferedReader reader  = new BufferedReader(new InputStreamReader(f.toURI().toURL().openStream(), "UTF-8"));
+			try{
+				String line;
+				while((line=reader.readLine())!=null){
+					int loc = line.indexOf(",");
+					String javaId = line.substring(0, loc);
+					String inkId = line.substring(loc+1, line.length());
+					Java2InkMappings.put(javaId, inkId);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				if(reader!=null){
+					try{
+						reader.close();
+					}catch(Throwable e){}
+				}
+			}
+		}
 		plugin = this;
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
 		maxBuildIterations = ws.getDescription().getMaxBuildIterations();
@@ -146,8 +177,28 @@ public class InkPlugin extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		super.stop(context);
 		VMMain.stop();
+		File f = getBundle().getDataFile("ink_mapping.csv");
+		if(f.exists()){
+			f.delete();
+		}
+		f.createNewFile();
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+		try{
+			Iterator<Map.Entry<String, String>> iter = Java2InkMappings.iterate();
+			while(iter.hasNext()){
+				Map.Entry<String, String> en = iter.next();
+				writer.write(en.getKey() +","+en.getValue() +StringUtils.LINE_SEPARATOR);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{
+				writer.flush();
+				writer.close();
+			}catch(Throwable e){}
+		}
+		super.stop(context);
 	}
 
 	/**

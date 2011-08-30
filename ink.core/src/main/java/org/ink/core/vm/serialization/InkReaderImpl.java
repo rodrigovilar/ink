@@ -174,104 +174,88 @@ implements InkReader<Tag>{
 			attName = en.getKey();
 			if (attName.equals(ID_ATTRIBUTE)) {
 				if (isInnerObject) {
-					addError(tag, "The attribute '" + attName
-							+ "' is invalid in this context.");
+					addError(tag, "The attribute '" + attName + "' is invalid in this context.");
 				} else if (id != null) {
-					addError(tag, "Duplicate attribute '" + attName
-							+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
 					return null;
 				} else {
 					try {
 						id = (String) en.getValue();
 						if(id==null || id.trim().length()==0){
-							addError(tag, "Attribute '" + attName
-									+ "' should not be empty.");
+							addError(tag, "Attribute '" + attName+ "' should not be empty.");
 						}
 						id = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName
-								+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(CLASS_ATTRIBUTE)) {
 				if (classId != null) {
-					addError(tag, "Duplicate attribute '" + attName
-							+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
 					return null;
 				} else {
 					try {
 						classId = (String) en.getValue();
 						if(classId==null || classId.trim().length()==0){
-							addError(tag, "Attribute '" + attName
-									+ "' should not be empty.");
+							addError(tag, "Attribute '" + attName+ "' should not be empty.");
 						}
 						if(classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							classId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+classId;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName
-								+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(REF_ATTRIBUTE)) {
 				if (ref != null) {
-					addError(tag, "Duplicate attribute '" + attName
-							+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
 					return null;
 				} else {
 					try {
 						ref = (String) en.getValue();
 						if(ref==null || ref.trim().length()==0){
-							addError(tag, "Attribute '" + attName
-									+ "' should not be empty.");
+							addError(tag, "Attribute '" + attName+ "' should not be empty.");
 						}
 						if(ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							ref = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+ref;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName
-								+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(SUPER_ATTRIBUTE)) {
 				if (superId != null) {
-					addError(tag, "Duplicate attribute '" + attName
-							+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
 				} else {
 					try {
 						superId = (String) en.getValue();
 						if(superId==null || superId.trim().length()==0){
-							addError(tag, "Attribute '" + attName
-									+ "' should not be empty.");
+							addError(tag, "Attribute '" + attName+ "' should not be empty.");
 							return null;
 						}
 						if(superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
 							superId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+superId;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName
-								+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(ABSTRACT_ATTRIBUTE)) {
 				if (isAbstract != null) {
-					addError(tag, "Duplicate attribute '" + attName
-							+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
 				} else {
 					try {
 						isAbstract = (Boolean) en.getValue();
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName
-								+ "' should be of a boolean type.");
+						addError(tag, "Attribute '" + attName+ "' should be of a boolean type.");
 					}
 				}
 			} else {
-				addError(tag, "The attribute '" + attName
-						+ "' is invalid in this context.");
+				addError(tag, "The attribute '" + attName+ "' is invalid in this context.");
 			}
 
 		}
@@ -293,8 +277,7 @@ implements InkReader<Tag>{
 					}
 				}
 				if (result == null) {
-					addError(tag, "Could not find Ink object with id '" + ref
-							+ "'.");
+					addError(tag, "Could not find Ink object with id '" + ref+ "'.");
 				}
 				return result;
 			}
@@ -310,14 +293,19 @@ implements InkReader<Tag>{
 	protected InkObjectState createInkObject(Tag tag, String id,
 			String classId, String superId, boolean isAbstract, boolean isInnerObject) {
 		InkClassState clsState = serializationContext.getState(classId, false);
-		MirrorAPI result = null;
 		if (clsState == null) {
 			containsError = true;
 			if(serializationContext.getDescriptor(classId)==null){
 				addError(tag, "Could not resolve class id '" + classId + "'.");
 			}
 			return null;
-		}else if(!clsState.reflect().isValid()){
+		}
+		ClassMirror cm = clsState.reflect();
+		if(cm.isMetaClass() && superId==null){
+			addError(tag, "An Ink class must sepecify its 'super' attribute.");
+		}
+		MirrorAPI result = null;
+		if(!clsState.reflect().isValid()){
 			containsError = true;
 			return null;
 		}else{

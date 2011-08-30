@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.ink.core.vm.exceptions.CompilationException;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObjectImpl;
@@ -132,8 +133,20 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 	}
 
 	@Override
-	public void compile(){
+	public final void compile() throws CompilationException{
 		Mirror superObject = null;
+		prepareForCompilation();
+		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
+		if(superState!=null){
+			superObject = superState.reflect();
+		}
+		innerCompile(workOnObject, superObject);
+		workOnObject.afterPropertiesSet();
+		setFields(workOnObject);
+	}
+
+
+	protected void prepareForCompilation() throws CompilationException{
 		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
 		if (superState == null) {
 			String superId = workOnObject.getSuperId();
@@ -142,12 +155,6 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 				workOnObject.setSuper(superState);
 			}
 		}
-		if(superState!=null){
-			superObject = superState.reflect();
-		}
-		innerCompile(workOnObject, superObject);
-		workOnObject.afterPropertiesSet();
-		setFields(workOnObject);
 	}
 
 	private void setFields(MirrorAPI object) {
@@ -235,7 +242,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void innerCompile(MirrorAPI object, Mirror superObject) {
+	protected void innerCompile(MirrorAPI object, Mirror superObject) {
 		// TODO - add a compiler object
 		PropertyMirror[] pMirrors = object.getPropertiesMirrors();
 		Object o;

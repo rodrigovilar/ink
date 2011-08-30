@@ -36,6 +36,11 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	}
 
 	@Override
+	public boolean isMetaClass() {
+		return ((ClassMirrorAPI)getTargetState()).isMetaClass();
+	}
+
+	@Override
 	public Map<String, PropertyMirror> getClassPropertiesMap(){
 		PropertyMirror[] props = getClassPropertiesMirrors();
 		Map<String, PropertyMirror> result = new HashMap<String, PropertyMirror>(props.length);

@@ -120,9 +120,14 @@ public abstract class DataBlock {
 		return result;
 	}
 
-	protected CompletionProposal createAttributeProposal(String attName, int cursorLocation,
-			int count) {
-		return new CompletionProposal(attName + "=\"\"", cursorLocation-count, count, attName.length() +"=\"\"".length()-1, null, attName, null, null);
+	protected CompletionProposal createAttributeProposal(String attName, int cursorLocation, int count, boolean stringAtt) {
+		String postfix;
+		if(stringAtt){
+			postfix = "=\"\"";
+		}else{
+			postfix = "= ";
+		}
+		return new CompletionProposal(attName + postfix, cursorLocation-count, count, attName.length() +postfix.length()-1, null, attName, null, null);
 	}
 
 	protected String calculateTabs(){
@@ -152,16 +157,16 @@ public abstract class DataBlock {
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
 		if(text[cursorLocation-1]==' '){
 			if(!line.contains("class") && !line.contains("ref")){
-				result.add(createAttributeProposal("class", cursorLocation, count));
+				result.add(createAttributeProposal("class", cursorLocation, count, true));
 			}
 			if(!line.contains("ref")){
-				result.add(createAttributeProposal("ref", cursorLocation, count));
+				result.add(createAttributeProposal("ref", cursorLocation, count, true));
 			}
 			if(result.isEmpty()){
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
 			if(!line.contains("super")){
-				result.add(createAttributeProposal("super", cursorLocation, count));
+				result.add(createAttributeProposal("super", cursorLocation, count, true));
 			}
 			if(line.contains("class") && !line.contains("{")){
 				String tabs = calculateTabs();
@@ -293,22 +298,25 @@ public abstract class DataBlock {
 		String line = textString.substring(newLineLoc, lastIndex).trim();
 		if(text[cursorLocation-1]==' '){
 			if(!line.contains("id")){
-				result.add(createAttributeProposal("id", cursorLocation, count));
+				result.add(createAttributeProposal("id", cursorLocation, count, true));
 			}
 			if(!line.contains("class")){
-				result.add(createAttributeProposal("class", cursorLocation, count));
+				result.add(createAttributeProposal("class", cursorLocation, count, true));
 			}
 			if(result.isEmpty()){
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
 			if(!line.contains("super")){
-				result.add(createAttributeProposal("super", cursorLocation, count));
+				result.add(createAttributeProposal("super", cursorLocation, count, true));
+			}
+			if(!line.contains("abstract")){
+				result.add(createAttributeProposal("abstract", cursorLocation, count, false));
 			}
 			if(result.isEmpty() && !(text[cursorLocation-1]=='\"' && text.length > cursorLocation+1 && text[cursorLocation+1]=='\"')){
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
 		}else{
-			StringBuilder buf = new StringBuilder(10);
+			int offset = 0;
 			boolean found = false;
 			int i=cursorLocation-1;
 			for(;i>=1;i--){
@@ -319,16 +327,21 @@ public abstract class DataBlock {
 				else if(c=='\"'){
 					if(textString.charAt(i-1)=='='){
 						found = true;
+						offset+=2;
 					}
 					break;
+				}else if(textString.charAt(i)=='=' && textString.substring(i-"abstract".length(),i).equals("abstract")){
+					found = true;
+					offset++;
+					break;
 				}
-				buf.append(c);
+				offset++;
 			}
 			if(found){
-				String attr = textString.substring(spaceLoc + 1, cursorLocation-(2+buf.length()));
+				String attr = textString.substring(spaceLoc + 1, cursorLocation-offset);
 				if(attr.equals("class")){
 					List<String> options;
-					if(line.startsWith("Object")){
+					if(line.startsWith("Object") || line.startsWith("Ink ")){
 						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, true);
 					}else{
 						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
@@ -344,6 +357,9 @@ public abstract class DataBlock {
 							addIdProposal(result, cursorLocation, id, prefix);
 						}
 					}
+				}else if(attr.equals("abstract")){
+					result.add(new CompletionProposal("true", cursorLocation, 0, "true".length(), null, "true", null, null));
+					result.add(new CompletionProposal("false", cursorLocation, 0, "false".length(), null, "false", null, null));
 				}else{
 					result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 				}

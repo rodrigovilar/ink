@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror.editor;
 
+import org.ink.core.vm.exceptions.CompilationException;
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
@@ -30,5 +31,5 @@ public interface ObjectEditor extends InkObject{
 	public void setRoot(boolean isRoot);
 	public void setLoadOnStartup(boolean loadOnStartup);
 	public void save();
-	public void compile();
+	public void compile() throws CompilationException;
 }

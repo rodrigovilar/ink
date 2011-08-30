@@ -274,6 +274,17 @@ public class EclipseUtils {
 		return null;
 	}
 
+	public static IPath getJavaCompiledClass(IProject project, IFile javaSourceFile){
+		try {
+			IFile result = getOutputFile(project, javaSourceFile);
+			IPath p = result.getFullPath().removeFileExtension().addFileExtension("class");
+			return p;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private static void openJavaElement(IJavaElement je)
 			throws JavaModelException, PartInitException {
 		if(je.exists()){

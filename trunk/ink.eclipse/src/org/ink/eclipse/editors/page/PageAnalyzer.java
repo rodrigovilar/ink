@@ -46,6 +46,8 @@ public class PageAnalyzer {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
 		result.add(new CompletionProposal("Object ", cursorLocation, 0,"Object ".length(), null, null, null, null));
+//		result.add(new CompletionProposal("Ink ", cursorLocation, 0,"Ink ".length(), null, null, null, null));
+//		result.add(new CompletionProposal("InkInk ", cursorLocation, 0,"InkInk ".length(), null, null, null, null));
 		return result;
 	}
 
@@ -80,12 +82,14 @@ public class PageAnalyzer {
 			case ' ':
 				if(checkStartElement){
 					String currentLineString = currentLine.toString();
-					if(currentLineString.startsWith("Object") || currentLineString.startsWith("Class")){
+					if(currentLineString.startsWith("Object") || currentLineString.startsWith("Class") ||
+							currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")){
 						if(startB!=endB){
 							addElement(cs, elementStart, i-currentLineString.length());
 						}
 						String lastLineSting = lastLine.toString();
-						if(lastLineSting.startsWith("Object") || lastLineSting.startsWith("Class")){
+						if(lastLineSting.startsWith("Object") || lastLineSting.startsWith("Class") ||
+							currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")){
 							addElement(cs, i-lastLineSting.length()-currentLineString.length()-1, i-currentLineString.length()-1);
 						}
 						elementStart = i-currentLine.length();

@@ -32,6 +32,7 @@ public interface ClassMirror extends Mirror{
 	public Operation getMethod(String methodName, Object[] args);
 	public Property getProperty(String propertyName);
 	public Property getProperty(byte index);
+	public boolean isMetaClass();
 	public PropertyMirror getClassPropertyMirror(String propertyName);
 	public PropertyMirror getClassPropertyMirror(byte index);
 	public byte getTraitsCount();

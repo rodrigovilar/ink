@@ -60,15 +60,6 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
 		this.dsls =  InkUtils.getProjectNamespaces(getProject());
-		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
-		for (InkObject o : all) {
-			try {
-				ClassMirror cm = o.reflect();
-				mapJavaToInk(cm);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	class InkDeltaVisitor implements IResourceDeltaVisitor {
@@ -325,8 +316,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void addJavaToInkMapping(ClassMirror cm, IFile f) {
-		IFile classFile = EclipseUtils.getOutputFile(f.getProject(), f);
-		IPath p = classFile.getFullPath().removeFileExtension().addFileExtension("class");
+		IPath p = EclipseUtils.getJavaCompiledClass(f.getProject(), f);
 		Java2InkMappings.put(p.toOSString(), cm.getId());
 	}
 

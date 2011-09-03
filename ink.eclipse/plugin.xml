@@ -168,10 +168,10 @@
       </category>
       <wizard
             category="org.ink.eclipse"
-            class="org.ink.eclipse.wizards.NewDslFileWizard"
+            class="org.ink.eclipse.wizards.NewDslWizard"
             icon="icons/sample.gif"
             id="org.ink.eclipse.wizards.NewDslFileWizard"
-            name="New Dsl File">
+            name="New DSL">
       </wizard>
    </extension>
 

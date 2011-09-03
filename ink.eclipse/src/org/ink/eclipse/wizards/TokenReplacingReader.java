@@ -5,6 +5,11 @@ import java.io.PushbackReader;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
+/**
+ * TokenReplacingReader extends Reader (IO class). 
+ * Override read method to implements Tokens Replacing
+ */
+
 public class TokenReplacingReader extends Reader {
 
 	  protected PushbackReader pushbackReader   = null;

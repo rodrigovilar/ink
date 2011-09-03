@@ -10,3 +10,4 @@ Class id=${NAME} class="ink.core:DslFactory" super="ink.core:ObjectFactory"{
 	dsl_package ${DSL_PACKAGE}
 	java_package ${JAVA_PACKAGE}
 }
+

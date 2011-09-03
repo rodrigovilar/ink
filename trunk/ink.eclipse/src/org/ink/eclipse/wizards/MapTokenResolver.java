@@ -2,6 +2,9 @@ package org.ink.eclipse.wizards;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * Implements ITokenResolver with HashMap
+ */
 
 public class MapTokenResolver implements ITokenResolver {
 

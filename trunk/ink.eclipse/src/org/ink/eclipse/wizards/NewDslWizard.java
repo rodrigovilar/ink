@@ -19,27 +19,31 @@ import java.io.*;
 
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
+import org.ink.core.vm.factory.DslFactory;
 import org.ink.eclipse.InkPlugin;
 
 /**
- * This is a sample new wizard. Its role is to create a new file 
- * resource in the provided container. If the container resource
- * (a folder or a project) is selected in the workspace 
- * when the wizard is opened, it will accept it as the target
- * container. The wizard creates one file with the extension
- * "ink". If a sample multi-page editor (also available
- * as a template) is registered for the same extension, it will
- * be able to open it.
+ * The new dsl wizard contains one page which creates
+ * a new dsl declaration in a dsls.ink file for a specific project
  */
 
-public class NewDslFileWizard extends Wizard implements INewWizard {
-	private NewDslFileWizardPage page;
+public class NewDslWizard extends Wizard implements INewWizard {
+	private NewDslWizardPage page;
 	private ISelection selection;
 
+	private final static String FILE_NAME = "dsls.ink";
+	private final static String TEMPLATE_NAME = "templates/dsl.template";
+	
+	private final static String NAME_TOKEN = "NAME";
+	private final static String IMPORTS_TOKEN = "IMPORTS";
+	private final static String NAMESPACE_TOKEN = "NAMESPACE";
+	private final static String DSL_PACKAGE_TOKEN = "DSL_PACKAGE";
+    private final static String JAVA_PACKAGE_TOKEN = "JAVA_PACKAGE";
+	
 	/**
-	 * Constructor for NewDslFileWizard.
+	 * Constructor for NewDslWizard.
 	 */
-	public NewDslFileWizard() {
+	public NewDslWizard() {
 		super();
 		setNeedsProgressMonitor(true);
 	}
@@ -49,7 +53,7 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	 */
 
 	public void addPages() {
-		page = new NewDslFileWizardPage(selection);
+		page = new NewDslWizardPage(selection);
 		addPage(page);
 	}
 
@@ -59,20 +63,22 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		final String containerName = page.getContainerName();
-		final String fileName = page.getFileName();
+		final String containerName = page.getProjectName();
+		
+		// Creating tokens map between the name of the token as appears
+		// in the DSL template and its value(getting from the page)
+		
 		final Map<String, String> tokens = new HashMap<String, String>();
-		tokens.put("NAME", "\"" + page.getClassId() + "\"");
-		tokens.put("IMPORTS", getImportsString());
-		tokens.put("NAMESPACE", "\"" + page.getNamaspace() + "\"");
-		tokens.put("DSL_PACKAGE", "\"" + page.getDslPackage() + "\"");
-		tokens.put("JAVA_PACKAGE", "\"" + page.getJavaPackage() + "\"");
+		tokens.put(NAME_TOKEN, "\"" + getClassIdName() + "\"");
+		tokens.put(IMPORTS_TOKEN, getImportsString());
+		tokens.put(NAMESPACE_TOKEN, "\"" + page.getNamaspace() + "\"");
+		tokens.put(DSL_PACKAGE_TOKEN, "\"" + page.getDslPackage() + "\"");
+		tokens.put(JAVA_PACKAGE_TOKEN, "\"" + page.getJavaPackage() + "\"");
 	
-		//final String classId = page.getClassId();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, fileName,tokens, monitor);
+					doFinish(containerName,tokens, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -92,44 +98,76 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 		return true;
 	}
 	
+	/**
+	 * Builds Class id name from DSL namespace name
+	 */
+	String getClassIdName()
+	{
+		String namespace = page.getNamaspace();
+		String className = "";
+		int dotLoc = namespace.lastIndexOf('.');
+		if (dotLoc != -1)
+		{
+			className = namespace.substring(dotLoc + 1,dotLoc +2).toUpperCase() + 
+						namespace.substring(dotLoc + 2);
+		}
+		else
+		{
+			className = namespace;
+		}
+		className += "Factory";
+		return className;
+		
+	}
+	
+	/**
+	 * Builds IMPORTS token value
+	 */
 	String getImportsString()
 	{
 		StringBuilder importString = new StringBuilder();
 		String [] importsList = page.getImportsList();
+		Map<String, DslFactory> namespaceToDslFactoryMap = 
+			page.getNamespaceToDslFactoryMap();
+		
 		for (String importItem : importsList)
 		{
-			importString.append("import ref=\"").append(importItem)
+			importString.append("import ref=\"")
+						.append(namespaceToDslFactoryMap.get(importItem)
+								.reflect().getId())
 						.append("\"\n\t\t");
 		}
 		importString.append("import ref=\"ink.core:ObjectFactory\"\n");
 		return importString.toString();
 	}
+	
 	/**
-	 * The worker method. It will find the container, create the
-	 * file if missing or just replace its contents, and open
+	 * The worker method. It will find the project, create the dsls.ink
+	 * file if missing or just add to its content, and open
 	 * the editor on the newly created file.
 	 */
 
 	private void doFinish(
 		String containerName,
-		String fileName,
 		Map<String, String> tokenMap,
 		IProgressMonitor monitor)
 		throws CoreException {
 		// create a sample file
-		monitor.beginTask("Creating " + fileName, 2);
+		monitor.beginTask("Creating dsl in " + FILE_NAME, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
 		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + containerName + "\" does not exist.");
+			throwCoreException("Project \"" + containerName + "\" does not exist.");
 		}
 		IContainer container = (IContainer) resource;
 		
-		final IFile file = container.getFile(new Path(fileName));
+		final IFile file = container.getFile(new Path(FILE_NAME));
 		try {
 			InputStream stream = openContentStream(tokenMap);
 			if (file.exists()) {
-				file.setContents(stream, true, true, monitor);
+				//file.setContents(stream, true, true, monitor);
+				
+				file.appendContents(stream, true, true, monitor);
 			} else {
 				file.create(stream, true, monitor);
 			}
@@ -152,33 +190,26 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 	}
 	
 	/**
-	 * We will initialize file contents with a sample text.
+	 * Builds file contents with template contents replaced by tokens values  
 	 */
 
 	private InputStream openContentStream(Map<String, String> tokenMap) throws CoreException {
-		/*String contents =
-			"This is the initial file contents for *.ink file that should be word-sorted in the Preview page of the multi-page editor";
-		return new ByteArrayInputStream(contents.getBytes()); */
-		//final String newline = "\n";
-		//String line;
+		
 		StringBuffer sb = new StringBuffer();
+		
+		// Creating resolver with the tokeMap built earlier
 		MapTokenResolver resolver = new MapTokenResolver(tokenMap);
-		URL templateUrl = InkPlugin.getDefault().getBundle().getResource("templates/test.txt");
+		URL templateUrl = InkPlugin.getDefault().getBundle().getResource(TEMPLATE_NAME);
 		try
 		{
 			InputStream input = templateUrl.openStream();
+			
+			// Getting template content with tokens real values (according to
+			// tokenMap)
 			Reader reader = new TokenReplacingReader(
 			        new InputStreamReader(input), resolver);
-			/*BufferedReader source = new BufferedReader(
-										new InputStreamReader(input));*/
 			try
 			{
-				/*while((line = reader.readLine()) != null)
-				{
-					line = line.replace("[NAME]", classId);
-					sb.append(line);
-					sb.append(newline);
-				}*/
 				int data = reader.read();
 			    while(data != -1){
 			        sb.append((char) data);
@@ -192,13 +223,12 @@ public class NewDslFileWizard extends Wizard implements INewWizard {
 		}
 		catch(IOException e)
 		{
-			IStatus status = new Status(IStatus.ERROR, "newDslFileWizard", 
+			IStatus status = new Status(IStatus.ERROR, "newDSLWizard", 
 										IStatus.OK, e.getLocalizedMessage(), null);
 			throw new CoreException(status);
 		}
 		
 		return new ByteArrayInputStream(sb.toString().getBytes());
-		//return this.getClass().getResourceAsStream("test.txt");
 		
 	}
 

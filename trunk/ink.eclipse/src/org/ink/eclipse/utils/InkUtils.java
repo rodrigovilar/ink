@@ -118,20 +118,20 @@ public class InkUtils {
 		return ids.toArray(new String[] {});
 	}
 
-	public static DslFactory[] getProjectDSLFactories(IProject p) {
+	public static Map<String, DslFactory> getProjectDSLFactories(IProject p) {
 		Collection<DslFactory> factories = VMMain.getAllFactories();
 		IFile f = p.getFile("dsls.ink");
-		List<DslFactory> result = new ArrayList<DslFactory>();
+		Map<String, DslFactory> result = new HashMap<String, DslFactory>();
 		if (f.exists()) {
 			String path = f.getLocation().toFile().getAbsolutePath();
 			for (DslFactory factory : factories) {
 				File factoryConfFile = factory.getConfigurationFile();
 				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
-					result.add(factory);
+					result.put(factory.getNamespace(), factory);
 				}
 			}
 		}
-		return result.toArray(new DslFactory[] {});
+		return result;
 	}
 
 

@@ -7,10 +7,12 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -448,6 +450,25 @@ public class EclipseUtils {
 			return offset;
 		}
 		return 0;
+	}
+
+	public static IContainer createFolder(IPath packagePath, IContainer outputFolder, boolean isSourceFolder)
+			throws CoreException {
+		if (packagePath.isEmpty()) {
+			return outputFolder;
+		}
+		IFolder folder = outputFolder.getFolder(packagePath);
+		if (!folder.exists()) {
+			createFolder(packagePath.removeLastSegments(1), outputFolder, isSourceFolder);
+			int flag;
+			if(isSourceFolder){
+				flag = IResource.FORCE;
+			}else{
+				flag = IResource.FORCE | IResource.DERIVED;
+			}
+			folder.create(flag, true, null);
+		}
+		return folder;
 	}
 
 }

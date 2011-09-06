@@ -4,6 +4,7 @@ Class id=${NAME} class="ink.core:DslFactory" super="ink.core:ObjectFactory"{
 	imports{
 		${IMPORTS}
 	}
+	description ${DESCRIPTION}
 	loader class="ink.core:DslLoader"
 	repository class="ink.core:DslRepository"
 	namespace ${NAMESPACE}

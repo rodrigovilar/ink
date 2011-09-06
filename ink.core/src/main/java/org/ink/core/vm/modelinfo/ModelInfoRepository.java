@@ -17,4 +17,6 @@ public interface ModelInfoRepository {
 
 	public void reload();
 
+	public void destroy();
+
 }

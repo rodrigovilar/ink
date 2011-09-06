@@ -91,7 +91,7 @@ public class InkPlugin extends AbstractUIPlugin {
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
 		maxBuildIterations = ws.getDescription().getMaxBuildIterations();
 		addInkClasspath();
-		loadInk();
+		startInkVM();
 	}
 
 	public int getMaxBuildIterations(){
@@ -113,12 +113,12 @@ public class InkPlugin extends AbstractUIPlugin {
 	}
 
 	public List<InkErrorDetails> reloadInk(){
-		VMMain.restart();
-		inkContext = InkVM.instance().getContext();
+		startInkVM();
 		return InkVM.instance().collectErrors();
 	}
 
-	private void loadInk(){
+	public void startInkVM(){
+		InkVM.destroy();
 		VMConfig.setInstantiationStrategy(new EclipseResourceResolver());
 		List<IProject> inkProjects = getInkProjects();
 		List<String> paths = new ArrayList<String>();

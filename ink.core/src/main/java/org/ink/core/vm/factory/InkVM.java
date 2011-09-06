@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ink.core.vm.modelinfo.ModelInfoFactory;
+
 
 
 /**
@@ -46,9 +48,10 @@ public class InkVM implements VM {
 		return VMMain.getDefaultFactory();
 	}
 
-	@Override
-	public void destroy() {
+	public static void destroy() {
+		vm=null;
 		VMMain.stop();
+		ModelInfoFactory.getInstance().destroy();
 	}
 
 	public static InstanceFactory getInstanceFactory() {

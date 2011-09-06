@@ -20,10 +20,10 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
-	protected Map<String, ModelIndex> indices;
+	protected Map<String, ModelIndex> indices = new HashMap<String, ModelIndex>();
 
 	private void init() {
-		indices = new HashMap<String, ModelIndex>();
+		indices.clear();
 		Set<String> scope = VMMain.getDsls();
 		for (String namespace : scope) {
 			ModelIndex newIndex = ModelIndex.initIndex(namespace, this);
@@ -92,6 +92,11 @@ public class ModelInfoRepositoryImpl implements ModelInfoRepository {
 	@Override
 	public void reload() {
 		init();
+	}
+
+	@Override
+	public void destroy() {
+		indices.clear();
 	}
 
 	ModelInfoWriteableRepository createWriteableInstance() {

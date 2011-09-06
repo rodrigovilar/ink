@@ -53,12 +53,10 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	private final Map<IFile, String> changedJavaFiles = new HashMap<IFile, String>();
 	private boolean fullBuild = false;
 
-	String[] dsls;
 
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
-		this.dsls =  InkUtils.getProjectNamespaces(getProject());
 	}
 
 	class InkDeltaVisitor implements IResourceDeltaVisitor {
@@ -272,7 +270,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
-		Collection<InkObject> all = InkUtils.getAllClasses(this.dsls);
+		String[] dsls = InkUtils.getProjectNamespaces(getProject());
+		Collection<InkObject> all = InkUtils.getAllClasses(dsls);
 		for (InkObject o : all) {
 			try {
 				ClassMirror cm = o.reflect();
@@ -283,7 +282,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 		}
 		gen = new EnumGenerator(output);
-		all = InkUtils.getInstances(this.dsls, CoreNotations.Ids.ENUM_TYPE,
+		all = InkUtils.getInstances(dsls, CoreNotations.Ids.ENUM_TYPE,
 				true);
 		for (InkObject o : all) {
 			gen.generate(o.reflect());

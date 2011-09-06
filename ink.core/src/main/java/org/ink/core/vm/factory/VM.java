@@ -12,7 +12,6 @@ public interface VM {
 	public DslFactory getOwnerFactory(File f);
 	public Context getContext();
 	public DslFactory getFactory();
-	public void destroy();
 	public List<InkErrorDetails> collectErrors();
 
 }

@@ -22,6 +22,7 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.JavaMapping;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
+import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.serialization.InkReader;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.file.FileUtils;
@@ -31,14 +32,14 @@ import org.ink.core.vm.utils.file.FileUtils;
  */
 public class VMMain {
 
-	private static DslFactory factory;
+	private static DslFactory factory = null;
 	private static Set<String> namespaces = new HashSet<String>();
-	private static DslFactory coreFactory;
+	private static DslFactory coreFactory = null;
 	private static String[] paths = null;
 	private static String defaultNS = null;
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	private static boolean startupInProgress = false;
-	private static InstanceFactory instanceFactory;
+	private static InstanceFactory instanceFactory = null;
 
 
 	public static void restart(){
@@ -53,10 +54,11 @@ public class VMMain {
 		for(DslFactory f : factories){
 			f.destroy();
 		}
-		factory = null;
-		namespaces.clear();
-		coreFactory = null;
 		allFactories.clear();
+		namespaces.clear();
+		factory = null;
+		coreFactory = null;
+		defaultNS = null;
 		startupInProgress = false;
 		instanceFactory = null;
 	}
@@ -148,6 +150,7 @@ public class VMMain {
 				allFactories.put(f.getNamespace(), f);
 				namespaces.add(f.getNamespace());
 			}
+			ModelInfoFactory.getInstance().reload();
 			for(DslFactory f : factories){
 				f.scan();
 			}

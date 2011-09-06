@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -36,6 +37,8 @@ import org.eclipse.ui.ide.IDE;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.builder.InkBuilder;
+import org.ink.eclipse.builder.InkNature;
+import org.ink.eclipse.builder.ToggleNatureAction;
 import org.ink.eclipse.utils.EclipseUtils;
 
 /**
@@ -177,7 +180,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 		monitor.beginTask("Creating dsl in " + FILE_NAME, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
-		if (!resource.exists() || !(resource instanceof IContainer)) {
+		if (!resource.exists() || !(resource instanceof IProject)) {
 			throwCoreException("Project \"" + containerName + "\" does not exist.");
 		}
 		IContainer container = (IContainer) resource;
@@ -208,6 +211,12 @@ public class NewDslWizard extends Wizard implements INewWizard {
 			try{
 				stream.close();
 			}catch(Throwable e){e.printStackTrace();}
+		}
+
+		IProject p = (IProject)resource;
+		if(!p.hasNature(InkNature.NATURE_ID)){
+			ToggleNatureAction action = new ToggleNatureAction();
+			action.toggleNature(p);
 		}
 		final IFile tragetFile = dslfile;
 		monitor.worked(1);

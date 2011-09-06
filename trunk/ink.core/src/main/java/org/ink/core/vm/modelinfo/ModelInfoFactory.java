@@ -11,4 +11,5 @@ public abstract class ModelInfoFactory {
 	public static ModelInfoWriteableRepository getWriteableInstance() {
 		return ModelInfoFactoryImpl.getWriteableInstanceImpl();
 	}
+
 }

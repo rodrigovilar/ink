@@ -62,7 +62,7 @@ public class NewDslWizardPage extends WizardPage {
 	public NewDslWizardPage(ISelection selection) {
 		super("wizardPage");
 		setTitle("New DSL");
-		setDescription("This wizard creates a new DSL stamped to dsls.ink file");
+		setDescription("This wizard creates a new DSL");
 		this.selection = selection;
 		namespaceToDslFactoryMap = new HashMap<String, DslFactory>();
 
@@ -388,7 +388,7 @@ public class NewDslWizardPage extends WizardPage {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
 				"Select destination project");
-
+		dialog.showClosedProjects(false);
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {

@@ -103,7 +103,7 @@ public abstract class DataBlock {
 					}
 				}
 			}
-			String prefix = b.reverse().toString().trim();
+			String prefix = b.reverse().toString().trim().toLowerCase();
 			if(prefix.length()>0){
 				if(prefix.charAt(prefix.length()-1)=='\"'){
 					prefix = "";
@@ -421,7 +421,7 @@ public abstract class DataBlock {
 		if(prefix.length()==0){
 			return true;
 		}
-		if(str.indexOf(prefix)==0){
+		if(str.toLowerCase().indexOf(prefix)>=0){
 			return true;
 		}
 		return false;

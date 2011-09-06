@@ -169,7 +169,7 @@
       <wizard
             category="org.ink.eclipse"
             class="org.ink.eclipse.wizards.NewDslWizard"
-            icon="icons/sample.gif"
+            icon="resources/icons/sample.gif"
             id="org.ink.eclipse.wizards.NewDslFileWizard"
             name="New DSL">
       </wizard>

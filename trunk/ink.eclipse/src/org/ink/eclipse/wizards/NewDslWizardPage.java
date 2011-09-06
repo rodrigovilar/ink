@@ -3,7 +3,6 @@ package org.ink.eclipse.wizards;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -30,32 +29,33 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.ink.core.vm.factory.DslFactory;
 import org.ink.eclipse.utils.InkUtils;
 
 /**
- * The new DSL wizard page creates a new DSL declaration in a dsls.ink 
+ * The new DSL wizard page creates a new DSL declaration in a dsls.ink
  * file for a specific project
  */
 
 public class NewDslWizardPage extends WizardPage {
 	private ISelection selection;
-	
-	
+
+
 	// Wizard components
 	private Text projectText;
 	private Text namespaceText;
 	private Text dslPackageText;
+	private Text descriptionText;
 	private Text javaPackageText;
 	private List importsListControl;
 	private Button removeBtn;
-	
+
 	private Map<String, DslFactory> namespaceToDslFactoryMap;
-	
+
 	/**
 	 * Constructor for NewDslWizardPage.
 	 */
@@ -63,46 +63,49 @@ public class NewDslWizardPage extends WizardPage {
 		super("wizardPage");
 		setTitle("New DSL");
 		setDescription("This wizard creates a new DSL stamped to dsls.ink file");
-		this.selection = selection;		
+		this.selection = selection;
 		namespaceToDslFactoryMap = new HashMap<String, DslFactory>();
-		
+
 	}
 
 	/**
 	 * @see IDialogPage#createControl(Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
-		
+
 		// Creating main container
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
-		
+
 		// Create project selection fields
 		createLabel(container, "&Project:");
 		projectText = createText(container, new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 				buildNamespaceToDslFactoryMap();
 			}
 		});
 		projectText.setEditable(false);
-		createButton(container, "Browse...", 
+		createButton(container, "Browse...",
 				new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handleBrowse();
 			}
 		});
-		
+
 		createLine(container, 3);
-		
+
 		// Create Imports dsls fields
-		
+
 		createLabel(container, "&Imports:");
 		importsListControl = new List(container,
-							   SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL 
+							   SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
 							   | SWT.READ_ONLY);
 		GridData gd = new GridData();
 		gd.horizontalAlignment= GridData.FILL;
@@ -111,7 +114,7 @@ public class NewDslWizardPage extends WizardPage {
 		gd.grabExcessVerticalSpace= true;
 		importsListControl.setLayoutData(gd);
 		importsListControl.setCapture(true);
-		
+
 		Composite buttons= getButtonBox(container);
 		gd= new GridData();
 		gd.horizontalAlignment= GridData.FILL;
@@ -120,35 +123,44 @@ public class NewDslWizardPage extends WizardPage {
 		gd.grabExcessVerticalSpace= true;
 		gd.horizontalSpan= 1;
 		buttons.setLayoutData(gd);
-		
-		// Create Namespace fields
-		
-		createLabel(container, "&Namespace:");
+
+		createLabel(container, "&Description     :");
+		descriptionText = createText(container,new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				dialogChanged();
+			}
+		});
+		createLabel(container,"");
+		createLabel(container, "&Namespace    :");
 		namespaceText = createText(container,new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
 		});
 		createLabel(container,"");
-		
+
 		// Create DSL package fields
-		createLabel(container, "&DSL package:");
+		createLabel(container, "&DSL package  :");
 		dslPackageText = createText(container, new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
 		});
 		createLabel(container,"");
-		
+
 		// Create Java package fields
-		createLabel(container,"&Java package:");
+		createLabel(container,"&Java package :");
 		javaPackageText = createText(container, new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
 		});
 		createLabel(container,"");
-		
+
 		initialize();
 		dialogChanged();
 		setControl(container);
@@ -164,23 +176,23 @@ public class NewDslWizardPage extends WizardPage {
 		if (projectName.length() != 0)
 		{
 			namespaceToDslFactoryMap.clear();
-			
+
 			// Getting IPtoject from the project name string
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IResource resource = root.findMember(new Path(projectName));
 			IContainer container = (IContainer) resource;
 			IProject project = container.getProject();
-			
-			// Getting the project DSLS 
+
+			// Getting the project DSLS
 			namespaceToDslFactoryMap = InkUtils.getProjectDSLFactories(project);
-			
+
 			try
 			{
 				// Getting the referenced projects DSLS
 				IProject[] referencedProjects = project.getReferencedProjects();
 				if (referencedProjects.length > 0)
 				{
-					for (IProject iProject : referencedProjects) 
+					for (IProject iProject : referencedProjects)
 					{
 						namespaceToDslFactoryMap.putAll(InkUtils.getProjectDSLFactories(iProject));
 					}
@@ -190,11 +202,11 @@ public class NewDslWizardPage extends WizardPage {
 			{
 				updateStatus("Error in getting referenced projects");
 			}
-						
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Creating Text component
 	 */
@@ -205,7 +217,7 @@ public class NewDslWizardPage extends WizardPage {
 		txt.addModifyListener(listener);
 		return txt;
 	}
-	
+
 	/**
 	 * Creating Label component
 	 */
@@ -216,9 +228,9 @@ public class NewDslWizardPage extends WizardPage {
 		gd.verticalAlignment= GridData.BEGINNING;
 		lbl.setLayoutData(gd);
 		return lbl;
-		
+
 	}
-	
+
 	/**
 	 * Creating Button component
 	 */
@@ -235,29 +247,31 @@ public class NewDslWizardPage extends WizardPage {
 
 		return button;
 	}
-	
+
 	/**
 	 * Creating Buttons box of "ADD" and "REMOVE"
 	 */
-	public Composite getButtonBox(Composite parent) 
+	public Composite getButtonBox(Composite parent)
 	{
-			
+
 		Composite contents= new Composite(parent, SWT.NONE);
-			
+
 		GridLayout layout= new GridLayout();
 		layout.marginWidth= 0;
 		layout.marginHeight= 0;
 		contents.setLayout(layout);
 
-		createButton(contents, "Add...", 
+		createButton(contents, "Add...",
 				new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handleAddImports();
 			}
 		});
-		
+
 		removeBtn = createButton(contents, "Remove...",
 				new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handleRemoveImports();
 			}
@@ -268,7 +282,7 @@ public class NewDslWizardPage extends WizardPage {
 	}
 
 	/**
-	 * This method is called when the Add button is entered(located next to the 
+	 * This method is called when the Add button is entered(located next to the
 	 * imports list)
 	 */
 	private void handleAddImports()
@@ -278,9 +292,9 @@ public class NewDslWizardPage extends WizardPage {
 				(getShell(),namespaceToDslFactoryMap.keySet(),
 				 new ArrayContentProvider(), new LabelProvider(),
 				 "DSL List");
-		
+
 		importsDialog.setTitle("Select DSL to import : ");
-		
+
 		if (importsDialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = importsDialog.getResult();
 			if (result.length > 0)
@@ -290,13 +304,13 @@ public class NewDslWizardPage extends WizardPage {
 					if (!existInImportsList((String) resultItem))
 					{
 						importsListControl.add((String) resultItem);
-					}	
+					}
 				}
-				removeBtn.setEnabled(true);			
+				removeBtn.setEnabled(true);
 			}
 		}
 	}
-	
+
 	/**
 	 * This method checks duplicate items in the imports list component
 	 */
@@ -305,19 +319,20 @@ public class NewDslWizardPage extends WizardPage {
 		String [] importsItems = importsListControl.getItems();
 		for(String item : importsItems)
 		{
-			if(item.equals(itemToCheck))
+			if(item.equals(itemToCheck)) {
 				return true;
+			}
 		}
 		return false;
 	}
-	
+
 	/**
-	 * This method is called when the Remove button is entered (located next to the 
+	 * This method is called when the Remove button is entered (located next to the
 	 * imports list)
 	 */
 	private void handleRemoveImports()
 	{
-		
+
 		String[] selectedItems = importsListControl.getSelection();
 		for (String item : selectedItems)
 		{
@@ -327,19 +342,19 @@ public class NewDslWizardPage extends WizardPage {
 		{
 			removeBtn.setEnabled(false);
 		}
-	
+
 	}
 	/**
 	 * This method creates a separator line in the wizard page
 	 */
-	private void createLine(Composite parent, int ncol) 
+	private void createLine(Composite parent, int ncol)
 	{
 		Label line = new Label(parent, SWT.SEPARATOR|SWT.HORIZONTAL|SWT.BOLD);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		gridData.horizontalSpan = ncol;
 		line.setLayoutData(gridData);
 	}
-	
+
 	/**
 	 * Tests if the current workbench selection is a suitable container to use.
 	 */
@@ -347,16 +362,18 @@ public class NewDslWizardPage extends WizardPage {
 		if (selection != null && selection.isEmpty() == false
 				&& selection instanceof IStructuredSelection) {
 			IStructuredSelection ssel = (IStructuredSelection) selection;
-			if (ssel.size() > 1)
+			if (ssel.size() > 1) {
 				return;
+			}
 			Object obj = ssel.getFirstElement();
 			if (obj instanceof IResource) {
 				IContainer container;
-				if (obj instanceof IContainer)
+				if (obj instanceof IContainer) {
 					container = (IContainer) obj;
-				else
+				} else {
 					container = ((IResource) obj).getParent();
-			
+				}
+
 				projectText.setText(container.getFullPath().segment(0));
 			}
 		}
@@ -366,69 +383,74 @@ public class NewDslWizardPage extends WizardPage {
 	 * Uses the standard container selection dialog to choose the new value for
 	 * the project field.
 	 */
-	
+
 	private void handleBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
 				"Select destination project");
-		
+
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				
+
 				projectText.setText(((Path) result[0]).segment(0));
 			}
 		}
-		
+
 	}
 
 	/**
 	 * Ensures that all text fields are set.
 	 */
 	private void dialogChanged() {
-		
-		
+
+
 		String dslPackageName = getDslPackage();
 		String javaPackageName = getJavaPackage();
-		
+
 		if (!isProjectNameValid())
 		{
 			return;
 		}
-		
+
+		if(descriptionText.getText()==null || descriptionText.getText().length()==0){
+			updateStatus("Description should not be empty");
+			return;
+		}
+
 		if (!isNamespaceNameValid())
 		{
 			return;
 		}
-		
+
 		if (dslPackageName.length() == 0)
 		{
 			updateStatus("DSL package must be specified");
 			return;
 		}
-		
+
 		if (!isPackageNameValid(dslPackageName))
 		{
 			return;
 		}
-	
+
 		if (isDslPackageExist())
 		{
 			updateStatus("DSL package is already exist");
 			return;
 		}
-		
+
 		if (javaPackageName.length() == 0)
 		{
 			updateStatus("Java package must be specified");
 			return;
 		}
-		
+
 		if (!isPackageNameValid(javaPackageName))
 		{
 			return;
 		}
-		
+
 		if (isJavaPackageExist())
 		{
 			updateStatus("Java package is already exist");
@@ -444,7 +466,7 @@ public class NewDslWizardPage extends WizardPage {
 	{
 		IResource project = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(new Path(getProjectName()));
-		
+
 		if (getProjectName().length() == 0) {
 			updateStatus("DSL project must be specified");
 			return false;
@@ -460,7 +482,7 @@ public class NewDslWizardPage extends WizardPage {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Ensures that DSL namespace is valid
 	 */
@@ -472,22 +494,25 @@ public class NewDslWizardPage extends WizardPage {
 			updateStatus("Namespace must be specified");
 			return false;
 		}
-		if (!namespaceName.matches("^[a-zA-Z0-9]+\\.[a-zA-Z0-9]+$"))
-		{
-			updateStatus("Namespace format isn't valid.\n" +
-						 "Should match [alpha/digit].[alpha/digit]" );
-			
+		if(namespaceName.charAt(0)=='.' || namespaceName.charAt(namespaceName.length()-1)=='.'){
+			updateStatus("Namespace should not start or end with a dot.");
 			return false;
+		}
+		for(char c : namespaceName.toCharArray()){
+			if(!Character.isLetterOrDigit(c) && c!='.'){
+				updateStatus("Namespace should contain only alpha/numeric/dot characters.");
+				return false;
+			}
 		}
 		if (namespaceToDslFactoryMap.keySet().contains(namespaceName))
 		{
 			updateStatus("Namespace is already exist");
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Ensures that DSL/Java package is valid
 	 */
@@ -506,21 +531,23 @@ public class NewDslWizardPage extends WizardPage {
 		for (Map.Entry<String, DslFactory> en : namespaceToDslFactoryMap.entrySet())
 		{
 			DslFactory dslFactory = en.getValue();
-			if (dslFactory.getDslPackage().equals(getDslPackage()))
-			{
+			String temp1 = getDslPackage() +".";
+			String temp2 = dslFactory.getDslPackage() +".";
+			if (temp1.startsWith(temp2) || temp2.startsWith(temp1)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	boolean isJavaPackageExist()
 	{
 		for (Map.Entry<String, DslFactory> en : namespaceToDslFactoryMap.entrySet())
 		{
 			DslFactory dslFactory = en.getValue();
-			if (dslFactory.getJavaPackage().equals(getJavaPackage()))
-			{
+			String temp1 = getJavaPackage() +".";
+			String temp2 = dslFactory.getJavaPackage() +".";
+			if (temp1.startsWith(temp2) || temp2.startsWith(temp1)) {
 				return true;
 			}
 		}
@@ -544,13 +571,17 @@ public class NewDslWizardPage extends WizardPage {
 	public String getJavaPackage() {
 		return javaPackageText.getText();
 	}
-	
+
 	public String[] getImportsList() {
 		return importsListControl.getItems();
 	}
-	
+
 	public Map<String, DslFactory> getNamespaceToDslFactoryMap()
 	{
 		return namespaceToDslFactoryMap;
+	}
+
+	public String getDslDescription() {
+		return descriptionText.getText();
 	}
 }

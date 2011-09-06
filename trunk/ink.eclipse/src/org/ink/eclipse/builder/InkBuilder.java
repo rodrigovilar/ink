@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -45,7 +44,7 @@ import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 
-	private static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR
+	public static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR
 			+ "main" + IPath.SEPARATOR + "dsl");
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
@@ -220,25 +219,12 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				existingFile.delete(true, null);
 			} else {
 				IPath folderPath = existingFile.getFullPath().removeLastSegments(1).removeFirstSegments(1);
-				createFolder(folderPath, getProject());
+				EclipseUtils.createFolder(folderPath, getProject(), false);
 			}
 			file.copy(existingFile.getFullPath(), true, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	protected IContainer createFolder(IPath packagePath, IContainer outputFolder)
-			throws CoreException {
-		if (packagePath.isEmpty()) {
-			return outputFolder;
-		}
-		IFolder folder = outputFolder.getFolder(packagePath);
-		if (!folder.exists()) {
-			createFolder(packagePath.removeLastSegments(1), outputFolder);
-			folder.create(IResource.FORCE | IResource.DERIVED, true, null);
-		}
-		return folder;
 	}
 
 	boolean checkInkFile(IFile file) {

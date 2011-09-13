@@ -162,13 +162,13 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 				String filename = null;
 				switch (objectType) {
 				case Metaclass:
-					filename = "sample.gif";
+					filename = "metaclass.png";
 					break;
 				case Class:
-					filename = "class_obj.gif";
+					filename = "class.png";
 					break;
 				case Object:
-					filename = "sample.gif";
+					filename = "object.png";
 					break;
 				case Enumeration:
 					filename = "sample.gif";

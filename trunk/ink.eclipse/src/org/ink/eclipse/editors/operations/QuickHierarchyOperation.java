@@ -1,5 +1,6 @@
 package org.ink.eclipse.editors.operations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,23 +17,30 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeNode;
 import org.eclipse.jface.viewers.TreeNodeContentProvider;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.modelinfo.ModelInfoRepository;
 import org.ink.core.vm.modelinfo.relations.ExtendsRelation;
 import org.ink.core.vm.types.ObjectTypeMarker;
 import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.utils.EclipseUtils;
 import org.ink.eclipse.utils.SimpleTreeNode;
 
 public class QuickHierarchyOperation extends InkEditorOperation {
@@ -40,18 +48,20 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 	@Override
 	protected boolean execute(InkObject o, Shell shell, IDocument doc, IFile file) throws Exception {
 		if (o != null) {
-			SimpleTreeNode<Mirror> hierarchyTree = createHierarchyTree(o);
-			displayTree(hierarchyTree, shell);
+			SimpleTreeNode<Mirror> originalObjectNode = createOriginalObjectNode(o);
+			SimpleTreeNode<Mirror> hierarchyTreeRoot = createHierarchyTree(o, originalObjectNode);
+			displayTree(hierarchyTreeRoot, originalObjectNode, shell);
 		}
 		return false;
 	}
 
-	private SimpleTreeNode<Mirror> createHierarchyTree(InkObject inkObject) {
-		Mirror mirror = inkObject.reflect();
-		SimpleTreeNode<Mirror> originalObjectNode = new SimpleTreeNode<Mirror>(mirror);
+	private SimpleTreeNode<Mirror> createOriginalObjectNode(InkObject inkObject) {
+		return new SimpleTreeNode<Mirror>(inkObject.<Mirror>reflect());
+	}
 
+	private SimpleTreeNode<Mirror> createHierarchyTree(InkObject inkObject, SimpleTreeNode<Mirror> originalObjectNode) {
 		SimpleTreeNode<Mirror> rootNode = originalObjectNode;
-		Mirror superMirror = mirror.getSuper();
+		Mirror superMirror = originalObjectNode.getValue().getSuper();
 		while (superMirror != null) {
 			SimpleTreeNode<Mirror> currentNode = new SimpleTreeNode<Mirror>(superMirror);
 			currentNode.addChildNode(rootNode);
@@ -73,39 +83,67 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		}
 	}
 
-	private void displayTree(SimpleTreeNode<?> hierarchyTree, Shell shell) {
-		new QuickHierarchyDialog(hierarchyTree, shell).open();
+	private void displayTree(SimpleTreeNode<Mirror> hierarchyTreeRoot, SimpleTreeNode<Mirror> originalObjectNode, Shell shell) {
+		new QuickHierarchyDialog(hierarchyTreeRoot, originalObjectNode, new JumpHandler<Mirror>() {
+
+			@Override
+			public void doJump(Mirror object) {
+				EclipseUtils.openEditor(object);
+			}
+		}, "Type hierarchy for '" + originalObjectNode.getValue().getId() + "'", shell).open();
 	}
 
-	private static class QuickHierarchyDialog extends PopupDialog {
+	private static interface JumpHandler<T> {
+		public void doJump(T object);
+	}
 
-		private final SimpleTreeNode<?> node;
+	private static class QuickHierarchyDialog<T> extends PopupDialog {
 
-		public QuickHierarchyDialog(SimpleTreeNode<?> node, Shell shell) {
+		private final SimpleTreeNode<T> rootNode;
+		private final SimpleTreeNode<T> originalObjectNode;
+		private final JumpHandler<T> jumpHandler;
+
+		public QuickHierarchyDialog(SimpleTreeNode<T> rootNode, SimpleTreeNode<T> originalObjectNode, JumpHandler<T> jumpHandler, String title, Shell shell) {
 			super(shell, SWT.RESIZE, true, true, false, true, true, null, null);
-			this.node = node;
+			this.rootNode = rootNode;
+			this.originalObjectNode = originalObjectNode;
+			this.jumpHandler = jumpHandler;
+			setTitleText(title);
+			setInfoText("Press 'Ctrl+T' to see the instance-of hierarchy");
 		}
 
 		@Override
 		protected Control createDialogArea(Composite parent) {
 			TreeViewer fTreeViewer = createTreeViewer(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 			final Tree tree = fTreeViewer.getTree();
-			tree.addKeyListener(new KeyListener() {
+			tree.addKeyListener(new KeyAdapter() {
 
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if (e.character == 0x1B) {
 						close();
+					} else if (e.character == 0xD) {
+						callJumpHandler(tree);
 					}
 				}
+			});
+			tree.addMouseListener(new MouseAdapter() {
 
 				@Override
-				public void keyReleased(KeyEvent e) {
-					// do nothing
+				public void mouseDoubleClick(MouseEvent e) {
+					callJumpHandler(tree);
 				}
 			});
-
 			return fTreeViewer.getControl();
+		}
+
+		private void callJumpHandler(Tree tree) {
+			TreeItem[] selection = tree.getSelection();
+			if (selection != null && selection.length > 0 && jumpHandler != null) {
+				TreeNode selectedNode = (TreeNode) selection[0].getData();
+				jumpHandler.doJump((T) selectedNode.getValue());
+			}
+			close();
 		}
 
 		protected TreeViewer createTreeViewer(Composite parent, int style) {
@@ -118,17 +156,25 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 			treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 			treeViewer.setLabelProvider(new DecoratingStyledCellLabelProvider(new InkLabelProvider(), null, null));
 			treeViewer.setContentProvider(new TreeNodeContentProvider());
-			treeViewer.setInput(new TreeNode[] { toEclipseTreeNode(node) });
+			TreeNode originalObjectEclipseNode = new TreeNode(originalObjectNode.getValue());
+			treeViewer.setInput(new TreeNode[] { toEclipseTreeNode(rootNode, originalObjectEclipseNode) });
+			TreeNode tempNodeForSelection = originalObjectEclipseNode;
+			List<TreeNode> pathToOriginalObjectNode = new ArrayList<TreeNode>();
+			while (tempNodeForSelection != null) {
+				pathToOriginalObjectNode.add(0, tempNodeForSelection);
+				tempNodeForSelection = tempNodeForSelection.getParent();
+			}
+			treeViewer.setSelection(new TreeSelection(new TreePath(pathToOriginalObjectNode.toArray())));
 			return treeViewer;
 		}
 
-		private <T> TreeNode toEclipseTreeNode(SimpleTreeNode<T> node) {
-			TreeNode result = new TreeNode(node.getValue());
+		private TreeNode toEclipseTreeNode(SimpleTreeNode<T> node, TreeNode originalObjectEclipseNode) {
+			TreeNode result = node == originalObjectNode ? originalObjectEclipseNode : new TreeNode(node.getValue());
 			List<SimpleTreeNode<T>> children = node.getChildren();
 			TreeNode[] eclipseChildren = new TreeNode[children.size()];
 			int currentChild = 0;
 			for (SimpleTreeNode<T> child : children) {
-				eclipseChildren[currentChild] = toEclipseTreeNode(child);
+				eclipseChildren[currentChild] = toEclipseTreeNode(child, originalObjectEclipseNode);
 				eclipseChildren[currentChild].setParent(result);
 				currentChild++;
 			}
@@ -139,10 +185,20 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 
 	private static class InkLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-		private final Map<ObjectTypeMarker, Image> imagesMap;
+		private static final String STRUCT = "Struct";
+		private final Map<String, Image> imagesMap;
+		private final static Map<String, String> filenamesMap;
+		static {
+			filenamesMap = new HashMap<String, String>(5);
+			filenamesMap.put(ObjectTypeMarker.Metaclass.toString(), "metaclass.png");
+			filenamesMap.put(ObjectTypeMarker.Class.toString(), "class.png");
+			filenamesMap.put(ObjectTypeMarker.Object.toString(), "object.png");
+			filenamesMap.put(ObjectTypeMarker.Enumeration.toString(), "enum.png");
+			filenamesMap.put(STRUCT, "struct.png");
+		}
 
 		public InkLabelProvider() {
-			imagesMap = new HashMap<ObjectTypeMarker, Image>(4);
+			imagesMap = new HashMap<String, Image>(4);
 		}
 
 		@Override
@@ -157,25 +213,11 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		public Image getImage(Object element) {
 			Mirror mirror = (Mirror) ((TreeNode) element).getValue();
 			ObjectTypeMarker objectType = mirror.getObjectTypeMarker();
-			Image result = imagesMap.get(objectType);
+			String imageKey = (objectType == ObjectTypeMarker.Class &&  ((ClassMirror) mirror).isStruct()) ? STRUCT : objectType.toString();
+			Image result = imagesMap.get(imageKey);
 			if (result == null) {
-				String filename = null;
-				switch (objectType) {
-				case Metaclass:
-					filename = "metaclass.png";
-					break;
-				case Class:
-					filename = "class.png";
-					break;
-				case Object:
-					filename = "object.png";
-					break;
-				case Enumeration:
-					filename = "sample.gif";
-					break;
-				}
-				result = ImageDescriptor.createFromFile(InkPlugin.class, "/resources/icons/" + filename).createImage(true);
-				imagesMap.put(objectType, result);
+				result = ImageDescriptor.createFromFile(InkPlugin.class, "/resources/icons/" + filenamesMap.get(imageKey)).createImage(true);
+				imagesMap.put(imageKey, result);
 			}
 			return result;
 		}

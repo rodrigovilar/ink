@@ -83,7 +83,7 @@ public class EclipseUtils {
 
 		// retrieve the source to format
 		final TextEdit edit = codeFormatter.format(CodeFormatter.K_UNKNOWN, code, 0, code.length(), 0,
-						System.getProperty("line.separator")); //$NON-NLS-1$
+				System.getProperty("line.separator")); //$NON-NLS-1$
 		if (edit == null) {
 			new IllegalArgumentException("cannot format this: " + code).printStackTrace(); //$NON-NLS-1$
 			return code;
@@ -311,24 +311,28 @@ public class EclipseUtils {
 			IDocument doc = getDocument(ei);
 			return doc.getLineOfOffset(offset) + 1;
 		}catch(Exception e){
-				e.printStackTrace();
-			}
+			e.printStackTrace();
+		}
 
 		return 0;
 	}
 
 
 	public static void openEditor(InkObject o){
-		if (!o.reflect().isCoreObject()) {
-			File f = o.reflect().getDescriptor().getResource();
+		openEditor(o.reflect());
+	}
+
+	public static void openEditor(Mirror mirror){
+		if (!mirror.isCoreObject()) {
+			File f = mirror.getDescriptor().getResource();
 			IFile file = getFile(f);
 			IEditorInput ei = new FileEditorInput(file);
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
+				.getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
 				revealInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-								.getActivePage().getActiveEditor(),
-						findOffset(ei, "id=\"" + o.reflect().getShortId() + "\""),
+						.getActivePage().getActiveEditor(),
+						findOffset(ei, "id=\"" + mirror.getShortId() + "\""),
 						0);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -336,11 +340,10 @@ public class EclipseUtils {
 		}else{
 			IProject project = InkPlugin.getDefault().getInkProjects().get(0);
 			try{
-				Mirror m = o.reflect();
-				if(!m.isClass()){
-					m = m.getClassMirror();
+				if(!mirror.isClass()){
+					mirror = mirror.getClassMirror();
 				}
-				ClassMirror cm = (ClassMirror)m;
+				ClassMirror cm = (ClassMirror)mirror;
 				while(!cm.getJavaMapping().hasState() && cm.getSuper()!=null){
 					cm = cm.getSuper();
 				}

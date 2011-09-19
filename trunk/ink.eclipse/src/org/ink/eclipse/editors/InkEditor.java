@@ -36,8 +36,6 @@ public class InkEditor extends TextEditor{
 
 	private static final String INK_ECLIPSE_GENERATE_JAVA = "ink.eclipse.generateJava";
 
-	private static final String INK_ECLIPSE_QUICK_HIERARCHY = "ink.eclipse.quickHierarchy";
-
 	public static final String EDITOR_ID = "ink.eclipse.editors.InkEditor";
 
 	private final ColorManager colorManager;
@@ -81,9 +79,9 @@ public class InkEditor extends TextEditor{
 		TextOperationAction action = new TextOperationAction(bundle, "quick_hierarchy", this, 400, true);
 		action.setText("Quick Hierarchy");
 		action.setToolTipText("Quick Hierarchy");
-		action.setActionDefinitionId(INK_ECLIPSE_QUICK_HIERARCHY);
+		action.setActionDefinitionId(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY);
 		action.setEnabled(true);
-		setAction(INK_ECLIPSE_QUICK_HIERARCHY, action);
+		setAction(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY, action);
 
 		action= new TextOperationAction(bundle,"generate_ java", this, 300, true);
 		action.setText("Generate Java Classes");
@@ -113,7 +111,7 @@ public class InkEditor extends TextEditor{
 		super.editorContextMenuAboutToShow(menu);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		IAction action= getAction(INK_ECLIPSE_QUICK_HIERARCHY);
+		IAction action= getAction(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));

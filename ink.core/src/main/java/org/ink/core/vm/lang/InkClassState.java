@@ -260,6 +260,10 @@ public interface InkClassState extends InkTypeState{
 			}else if(stateInterface.equals(ClassMirrorAPI.class)){
 				stateInterface = InkClassState.class;
 			}
+			//TODO this should go away once we have metaclas class.
+			if(InkClassState.Data.class.isAssignableFrom(dataClass)){
+				isMetaClass = true;
+			}
 			Personality personality = getPersonality();
 			if(personality!=null){
 				offset = personality.getTraitsCount();

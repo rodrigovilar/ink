@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.bindings.TriggerSequence;
+import org.eclipse.jface.bindings.keys.KeySequence;
+import org.eclipse.jface.bindings.keys.SWTKeySupport;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
@@ -32,6 +35,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.keys.IBindingService;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -45,6 +50,8 @@ import org.ink.eclipse.utils.SimpleTreeNode;
 
 public class QuickHierarchyOperation extends InkEditorOperation {
 
+	public static final String INK_ECLIPSE_QUICK_HIERARCHY = "ink.eclipse.quickHierarchy";
+
 	@Override
 	protected boolean execute(InkObject o, Shell shell, IDocument doc, IFile file) throws Exception {
 		if (o != null) {
@@ -56,7 +63,7 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 	}
 
 	private SimpleTreeNode<Mirror> createOriginalObjectNode(InkObject inkObject) {
-		return new SimpleTreeNode<Mirror>(inkObject.<Mirror>reflect());
+		return new SimpleTreeNode<Mirror>(inkObject.<Mirror> reflect());
 	}
 
 	private SimpleTreeNode<Mirror> createHierarchyTree(InkObject inkObject, SimpleTreeNode<Mirror> originalObjectNode) {
@@ -102,14 +109,21 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		private final SimpleTreeNode<T> rootNode;
 		private final SimpleTreeNode<T> originalObjectNode;
 		private final JumpHandler<T> jumpHandler;
+		private final TriggerSequence keyBinding;
 
 		public QuickHierarchyDialog(SimpleTreeNode<T> rootNode, SimpleTreeNode<T> originalObjectNode, JumpHandler<T> jumpHandler, String title, Shell shell) {
 			super(shell, SWT.RESIZE, true, true, false, true, true, null, null);
 			this.rootNode = rootNode;
 			this.originalObjectNode = originalObjectNode;
 			this.jumpHandler = jumpHandler;
+			TriggerSequence[] activeBindings = ((IBindingService) PlatformUI.getWorkbench().getService(IBindingService.class)).getActiveBindingsFor(INK_ECLIPSE_QUICK_HIERARCHY);
+			if (activeBindings != null && activeBindings.length > 0) {
+				this.keyBinding = activeBindings[0];
+				setInfoText("Press '" + keyBinding.format() + "' to see the instance-of hierarchy");
+			} else {
+				this.keyBinding = null;
+			}
 			setTitleText(title);
-			setInfoText("Press 'Ctrl+T' to see the instance-of hierarchy");
 		}
 
 		@Override
@@ -120,7 +134,12 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 
 				@Override
 				public void keyPressed(KeyEvent e) {
-					if (e.character == 0x1B) {
+					int accelerator = SWTKeySupport.convertEventToUnmodifiedAccelerator(e);
+					KeySequence keySequence = KeySequence.getInstance(SWTKeySupport.convertAcceleratorToKeyStroke(accelerator));
+					if (keyBinding != null && keyBinding.equals(keySequence)) {
+						e.doit = false;
+						//toggleHierarchy();
+					} else if (e.character == 0x1B) {
 						close();
 					} else if (e.character == 0xD) {
 						callJumpHandler(tree);
@@ -213,7 +232,7 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		public Image getImage(Object element) {
 			Mirror mirror = (Mirror) ((TreeNode) element).getValue();
 			ObjectTypeMarker objectType = mirror.getObjectTypeMarker();
-			String imageKey = (objectType == ObjectTypeMarker.Class &&  ((ClassMirror) mirror).isStruct()) ? STRUCT : objectType.toString();
+			String imageKey = (objectType == ObjectTypeMarker.Class && ((ClassMirror) mirror).isStruct()) ? STRUCT : objectType.toString();
 			Image result = imagesMap.get(imageKey);
 			if (result == null) {
 				result = ImageDescriptor.createFromFile(InkPlugin.class, "/resources/icons/" + filenamesMap.get(imageKey)).createImage(true);

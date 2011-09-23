@@ -7,6 +7,7 @@ import java.util.List;
 public class SimpleTreeNode<T> {
 
 	private final T value;
+	private SimpleTreeNode<T> parent;
 	private List<SimpleTreeNode<T>> children;
 
 	public SimpleTreeNode(T value) {
@@ -30,6 +31,11 @@ public class SimpleTreeNode<T> {
 			children = new ArrayList<SimpleTreeNode<T>>();
 		}
 		children.add(childNode);
+		childNode.parent = this;
+	}
+
+	public SimpleTreeNode<T> getParent() {
+		return parent;
 	}
 
 	@Override

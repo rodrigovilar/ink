@@ -168,7 +168,7 @@ public class TreePopupDialog<T> extends PopupDialog {
 		public void keyPressed(KeyEvent e) {
 			if (e.character == java.awt.event.KeyEvent.VK_ESCAPE) {
 				close();
-			} else if (e.character == java.awt.event.KeyEvent.VK_ENTER) {
+			} else if (e.character == 0xD) {
 				callJumpHandler();
 			}
 		}

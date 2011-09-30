@@ -3,7 +3,7 @@ package org.ink.core.vm.modelinfo.relations;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.mirror.Mirror;
 
 public class IsInstanceOfRelation implements ModelRelation {
 
@@ -17,9 +17,9 @@ public class IsInstanceOfRelation implements ModelRelation {
 	}
 
 	@Override
-	public Set<InkObject> findReferents(InkObject obj) {
-		HashSet<InkObject> result = new HashSet<InkObject>(1);
-		result.add(obj.reflect().getClassMirror().getTargetBehavior());
+	public Set<Mirror> findReferents(Mirror obj) {
+		HashSet<Mirror> result = new HashSet<Mirror>(1);
+		result.add(obj.getClassMirror());
 		return result;
 	}
 }

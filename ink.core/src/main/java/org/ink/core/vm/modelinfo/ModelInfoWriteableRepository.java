@@ -1,12 +1,13 @@
 package org.ink.core.vm.modelinfo;
 
-import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.mirror.Mirror;
+
 
 public interface ModelInfoWriteableRepository extends ModelInfoRepository {
 
-	public void register(InkObject referent);
+	public void register(Mirror referent);
 
-	public void unregister(InkObject referent);
+	public void unregister(Mirror referent);
 
 	public void beginWriteTransaction();
 

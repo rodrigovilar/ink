@@ -2,7 +2,7 @@ package org.ink.core.vm.modelinfo.internal;
 
 import java.util.Map;
 
-import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 
 public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl implements ModelInfoWriteableRepository {
@@ -27,7 +27,7 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 	}
 
 	@Override
-	public void register(InkObject referent) {
+	public void register(Mirror referent) {
 		ModelIndex index = indices.get(referent.reflect().getNamespace());
 		if (index != null) {
 			index.insert(referent);
@@ -36,7 +36,7 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 	}
 
 	@Override
-	public void unregister(InkObject referent) {
+	public void unregister(Mirror referent) {
 		ModelIndex index = indices.get(referent.reflect().getNamespace());
 		if (index != null) {
 			index.delete(referent);

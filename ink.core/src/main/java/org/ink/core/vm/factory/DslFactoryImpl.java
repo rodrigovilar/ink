@@ -188,7 +188,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 							if(result!=null && result.reflect().isClass()){
 								applyDetachableTraits((InkClassState) result, false);
 							}
-							ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+							ModelInfoFactory.getWriteableInstance().register(result.reflect());
 						}else if(reportErrorIfNotExists){
 							throw new CoreException("The object with id '" +id+"', could not be found.");
 						}
@@ -200,7 +200,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 						if(result!=null){
 							repository.setObject(id, result);
 							try{
-								ModelInfoFactory.getWriteableInstance().register(result.getBehavior());
+								ModelInfoFactory.getWriteableInstance().register(result.reflect());
 							}catch(Throwable e1){
 								if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
 									throw new RuntimeException(e);
@@ -298,7 +298,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public synchronized void register(InkObjectState state) {
 		// TODO add validation code
 		repository.setObject(state.getId(), state);
-		ModelInfoFactory.getWriteableInstance().register(state.getBehavior());
+		ModelInfoFactory.getWriteableInstance().register(state.reflect());
 	}
 
 	@Override
@@ -503,7 +503,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		for(InkObjectState elem : repository){
 			try{
 				if(elem.reflect().getNamespace().equals(getNamespace())){
-					repo.register(elem.getBehavior());
+					repo.register(elem.reflect());
 				}
 			}catch(Throwable e){
 				if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){

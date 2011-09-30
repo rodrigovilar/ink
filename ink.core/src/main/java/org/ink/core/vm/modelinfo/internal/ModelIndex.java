@@ -18,6 +18,7 @@ import org.ink.core.vm.modelinfo.relations.IsInstanceOfRelation;
 import org.ink.core.vm.modelinfo.relations.ModelRelation;
 import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiability.Kind;
+import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
@@ -26,17 +27,17 @@ class ModelIndex {
 
 	private static final ModelRelation[] relations;
 
-	private final Map<InkObject, Map<ModelRelation, Set<InkObject>>> referentToReferrers;
+	private final Map<Mirror, Map<ModelRelation, Set<Mirror>>> referentToReferrers;
 
-	private final Map<InkObject, Map<ModelRelation, Set<InkObject>>> referrerToReferents;
+	private final Map<Mirror, Map<ModelRelation, Set<Mirror>>> referrerToReferents;
 
 	static {
 		relations = findRelations();
 	}
 
 	private ModelIndex() {
-		referentToReferrers = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
-		referrerToReferents = new HashMap<InkObject, Map<ModelRelation, Set<InkObject>>>();
+		referentToReferrers = new HashMap<Mirror, Map<ModelRelation, Set<Mirror>>>();
+		referrerToReferents = new HashMap<Mirror, Map<ModelRelation, Set<Mirror>>>();
 	}
 
 	static ModelIndex initIndex(String namespace, ModelInfoRepositoryImpl repository) {
@@ -44,24 +45,24 @@ class ModelIndex {
 		return result;
 	}
 
-	void insert(InkObject referrer) {
+	void insert(Mirror referrer) {
 		for (ModelRelation relation : relations) {
-			Set<InkObject> referentsForReferrerAndRelation = recursiveFindReferents(relation, referrer);
-			Map<ModelRelation, Set<InkObject>> referentsForReferrer = referrerToReferents.get(referrer);
+			Set<Mirror> referentsForReferrerAndRelation = recursiveFindReferents(relation, referrer);
+			Map<ModelRelation, Set<Mirror>> referentsForReferrer = referrerToReferents.get(referrer);
 			if (referentsForReferrer == null) {
-				referentsForReferrer = new HashMap<ModelRelation, Set<InkObject>>();
+				referentsForReferrer = new HashMap<ModelRelation, Set<Mirror>>();
 				referrerToReferents.put(referrer, referentsForReferrer);
 			}
 			referentsForReferrer.put(relation, referentsForReferrerAndRelation);
-			for (InkObject referent : referentsForReferrerAndRelation) {
-				Map<ModelRelation, Set<InkObject>> referrersForReferent = referentToReferrers.get(referent);
+			for (Mirror referent : referentsForReferrerAndRelation) {
+				Map<ModelRelation, Set<Mirror>> referrersForReferent = referentToReferrers.get(referent);
 				if (referrersForReferent == null) {
-					referrersForReferent = new HashMap<ModelRelation, Set<InkObject>>();
+					referrersForReferent = new HashMap<ModelRelation, Set<Mirror>>();
 					referentToReferrers.put(referent, referrersForReferent);
 				}
-				Set<InkObject> referrersForReferentAndRelation = referrersForReferent.get(relation);
+				Set<Mirror> referrersForReferentAndRelation = referrersForReferent.get(relation);
 				if (referrersForReferentAndRelation == null) {
-					referrersForReferentAndRelation = new HashSet<InkObject>();
+					referrersForReferentAndRelation = new HashSet<Mirror>();
 					referrersForReferent.put(relation, referrersForReferentAndRelation);
 				}
 				referrersForReferentAndRelation.add(referrer);
@@ -70,24 +71,19 @@ class ModelIndex {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Set<InkObject> recursiveFindReferents(ModelRelation relation, InkObject referrer) {
-		if (referrer.isProxied()) {
-			Kind proxyKind = ((Proxiability) referrer).getProxyKind();
-			if (proxyKind == Kind.BEHAVIOR_OWNER || proxyKind == Kind.BEHAVIOR_BOTH) {
-				return Collections.emptySet();
-			}
+	protected Set<Mirror> recursiveFindReferents(ModelRelation relation, Mirror referrer) {
+		if (isRef(referrer)) {
+			return Collections.emptySet();
 		}
-		Set<InkObject> result = relation.findReferents(referrer);
-		Mirror referrerMirror = referrer.reflect();
-		PropertyMirror[] propertiesMirrors = referrerMirror.getPropertiesMirrors();
+		Set<Mirror> result = relation.findReferents(referrer);
+		PropertyMirror[] propertiesMirrors = referrer.getPropertiesMirrors();
 		for (PropertyMirror propertyMirror : propertiesMirrors) {
-			Object value = referrerMirror.getPropertyValue(propertyMirror.getIndex());
+			Object value = referrer.getPropertyValue(propertyMirror.getIndex());
 			if (value != null && !propertyMirror.isComputed()) {
 				switch (propertyMirror.getTypeMarker()) {
 				case Class:
-					//TODO Eli - handle structs
-					if (value instanceof InkObject) {
-						result.addAll(recursiveFindReferents(relation, (InkObject) value));
+					if (!isRef((Proxiable) value)) {
+						result.addAll(recursiveFindReferents(relation, ((Proxiable) value).reflect()));
 					}
 					break;
 				case Collection:
@@ -97,8 +93,8 @@ class ModelIndex {
 						PropertyMirror innerPropertyMirror = ((ListPropertyMirror) propertyMirror).getItemMirror();
 						switch (innerPropertyMirror.getTypeMarker()) {
 						case Class:
-							for (InkObject listItem : (List<InkObject>) value) {
-								result.addAll(recursiveFindReferents(relation, listItem));
+							for (Proxiable listItem : (List<Proxiable>) value) {
+								result.addAll(recursiveFindReferents(relation, listItem.reflect()));
 							}
 							break;
 						case Enum:
@@ -113,10 +109,10 @@ class ModelIndex {
 						if (shouldIndexKey || shouldIndexValue) {
 							for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
 								if (shouldIndexKey) {
-									result.addAll(recursiveFindReferents(relation, (InkObject) entry.getKey()));
+									result.addAll(recursiveFindReferents(relation, ((Proxiable) entry.getKey()).reflect()));
 								}
 								if (shouldIndexValue) {
-									result.addAll(recursiveFindReferents(relation, (InkObject) entry.getValue()));
+									result.addAll(recursiveFindReferents(relation, ((Proxiable) entry.getValue()).reflect()));
 								}
 							}
 						}
@@ -132,12 +128,23 @@ class ModelIndex {
 		return result;
 	}
 
-	void update(InkObject referrer) {
+	private boolean isRef(Proxiable obj) {
+		boolean result = false;
+		if (obj.isProxied()) {
+			Kind proxyKind = ((Proxiability) obj).getProxyKind();
+			if (proxyKind == Kind.BEHAVIOR_OWNER || proxyKind == Kind.BEHAVIOR_BOTH) {
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	void update(Mirror referrer) {
 		delete(referrer);
 		insert(referrer);
 	}
 
-	void insertOrUpdate(InkObject referrer) {
+	void insertOrUpdate(Mirror referrer) {
 		if (referrerToReferents.containsKey(referrer)) {
 			update(referrer);
 		} else {
@@ -145,14 +152,14 @@ class ModelIndex {
 		}
 	}
 
-	void delete(InkObject referrer) {
-		Map<ModelRelation, Set<InkObject>> referentsForReferrer = referrerToReferents.get(referrer);
-		for (Entry<ModelRelation, Set<InkObject>> entry : referentsForReferrer.entrySet()) {
+	void delete(Mirror referrer) {
+		Map<ModelRelation, Set<Mirror>> referentsForReferrer = referrerToReferents.get(referrer);
+		for (Entry<ModelRelation, Set<Mirror>> entry : referentsForReferrer.entrySet()) {
 			ModelRelation relation = entry.getKey();
-			Set<InkObject> referentsForReferrerAndRelation = entry.getValue();
-			for (InkObject referent : referentsForReferrerAndRelation) {
-				Map<ModelRelation, Set<InkObject>> referrersForReferent = referentToReferrers.get(referent);
-				Set<InkObject> referrersForReferentAndRelation = referrersForReferent.get(relation);
+			Set<Mirror> referentsForReferrerAndRelation = entry.getValue();
+			for (Mirror referent : referentsForReferrerAndRelation) {
+				Map<ModelRelation, Set<Mirror>> referrersForReferent = referentToReferrers.get(referent);
+				Set<Mirror> referrersForReferentAndRelation = referrersForReferent.get(relation);
 				referrersForReferentAndRelation.remove(referrer);
 				if (referrersForReferentAndRelation.isEmpty()) {
 					referrersForReferent.remove(relation);
@@ -165,9 +172,9 @@ class ModelIndex {
 		referrerToReferents.remove(referrer);
 	}
 
-	Set<InkObject> findReferrers(InkObject referent, ModelRelation relation) {
-		Set<InkObject> result = null;
-		Map<ModelRelation, Set<InkObject>> referrersForObject = referentToReferrers.get(referent);
+	Set<Mirror> findReferrers(InkObject referent, ModelRelation relation) {
+		Set<Mirror> result = null;
+		Map<ModelRelation, Set<Mirror>> referrersForObject = referentToReferrers.get(referent);
 		if (referrersForObject != null) {
 			result = referrersForObject.get(relation);
 		}

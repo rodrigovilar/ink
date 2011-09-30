@@ -347,27 +347,27 @@ public class CoreBasicTests extends TestCase{
 		InkObject mirror = context.getObject(CoreNotations.Ids.MIRROR);
 		InkObject trait = context.getObject(CoreNotations.Ids.TRAIT);
 		InkObject traitClass = context.getObject(CoreNotations.Ids.TRAIT_CLASS);
-		Collection<InkObject> referrers = repo.findReferrers(trait, ExtendsRelation.getInstance(), false);
+		Collection<Mirror> referrers = repo.findReferrers(trait.reflect(), ExtendsRelation.getInstance(), false);
 		assertTrue(referrers != null);
-		assertTrue(referrers.contains(mirror));
-		referrers = repo.findReferrers(traitClass, IsInstanceOfRelation.getInstance(), false);
+		assertTrue(referrers.contains(mirror.reflect()));
+		referrers = repo.findReferrers(traitClass.reflect(), IsInstanceOfRelation.getInstance(), false);
 		assertTrue(referrers != null);
-		assertTrue(referrers.contains(mirror));
+		assertTrue(referrers.contains(mirror.reflect()));
 		InkObject inkClass = context.getObject(CoreNotations.Ids.INK_CLASS);
 		InkObject dslFactory = context.getObject(CoreNotations.Ids.DSL_FACTORY);
-		referrers = repo.findReferrers(inkClass, ExtendsRelation.getInstance(), false);
+		referrers = repo.findReferrers(inkClass.reflect(), ExtendsRelation.getInstance(), false);
 		assertTrue(referrers != null);
-		assertTrue(referrers.contains(dslFactory));
-		assertTrue(referrers.contains(traitClass));
+		assertTrue(referrers.contains(dslFactory.reflect()));
+		assertTrue(referrers.contains(traitClass.reflect()));
 
 		// Test recursive
 		InkObject classMirror = context.getObject(CoreNotations.Ids.CLASS_MIRROR);
-		referrers = repo.findReferrers(inkClass, IsInstanceOfRelation.getInstance(), false);
+		referrers = repo.findReferrers(inkClass.reflect(), IsInstanceOfRelation.getInstance(), false);
 		assertTrue(referrers != null);
-		assertTrue(!referrers.contains(classMirror));
-		referrers = repo.findReferrers(inkClass, IsInstanceOfRelation.getInstance(), true);
+		assertTrue(!referrers.contains(classMirror.reflect()));
+		referrers = repo.findReferrers(inkClass.reflect(), IsInstanceOfRelation.getInstance(), true);
 		assertTrue(referrers != null);
-		assertTrue(referrers.contains(classMirror));
+		assertTrue(referrers.contains(classMirror.reflect()));
 	}
 
 	public void testVMRestart(){

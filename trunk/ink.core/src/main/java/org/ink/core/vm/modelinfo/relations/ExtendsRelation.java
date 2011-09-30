@@ -3,7 +3,6 @@ package org.ink.core.vm.modelinfo.relations;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.mirror.Mirror;
 
 public class ExtendsRelation implements ModelRelation {
@@ -18,11 +17,11 @@ public class ExtendsRelation implements ModelRelation {
 	}
 
 	@Override
-	public Set<InkObject> findReferents(InkObject obj) {
-		HashSet<InkObject> result = new HashSet<InkObject>(1);
-		Mirror superMirror = obj.reflect().getSuper();
+	public Set<Mirror> findReferents(Mirror obj) {
+		HashSet<Mirror> result = new HashSet<Mirror>(1);
+		Mirror superMirror = obj.getSuper();
 		if (superMirror != null) {
-			result.add(superMirror.getTargetBehavior());
+			result.add(superMirror);
 		}
 		return result;
 	}

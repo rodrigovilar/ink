@@ -2,10 +2,11 @@ package org.ink.core.vm.modelinfo.relations;
 
 import java.util.Set;
 
-import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.mirror.Mirror;
+
 
 public interface ModelRelation {
 
-	Set<InkObject> findReferents(InkObject obj);
+	Set<Mirror> findReferents(Mirror obj);
 
 }

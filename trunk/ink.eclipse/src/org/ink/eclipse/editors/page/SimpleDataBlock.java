@@ -82,7 +82,7 @@ public class SimpleDataBlock extends DataBlock {
 							}
 						}
 					}else if(attr.equals("super")){
-						for(String id : getSuperProposals(line)){
+						for(String id : getSuperProposals(line, null)){
 							addIdProposal(result, cursorLocation, id, prefix);
 						}
 					}else{

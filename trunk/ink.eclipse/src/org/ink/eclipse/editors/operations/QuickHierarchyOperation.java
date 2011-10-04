@@ -65,9 +65,9 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 	}
 
 	protected void addDescendents(InkObject inkObject, SimpleTreeNode<Mirror> objectNode, ModelInfoRepository modelInfoRepository, ModelRelation relation) {
-		Collection<InkObject> descendents = modelInfoRepository.findReferrers(inkObject, relation, false);
-		for (InkObject descendent : descendents) {
-			SimpleTreeNode<Mirror> descendentNode = new SimpleTreeNode<Mirror>(descendent.reflect());
+		Collection<Mirror> descendents = modelInfoRepository.findReferrers(inkObject.reflect(), relation, false);
+		for (Mirror descendent : descendents) {
+			SimpleTreeNode<Mirror> descendentNode = new SimpleTreeNode<Mirror>(descendent);
 			objectNode.addChildNode(descendentNode);
 			addDescendents(descendent, descendentNode, modelInfoRepository, relation);
 		}

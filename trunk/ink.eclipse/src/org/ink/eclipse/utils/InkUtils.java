@@ -26,6 +26,7 @@ import org.ink.core.vm.factory.VMMain;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
@@ -42,6 +43,14 @@ public class InkUtils {
 
 	private static String[] getScope(String ns){
 		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
+	}
+
+	public static final String getClassId(String objectId){
+		InkObjectState base = InkPlugin.getDefault().getInkContext().getState(objectId, false);
+		if(base!=null){
+			return base.getMeta().reflect().getId();
+		}
+		return null;
 	}
 
 	public static String readString(InputStream is, String encoding) {
@@ -73,11 +82,11 @@ public class InkUtils {
 		return null;
 	}
 
-	public static Collection<InkObject> getAllClasses(String[] nss){
-		Collection<InkObject> result = new ArrayList<InkObject>();
+	public static Collection<Mirror> getAllClasses(String[] nss){
+		Collection<Mirror> result = new ArrayList<Mirror>();
 		InkObject base = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
-		Collection<InkObject> temp = repo.findReferrers(base, ExtendsRelation.getInstance(), true, nss);
+		Collection<Mirror> temp = repo.findReferrers(base.reflect(), ExtendsRelation.getInstance(), true, nss);
 		if(temp!=null){
 			result.addAll(temp);
 		}
@@ -154,12 +163,12 @@ public class InkUtils {
 		return result;
 	}
 
-	public static Collection<InkObject> getInstances(String classId, boolean recursive){
-		Collection<InkObject> referrers = new ArrayList<InkObject>();
+	public static Collection<Mirror> getInstances(String classId, boolean recursive){
+		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
-			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive);
+			Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), recursive);
 			if(temp!=null){
 				referrers.addAll(temp);
 			}
@@ -167,12 +176,12 @@ public class InkUtils {
 		return referrers;
 	}
 
-	public static Collection<InkObject> getInstances(String[] nss, String classId, boolean recursive){
-		Collection<InkObject> referrers = new ArrayList<InkObject>();
+	public static Collection<Mirror> getInstances(String[] nss, String classId, boolean recursive){
+		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
-			Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), recursive, nss);
+			Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), recursive, nss);
 			if(temp!=null){
 				referrers.addAll(temp);
 			}
@@ -188,11 +197,10 @@ public class InkUtils {
 		return getInstancesIds(getScope(ns), classId, recursive);
 	}
 
-	private static List<String> createResultList(Collection<InkObject> referrers, boolean includingAbstract){
+	private static List<String> createResultList(Collection<Mirror> referrers, boolean includingAbstract){
 		List<String> result = new ArrayList<String>();
 		if(referrers!=null){
-			for(InkObject o : referrers){
-				Mirror m = o.reflect();
+			for(Mirror m : referrers){
 				if(includingAbstract || !m.isAbstract()){
 					result.add(m.getId());
 				}
@@ -203,12 +211,12 @@ public class InkUtils {
 	}
 
 	public static List<String> getInstances(String ns, List<String> classes){
-		Collection<InkObject> referrers = new ArrayList<InkObject>();
+		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		for(String clsId : classes){
 			InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(clsId, false);
 			if(inkObject!=null){
-				Collection<InkObject> temp = repo.findReferrers(inkObject, IsInstanceOfRelation.getInstance(), false, getScope(ns));
+				Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), false, getScope(ns));
 				if(temp!=null){
 					referrers.addAll(temp);
 				}
@@ -218,11 +226,11 @@ public class InkUtils {
 	}
 
 	public static List<String> getSubClasses(String ns, String classId, boolean recursive, boolean includingAbstract){
-		Collection<InkObject> referrers = new ArrayList<InkObject>();
+		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
-			referrers = repo.findReferrers(inkObject, ExtendsRelation.getInstance(), recursive, getScope(ns));
+			referrers = repo.findReferrers(inkObject.reflect(), ExtendsRelation.getInstance(), recursive, getScope(ns));
 		}
 		return createResultList(referrers, includingAbstract);
 	}

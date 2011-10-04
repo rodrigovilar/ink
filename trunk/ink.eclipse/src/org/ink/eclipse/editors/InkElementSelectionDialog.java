@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.ink.core.vm.factory.internal.CoreNotations;
-import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.InkUtils;
@@ -65,9 +64,8 @@ public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 			ItemsFilter itemsFilter, IProgressMonitor progressMonitor)
 			throws CoreException {
 		// TODO Auto-generated method stub
-		Collection<InkObject> all = InkUtils.getInstances(CoreNotations.Ids.INK_OBJECT, true);
-		for(InkObject io : all){
-			Mirror m = io.reflect();
+		Collection<Mirror> all = InkUtils.getInstances(CoreNotations.Ids.INK_OBJECT, true);
+		for(Mirror m : all){
 			contentProvider.add(m.getShortId() + " - " + m.getNamespace(), itemsFilter);
 		}
 	}

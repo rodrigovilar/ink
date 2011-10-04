@@ -60,7 +60,11 @@ public class PageAnalyzer {
 		boolean checkStartElement = false;
 		int i=0;
 		StringBuilder lastLine = currentLine;
+		boolean comment = false;
 		for(;i<cs.length;i++){
+			if(comment && cs[i]!='\n'){
+				continue;
+			}
 			switch(cs[i]){
 			case '{':
 				startB++;
@@ -69,13 +73,16 @@ public class PageAnalyzer {
 				endB++;
 				if(startB == endB){
 					addElement(cs, elementStart, i+1);
+					elementStart = i+2;
 				}
 				break;
 			case '\n':
+				comment = false;
 				checkStartElement = true;
 				lastLine = currentLine;
 				if(startB == endB && currentLine.toString().trim().length() > 0){
 					addElement(cs, i-currentLine.length(), i+1);
+					elementStart = i+2;
 				}
 				currentLine = new StringBuilder(100);
 				break;
@@ -99,6 +106,11 @@ public class PageAnalyzer {
 				}
 				currentLine.append(cs[i]);
 				break;
+			case '/':
+				if(cs.length>i && cs[i+1]=='/'){
+					comment = true;
+					break;
+				}
 			default:
 				currentLine.append(cs[i]);
 			}

@@ -28,7 +28,7 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 
 	@Override
 	public void register(Mirror referent) {
-		ModelIndex index = indices.get(referent.reflect().getNamespace());
+		ModelIndex index = indices.get(referent.getNamespace());
 		if (index != null) {
 			index.insert(referent);
 		}
@@ -37,7 +37,7 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 
 	@Override
 	public void unregister(Mirror referent) {
-		ModelIndex index = indices.get(referent.reflect().getNamespace());
+		ModelIndex index = indices.get(referent.getNamespace());
 		if (index != null) {
 			index.delete(referent);
 		}

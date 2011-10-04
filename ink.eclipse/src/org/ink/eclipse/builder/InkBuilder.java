@@ -271,7 +271,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
 		String[] dsls = InkUtils.getProjectNamespaces(getProject());
-		Collection<InkObject> all = InkUtils.getAllClasses(dsls);
+		Collection<Mirror> all = InkUtils.getAllClasses(dsls);
 		for (InkObject o : all) {
 			try {
 				ClassMirror cm = o.reflect();

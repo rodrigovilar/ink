@@ -1,7 +1,9 @@
 package org.ink.eclipse.editors.page;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -18,11 +20,13 @@ public abstract class DataBlock {
 
 	protected ObjectDataBlock parent = null;
 	protected int startIndex=-1;
+	private final Map<String, String> attributes = new HashMap<String, String>();
 	protected int endIndex = -1;
 	protected String startLine;
 	protected char[] text;
 	private final String key;
 	protected String ns;
+	protected int startData = -1;
 
 
 	public DataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
@@ -42,10 +46,55 @@ public abstract class DataBlock {
 			}
 		}
 		key = String.valueOf(text, startIndex, i-startIndex).trim();
+		extractAttributes();
+	}
+
+	private void extractAttributes() {
+		String key;
+		String value;
+		for(int i=startIndex;i<endIndex;i++){
+			if(startData < 0){
+				if(this.text[i]=='='){
+					key = extractKey(i);
+					value = extractValue(i);
+					if(key!=null && value!=null){
+						if(key.equals("class") || key.equals("super") || key.equals("id")){
+							if(value.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+								value = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + value;
+							}
+						}
+						attributes.put(key, value);
+					}
+				}
+			}
+			if(text[i]=='\n'){
+				startData = i + 1;
+				break;
+			}
+		}
+
 	}
 
 	public ObjectDataBlock getParent(){
 		return parent;
+	}
+
+	public String getAttributeValue(String key){
+		String result = attributes.get(key);
+		if(result!=null){
+			result = result.trim();
+			StringBuilder b = new StringBuilder(result.length());
+			for(char c : result.toCharArray()){
+				if(c!='\"'){
+					b.append(c);
+				}
+			}
+			result = b.toString();
+			if(result.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+				result = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + result;
+			}
+		}
+		return result;
 	}
 
 	public String getKey(){
@@ -191,8 +240,8 @@ public abstract class DataBlock {
 			}
 			if(found){
 				String attr = textString.substring(spaceLoc + 1, cursorLocation-(2+buf.length()));
+				PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 				if(attr.equals("class")){
-					PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 					if(pm.getTypeMarker()==DataTypeMarker.Class){
 						Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
 						String constraintClass = m.getId();
@@ -205,7 +254,7 @@ public abstract class DataBlock {
 						}
 					}
 				}else if(attr.equals("super")){
-					for(String id : getSuperProposals(line)){
+					for(String id : getSuperProposals(line, pm)){
 						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 					}
 				}else if(attr.equals("ref")){
@@ -340,19 +389,30 @@ public abstract class DataBlock {
 			if(found){
 				String attr = textString.substring(spaceLoc + 1, cursorLocation-offset);
 				if(attr.equals("class")){
-					List<String> options;
-					if(line.startsWith("Object") || line.startsWith("Ink ")){
-						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, true);
-					}else{
-						options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
-						addIdProposal(result, cursorLocation, CoreNotations.Ids.INK_CLASS, prefix);
+					List<String> options = null;
+					String superId = attributes.get("super");
+					if(superId!=null){
+						String classId = InkUtils.getClassId(superId);
+						if(classId!=null){
+							options = InkUtils.getSubClasses(ns, classId, true, true);
+							addIdProposal(result, cursorLocation, classId, prefix);
+						}
+					}
+					if(options==null){
+						if(line.startsWith("Object") || line.startsWith("Ink ")){
+							options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_OBJECT, true, true);
+							addIdProposal(result, cursorLocation, CoreNotations.Ids.INK_OBJECT, prefix);
+						}else{
+							options = InkUtils.getSubClasses(ns, CoreNotations.Ids.INK_CLASS, true, false);
+							addIdProposal(result, cursorLocation, CoreNotations.Ids.INK_CLASS, prefix);
+						}
 					}
 					for(String id : options){
 						addIdProposal(result, cursorLocation, id, prefix);
 					}
 				}else if(attr.equals("super")){
-					String elementId = extractAttributeValue(line, "id");
-					for(String id : getSuperProposals(line)){
+					String elementId = attributes.get("id");
+					for(String id : getSuperProposals(line, null)){
 						if(elementId==null || !elementId.equals(id) ){
 							addIdProposal(result, cursorLocation, id, prefix);
 						}
@@ -370,25 +430,23 @@ public abstract class DataBlock {
 		return result;
 	}
 
-	protected List<String> getSuperProposals(String line){
-		String classAtt = extractAttributeValue(line, "class");
-		List<String> relevantClasses = InkUtils.getAllSupers(classAtt);
-		relevantClasses.add(classAtt);
-		return InkUtils.getInstances(ns, relevantClasses);
-	}
-
-	private String extractAttributeValue(String line, String attName){
-		String result = null;
-		int attValueStartIndex = line.indexOf(attName+ "=\"")+attName.length() + "=\"".length();
-		if(attValueStartIndex > 0){
-			int attValueEndIndex = line.indexOf("\"", attValueStartIndex);
-			if(attValueEndIndex > attValueStartIndex){
-				result = line.substring(attValueStartIndex, attValueEndIndex);
-				if(result.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
-					result = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + result;
-				}
+	protected List<String> getSuperProposals(String line, PropertyMirror pm){
+		String classAtt = attributes.get("class");
+		List<String> result = new ArrayList<String>();
+		if(classAtt!=null){
+			List<String> relevantClasses = InkUtils.getAllSupers(classAtt);
+			relevantClasses.add(classAtt);
+			if(pm==null){
+				result = InkUtils.getInstances(ns, relevantClasses);
 			}
 		}
+		if(pm==null || pm.getTypeMarker()!=DataTypeMarker.Class){
+			return result;
+		}
+		Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+		String constraintClass = m.getId();
+		List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
+		result.retainAll(options);
 		return result;
 	}
 
@@ -430,6 +488,37 @@ public abstract class DataBlock {
 	public int getStartIndex() {
 		return startIndex;
 	}
+
+	private String extractValue(int index) {
+		StringBuilder result = new StringBuilder(10);
+		for(int i=index+1;i<text.length;i++){
+			if(Character.isWhitespace(text[i])|| text[i]=='{'){
+				break;
+			}
+			if(text[i]!='\"') {
+				result.append(text[i]);
+			}
+		}
+		if(result.length()==0){
+			return null;
+		}
+		return result.toString();
+	}
+
+	private String extractKey(int index) {
+		StringBuilder result = new StringBuilder(10);
+		for(int i=index-1;i>=0;i--){
+			if(Character.isWhitespace(text[i])){
+				break;
+			}
+			result.append(text[i]);
+		}
+		if(result.length()==0){
+			return null;
+		}
+		return result.reverse().toString();
+	}
+
 
 	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix);
 

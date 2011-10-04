@@ -11,7 +11,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
-import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.property.Dictionary;
 import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
@@ -21,32 +20,12 @@ import org.ink.eclipse.utils.InkUtils;
 
 public class ObjectDataBlock extends DataBlock {
 
-	private int startData = -1;
-	private final Map<String, String> attributes = new HashMap<String, String>();
 	private final Map<String, List<DataBlock>> innerBlocks = new HashMap<String, List<DataBlock>>();
 
 	public ObjectDataBlock(String namespace, ObjectDataBlock parent, char[] text, int startIndex, int endIndex) {
 		super(namespace, parent, text, startIndex, endIndex);
-		extractAttributes();
 	}
 
-	public String getAttributeValue(String key){
-		String result = attributes.get(key);
-		if(result!=null){
-			result = result.trim();
-			StringBuilder b = new StringBuilder(result.length());
-			for(char c : result.toCharArray()){
-				if(c!='\"'){
-					b.append(c);
-				}
-			}
-			result = b.toString();
-			if(result.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
-				result = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + result;
-			}
-		}
-		return result;
-	}
 
 	public String getClassId(){
 		return getAttributeValue("class");
@@ -108,54 +87,6 @@ public class ObjectDataBlock extends DataBlock {
 		return result;
 	}
 
-	private void extractAttributes() {
-		String key;
-		String value;
-		for(int i=startIndex;i<endIndex;i++){
-			if(startData < 0){
-				if(this.text[i]=='='){
-					key = extractKey(i);
-					value = extractValue(i);
-					if(key!=null && value!=null){
-						attributes.put(key, value);
-					}
-				}
-			}
-			if(text[i]=='\n'){
-				startData = i + 1;
-				break;
-			}
-		}
-
-	}
-
-	private String extractValue(int index) {
-		StringBuilder result = new StringBuilder(10);
-		for(int i=index+1;i<text.length;i++){
-			if(Character.isWhitespace(text[i])|| text[i]=='{'){
-				break;
-			}
-			result.append(text[i]);
-		}
-		if(result.length()==0){
-			return null;
-		}
-		return result.toString();
-	}
-
-	private String extractKey(int index) {
-		StringBuilder result = new StringBuilder(10);
-		for(int i=index-1;i>=0;i--){
-			if(Character.isWhitespace(text[i])){
-				break;
-			}
-			result.append(text[i]);
-		}
-		if(result.length()==0){
-			return null;
-		}
-		return result.reverse().toString();
-	}
 
 	private DataBlock addObjectBlock(int startIndex, int endIndex, int cursorLocation) {
 		DataBlock b = new ObjectDataBlock(ns, this, text, startIndex, endIndex);

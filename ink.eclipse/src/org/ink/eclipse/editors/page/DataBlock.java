@@ -423,6 +423,25 @@ public abstract class DataBlock {
 				}else{
 					result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 				}
+			}else if (prefix.length()>0){
+				if(isPrefix("class", prefix, false) && !line.contains("class")){
+					result.add(createAttributeProposal("class", cursorLocation, count, true));
+				}
+				if(isPrefix("id", prefix, false) && !line.contains("id")){
+					result.add(createAttributeProposal("id", cursorLocation, count, true));
+				}
+				if(isPrefix("super", prefix, false) && !line.contains("super")){
+					result.add(createAttributeProposal("super", cursorLocation, count, true));
+				}
+				if(isPrefix("abstract", prefix, false) && !line.contains("abstract")){
+					result.add(createAttributeProposal("abstract", cursorLocation, count, true));
+				}
+				if(isPrefix("Object", prefix, false) && !line.contains("Object") && !line.contains("Class")){
+					result.add(createAttributeProposal("Object", cursorLocation, count, true));
+				}
+				if(isPrefix("Class", prefix, false) && !line.contains("Object") && !line.contains("Class")){
+					result.add(createAttributeProposal("Class", cursorLocation, count, true));
+				}
 			}else{
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
@@ -471,15 +490,28 @@ public abstract class DataBlock {
 		}
 		if(isPrefix){
 			String usedId = getId(id);
-			all.add(new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+			if(id.toLowerCase().contains(":"+prefix.toLowerCase())){
+				all.add(0, new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+			}else{
+				all.add(new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+			}
+
 		}
 	}
 
+
 	protected boolean isPrefix(String str, String prefix) {
+		return isPrefix(str, prefix, true);
+	}
+
+	protected boolean isPrefix(String str, String prefix, boolean contains) {
 		if(prefix.length()==0){
 			return true;
 		}
-		if(str.toLowerCase().indexOf(prefix)>=0){
+		if(contains && str.toLowerCase().indexOf(prefix)>=0){
+			return true;
+		}
+		if(!contains && str.toLowerCase().startsWith(prefix)){
 			return true;
 		}
 		return false;

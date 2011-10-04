@@ -29,7 +29,6 @@ import org.ink.core.vm.constraints.ValidationMessage;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.internal.CoreNotations;
-import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -272,9 +271,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		Generator gen = new StateClassGenerator(output);
 		String[] dsls = InkUtils.getProjectNamespaces(getProject());
 		Collection<Mirror> all = InkUtils.getAllClasses(dsls);
-		for (InkObject o : all) {
+		for (Mirror o : all) {
 			try {
-				ClassMirror cm = o.reflect();
+				ClassMirror cm = (ClassMirror) o;
 				mapJavaToInk(cm);
 				gen.generate(cm);
 			} catch (Exception e) {
@@ -284,8 +283,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		gen = new EnumGenerator(output);
 		all = InkUtils.getInstances(dsls, CoreNotations.Ids.ENUM_TYPE,
 				true);
-		for (InkObject o : all) {
-			gen.generate(o.reflect());
+		for (Mirror o : all) {
+			gen.generate(o);
 		}
 	}
 

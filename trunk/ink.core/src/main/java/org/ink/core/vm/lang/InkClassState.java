@@ -278,6 +278,9 @@ public interface InkClassState extends InkTypeState{
 
 		protected Class<? extends InkObject> resolveBehaviorClass() {
 			if(this.isAbstract()){
+				if(isMetaClass()){
+					return InkClassImpl.class;
+				}
 				return InkObjectImpl.class;
 			}
 			if(!this.getJavaMapping().hasBehavior()){

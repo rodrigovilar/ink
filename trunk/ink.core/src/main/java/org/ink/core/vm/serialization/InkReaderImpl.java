@@ -475,8 +475,9 @@ implements InkReader<Tag>{
 		return result;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object loadMap(Tag tag, PropertyMirror pm) {
-		Object result;
+		Map result;
 		MapPropertyMirror mapPM = (MapPropertyMirror) pm;
 		PropertyMirror keyM = ((MapPropertyMirror) pm).getKeyMirror();
 		PropertyMirror valueM = ((MapPropertyMirror) pm).getValueMirror();
@@ -489,12 +490,12 @@ implements InkReader<Tag>{
 			isKeyValue = false;
 		}
 		for (Tag t : tags) {
-			boolean keyFound = false;
-			boolean valueFound = false;
 			entries = t.getChildren();
 			Object mapKey = null;
 			Object mapvalue = null;
 			if(isKeyValue){
+				boolean keyFound = false;
+				boolean valueFound = false;
 				for (Tag mapEn : entries) {
 					if (mapEn.getName().equals(keyM.getName())) {
 						keyFound = true;
@@ -509,23 +510,27 @@ implements InkReader<Tag>{
 								+ valueM.getName() + "'.");
 					}
 				}
+				if (!keyFound) {
+					addError(t, "could not find map key '" + keyM.getName()
+							+ "'.");
+				}
+				if (!valueFound) {
+					addError(t, "could not find map value '"
+							+ valueM.getName() + "'.");
+				}
 			}else{
 				mapvalue = transformPropertyValue(t, valueM);
 				mapKey = ((Proxiable)mapvalue).reflect().getPropertyValue(keyM.getName());
-				keyFound = true;
-				valueFound = true;
-			}
-
-			if (!keyFound) {
-				addError(t, "could not find map key '" + keyM.getName()
-						+ "'.");
-			}
-			if (!valueFound) {
-				addError(t, "could not find map value '"
-						+ valueM.getName() + "'.");
+				if(mapKey==null){
+					addError(t, "The field '"+keyM.getName()+"' should not be empty.");
+				}
 			}
 			if (mapKey != null && mapvalue != null) {
-				((Map) result).put(mapKey, mapvalue);
+				if(result.containsKey(mapKey)){
+					addError(t, "Entry with key '" +mapKey +"' already exists.");
+				}else{
+					result.put(mapKey, mapvalue);
+				}
 			}
 		}
 		return result;

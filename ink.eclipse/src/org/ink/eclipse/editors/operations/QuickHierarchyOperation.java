@@ -1,7 +1,10 @@
 package org.ink.eclipse.editors.operations;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -58,14 +61,21 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		}
 
 		ModelInfoRepository modelInfoRepository = ModelInfoFactory.getInstance();
-		addDescendents(originalObject, originalObjectNode, modelInfoRepository, type.getRelation());
+		addDescendents(originalObject.reflect(), originalObjectNode, modelInfoRepository, type.getRelation());
 		result[0] = rootNode;
 		result[1] = originalObjectNode;
 		return result;
 	}
 
-	protected void addDescendents(InkObject inkObject, SimpleTreeNode<Mirror> objectNode, ModelInfoRepository modelInfoRepository, ModelRelation relation) {
-		Collection<Mirror> descendents = modelInfoRepository.findReferrers(inkObject.reflect(), relation, false);
+	protected void addDescendents(Mirror inkObject, SimpleTreeNode<Mirror> objectNode, ModelInfoRepository modelInfoRepository, ModelRelation relation) {
+		List<Mirror> descendents = new ArrayList<Mirror>(modelInfoRepository.findReferrers(inkObject, relation, false));
+		Collections.sort(descendents, new Comparator<Mirror>() {
+
+			@Override
+			public int compare(Mirror o1, Mirror o2) {
+				return o1.getShortId().compareTo(o2.getShortId());
+			}
+		});
 		for (Mirror descendent : descendents) {
 			SimpleTreeNode<Mirror> descendentNode = new SimpleTreeNode<Mirror>(descendent);
 			objectNode.addChildNode(descendentNode);

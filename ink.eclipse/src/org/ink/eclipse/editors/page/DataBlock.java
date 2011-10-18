@@ -240,25 +240,27 @@ public abstract class DataBlock {
 			}
 			if(found){
 				String attr = textString.substring(spaceLoc + 1, cursorLocation-(2+buf.length()));
-				PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-				if(attr.equals("class")){
-					if(pm.getTypeMarker()==DataTypeMarker.Class){
-						Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
-						String constraintClass = m.getId();
-						List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
-						if(!m.isAbstract()){
-							options.add(0, constraintClass);
+				if(getContainingClass()!=null){
+					PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+					if(attr.equals("class")){
+						if(pm.getTypeMarker()==DataTypeMarker.Class){
+							Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+							String constraintClass = m.getId();
+							List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
+							if(!m.isAbstract()){
+								options.add(0, constraintClass);
+							}
+							for(String id : options){
+								addIdProposal(result, cursorLocation, id, prefix);
+							}
 						}
-						for(String id : options){
-							addIdProposal(result, cursorLocation, id, prefix);
+					}else if(attr.equals("super")){
+						for(String id : getSuperProposals(line, pm)){
+							result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
 						}
+					}else if(attr.equals("ref")){
+						addRefPropsals(cursorLocation, prefix, result);
 					}
-				}else if(attr.equals("super")){
-					for(String id : getSuperProposals(line, pm)){
-						result.add(new CompletionProposal(id, cursorLocation, 0, id.length()+1, null, getDisplayString(id), null, null));
-					}
-				}else if(attr.equals("ref")){
-					addRefPropsals(cursorLocation, prefix, result);
 				}
 			}
 			else if(!line.contains("ref") && result.isEmpty() && (text[cursorLocation-1]!='\"' || text.length > cursorLocation && text[cursorLocation+1]!='\"')){
@@ -442,7 +444,7 @@ public abstract class DataBlock {
 				if(isPrefix("Class", prefix, false) && !line.contains("Object") && !line.contains("Class")){
 					result.add(createAttributeProposal("Class", cursorLocation, count, true));
 				}
-			}else{
+			}else if(!line.contains("{")){
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length()-2, null, "{", null, null));
 			}
 		}
@@ -484,16 +486,29 @@ public abstract class DataBlock {
 		boolean isPrefix = isPrefix(id, prefix);
 		if(!isPrefix && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)>=0){
 			String shortId = id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
-			if(shortId.startsWith(prefix)){
-				isPrefix = isPrefix(shortId, prefix);
-			}
+			isPrefix = isPrefix(shortId, prefix);
 		}
 		if(isPrefix){
 			String usedId = getId(id);
-			if(id.toLowerCase().contains(":"+prefix.toLowerCase())){
-				all.add(0, new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+			ICompletionProposal icp = new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null);
+			if(id.contains(ns) && prefix.length()>0 && id.toLowerCase().contains(":"+prefix.toLowerCase())){
+				all.add(0, icp);
 			}else{
-				all.add(new CompletionProposal(usedId, cursorLocation-prefix.length(), prefix.length(), usedId.length()+1, null, getDisplayString(id), null, null));
+				if(id.startsWith(ns)){
+					boolean added = false;
+					for(int i=0;i<all.size();i++){
+						if(!all.get(i).getDisplayString().contains(ns)){
+							all.add(i++, icp);
+							added = true;
+							break;
+						}
+					}
+					if(!added){
+						all.add(icp);
+					}
+				}else{
+					all.add(icp);
+				}
 			}
 
 		}

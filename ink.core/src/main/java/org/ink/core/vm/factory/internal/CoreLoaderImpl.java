@@ -279,7 +279,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			values = valuesArr[i].values();
 			for(int j=0;j<indexes.length;j++){
 				prop = (MirrorAPI)properties.get(indexes[j]);
-				propertyType = classDesc.getSettter((String)prop.getRawValue(PropertyState.p_name)).getParameterTypes()[0];
+				propertyType = classDesc.getPropertyClass((String)prop.getRawValue(PropertyState.p_name));
 				o.setRawValue(indexes[j], convertStringValue(values[j], propertyType));
 			}
 			desc = new CoreObjectDescriptorImpl(id, classDesc.getId(), classDesc.getStateClass(), o);
@@ -343,9 +343,9 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				if(prop instanceof EnumAttributeState){
 					finalValue = values[0];
 					//just checking that the final enum value is valid
-					convertStringValue(values[0], desc.getSettter((String)prop.getRawValue(PropertyState.p_name)).getParameterTypes()[0]);
+					convertStringValue(values[0], desc.getPropertyClass((String)prop.getRawValue(PropertyState.p_name)));
 				}else{
-					finalValue = convertStringValue(values[0], desc.getSettter((String)prop.getRawValue(PropertyState.p_name)).getParameterTypes()[0]);
+					finalValue = convertStringValue(values[0], desc.getPropertyClass((String)prop.getRawValue(PropertyState.p_name)));
 				}
 				byte finalPropertyLocation = prop.getPropertyIndex(P_FINAL_VALUE);
 				prop.setRawValue(finalPropertyLocation, finalValue);
@@ -827,16 +827,20 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		PropertyState result = null;
 		Class<?> stateClass = desc.getStateClass();
 		String propertyName = f.getName().substring(2);
-		Method setter = extractSetter(f, stateClass);
-		desc.addSetter(propertyName, setter);
-		if(setter==null){
+		Method getter = extractGetter(f, stateClass);
+		if(getter==null){
 			if(desc.getMetadata().isAbstract()){
 				return null;
 			}
 			throw new CoreException("Could not extract setter for field : "  + f.getName() +", of class " + classElements.get(stateClass).getId());
 		}
-		Class<?> paramClass = setter.getParameterTypes()[0];
-		result = createProperty(f, setter, propertyName, paramClass, stateClass);
+
+		Class<?> paramClass = getter.getReturnType();
+		if(InkObject.class.isAssignableFrom(paramClass)){
+			paramClass= loadClass(paramClass.getName() + "State");
+		}
+		desc.addPropertyClass(propertyName, paramClass);
+		result = createProperty(f, getter, propertyName, paramClass, stateClass);
 		return result;
 	}
 
@@ -943,15 +947,21 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		InkTypeState type = (InkTypeState) elements.get(MAP).getObject();
 		((MirrorAPI)result).setRawValue(MapPropertyState.p_type, type);
 		try{
-			ParameterizedType genericT = (ParameterizedType) m.getGenericParameterTypes()[0];
+			ParameterizedType genericT = (ParameterizedType) m.getGenericReturnType();
 			Type keyGenericT = genericT.getActualTypeArguments()[0];
 			Type valueGenericT = genericT.getActualTypeArguments()[1];
 			Class<?> keyClass = (Class<?>)keyGenericT;
+			if(InkObject.class.isAssignableFrom(keyClass)){
+				keyClass = loadClass(keyClass.getName() + "State");
+			}
 			Class<?> valueClass;
 			if(valueGenericT instanceof WildcardType){
 				valueClass = (Class<?>) ((WildcardType)valueGenericT).getUpperBounds()[0];
 			}else{
 				valueClass = (Class<?>) valueGenericT;
+			}
+			if(InkObject.class.isAssignableFrom(valueClass)){
+				valueClass = loadClass(valueClass.getName() + "State");
 			}
 			CoreMapField mapAnnot = f.getAnnotation(CoreMapField.class);
 			if(mapAnnot==null){
@@ -1018,8 +1028,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		InkTypeState type = (InkTypeState) elements.get(LIST).getObject();
 		((MirrorAPI)result).setRawValue(ListPropertyState.p_type, type);
 		try{
-			Type genericT = m.getGenericParameterTypes()[0];
+			Type genericT = m.getGenericReturnType();
 			Class<?> itemClass = extractItemClass(genericT);
+			if(InkObject.class.isAssignableFrom(itemClass)){
+				itemClass = loadClass(itemClass.getName() + "State");
+			}
 			CoreListField listAnnot = f.getAnnotation(CoreListField.class);
 			if(listAnnot==null){
 				throw new CoreException("The field " + propertyName +", of class "+ classElements.get(containerClass).getId()+ ", must have List annotation.");
@@ -1104,6 +1117,31 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		Method result = null;
 		for(Method m : methods){
 			if(m.getName().equals(setterName)){
+				result = m;
+				break;
+			}
+		}
+		return result;
+	}
+
+	private Method extractGetter(Field f, Class<?> stateClass) {
+		String getterName = f.getName();
+		StringBuilder buf = new StringBuilder(getterName.length());
+		char[] chars = getterName.toCharArray();
+		buf.append(Character.toUpperCase(chars[2]));
+		for(int i=3;i<chars.length;i++){
+			if(chars[i]=='_'){
+				i++;
+				buf.append(Character.toUpperCase(chars[i]));
+			}else{
+				buf.append(chars[i]);
+			}
+		}
+		getterName = "get" + buf.toString();
+		Method[] methods = stateClass.getMethods();
+		Method result = null;
+		for(Method m : methods){
+			if(m.getName().equals(getterName)){
 				result = m;
 				break;
 			}

@@ -11,6 +11,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.utils.property.Dictionary;
 import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
@@ -211,9 +212,15 @@ public class ObjectDataBlock extends DataBlock {
 				break;
 			case Collection:
 				displayString = name + " - " + getTypeDisplayString(pm);
-				String tabs = calculateTabs() + "\t";
-				addPropertyNameCompletion(cursorLocation, tabs.length()+1,allProposals,
-						displayString, name,"{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
+				if(((CollectionPropertyMirror)pm).getCollectionTypeMarker()==CollectionTypeMarker.List &&
+						((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Primitive){
+					addPropertyNameCompletion(cursorLocation, 1,allProposals,
+							displayString, name," \"\"", prefix);
+				}else{
+					String tabs = calculateTabs() + "\t";
+					addPropertyNameCompletion(cursorLocation, tabs.length()+1,allProposals,
+							displayString, name,"{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
+				}
 				break;
 			case Enum:
 				displayString = name +" - " + getTypeDisplayString(pm);

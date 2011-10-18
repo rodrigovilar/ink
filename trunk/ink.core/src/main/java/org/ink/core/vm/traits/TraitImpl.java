@@ -33,8 +33,8 @@ public class TraitImpl<S extends TraitState> extends InkObjectImpl<S> implements
 		if(getTargetState()!=null){
 			result = cls.reflect().getId().equals(getTargetState().getMeta().reflect().getId());
 		}
-		if(!result && getState().getTragetLocator()!=null){
-			result = getState().getTragetLocator().accept(cls);
+		if(!result && getState().getTargetLocator()!=null){
+			result = getState().getTargetLocator().accept(cls);
 		}
 		return result;
 	}

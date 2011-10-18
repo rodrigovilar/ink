@@ -9,16 +9,16 @@ import org.ink.core.vm.mirror.TraitMirrorState;
  */
 @CoreClassSpec(metaclass=TraitClassState.class, mirrorClass=TraitMirrorState.class)
 public interface TraitState extends InkObjectState{
-	
+
 	public static final byte p_target_locator = 0;
-	
-	public TargetLocator getTragetLocator();
+
+	public TargetLocator getTargetLocator();
 	public void setTargetLocator(TargetLocatorState value);
-	
+
 	public class Data extends InkObjectState.Data implements TraitState{
-		
+
 		@Override
-		public TargetLocator getTragetLocator() {
+		public TargetLocator getTargetLocator() {
 			return (TargetLocator) getValue(p_target_locator);
 		}
 

@@ -2,7 +2,6 @@
 package org.ink.core.vm.factory.internal;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,7 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
  */
 public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements CoreClassDescriptor{
 
-	private Map<String, Method> settersMap = new HashMap<String, Method>();
+	private Map<String, Class<?>> settersMap = new HashMap<String, Class<?>>();
 	private Field[] fields;
 	Map<String, Field> fieldsMap = new HashMap<String, Field>();
 	private CoreClassSpec metadata = null;
@@ -150,12 +149,12 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 	}
 
 	@Override
-	public void addSetter(String fieldName, Method setter) {
-		settersMap.put(fieldName, setter);
+	public void addPropertyClass(String fieldName, Class<?> cls) {
+		settersMap.put(fieldName, cls);
 	}
 
 	@Override
-	public Method getSettter(String fieldName){
+	public Class<?> getPropertyClass(String fieldName){
 		return settersMap.get(fieldName);
 	}
 

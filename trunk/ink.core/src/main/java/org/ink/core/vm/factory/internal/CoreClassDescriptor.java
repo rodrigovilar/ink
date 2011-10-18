@@ -1,7 +1,6 @@
 package org.ink.core.vm.factory.internal;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +19,8 @@ public interface CoreClassDescriptor extends CoreObjectDescriptor{
 	public ClassMirrorAPI getObject();
 	public CoreField getFieldAnntation(String name);
 	public Field getField(String name);
-	public void addSetter(String fieldName, Method setter);
-	public Method getSettter(String fieldName);
+	public void addPropertyClass(String fieldName, Class<?> cls);
+	public Class<?> getPropertyClass(String fieldName);
 	public Field[] getFields();
 	public byte getNumberOfFields();
 	public void setBehaviorClass(Class<?> behaviorClass);

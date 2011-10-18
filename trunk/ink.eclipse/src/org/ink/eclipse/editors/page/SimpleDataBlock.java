@@ -30,7 +30,7 @@ public class SimpleDataBlock extends DataBlock {
 
 	private void addValueProposal(List<ICompletionProposal> all, String value, int cursorLocation, String prefix) {
 		boolean isPrefix = isPrefix(value, prefix);
-		if(isPrefix){
+		if(isPrefix && !prefix.equals(value)){
 			all.add(new CompletionProposal(value, cursorLocation-prefix.length(), prefix.length(), value.length(), null, value, null, null));
 		}
 	}
@@ -51,11 +51,21 @@ public class SimpleDataBlock extends DataBlock {
 				}
 				break;
 			case Enum:
-				EnumType enumT = (EnumType) pm.getPropertyType();
-				for(String val : enumT.getValues()){
-					addValueProposal(result, val, cursorLocation, prefix);
+				if(checkCursorLocation(cursorLocation, prefix)){
+					EnumType enumT = (EnumType) pm.getPropertyType();
+					for(String val : enumT.getValues()){
+						addValueProposal(result, val, cursorLocation, prefix);
+					}
 				}
 				break;
+//			case Collection:
+//					if(((CollectionPropertyMirror)pm).getCollectionTypeMarker()==CollectionTypeMarker.List &&
+//					((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Primitive &&
+//					!checkCursorLocation(cursorLocation, prefix)					){
+//						addValueProposal(result, " \"\"", cursorLocation-1, prefix);
+//					}
+//
+//				break;
 			case Class:
 				if(prefix.length()>0){
 					StringBuilder attrB = new StringBuilder(10);
@@ -101,6 +111,17 @@ public class SimpleDataBlock extends DataBlock {
 		return result;
 	}
 
+
+	private boolean checkCursorLocation(int cursorLocation, String prefix) {
+		int count = 0;
+		String line = new String(text).substring(startIndex, cursorLocation).trim();
+		for(char c : line.toCharArray()){
+			if(c=='\"'){
+				count++;
+			}
+		}
+		return count%2!=0;
+	}
 
 	@Override
 	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix) {

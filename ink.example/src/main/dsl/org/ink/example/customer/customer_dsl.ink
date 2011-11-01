@@ -68,6 +68,22 @@ Class id="SendLetterInterceptor" class="ink.core:InkClass" super="ink.core:Opera
 	}
 }
 
+Class id="MyProperty" class="ink.core:InkClass" super="ink.core:Reference"{
+	java_path ""
+	java_mapping "Only_State"
+	properties{
+		property class="ink.core:DoubleAttribute"{
+			name "percentage"
+			mandatory false
+		}
+		property class="ink.core:Reference"{
+			type ref="CustomerClass"
+			name "type"
+		}
+	}
+}
+
+
 Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkObject"{
 	java_path ""
 	component_type "Root"
@@ -91,6 +107,10 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 		property class="ink.core:StringAttribute"{
 			name "first_name"
 			mandatory true
+		}
+		property class="MyProperty"{
+			name "my_ref"
+			type ref="Customer"
 		}
 		property class="ink.core:StringAttribute"{
 			name "last_name"
@@ -201,6 +221,7 @@ Object id="TheSecondCustomer" class="example.customer:Customer"{
 
 Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example.customer:TheFirstCustomer"{
 	stam.shmupu "kuku2"
+	my_ref ref="TheFirstCustomer"
 	friends{
 		friend ref="TheFirstCustomer"
 		friend ref="TheSecondCustomer"

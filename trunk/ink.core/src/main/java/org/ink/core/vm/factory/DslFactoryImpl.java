@@ -179,9 +179,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			if(ns!=null){
 				if(getNamespace().equals(ns)){
 					try {
-						if(id.endsWith("CustomerClass")){
-							System.out.println("");
-						}
 						result = loader.getObject(id, getAppContext());
 						if(result!=null){
 							repository.setObject(id, result);

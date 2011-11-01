@@ -306,6 +306,10 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							break;
 						case Map:
 							Map map = (Map)o;
+							Map<?,?> superValue = null;
+							if(superObject!=null){
+								 superValue = (Map<?,?>) superObject.getPropertyValue(pm.getIndex());
+							}
 							PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
 							PropertyMirror valueMirror = ((MapPropertyMirror)pm).getValueMirror();
 							if(keyMirror.getTypeMarker()==DataTypeMarker.Class){
@@ -315,36 +319,52 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 										item = ((Proxiability)item).getVanillaState();
 									}
 									if(!item.reflect().isRoot()){
+										//no need to inner compile the key with the super, since if the key adds data it can not be
+										//equals to the super key...
 										innerCompile((MirrorAPI)item, null);
 									}
 								}
 							}
 							if(valueMirror.getTypeMarker()==DataTypeMarker.Class){
-								Collection<MirrorAPI> col = map.values();
-								for(Proxiable item : col){
-									if((item).isProxied()){
-										item = ((Proxiability)item).getVanillaState();
+								Collection<Map.Entry<?, ?>> col = map.entrySet();
+								for(Map.Entry<?, ?> en : col){
+									MirrorAPI val = (MirrorAPI)en.getValue();
+									if(val.isProxied()){
+										val = ((Proxiability)val).getVanillaState();
 									}
-									if(!item.reflect().isRoot()){
-										innerCompile((MirrorAPI)item, null);
+									if(!val.reflect().isRoot()){
+										Proxiable existingObject = null;
+										if(superValue!=null){
+											existingObject = (Proxiable) superValue.get(en.getKey());
+										}
+										if(existingObject!=null){
+											innerCompile(val, existingObject.reflect());
+										}else{
+											innerCompile(val, null);
+										}
 									}
 								}
 							}
-							if(superObject!=null){
-								Map<?,?> superValue = (Map<?,?>) superObject.getPropertyValue(pm.getIndex());
-								if(superValue!=null && !superValue.isEmpty()){
-									Map<?,?> tempMap = ((MapPropertyMirror)pm).getNewInstance();
-									tempMap.putAll(map);
-									map.clear();
-									for(Map.Entry<?, ?> superEn : ((Map<?,?>)superValue).entrySet()){
-										if(!tempMap.containsKey(superEn.getKey())){
-											Object keyToadd  = CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false);
-											Object valueToadd  = CoreUtils.cloneOneValue(valueMirror, superEn.getValue(), false);
-											map.put(keyToadd, valueToadd);
-										}
+							if(superValue!=null && !superValue.isEmpty()){
+								Map<?,?> tempMap = ((MapPropertyMirror)pm).getNewInstance();
+								tempMap.putAll(map);
+								map.clear();
+								Object existingObject;
+								for(Map.Entry<?, ?> superEn : ((Map<?,?>)superValue).entrySet()){
+									if((existingObject=tempMap.get(superEn.getKey()))==null){
+										Object keyToadd  = CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false);
+										Object valueToadd  = CoreUtils.cloneOneValue(valueMirror, superEn.getValue(), false);
+										map.put(keyToadd, valueToadd);
+									}else{
+										map.put(CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false), existingObject);
 									}
-									map.putAll(tempMap);
 								}
+								for(Map.Entry<?, ?> en : tempMap.entrySet()){
+									if(!map.containsKey(en.getKey())){
+										map.put(en.getKey(), en.getValue());
+									}
+								}
+
 							}
 						}
 

@@ -1,6 +1,5 @@
 package org.ink.core.vm.modelinfo.internal;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,8 +26,14 @@ class ModelIndex {
 
 	private static final ModelRelation[] relations;
 
+	/**
+	 * The values of this data structure can be inner objects.
+	 */
 	private final Map<Mirror, Map<ModelRelation, Set<Mirror>>> referentToReferrers;
 
+	/**
+	 * The values of this data structure are top-level objects only.
+	 */
 	private final Map<Mirror, Map<ModelRelation, Set<Mirror>>> referrerToReferents;
 
 	static {
@@ -47,85 +52,91 @@ class ModelIndex {
 
 	void insert(Mirror referrer) {
 		for (ModelRelation relation : relations) {
-			Set<Mirror> referentsForReferrerAndRelation = recursiveFindReferents(relation, referrer);
-			Map<ModelRelation, Set<Mirror>> referentsForReferrer = referrerToReferents.get(referrer);
-			if (referentsForReferrer == null) {
-				referentsForReferrer = new HashMap<ModelRelation, Set<Mirror>>();
-				referrerToReferents.put(referrer, referentsForReferrer);
-			}
-			referentsForReferrer.put(relation, referentsForReferrerAndRelation);
-			for (Mirror referent : referentsForReferrerAndRelation) {
-				Map<ModelRelation, Set<Mirror>> referrersForReferent = referentToReferrers.get(referent);
-				if (referrersForReferent == null) {
-					referrersForReferent = new HashMap<ModelRelation, Set<Mirror>>();
-					referentToReferrers.put(referent, referrersForReferent);
+			recursiveFindReferents(relation, referrer);
+		}
+	}
+
+	protected void recursiveFindReferents(ModelRelation relation, Mirror referrer) {
+		if (!isRef(referrer)) {
+			addToIndex(relation, referrer);
+			PropertyMirror[] propertiesMirrors = referrer.getPropertiesMirrors();
+			for (PropertyMirror propertyMirror : propertiesMirrors) {
+				Object value = referrer.getPropertyValue(propertyMirror.getIndex());
+				if (value != null && !propertyMirror.isComputed()) {
+					switch (propertyMirror.getTypeMarker()) {
+					case Class:
+						if (!isRef((Proxiable) value)) {
+							recursiveFindReferents(relation, ((Proxiable) value).reflect());
+						}
+						break;
+					case Collection:
+						CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) propertyMirror).getCollectionTypeMarker();
+						switch (collectionTypeMarker) {
+						case List:
+							PropertyMirror innerPropertyMirror = ((ListPropertyMirror) propertyMirror).getItemMirror();
+							switch (innerPropertyMirror.getTypeMarker()) {
+							case Class:
+								for (Proxiable listItem : (List<Proxiable>) value) {
+									recursiveFindReferents(relation, listItem.reflect());
+								}
+								break;
+							case Enum:
+								// ???
+								break;
+							}
+							break;
+						case Map:
+							boolean shouldIndexKey = ((MapPropertyMirror) propertyMirror).getKeyMirror().getTypeMarker() == DataTypeMarker.Class;
+							boolean shouldIndexValue = ((MapPropertyMirror) propertyMirror).getValueMirror().getTypeMarker() == DataTypeMarker.Class;
+							// TODO Eli Enums???
+							if (shouldIndexKey || shouldIndexValue) {
+								for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
+									if (shouldIndexKey) {
+										recursiveFindReferents(relation, ((Proxiable) entry.getKey()).reflect());
+									}
+									if (shouldIndexValue) {
+										recursiveFindReferents(relation, ((Proxiable) entry.getValue()).reflect());
+									}
+								}
+							}
+							break;
+						}
+						break;
+					case Enum:
+						// ???
+						break;
+					}
 				}
-				Set<Mirror> referrersForReferentAndRelation = referrersForReferent.get(relation);
-				if (referrersForReferentAndRelation == null) {
-					referrersForReferentAndRelation = new HashSet<Mirror>();
-					referrersForReferent.put(relation, referrersForReferentAndRelation);
-				}
-				referrersForReferentAndRelation.add(referrer);
 			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected Set<Mirror> recursiveFindReferents(ModelRelation relation, Mirror referrer) {
-		if (isRef(referrer)) {
-			return Collections.emptySet();
+	private void addToIndex(ModelRelation relation, Mirror referrer) {
+		Set<Mirror> referentsForReferrerAndRelation = relation.findReferents(referrer);
+
+		// Add the root referrer to referrerToReferents.
+		Mirror rootReferrer = referrer.getRootOwner();
+		Map<ModelRelation, Set<Mirror>> referentsForReferrer = referrerToReferents.get(rootReferrer);
+		if (referentsForReferrer == null) {
+			referentsForReferrer = new HashMap<ModelRelation, Set<Mirror>>();
+			referrerToReferents.put(rootReferrer, referentsForReferrer);
 		}
-		Set<Mirror> result = relation.findReferents(referrer);
-		PropertyMirror[] propertiesMirrors = referrer.getPropertiesMirrors();
-		for (PropertyMirror propertyMirror : propertiesMirrors) {
-			Object value = referrer.getPropertyValue(propertyMirror.getIndex());
-			if (value != null && !propertyMirror.isComputed()) {
-				switch (propertyMirror.getTypeMarker()) {
-				case Class:
-					if (!isRef((Proxiable) value)) {
-						result.addAll(recursiveFindReferents(relation, ((Proxiable) value).reflect()));
-					}
-					break;
-				case Collection:
-					CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) propertyMirror).getCollectionTypeMarker();
-					switch (collectionTypeMarker) {
-					case List:
-						PropertyMirror innerPropertyMirror = ((ListPropertyMirror) propertyMirror).getItemMirror();
-						switch (innerPropertyMirror.getTypeMarker()) {
-						case Class:
-							for (Proxiable listItem : (List<Proxiable>) value) {
-								result.addAll(recursiveFindReferents(relation, listItem.reflect()));
-							}
-							break;
-						case Enum:
-							// ???
-							break;
-						}
-						break;
-					case Map:
-						boolean shouldIndexKey = ((MapPropertyMirror) propertyMirror).getKeyMirror().getTypeMarker() == DataTypeMarker.Class;
-						boolean shouldIndexValue = ((MapPropertyMirror) propertyMirror).getValueMirror().getTypeMarker() == DataTypeMarker.Class;
-						// TODO Eli Enums???
-						if (shouldIndexKey || shouldIndexValue) {
-							for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
-								if (shouldIndexKey) {
-									result.addAll(recursiveFindReferents(relation, ((Proxiable) entry.getKey()).reflect()));
-								}
-								if (shouldIndexValue) {
-									result.addAll(recursiveFindReferents(relation, ((Proxiable) entry.getValue()).reflect()));
-								}
-							}
-						}
-						break;
-					}
-					break;
-				case Enum:
-					// ???
-					break;
-				}
+		referentsForReferrer.put(relation, referentsForReferrerAndRelation);
+
+		// Add the current referrer (which might be an inner object) to referentToReferrers.
+		for (Mirror referent : referentsForReferrerAndRelation) {
+			Map<ModelRelation, Set<Mirror>> referrersForReferent = referentToReferrers.get(referent);
+			if (referrersForReferent == null) {
+				referrersForReferent = new HashMap<ModelRelation, Set<Mirror>>();
+				referentToReferrers.put(referent, referrersForReferent);
 			}
+			Set<Mirror> referrersForReferentAndRelation = referrersForReferent.get(relation);
+			if (referrersForReferentAndRelation == null) {
+				referrersForReferentAndRelation = new HashSet<Mirror>();
+				referrersForReferent.put(relation, referrersForReferentAndRelation);
+			}
+			referrersForReferentAndRelation.add(referrer);
 		}
-		return result;
 	}
 
 	private boolean isRef(Proxiable obj) {
@@ -160,7 +171,11 @@ class ModelIndex {
 			for (Mirror referent : referentsForReferrerAndRelation) {
 				Map<ModelRelation, Set<Mirror>> referrersForReferent = referentToReferrers.get(referent);
 				Set<Mirror> referrersForReferentAndRelation = referrersForReferent.get(relation);
-				referrersForReferentAndRelation.remove(referrer);
+				for (Mirror referrerForReferentAndRelation : new HashSet<Mirror>(referrersForReferentAndRelation)) {
+					if (referrerForReferentAndRelation.getRootOwner().equals(referrer)) {
+						referrersForReferentAndRelation.remove(referrerForReferentAndRelation);
+					}
+				}
 				if (referrersForReferentAndRelation.isEmpty()) {
 					referrersForReferent.remove(relation);
 				}

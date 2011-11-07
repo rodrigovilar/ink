@@ -52,7 +52,7 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 		SimpleTreeNode<Mirror> originalObjectNode = new SimpleTreeNode<Mirror>(originalObject.<Mirror> reflect());
 		SimpleTreeNode<Mirror> rootNode = originalObjectNode;
 		Mirror nextMirror = type.getNextMirror(originalObjectNode.getValue());
-		while (nextMirror != null) {
+		while (nextMirror != null && nextMirror != originalObjectNode.getValue()) {
 			SimpleTreeNode<Mirror> currentNode = new SimpleTreeNode<Mirror>(nextMirror);
 			currentNode.addChildNode(rootNode);
 			rootNode = currentNode;
@@ -68,7 +68,12 @@ public class QuickHierarchyOperation extends InkEditorOperation {
 	}
 
 	protected void addDescendents(Mirror inkObject, SimpleTreeNode<Mirror> objectNode, ModelInfoRepository modelInfoRepository, ModelRelation relation) {
-		List<Mirror> descendents = new ArrayList<Mirror>(modelInfoRepository.findReferrers(inkObject, relation, false));
+		List<Mirror> descendents = new ArrayList<Mirror>();
+		for (Mirror descendent : modelInfoRepository.findReferrers(inkObject, relation, false)) {
+			if (descendent.getOwner() == null && descendent != inkObject) {
+				descendents.add(descendent);
+			}
+		}
 		Collections.sort(descendents, new Comparator<Mirror>() {
 
 			@Override

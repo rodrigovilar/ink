@@ -368,6 +368,13 @@ public class CoreBasicTests extends TestCase{
 		referrers = repo.findReferrers(inkClass.reflect(), IsInstanceOfRelation.getInstance(), true);
 		assertTrue(referrers != null);
 		assertTrue(referrers.contains(classMirror.reflect()));
+
+		// Test inner vs. root objects
+		InkObject canCacheBehaviorInstanceProperty = ((Map<String, InkObject>) dslFactory.reflect().getPropertyValue(InkClassState.p_properties)).get("can_cache_behavior_instance");
+		referrers = repo.findReferrers(context.getObject(CoreNotations.Ids.BOOLEAN_ATTRIBUTE).reflect(), IsInstanceOfRelation.getInstance(), false);
+		assertTrue(referrers != null);
+		assertTrue(referrers.contains(canCacheBehaviorInstanceProperty.reflect()));
+		assertTrue(!referrers.contains(dslFactory.reflect()));
 	}
 
 	public void testVMRestart(){

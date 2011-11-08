@@ -54,7 +54,6 @@ Class id="ActiveOffers" class="ink.core:InkClass" super="ink.core:InkObject" {
 	java_mapping "State_Behavior_Interface"
 	properties {
 		property class="ink.core:ListProperty"{
-			type ref="ink.core:List"
 			name "offers"
 			mandatory true
 			list_item class="ink.core:Reference"{

@@ -380,6 +380,13 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 			Object result = value;
 			switch (typeMarker) {
 			case Class:
+				if(((Proxiable)value).getObjectKind()==Kind.Behavior){
+					if(((Proxiable)value).isProxied()){
+						result = value = ((Proxiability)value).getVanillaState();
+					}else{
+						result = value = ((InkObjectImpl)value).getState();
+					}
+				}
 				MirrorAPI state = (MirrorAPI)value;
 				if (state.isRoot()) {
 					if(state.canHaveBehavior()){
@@ -558,9 +565,9 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 		@Override
 		public final void setPropertyValue(byte index, Object value) {
 			if(!propsMirrors[index].hasStaticValue()){
-				throw new CoreException("Could not insert value to calculated property '" + propsMirrors[index].getName() +"', of class " + myClass.getId() + ".");
+				throw new CoreException("Property '" + propsMirrors[index].getName() +"' of class '" +myClass.getId()+ "' is a calculated property.");
 			}else if(!propsMirrors[index].isMutable()){
-				throw new CoreException("Could not insert value to read-only property '" + propsMirrors[index].getName() + "', of class " + myClass.getId() + ".");
+				throw new CoreException("Property '" + propsMirrors[index].getName() +"' of class '" +myClass.getId()+ "' is read only.");
 			}
 			insertValue(index, value);
 		}

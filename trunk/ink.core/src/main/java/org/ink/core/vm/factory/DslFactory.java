@@ -67,5 +67,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>{
 	public void destroy();
 	public ElementDescriptor<?> getDescriptor(String id);
 	public List<String> getElements(String filepath);
+	public void reload();
 
 }

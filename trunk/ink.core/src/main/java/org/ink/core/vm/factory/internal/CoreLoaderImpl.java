@@ -915,6 +915,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		if(refKind==null){
 			refKind = ReferenceKind.Association_or_Composition;
 		}
+		//to solve a problem in getFinalValue/getDefaultValue in ReferenceState
+		typeClass = typeClass==Proxiable.class?InkObjectState.class:typeClass;
 		((MirrorAPI)result).setRawValue(ReferenceState.p_kind, refKind);
 		CoreClassDescriptor typeDesc = classElements.get(typeClass);
 		if(typeDesc == null ){

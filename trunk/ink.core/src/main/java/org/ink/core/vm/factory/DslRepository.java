@@ -17,7 +17,7 @@ public interface DslRepository extends InkObject, Iterable<InkObjectState> {
 
 	public void setObject(String id, InkObjectState result);
 
-	public void clear();
+	public void init();
 
 
 

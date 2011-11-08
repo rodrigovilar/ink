@@ -67,6 +67,15 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	protected Map<String, DslFactory> boundedFactories;
 	protected Set<String> scope;
 
+	@Override
+	public void reload() {
+		repository.init();
+		loader.init();
+		scan();
+		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
+		repo.reset(getNamespace());
+		loadModelReopsitory();
+	}
 
 	@Override
 	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t){
@@ -496,6 +505,10 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public void afterVmStart() {
+		loadModelReopsitory();
+	}
+
+	private void loadModelReopsitory() {
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
 		for(InkObjectState elem : repository){
 			try{
@@ -519,8 +532,8 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public void destroy() {
-		getState().getRepository().clear();
-		getState().getLoader().destroy();
+		getState().getRepository().init();
+		getState().getLoader().init();
 		classRepository.clear();
 		scope = null;
 		boundedFactories.clear();
@@ -606,10 +619,10 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public int compareTo(DslFactory o) {
 		if(o.getScope().contains(getNamespace())){
-			return -1;
+			return 1;
 		}
 		if(getScope().contains(o.getNamespace())){
-			return 1;
+			return -1;
 		}
 		return 0;
 	}
@@ -632,5 +645,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public List<String> getElements(String filepath){
 		return loader.getElements(filepath);
 	}
+
 
 }

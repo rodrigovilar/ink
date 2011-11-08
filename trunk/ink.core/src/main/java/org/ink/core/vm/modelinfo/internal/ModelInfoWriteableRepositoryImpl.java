@@ -36,6 +36,18 @@ public class ModelInfoWriteableRepositoryImpl extends ModelInfoRepositoryImpl im
 	}
 
 	@Override
+	public void reset(String namespace) {
+		ModelIndex newIndex = ModelIndex.initIndex(namespace, this);
+		indices.put(namespace, newIndex);
+	}
+
+	@Override
+	public void introduceNewDsl(String namespace) {
+		ModelIndex newIndex = ModelIndex.initIndex(namespace, this);
+		indices.put(namespace, newIndex);
+	}
+
+	@Override
 	public void unregister(Mirror referent) {
 		ModelIndex index = indices.get(referent.getNamespace());
 		if (index != null) {

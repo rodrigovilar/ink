@@ -15,4 +15,8 @@ public interface ModelInfoWriteableRepository extends ModelInfoRepository {
 
 	public void rollback();
 
+	public void reset(String namespace);
+
+	void introduceNewDsl(String namespace);
+
 }

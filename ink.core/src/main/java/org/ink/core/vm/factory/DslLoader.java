@@ -17,7 +17,7 @@ public interface DslLoader extends InkObject {
 	public InkObjectState getObject(String id, Context context) throws ObjectLoadingException;
 	public Iterator<String> iterator();
 	public List<File> getInkFiles();
-	public void destroy();
+	public void init();
 	public List<InkErrorDetails> collectErrors();
 	public ElementDescriptor<?> getDescriptor(String id);
 	public List<String> getElements(String filepath);

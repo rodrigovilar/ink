@@ -17,12 +17,14 @@ import org.ikayzo.sdl.Tag;
 import org.ink.core.utils.sdl.SdlParser;
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.InkBootException;
+import org.ink.core.vm.exceptions.InkExcpetion;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.JavaMapping;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
+import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 import org.ink.core.vm.serialization.InkReader;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.file.FileUtils;
@@ -154,44 +156,48 @@ public class VMMain {
 			for(DslFactory f : factories){
 				f.scan();
 			}
-			if(factories.isEmpty()){
-				factory = coreFactory;
-			}else{
-				Collections.sort(factories);
-				if(factories.size()==1){
-					factory = factories.get(0);
-				}else if(factories.size()>1){
-					if(factories.get(0).compareTo(factories.get(1))==0){
-						if(defaultNamespace!=null){
-							factory = allFactories.get(defaultNamespace);
-							if(factory == null){
-								System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
-								throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
-							}
-						}else{
-							String defaultFactoryNS = System.getProperty("default.factory");
-							if(defaultFactoryNS==null){
-								System.out.println("More than one possible default factory was found, creating a facade factory...");
-								factory = createFacadeFactory(coreFactory, factories);
-							}else{
-								for(DslFactory f : factories){
-									if(f.getNamespace().equals(defaultFactoryNS)){
-										factory = f;
-										break;
-									}
-								}
-								if(factory==null){
-									System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
-									throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
-								}
-							}
+			arrangeFactories(defaultNamespace, factories);
+		}
+	}
+
+
+	private static void arrangeFactories(String defaultNamespace,
+			List<DslFactory> factories) {
+		if(factories.isEmpty()){
+			factory = coreFactory;
+		}else{
+			Collections.sort(factories);
+			if(factories.size()==1){
+				factory = factories.get(0);
+			}else if(factories.size()>1){
+				if(factories.get(0).compareTo(factories.get(1))==0){
+					if(defaultNamespace!=null){
+						factory = allFactories.get(defaultNamespace);
+						if(factory == null){
+							System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
+							throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
 						}
 					}else{
-
+						String defaultFactoryNS = System.getProperty("default.factory");
+						if(defaultFactoryNS==null){
+							System.out.println("More than one possible default factory was found, creating a facade factory...");
+							factory = createFacadeFactory(coreFactory, factories);
+						}else{
+							for(DslFactory f : factories){
+								if(f.getNamespace().equals(defaultFactoryNS)){
+									factory = f;
+									break;
+								}
+							}
+							if(factory==null){
+								System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
+								throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
+							}
+						}
 					}
-				}else{
-					System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
 				}
+			}else{
+				System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
 			}
 		}
 	}
@@ -300,6 +306,34 @@ public class VMMain {
 
 
 	public static void main(String[] args) {
+	}
+
+
+	public static void introduceNewDsl(String path) throws InkExcpetion{
+		if(paths!=null){
+			for(String p : paths){
+				if(p.equals(path)){
+					throw new InkExcpetion("DSL on path " + path +", is already loaded.");
+				}
+			}
+			String[] newPaths = new String[paths.length+1];
+			System.arraycopy(paths, 0, newPaths, 0, paths.length);
+			newPaths[newPaths.length-1] = path;
+		}
+		List<DslFactory> newFactories = collectFactories(path, coreFactory);
+		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
+		for(DslFactory f : newFactories){
+			allFactories.put(f.getNamespace(), f);
+			namespaces.add(f.getNamespace());
+			repo.introduceNewDsl(f.getNamespace());
+		}
+
+		for(DslFactory f : newFactories){
+			f.scan();
+		}
+		List<DslFactory> nonCoreFactories = new ArrayList<DslFactory>(allFactories.values());
+		nonCoreFactories.remove(coreFactory);
+		arrangeFactories(defaultNS, nonCoreFactories);
 	}
 
 }

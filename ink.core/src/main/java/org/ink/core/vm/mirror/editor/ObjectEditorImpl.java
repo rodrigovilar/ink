@@ -328,7 +328,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 							if(valueMirror.getTypeMarker()==DataTypeMarker.Class){
 								Collection<Map.Entry<?, ?>> col = map.entrySet();
 								for(Map.Entry<?, ?> en : col){
-									MirrorAPI val = (MirrorAPI)en.getValue();
+									Proxiable val = (Proxiable)en.getValue();
 									if(val.isProxied()){
 										val = ((Proxiability)val).getVanillaState();
 									}
@@ -338,9 +338,9 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 											existingObject = (Proxiable) superValue.get(en.getKey());
 										}
 										if(existingObject!=null){
-											innerCompile(val, existingObject.reflect());
+											innerCompile((MirrorAPI) val, existingObject.reflect());
 										}else{
-											innerCompile(val, null);
+											innerCompile((MirrorAPI)val, null);
 										}
 									}
 								}

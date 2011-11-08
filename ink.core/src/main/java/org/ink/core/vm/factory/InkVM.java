@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ink.core.vm.exceptions.InkExcpetion;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 
 
@@ -71,6 +72,11 @@ public class InkVM implements VM {
 	}
 
 	@Override
+	public void introduceNewDSl(String path) throws InkExcpetion{
+		VMMain.introduceNewDsl(path);
+	}
+
+	@Override
 	public DslFactory getFactory(String namespace){
 		return VMMain.getFactory(namespace);
 	}
@@ -84,5 +90,18 @@ public class InkVM implements VM {
 		return result;
 	}
 
+	@Override
+	public List<InkErrorDetails> collectErrors(String namespace){
+		DslFactory factory = VMMain.getFactory(namespace);
+		return factory.collectErrors();
+	}
+
+	@Override
+	public void reloadDSL(String namespace){
+		DslFactory factory = VMMain.getFactory(namespace);
+		if(factory!=null){
+			factory.reload();
+		}
+	}
 
 }

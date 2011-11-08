@@ -42,8 +42,9 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private File folder = null;
 
 	@Override
-	public void destroy() {
+	public void init() {
 		elements.clear();
+		file2Elements.clear();
 		readerCls = null;
 		vc = null;
 		folder = null;

@@ -339,7 +339,7 @@ implements InkReader<Tag>{
 						addError(field, "The property with name '" + propertyName
 								+ "' does not exist for class '" + classId + "'.");
 					} else {
-						result.setRawValue(pm.getIndex(), transformPropertyValue(
+						result.setPropertyValue(pm.getIndex(), transformPropertyValue(
 								field, pm));
 					}
 				}
@@ -352,6 +352,8 @@ implements InkReader<Tag>{
 						}
 					}
 				}
+			}catch(CoreException e){
+				addError(tag, e.getMessage());
 			}catch(Throwable e){
 				addError(tag, "Could not read object '"+id +"'.");
 			}

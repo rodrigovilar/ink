@@ -107,7 +107,7 @@ public class PageAnalyzer {
 				currentLine.append(cs[i]);
 				break;
 			case '/':
-				if(cs.length>i && cs[i+1]=='/'){
+				if(cs.length>i+1 && cs[i+1]=='/'){
 					comment = true;
 					break;
 				}

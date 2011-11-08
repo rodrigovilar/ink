@@ -159,7 +159,9 @@ public class InkUtils {
 					}
 				}
 			}
-		}catch(Exception e){}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		return result;
 	}
 
@@ -176,21 +178,25 @@ public class InkUtils {
 		return referrers;
 	}
 
-	public static Collection<Mirror> getInstances(String[] nss, String classId, boolean recursive){
+	public static Collection<Mirror> getInstances(String[] nss, String classId, boolean recursive, boolean topLevelOnly){
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
 		if(inkObject!=null){
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
 			Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), recursive, nss);
 			if(temp!=null){
-				referrers.addAll(temp);
+				for(Mirror m : temp){
+					if(m.isRoot() || !topLevelOnly) {
+						referrers.add(m);
+					}
+				}
 			}
 		}
 		return referrers;
 	}
 
 	public static List<String> getInstancesIds(String[] nss, String classId, boolean recursive){
-		return createResultList(getInstances(nss, classId, recursive), true);
+		return createResultList(getInstances(nss, classId, recursive, true), true);
 	}
 
 	public static List<String> getInstancesIds(String ns, String classId, boolean recursive){

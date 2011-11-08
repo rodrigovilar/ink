@@ -49,8 +49,6 @@ public class InkPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static InkPlugin plugin;
 
-	private Context inkContext;
-
 	private int maxBuildIterations = 10;
 
 	/**
@@ -129,11 +127,11 @@ public class InkPlugin extends AbstractUIPlugin {
 				paths.add(f.getLocation().toFile().getAbsolutePath());
 			}
 		}
-		inkContext = InkVM.instance(null, paths.toArray(new String[]{})).getContext();
+		InkVM.instance(null, paths.toArray(new String[]{})).getContext();
 	}
 
 	public Context getInkContext(){
-		return inkContext;
+		return InkVM.instance().getContext();
 	}
 
 	public List<IProject> getInkProjects(){

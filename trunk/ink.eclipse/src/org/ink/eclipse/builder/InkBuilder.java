@@ -26,8 +26,10 @@ import org.ink.core.utils.sdl.SdlParser;
 import org.ink.core.vm.constraints.ResourceType;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
+import org.ink.core.vm.exceptions.InkExcpetion;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkErrorDetails;
+import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.mirror.ClassMirror;
@@ -189,7 +191,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		IPath resourcePath = resource.getProjectRelativePath();
 		boolean result = false;
 		if (resource.getName().endsWith(".ink")	&& (resourcePath.uptoSegment(3).equals(INK_DIR_PATH))
-				|| DSL_DEF_FILENAME.equals(resourcePath.lastSegment())) {
+				|| (DSL_DEF_FILENAME.equals(resourcePath.lastSegment()) && resourcePath.segments().length==1)) {
 			if (checkInkFile((IFile) resource)) {
 				changedInkFiles.add((IFile) resource);
 				result = true;
@@ -212,8 +214,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	private void moveInkFile(IFile file, IProgressMonitor monitor) {
 		IFile existingFile = EclipseUtils.getOutputFile(getProject(), file);
 		try {
-			if (existingFile.exists()) {
-				existingFile.delete(true, null);
+			File fsFile = new File(existingFile.getLocationURI());
+			if (fsFile.exists()) {
+				existingFile.delete(true, monitor);
 			} else {
 				IPath folderPath = existingFile.getFullPath().removeLastSegments(1).removeFirstSegments(1);
 				EclipseUtils.createFolder(folderPath, getProject(), false);
@@ -249,10 +252,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			throws CoreException {
 		//todo - this is a hack until I fix that project full
 		//build causes the kernel to restart
-		List<IProject> inkProkects = InkPlugin.getDefault().getInkProjects();
-		for(IProject p : inkProkects){
-			p.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-		}
+		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
 
 		IFolder output = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
 		IFolder genFolder = output.getFolder("gen");
@@ -262,9 +262,34 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		genFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
 		fullBuild = true;
 		getProject().accept(new InkResourceVisitor(monitor));
-		List<InkErrorDetails> errors = InkPlugin.getDefault().reloadInk();
+		List<InkErrorDetails> errors = reloadProjectDSLs();
 		processErrors(errors, monitor);
 		genrateJavaFiles(output);
+	}
+
+	private List<InkErrorDetails> reloadProjectDSLs(){
+		String[] nss = InkUtils.getProjectNamespaces(getProject());
+		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
+		if(nss.length>0){
+			for(String ns : nss){
+				System.out.println("Reloading DSL " + ns);
+				InkVM.instance().reloadDSL(ns);
+				result.addAll(InkVM.instance().collectErrors(ns));
+			}
+		}else{
+			IFile f = getProject().getFile("dsls.ink");
+			try {
+				InkVM.instance().introduceNewDSl(f.getLocation().toFile().getAbsolutePath());
+				nss = InkUtils.getProjectNamespaces(getProject());
+				for(String ns : nss){
+					result.addAll(InkVM.instance().collectErrors(ns));
+				}
+			} catch (InkExcpetion e) {
+				e.printStackTrace();
+			}
+
+		}
+		return result;
 	}
 
 	private void genrateJavaFiles(IFolder output) {
@@ -281,8 +306,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 		}
 		gen = new EnumGenerator(output);
-		all = InkUtils.getInstances(dsls, CoreNotations.Ids.ENUM_TYPE,
-				true);
+		all = InkUtils.getInstances(dsls, CoreNotations.Ids.ENUM_TYPE, true, true);
 		for (Mirror o : all) {
 			gen.generate(o);
 		}
@@ -314,8 +338,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 			if (!fullBuild) {
 				getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-				errors = InkPlugin.getDefault()
-						.reloadInk();
+				errors = reloadProjectDSLs();
 				processErrors(errors, monitor);
 				IFolder outputFolder = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
 				genrateJavaFiles(outputFolder);
@@ -344,11 +367,13 @@ public class InkBuilder extends IncrementalProjectBuilder {
 						eclipseInkFile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_ZERO);
 					}
 					List<String> ids = context.getFactory().getElements(inkFile.getAbsolutePath());
-					for(String id : ids){
-						o = context.getState(id);
-						o.validate(vc);
-						processErrors(o.reflect(), vc.getMessages(), monitor);
-						vc.reset();
+					if(ids!=null){
+						for(String id : ids){
+							o = context.getState(id);
+							o.validate(vc);
+							processErrors(o.reflect(), vc.getMessages(), monitor);
+							vc.reset();
+						}
 					}
 				}
 			}

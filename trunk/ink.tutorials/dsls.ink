@@ -1,4 +1,4 @@
-Class id="CustomerFactory" class="ink.core:DslFactory" super="ink.core:ObjectFactory"{
+Class id="Tutorial1Factory" class="ink.core:DslFactory" super="ink.core:ObjectFactory"{
 	java_path "factory"
 	java_mapping "No_Java"
 	imports{

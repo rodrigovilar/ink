@@ -159,6 +159,8 @@ public class CustomerTest extends TestCase{
 
 	public void testCustomerStructuralTraits(){
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
+		InkVM.instance().reloadDSL("example.customer");
+		customer = context.getState("example.customer:TheFirstCustomer");
 		//TODO need to fix this in the state generator
 		//Trait t = customer.asTrait(CustomerState.t_fan);
 		Trait t = customer.asTrait((byte)2);

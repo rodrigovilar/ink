@@ -46,6 +46,8 @@ public class CustomerTest extends TestCase{
 		assertEquals(customer.getLastName(),"Schachter");
 		assertNotNull(customer.getAddress());
 		assertNotNull(customer.getAge());
+		assertFalse(customer.getEnumList().isEmpty());
+		assertFalse(customer.getStringList().isEmpty());
 		//checking default value
 		assertEquals(customer.getGender(), Gender.Male);
 		Customer behv = customer.getBehavior();

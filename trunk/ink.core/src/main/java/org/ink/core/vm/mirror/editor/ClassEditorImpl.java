@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.ink.core.vm.exceptions.CompilationException;
 import org.ink.core.vm.exceptions.WeaveException;
+import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.ObjectFactoryState;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.PropertyState;
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
-import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.traits.Trait;
@@ -117,12 +117,12 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 	}
 
 	@Override
-	protected void prepareForCompilation()  throws CompilationException{
-		super.prepareForCompilation();
-		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
+	public void compile()  throws CompilationException{
+		String superState = workOnObject.getSuperId();
 		if(superState==null){
-			throw new CompilationException("An Ink class must extend another Ink class.");
+			workOnObject.setSuperId(CoreNotations.Ids.INK_OBJECT);
 		}
+		super.compile();
 	}
 
 	private List<PropertyState> collectProperties(String role, TraitClass traitClass, boolean addNS, String traitNS){

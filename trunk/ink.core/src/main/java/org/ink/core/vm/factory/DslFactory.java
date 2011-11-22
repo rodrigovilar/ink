@@ -23,7 +23,7 @@ import org.ink.core.vm.types.PrimitiveTypeMarker;
 /**
  * @author Lior Schachter
  */
-public interface DslFactory extends InkClass, Comparable<DslFactory>{
+public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactoryEventListener{
 
 	public String getDslPackage();
 	public String getJavaPackage();

@@ -313,8 +313,7 @@ implements InkReader<Tag>{
 			result = cls.newInstance(serializationContext, false, false);
 			try{
 				ClassMirror cMirror = cls.reflect();
-				Map<String, PropertyMirror> propertiesMap = cMirror
-				.getClassPropertiesMap();
+				Map<String, PropertyMirror> propertiesMap = cMirror.getClassPropertiesMap();
 				//no defaults here - defaults are resolved in compilation
 				result.setId(id);
 				result.setRoot(!isInnerObject);
@@ -339,8 +338,7 @@ implements InkReader<Tag>{
 						addError(field, "The property with name '" + propertyName
 								+ "' does not exist for class '" + classId + "'.");
 					} else {
-						result.setPropertyValue(pm.getIndex(), transformPropertyValue(
-								field, pm));
+						result.setPropertyValue(pm.getIndex(), transformPropertyValue(field, pm));
 					}
 				}
 				if(!containsErrors()){
@@ -421,14 +419,29 @@ implements InkReader<Tag>{
 					PropertyMirror itemMirror = ((ListPropertyMirror) pm).getItemMirror();
 					switch (itemMirror.getTypeMarker()) {
 					case Primitive:
-						List<?> values = tag.getValues();
-						result = new ArrayList<Object>(values.size());
-						for(Object o : values){
-							((List)result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
+						result = new ArrayList<Object>();
+						for(Tag t: tag.getChildren()){
+							List<?> values = t.getValues();
+							for(Object o : values){
+								((List)result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
+							}
 						}
+
 						break;
 					case Enum:
-						// result = new ArrayList<Object>(pt.getValues());
+						result = new ArrayList<Object>();
+						for(Tag t: tag.getChildren()){
+							List<?> values = t.getValues();
+							for(Object o : values){
+								try {
+									Object val = ((EnumType) ((Property) itemMirror.getTargetBehavior())
+											.getType()).getEnumObject(o.toString());
+									((List)result).add(val);
+								} catch (CoreException e) {
+									addError(tag, "Invalid enumeration value : '" + tag.getValue()	+ "'");
+								}
+							}
+						}
 						break;
 					default:
 						List<Tag> tags = tag.getChildren();

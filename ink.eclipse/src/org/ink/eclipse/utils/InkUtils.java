@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,11 +213,24 @@ public class InkUtils {
 				}
 			}
 		}
-		Collections.sort(result);
+		Comparator<String> compi = new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				if(arg0==null){
+					return -1;
+				}else if(arg1==null){
+					return 1;
+				}
+				return arg0.compareTo(arg1);
+			}
+
+		};
+		Collections.sort(result, compi);
 		return result;
 	}
 
-	public static List<String> getInstances(String ns, List<String> classes){
+	public static List<String> getInstances(String ns, List<String> classes, boolean rootOnly){
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		for(String clsId : classes){
@@ -224,7 +238,11 @@ public class InkUtils {
 			if(inkObject!=null){
 				Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), false, getScope(ns));
 				if(temp!=null){
-					referrers.addAll(temp);
+					for(Mirror m : temp){
+						if(m.isRoot() || !rootOnly){
+							referrers.add(m);
+						}
+					}
 				}
 			}
 		}

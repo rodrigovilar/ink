@@ -11,12 +11,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
-import org.ink.core.vm.types.CollectionTypeMarker;
+import org.ink.core.vm.types.EnumType;
 import org.ink.core.vm.utils.property.Dictionary;
 import org.ink.core.vm.utils.property.ElementsDictionary;
 import org.ink.core.vm.utils.property.PrimitiveAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
+import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.eclipse.utils.InkUtils;
 
 public class ObjectDataBlock extends DataBlock {
@@ -141,7 +142,27 @@ public class ObjectDataBlock extends DataBlock {
 				if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Collection){
 					switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
 					case List:
-						getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror(), prefix);
+						PropertyMirror itempMirror = ((ListPropertyMirror)pm).getItemMirror();
+						if(itempMirror.getPropertyType().isEnumeration()){
+							EnumType enumT = (EnumType) itempMirror.getPropertyType();
+							for(String val : enumT.getValues()){
+								addValueProposal(result, "\"" + val + "\"", val, cursorLocation, prefix);
+							}
+						}else if(itempMirror.getPropertyType().isPrimitive()){
+							PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
+							switch(primitivePM.getPrimitiveTypeMarker()){
+							case String:
+								addPropertyNameCompletion(cursorLocation, 1,result,"Insert " +getTypeDisplayString(itempMirror) + " values separated by space.", ""," \"\"", prefix);
+								break;
+							case Date:
+								addPropertyNameCompletion(cursorLocation, 1,result,"Insert " +getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", ""," \"\"", prefix);
+								break;
+								default:
+									result.add(new CompletionProposal("", cursorLocation, prefix.length(), 0, null, "Insert " +getTypeDisplayString(itempMirror) + " values separated by space.", null, null));
+							}
+						}else{
+							getProposal(cursorLocation, result,((ListPropertyMirror)pm).getItemMirror(), prefix);
+						}
 						break;
 					case Map:
 						PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
@@ -177,25 +198,6 @@ public class ObjectDataBlock extends DataBlock {
 		return result;
 	}
 
-	private String getTypeDisplayString(PropertyMirror pm){
-		String result = "";
-		switch(pm.getTypeMarker()){
-		case Collection:
-			switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
-			case List:
-				result = "List<" + getTypeDisplayString(((ListPropertyMirror)pm).getItemMirror()) + ">";
-				break;
-			case Map:
-				result = "Map<" + getTypeDisplayString(((MapPropertyMirror)pm).getKeyMirror()) +"," +getTypeDisplayString(((MapPropertyMirror)pm).getValueMirror())  + ">";
-				break;
-			}
-		break;
-		default:
-			result = pm.getPropertyType().reflect().getShortId();
-		break;
-		}
-		return result;
-	}
 
 
 	private void getProposal(int cursorLocation,
@@ -212,15 +214,9 @@ public class ObjectDataBlock extends DataBlock {
 				break;
 			case Collection:
 				displayString = name + " - " + getTypeDisplayString(pm);
-				if(((CollectionPropertyMirror)pm).getCollectionTypeMarker()==CollectionTypeMarker.List &&
-						((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Primitive){
-					addPropertyNameCompletion(cursorLocation, 1,allProposals,
-							displayString, name," \"\"", prefix);
-				}else{
 					String tabs = calculateTabs() + "\t";
 					addPropertyNameCompletion(cursorLocation, tabs.length()+1,allProposals,
 							displayString, name,"{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
-				}
 				break;
 			case Enum:
 				displayString = name +" - " + getTypeDisplayString(pm);
@@ -246,10 +242,5 @@ public class ObjectDataBlock extends DataBlock {
 		}
 	}
 
-	private boolean addPropertyNameCompletion(int cursorLocation,int offset,
-			List<ICompletionProposal> allProposals, String displayString,
-			String name, String postFix, String prefix) {
-		return allProposals.add(new CompletionProposal(name + postFix, cursorLocation - prefix.length(), prefix.length(), name.length() + postFix.length()-offset, null, displayString, null, null));
-	}
 
 }

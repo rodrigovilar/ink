@@ -9,9 +9,12 @@ import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.DataTypeMarker;
+import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.utils.InkNotations;
+import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
+import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
 import org.ink.eclipse.utils.InkUtils;
 
@@ -457,17 +460,13 @@ public abstract class DataBlock {
 		if(classAtt!=null){
 			List<String> relevantClasses = InkUtils.getAllSupers(classAtt);
 			relevantClasses.add(classAtt);
-			if(pm==null){
-				result = InkUtils.getInstances(ns, relevantClasses);
-			}
+			result = InkUtils.getInstances(ns, relevantClasses, true);
+		}else if(pm!=null){
+			Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
+			String constraintClass = m.getId();
+			List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
+			result.retainAll(options);
 		}
-		if(pm==null || pm.getTypeMarker()!=DataTypeMarker.Class){
-			return result;
-		}
-		Mirror m = ((ReferenceMirror)pm).getPropertyType().reflect();
-		String constraintClass = m.getId();
-		List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
-		result.retainAll(options);
 		return result;
 	}
 
@@ -564,6 +563,39 @@ public abstract class DataBlock {
 			return null;
 		}
 		return result.reverse().toString();
+	}
+
+	protected boolean addPropertyNameCompletion(int cursorLocation,int offset,
+			List<ICompletionProposal> allProposals, String displayString,
+			String name, String postFix, String prefix) {
+		return allProposals.add(new CompletionProposal(name + postFix, cursorLocation - prefix.length(), prefix.length(), name.length() + postFix.length()-offset, null, displayString, null, null));
+	}
+
+	protected String getTypeDisplayString(PropertyMirror pm){
+		String result = "";
+		switch(pm.getTypeMarker()){
+		case Collection:
+			switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
+			case List:
+				result = "List<" + getTypeDisplayString(((ListPropertyMirror)pm).getItemMirror()) + ">";
+				break;
+			case Map:
+				result = "Map<" + getTypeDisplayString(((MapPropertyMirror)pm).getKeyMirror()) +"," +getTypeDisplayString(((MapPropertyMirror)pm).getValueMirror())  + ">";
+				break;
+			}
+		break;
+		default:
+			result = pm.getPropertyType().reflect().getShortId();
+		break;
+		}
+		return result;
+	}
+
+	protected void addValueProposal(List<ICompletionProposal> all, String value, String displayString, int cursorLocation, String prefix) {
+		boolean isPrefix = isPrefix(value, prefix);
+		if(isPrefix && !prefix.equals(value)){
+			all.add(new CompletionProposal(value, cursorLocation-prefix.length(), prefix.length(), value.length(), null, displayString, null, null));
+		}
 	}
 
 

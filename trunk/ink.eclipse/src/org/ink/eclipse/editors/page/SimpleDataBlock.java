@@ -6,9 +6,11 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.ink.core.vm.lang.DataTypeMarker;
+import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.types.EnumType;
+import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
 import org.ink.eclipse.utils.InkUtils;
@@ -28,25 +30,24 @@ public class SimpleDataBlock extends DataBlock {
 		return null;
 	}
 
-	private void addValueProposal(List<ICompletionProposal> all, String value, int cursorLocation, String prefix) {
-		boolean isPrefix = isPrefix(value, prefix);
-		if(isPrefix && !prefix.equals(value)){
-			all.add(new CompletionProposal(value, cursorLocation-prefix.length(), prefix.length(), value.length(), null, value, null, null));
-		}
-	}
 
 	@Override
 	protected List<ICompletionProposal> getInlineProposals(int cursorLocation, String prefix) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+		List<String> pathsToClassBlock = getPathToClassBlock();
 		PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		if(pm==null && pathsToClassBlock!=null && pathsToClassBlock.size()>0){
+			List<String> paths = new ArrayList<String>(pathsToClassBlock);
+			pm = InkUtils.getPropertyMirror(getContainingClass(), paths.remove(pathsToClassBlock.size()-1), paths);
+		}
 		String line = new String(text, startIndex, endIndex-startIndex);
 		if(pm!=null){
 			switch(pm.getTypeMarker()){
 			case Primitive:
 				switch(((PrimitiveAttributeMirror)pm).getPrimitiveTypeMarker()){
 				case Boolean:
-					addValueProposal(result, "true", cursorLocation, prefix);
-					addValueProposal(result, "false", cursorLocation, prefix);
+					addValueProposal(result, "true", "true", cursorLocation, prefix);
+					addValueProposal(result, "false", "false", cursorLocation, prefix);
 					break;
 				}
 				break;
@@ -54,18 +55,67 @@ public class SimpleDataBlock extends DataBlock {
 				if(checkCursorLocation(cursorLocation, prefix)){
 					EnumType enumT = (EnumType) pm.getPropertyType();
 					for(String val : enumT.getValues()){
-						addValueProposal(result, val, cursorLocation, prefix);
+						addValueProposal(result, val, val, cursorLocation, prefix);
 					}
 				}
 				break;
-//			case Collection:
-//					if(((CollectionPropertyMirror)pm).getCollectionTypeMarker()==CollectionTypeMarker.List &&
-//					((ListPropertyMirror)pm).getItemMirror().getTypeMarker()==DataTypeMarker.Primitive &&
-//					!checkCursorLocation(cursorLocation, prefix)					){
-//						addValueProposal(result, " \"\"", cursorLocation-1, prefix);
-//					}
-//
-//				break;
+			case Collection:
+				switch(((CollectionPropertyMirror)pm).getCollectionTypeMarker()){
+				case List:
+					PropertyMirror itempMirror = ((ListPropertyMirror)pm).getItemMirror();
+					if(itempMirror.getPropertyType().isEnumeration()){
+						EnumType enumT = (EnumType) itempMirror.getPropertyType();
+						for(String val : enumT.getValues()){
+							addValueProposal(result, "\"" + val + "\"", val, cursorLocation, prefix);
+						}
+					}else if(itempMirror.getPropertyType().isPrimitive()){
+						PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
+						switch(primitivePM.getPrimitiveTypeMarker()){
+						case String:
+							String space = " ";
+							if(text[cursorLocation-1]==' '){
+								space = "";
+							}
+							addPropertyNameCompletion(cursorLocation, 1,result,"Insert " +getTypeDisplayString(itempMirror) + " values separated by space.", "", space +"\"\"", prefix);
+							break;
+						case Date:
+							addPropertyNameCompletion(cursorLocation, 1,result,"Insert " +getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", ""," \"\"", prefix);
+							break;
+							default:
+								result.add(new CompletionProposal("", cursorLocation, prefix.length(), 0, null, "Insert " +getTypeDisplayString(itempMirror) + " values separated by space.", null, null));
+						}
+					}
+					break;
+				/*case Map:
+					PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
+					PropertyMirror valueMirror = ((MapPropertyMirror)pm).getValueMirror();
+					if(keyMirror !=null && valueMirror!=null){
+						if(mapItem){
+							String keyName = keyMirror.getName();
+							String valueName = valueMirror.getName();
+							if(!innerBlocks.containsKey(keyName)){
+								getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
+							}
+							if(!innerBlocks.containsKey(valueName)){
+								getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+							}
+						}else{
+							Dictionary dic = ((MapPropertyMirror)pm).getSpecifictation();
+							if(dic instanceof ElementsDictionary){
+								getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+							}else{
+								String name = dic.getEntryName();
+								String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) +","+getTypeDisplayString(valueMirror) +">";
+								String tabs = calculateTabs() + "\t";
+								addPropertyNameCompletion(cursorLocation, tabs.length()+1,result,
+										 displayString, name, "{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
+							}
+						}
+					}
+					break;*/
+				}
+
+				break;
 			case Class:
 				if(prefix.length()>0){
 					StringBuilder attrB = new StringBuilder(10);

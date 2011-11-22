@@ -5,7 +5,7 @@ import org.ink.core.vm.traits.TraitImpl;
 /**
  * @author Lior Schachter
  */
-public abstract class DslFactoryEventListenerImpl<S extends DslFactoryEventListenerState> extends TraitImpl<S> implements DslFactoryEventListener{
+public abstract class DslFactoryEventListenerTraitImpl<S extends DslFactoryEventListenerTraitState> extends TraitImpl<S> implements DslFactoryEventListenerTrait{
 
 	@Override
 	public void afterStateSet() {
@@ -13,5 +13,5 @@ public abstract class DslFactoryEventListenerImpl<S extends DslFactoryEventListe
 		DslFactoryEventDispatcher dispatcher = getContext().getFactory().asTrait(DslFactoryState.t_event_dispatcher);
 		dispatcher.addListener(this);
 	}
-	
+
 }

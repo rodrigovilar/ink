@@ -1,11 +1,10 @@
 package org.ink.core.vm.factory;
 
-import org.ink.core.vm.traits.Trait;
 
 /**
  * @author Lior Schachter
  */
-public interface DslFactoryEventListener extends Trait{
-	
+public interface DslFactoryEventListener{
+
 	public void handleEvent(DslFactoryEvent event);
 }

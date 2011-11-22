@@ -30,7 +30,7 @@ public class DslRepositoryImpl<S extends DslRepositoryState> extends InkObjectIm
 	}
 
 	@Override
-	public void init() {
+	public void clear() {
 		store.clear();
 	}
 

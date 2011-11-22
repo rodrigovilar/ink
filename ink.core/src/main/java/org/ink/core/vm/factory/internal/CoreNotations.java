@@ -14,6 +14,7 @@ public class CoreNotations {
 		public static final String CORE_LOADER = "ink.core:CoreLoader";
 		public static final String DSL_REPOSITORY = "ink.core:DslRepository";
 		public static final String DSL_LOADER = "ink.core:DslLoader";
+		public static final String DSL_FACTORY_EVENT = "ink.core:DslFactoryEvent";
 		public static final String EMPTY_DSL_LOADER = "ink.core:EmptyDslLoader";
 		public static final String CONTEXT = "ink.core:Context";
 		public static final String SIMPLE_ATTRIBUTE_MIRROR = "ink.core:SimpleAttributeMirror";

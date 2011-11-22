@@ -59,10 +59,11 @@ import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.ContextImpl;
 import org.ink.core.vm.factory.ContextState;
 import org.ink.core.vm.factory.DslFactory;
+import org.ink.core.vm.factory.DslFactoryEvent;
 import org.ink.core.vm.factory.DslFactoryEventDispatcherImpl;
 import org.ink.core.vm.factory.DslFactoryEventDispatcherState;
-import org.ink.core.vm.factory.DslFactoryEventListenerState;
-import org.ink.core.vm.factory.DslFactoryEventState;
+import org.ink.core.vm.factory.DslFactoryEventKind;
+import org.ink.core.vm.factory.DslFactoryEventListenerTraitState;
 import org.ink.core.vm.factory.DslFactoryImpl;
 import org.ink.core.vm.factory.DslFactoryPersonalityState;
 import org.ink.core.vm.factory.DslFactoryState;
@@ -191,7 +192,7 @@ import org.ink.core.vm.utils.property.mirror.ReferenceMirrorState;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderImpl<S, Class>{
 
-	Class<?>[] enums = new Class<?>[]{PrimitiveTypeMarker.class, CollectionTypeMarker.class, TraitKind.class, ReferenceKind.class, ComponentType.class, InheritanceConstraints.class, JavaMapping.class, Severity.class, SystemState.class, ActivationMode.class};
+	Class<?>[] enums = new Class<?>[]{PrimitiveTypeMarker.class, CollectionTypeMarker.class, TraitKind.class, ReferenceKind.class, ComponentType.class, InheritanceConstraints.class, JavaMapping.class, Severity.class, SystemState.class, ActivationMode.class, DslFactoryEventKind.class};
 	private static final String P_FINAL_VALUE = "final_value";
 	private final String P_DEFAULT_VALUE_NAME = "p_default_value";
 	private final String PROPERTY_PREFIX = "p_";
@@ -1361,8 +1362,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(TargetLocatorState.class);
 		newInkObject(TraitState.class);
 		newInkObject(DslFactoryEventDispatcherState.class);
-		newInkObject(DslFactoryEventListenerState.class);
-		newInkObject(DslFactoryEventState.class);
+		newInkObject(DslFactoryEventListenerTraitState.class);
+		newInkObject(DslFactoryEvent.class);
 		newInkObject(DslFactoryPersonalityState.class);
 		newInkObject(PersonalityState.class);
 		newInkObject(ConstraintsState.class);
@@ -1505,7 +1506,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	private String createId(Class<?> stateInterface) {
 		String id;
 		id = stateInterface.getSimpleName();
-		if(stateInterface!=Struct.class){
+		if(id.indexOf("State")>0){
 			id = id.substring(0, id.indexOf("State"));
 		}
 		id = createId(id);

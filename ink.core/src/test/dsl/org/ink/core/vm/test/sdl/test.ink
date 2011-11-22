@@ -1,6 +1,8 @@
 Object id="ComponentType" class="ink.core:EnumType"{
 	java_path "lang"
-	values "Root" "Pure_Component" "Root_or_Pure_Component"
+	values{ 
+		"Root" "Pure_Component" "Root_or_Pure_Component"
+	}
 }
 
 Class id="StringAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{

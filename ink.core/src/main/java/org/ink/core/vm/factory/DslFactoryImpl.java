@@ -69,12 +69,16 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public void reload() {
-		repository.init();
+		repository.clear();
 		loader.init();
 		scan();
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
 		repo.reset(getNamespace());
 		loadModelReopsitory();
+		DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
+		DslFactoryEvent event = newInstance(CoreNotations.Ids.DSL_FACTORY_EVENT);
+		event.setKind(DslFactoryEventKind.reload);
+		dispatcher.publishEvent(event);
 	}
 
 	@Override
@@ -113,6 +117,8 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					f = (DslFactory) ((Proxiability)f).getVanillaBehavior();
 				}
 				boundedFactories.put(f.getNamespace(), f);
+				DslFactoryEventDispatcher dispatcher = f.asTrait(DslFactoryState.t_event_dispatcher);
+				dispatcher.addListener(this);
 				this.scope.addAll(f.getScope());
 			}
 		}
@@ -532,7 +538,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public void destroy() {
-		getState().getRepository().init();
+		getState().getRepository().clear();
 		getState().getLoader().init();
 		classRepository.clear();
 		scope = null;
@@ -644,6 +650,17 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public List<String> getElements(String filepath){
 		return loader.getElements(filepath);
+	}
+
+	@Override
+	public void handleEvent(DslFactoryEvent event) {
+		switch(event.getKind()){
+		case reload:
+			repository.clear();
+			DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
+			dispatcher.publishEvent(event);
+			break;
+		}
 	}
 
 

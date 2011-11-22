@@ -133,9 +133,8 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 	}
 
 	@Override
-	public final void compile() throws CompilationException{
+	public void compile() throws CompilationException{
 		Mirror superObject = null;
-		prepareForCompilation();
 		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
 		if(superState!=null){
 			superObject = superState.reflect();
@@ -145,17 +144,6 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 		setFields(workOnObject);
 	}
 
-
-	protected void prepareForCompilation() throws CompilationException{
-		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
-		if (superState == null) {
-			String superId = workOnObject.getSuperId();
-			if (superId != null) {
-				superState = workOnObject.getContext().getState(superId);
-				workOnObject.setSuper(superState);
-			}
-		}
-	}
 
 	private void setFields(MirrorAPI object) {
 		PropertyMirror[] pMirrors = object.getPropertiesMirrors();
@@ -242,8 +230,20 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void innerCompile(MirrorAPI object, Mirror superObject) {
+	protected void innerCompile(MirrorAPI object, Mirror zuper) {
 		// TODO - add a compiler object
+		MirrorAPI superState = object.getSuper();
+		Mirror superObject = zuper;
+		if (superState == null) {
+			String superId = object.getSuperId();
+			if (superId != null) {
+				superState = object.getContext().getState(superId);
+				superObject = superState.reflect();
+				object.setSuper(superState);
+			}
+		}else{
+			superObject = superState.reflect();
+		}
 		PropertyMirror[] pMirrors = object.getPropertiesMirrors();
 		Object o;
 		Object valuesToSet;

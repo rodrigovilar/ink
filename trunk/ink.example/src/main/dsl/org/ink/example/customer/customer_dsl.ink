@@ -32,6 +32,9 @@ Class id="SportFan" class="ink.core:TraitClass" super="ink.core:Trait"{
 			name "favorite_sport"
 			default_value "FootBall"
 		}
+		property class="ink.core:StringAttribute"{
+			name "favorite_player"
+		}
 	}
 }
 
@@ -49,12 +52,16 @@ Class id="CustomerPersonality" class="ink.core:InkClass" super="ink.core:Persona
 
 Object id="Gender" class="ink.core:EnumType"{
 	java_path ""
-	values "Male" "Female"
+	values{
+		 "Male" "Female"
+	}
 }
 
 Object id="SportsKind" class="ink.core:EnumType"{
 	java_path ""
-	values "BasketBall" "Tennis" "FootBall" "Rugby"
+	values{ 
+		"BasketBall" "Tennis" "FootBall" "Rugby"
+	}
 }
 
 Class id="SendLetterInterceptor" class="ink.core:InkClass" super="ink.core:OperationInterceptor"{
@@ -140,6 +147,21 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 				type ref="Customer"
 			}
 		}
+		property class="ink.core:ListProperty"{
+			name "enum_list"
+			mandatory false
+			list_item class="ink.core:EnumAttribute"{
+				name "item"
+				type ref="Gender"
+			}
+		}
+		property class="ink.core:ListProperty"{
+			name "string_list"
+			mandatory false
+			list_item class="ink.core:StringAttribute"{
+				name "item"
+			}
+		}
 		property class="ink.core:MapProperty"{
 			name "keyValueMap"
 			mandatory false
@@ -198,6 +220,13 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 	elementsMap{
 		item ref="TheSecondCustomer"
 	}
+	enum_list{
+		"Male" "Female"
+	}
+	string_list{
+		 "asd"  "asdasd"
+		 "asdaf"  "dsafrwft" "ASD"
+	}
 	keyValueMap{
 		item{
 			key "ads"
@@ -211,6 +240,7 @@ Object id="TheSecondCustomer" class="example.customer:Customer"{
 	last_name "Schachter"
 	age 32
 	fan.favorite_sport "BasketBall"
+	fan.favorite_player "sad"
 	stam.shmupu "kuku"
 	address class="example.customer:Address"{
 		city "Tel-Aviv"

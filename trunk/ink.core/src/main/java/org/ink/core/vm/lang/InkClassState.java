@@ -277,9 +277,6 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		protected Class<? extends InkObject> resolveBehaviorClass() {
-			if(this.isAbstract()){
-				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
-			}
 			if(!this.getJavaMapping().hasBehavior()){
 				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
 			}else{

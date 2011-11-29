@@ -1,6 +1,5 @@
 package org.ink.core.vm.traits;
 
-import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.mirror.ClassMirror;
 
 
@@ -11,9 +10,8 @@ public class ClassHierarchyLocatorImpl<S extends ClassHierarchyLocatorState> ext
 
 
 	@Override
-	public boolean accept(InkClass cls) {
-		ClassMirror cm = cls.reflect();
-		return cm.isSubClassOf(getState().getRootClass());
+	public boolean accept(ClassMirror  cls) {
+		return cls.isSubClassOf(getState().getRootClass());
 	}
 
 

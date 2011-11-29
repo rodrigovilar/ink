@@ -259,12 +259,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	private InkClassState applyDetachableTraits(InkClassState cls, boolean cloneBeforeChange) {
 		InkClassState result = null;
 		if(cls.reflect().isValid()){
-			InkClass clsBehav = cls.getBehavior();
 			ClassMirror clsMrr = cls.reflect();
 			TraitClass traitCls;
 			for(Trait t : detachableTraits){
 				traitCls = t.getMeta();
-				if(t.isAcceptable(clsBehav) && !clsMrr.hasRole(t.reflect().getNamespace(), traitCls.getRole())){
+				if(t.isAcceptable(clsMrr) && !clsMrr.hasRole(t.reflect().getNamespace(), traitCls.getRole())){
 					try {
 						if(cloneBeforeChange && result==null){
 							result = cls.reflect().cloneTargetState(true);
@@ -541,7 +540,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		getState().getRepository().clear();
 		getState().getLoader().init();
 		classRepository.clear();
-		scope = null;
+		scope = Collections.unmodifiableSet(new HashSet<String>());
 		boundedFactories.clear();
 	}
 

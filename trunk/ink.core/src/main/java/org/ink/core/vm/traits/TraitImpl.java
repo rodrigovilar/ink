@@ -1,9 +1,9 @@
 package org.ink.core.vm.traits;
 
-import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.mirror.ClassMirror;
 
 /**
  * @author Lior Schachter
@@ -28,7 +28,7 @@ public class TraitImpl<S extends TraitState> extends InkObjectImpl<S> implements
 	}
 
 	@Override
-	public boolean isAcceptable(InkClass cls) {
+	public boolean isAcceptable(ClassMirror cls) {
 		boolean result = false;
 		if(getTargetState()!=null){
 			result = cls.reflect().getId().equals(getTargetState().getMeta().reflect().getId());

@@ -34,5 +34,4 @@ public interface CoreClassDescriptor extends CoreObjectDescriptor{
 	public List<PropertyState> getPropertiesList();
 	public PropertyMirror[] getPropertyMirrors();
 	public Class<?> getBehaviorClass();
-
 }

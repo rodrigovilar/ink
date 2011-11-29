@@ -57,6 +57,10 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Class<? extends InkObject> getBehaviorClass() {
+		ClassMirrorAPI target = (ClassMirrorAPI)getTargetState();
+		if(target.isAbstract()){
+			return ((ClassMirror)target.reflect().getSuper()).getBehaviorClass();
+		}
 		return ((ClassMirrorAPI)getTargetState()).getBehaviorClass();
 	}
 

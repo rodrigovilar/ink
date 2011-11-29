@@ -22,7 +22,7 @@ public class ClassConstraintsImpl<S extends ClassConstraintsState> extends Const
 	public boolean validateTarget(Mirror stateSuper, ValidationContext context, SystemState systemState) {
 		boolean valid = super.validateTarget(stateSuper, context, systemState);
 		if(valid){
-			ClassMirror cm = getTargetBehavior().reflect();
+			ClassMirror cm = getTargetState().reflect();
 			ResourceResolver rr = VMConfig.instance().getResourceResolver();
 			JavaClassDescription interfaceDesc = null;
 			if(cm.getJavaMapping().hasBehavior()){

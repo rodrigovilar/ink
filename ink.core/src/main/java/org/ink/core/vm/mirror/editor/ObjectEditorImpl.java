@@ -386,6 +386,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends
 		InkObjectState descendentState = workOnObject.cloneState();
 		ObjectEditor descendentEditor =	descendentState.reflect().edit();
 		descendentEditor.setSuper(workOnObject);
+		descendentEditor.setAbstract(false);
 		if(descendentId!=null){
 			descendentEditor.setId(descendentId);
 		}

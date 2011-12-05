@@ -55,7 +55,7 @@ public class VideoStoreTest {
 	public void createRestrictedMovie(String id, String title, int minimumAge) {
 		Context context = InkVM.instance().getContext();
 		InkObjectState restrictedVideotape = context.getState("example.videostore:RestrictedVideotape");
-		ObjectEditor dynamicRestrictedVideotapeEditor = createDescendent(restrictedVideotape, id);
+		ObjectEditor dynamicRestrictedVideotapeEditor = restrictedVideotape.reflect().edit().createDescendent(id);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
 		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(MovieState.p_title, title);
@@ -67,20 +67,12 @@ public class VideoStoreTest {
 	public void createMovie(String id, String title, String rating) {
 		Context context = InkVM.instance().getContext();
 		InkObjectState videotape = context.getState("example.videostore:Videotape");
-		ObjectEditor dynamicVideotapeEditor = createDescendent(videotape, id);
+		ObjectEditor dynamicVideotapeEditor = videotape.reflect().edit().createDescendent(id);
 		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
 		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_title, title);
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_rating, rating);
 		dynamicVideotapeEditor.save();
 		context.register(dynamicVideotapeEditor.getEditedState());
-	}
-
-	public ObjectEditor createDescendent(InkObjectState superState, String descendentId) {
-		InkObjectState descendentState = superState.cloneState();
-		ObjectEditor descendentEditor = descendentState.reflect().edit();
-		descendentEditor.setSuper(superState);
-		descendentEditor.setId(descendentId);
-		return descendentEditor;
 	}
 }

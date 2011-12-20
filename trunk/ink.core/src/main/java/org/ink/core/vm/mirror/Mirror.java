@@ -21,6 +21,7 @@ public interface Mirror extends Trait{
 	public <T extends ObjectEditor> T edit();
 	public <T extends ObjectEditor> T edit(boolean transactional);
 	public ClassMirror getClassMirror();
+	public <T extends InkObjectState> T getTarget();
 	public <M extends Mirror> M getOwner();
 	public <M extends Mirror> M getRootOwner();
 	public <M extends Mirror> M getSuper();

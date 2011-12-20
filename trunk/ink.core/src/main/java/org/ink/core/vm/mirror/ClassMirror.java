@@ -12,6 +12,7 @@ import org.ink.core.vm.lang.ObjectFactory;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.operation.Operation;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.traits.Personality;
 import org.ink.core.vm.traits.Trait;
 
 /**
@@ -32,6 +33,7 @@ public interface ClassMirror extends Mirror{
 	public Operation getMethod(String methodName, Object[] args);
 	public Property getProperty(String propertyName);
 	public Property getProperty(byte index);
+	public Personality getPersonality();
 	public boolean isMetaClass();
 	public PropertyMirror getClassPropertyMirror(String propertyName);
 	public PropertyMirror getClassPropertyMirror(byte index);
@@ -45,7 +47,7 @@ public interface ClassMirror extends Mirror{
 	public boolean isSubClassOf(ClassMirror otherClassMirror);
 	public List<? extends PropertyMirror> getOriginalProperties();
 	public List<? extends PropertyMirror> getAllProperties();
-	public boolean hasRole(String namespace, String role);
+	public boolean hasRole(String role);
 	public Trait getRole(byte index);
 	public JavaMapping getJavaMapping();
 	public ComponentType getComponentType();

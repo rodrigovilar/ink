@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.ink.core.utils.StringUtils;
 import org.ink.core.vm.exceptions.CoreException;
+import org.ink.core.vm.exceptions.InkException;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.Property;
@@ -37,6 +38,11 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 public class CoreUtils {
 
 	public final static String TAB = "\t";
+	private static final char PATH_SEPERATOR = '.';
+	private static final char LIST_INDEX_START = '[';
+	private static final char MAP_KEY_START = '<';
+	private static final char MAP_KEY_END = '>';
+	private static final char LIST_INDEX_END = ']';
 
 	public static String newUUID(){
 		return UUID.randomUUID().toString();
@@ -281,6 +287,102 @@ public class CoreUtils {
 		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
 	}
 
+
+	public static Object getValue(Mirror mirror, String path) throws InkException{
+		Object result = null;
+		try{
+			if(path==null || path.length()==0){
+				result = mirror;
+			}else{
+				int firstSegmentLocation = getFirstSegment(path);
+				String lastSegments = null;
+				String firstSegment = null;
+				if(firstSegmentLocation>0){
+					firstSegment = path.substring(0, firstSegmentLocation-1);
+					lastSegments = path.substring(firstSegmentLocation+1, path.length()-1);
+				}else if(firstSegmentLocation<0){
+					firstSegment = path;
+				}else if(firstSegmentLocation==0){
+					throw new InkException("sdg");
+				}
+				PropertyMirror propertyMirror = getPropertyMirror(mirror, firstSegment);
+				if(propertyMirror==null){
+					throw new InkException("");
+				}
+				result = mirror.getPropertyValue(propertyMirror.getIndex());
+				if(lastSegments!=null && result!=null){
+					switch(propertyMirror.getTypeMarker()){
+					case Collection:
+						CollectionPropertyMirror colMirror = (CollectionPropertyMirror)propertyMirror;
+						switch(colMirror.getCollectionTypeMarker()){
+						case List:
+							String index = extractKey(lastSegments, LIST_INDEX_START, LIST_INDEX_END);
+							lastSegments = lastSegments.substring(lastSegments.indexOf(PATH_SEPERATOR)+1, lastSegments.length()-1);
+							try{
+								int ind = Integer.parseInt(index);
+								if(ind<0){
+									throw new InkException("sdfg");
+								}
+								List<?> l = (List<?>) result;
+								if(ind<l.size()){
+									result = l.get(ind);
+								}else{
+									result = null;
+								}
+								if(result!=null && lastSegments.length()>0){
+									PropertyMirror itemMirror = ((ListPropertyMirror)colMirror).getItemMirror();
+									if(itemMirror.getTypeMarker()!=DataTypeMarker.Class){
+										//not supporting collection inside collection
+										throw new InkException("sdaf");
+									}
+									Mirror innerMirror = ((Proxiable)result).reflect();
+									result = getValue(innerMirror, lastSegments);
+								}
+							}catch(NumberFormatException e){
+								throw new InkException("sdfg");
+							}
+							break;
+						case Map:
+							String key = extractKey(lastSegments, MAP_KEY_START, MAP_KEY_END);
+							break;
+						}
+						break;
+					case Class:
+						Mirror innerMirror = ((Proxiable)result).reflect();
+						result = getValue(innerMirror, lastSegments);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}catch(Exception e){
+			throw new InkException("Could not parse path :'"+path+"'.", e);
+		}
+
+		return result;
+	}
+
+	private static String extractKey(String lastSegments, char listIndexStart,
+			char listIndexEnd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static PropertyMirror getPropertyMirror(Mirror mirror,
+			String firstSegment) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static int getFirstSegment(String path) {
+		int result = path.indexOf(PATH_SEPERATOR);
+		int tmp = path.indexOf(LIST_INDEX_START);
+		result = tmp > result?tmp:result;
+		tmp = path.indexOf(MAP_KEY_START);
+		result = tmp > result?tmp:result;
+		return result;
+	}
 
 
 }

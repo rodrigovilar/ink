@@ -43,7 +43,7 @@ public class ClassEditorImpl<S extends ClassEditorState> extends ObjectEditorImp
 		ClassMirrorAPI classObject = (ClassMirrorAPI)workOnObject;
 		String classNS = classObject.getNamespace();
 		String traitNS = traitClass.reflect().getNamespace();
-		if(!isStructural && classObject.hasRole(traitNS, role)){
+		if(!isStructural && classObject.hasRole(role)){
 			throw new WeaveException("The class '" + workOnObject.getId() +"', already contains the role '" + role +"'.");
 		}
 		boolean addNS = !isStructural & !traitNS.equals(classNS);

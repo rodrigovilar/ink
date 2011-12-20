@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ink.core.vm.exceptions.InkExcpetion;
+import org.ink.core.vm.exceptions.InkException;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 
 
@@ -72,7 +72,7 @@ public class InkVM implements VM {
 	}
 
 	@Override
-	public void introduceNewDSl(String path) throws InkExcpetion{
+	public void introduceNewDSl(String path) throws InkException{
 		VMMain.introduceNewDsl(path);
 	}
 

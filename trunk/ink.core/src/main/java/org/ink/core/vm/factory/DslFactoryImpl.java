@@ -263,7 +263,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			TraitClass traitCls;
 			for(Trait t : detachableTraits){
 				traitCls = t.getMeta();
-				if(t.isAcceptable(clsMrr) && !clsMrr.hasRole(t.reflect().getNamespace(), traitCls.getRole())){
+				if(t.isAcceptable(clsMrr) && !clsMrr.hasRole(traitCls.getRole())){
 					try {
 						if(cloneBeforeChange && result==null){
 							result = cls.reflect().cloneTargetState(true);

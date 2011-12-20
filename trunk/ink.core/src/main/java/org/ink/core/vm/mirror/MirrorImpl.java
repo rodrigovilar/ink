@@ -217,4 +217,9 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 		return ((MirrorAPI)getTargetState()).asTrait(trait, forceNew);
 	}
 
+	@Override
+	public <T extends InkObjectState> T getTarget(){
+		return getTargetState();
+	}
+
 }

@@ -89,4 +89,10 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 		return getState().validate(context, systemState);
 	}
 
+	@Override
+	public <T extends Trait> T asTrait(String role) {
+		return getState().asTrait(role);
+	}
+
+
 }

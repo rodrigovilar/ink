@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ink.core.vm.constraints.ResourceType;
@@ -38,6 +39,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private static final Map<String, List<String>> file2Elements = new ConcurrentHashMap<String, List<String>>(1000);
 	private DslFactory ownerFactory = null;
 	private InkClass readerCls = null;
+	Stack<InkReader<D>> s = new Stack<InkReader<D>>();
 	ValidationContext vc = null;
 	private File folder = null;
 
@@ -53,6 +55,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@Override
 	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException{
 		ElementDescriptor<D> desc = elements.get(id);
+		boolean readerCreated = false;
 		if(desc!=null){
 			try{
 				Mirror clsMirror = null;
@@ -71,6 +74,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 				}
 				if((clsMirror==null || clsMirror.isValid()) && (superMirror==null || superMirror.isValid())){
 					InkReader<D> reader = createReader();
+					s.add(reader);
+					readerCreated = true;
 					InkObjectState result = reader.read(desc.getRawData(), context);
 					if(reader.containsErrors()){
 						List<ParseError> errors = reader.getErrors();
@@ -105,6 +110,9 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 					desc.setInvalid();
 				}
 			}finally{
+				if(readerCreated){
+					s.pop();
+				}
 				vc.reset();
 			}
 		}

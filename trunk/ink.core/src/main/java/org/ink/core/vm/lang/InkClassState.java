@@ -91,7 +91,7 @@ public interface InkClassState extends InkTypeState{
 		private byte[] classRealPropertiesIndex;
 		private byte offset;
 		private Trait[] detachableRoles = null;
-		private Map<String, Byte> detachableTraitsRolesToIndexes = null;
+		private Map<String, Byte> traitsRolesToIndexes = null;
 		private Map<String, Byte> detachableTraitsIdsToIndexes = null;
 		private boolean created = false;
 
@@ -269,6 +269,8 @@ public interface InkClassState extends InkTypeState{
 				offset = personality.getTraitsCount();
 				try {
 					personality.bind((ClassMirror)this.reflect());
+					traitsRolesToIndexes = new HashMap<String, Byte>(4);
+					traitsRolesToIndexes.putAll(personality.reflect().getClassMirror().getClassPropertiesIndexes());
 				} catch (WeaveException e) {
 					throw new CoreException(e);
 				}
@@ -379,77 +381,52 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public synchronized void addRole(String namespace, String role, Trait t) throws WeaveException{
-			String qualifiedRole = role;
-			if(!namespace.equals(getNamespace())){
-				qualifiedRole = namespace +"." + role;
-			}
-			if(getPersonality().hasRole(qualifiedRole)){
-				throw new WeaveException("The class '" + getId() +"', already contains the role '" + qualifiedRole +"'.");
+			if(traitsRolesToIndexes.containsKey(role)){
+				throw new WeaveException("The class '" + getId() +"', already contains the role '" + role +"'.");
 			}
 			Map<String, Byte> temp1 = new HashMap<String, Byte>();
 			String traitClassId = t.getMeta().reflect().getId();
-			if(detachableTraitsRolesToIndexes!=null){
-				if(detachableTraitsRolesToIndexes.containsKey(qualifiedRole)){
-					throw new WeaveException("The class '" + getId() +"', already contains the role '" + qualifiedRole +"'.");
-				}else if(detachableTraitsIdsToIndexes.containsKey(traitClassId)){
-					throw new WeaveException("The class '" + getId() +"', already contains the a role with the same behavior class '" + traitClassId +"'.");
-				}
-				temp1.putAll(detachableTraitsRolesToIndexes);
+			if(detachableTraitsIdsToIndexes != null && detachableTraitsIdsToIndexes.containsKey(traitClassId)){
+				throw new WeaveException("The class '" + getId() +"', already contains the a role with the same behavior class '" + traitClassId +"'.");
 			}
+			temp1.putAll(traitsRolesToIndexes);
 			Map<String, Byte> temp2 = new HashMap<String, Byte>();
 			Trait[] temp3 = null;
 			Byte index = null;
 			if(detachableRoles==null){
-				index = 0;
+				index = (byte) 0;
 				temp3 = new Trait[1];
 			}else{
 				temp3 = new Trait[detachableRoles.length + 1];
 				index = (byte) detachableRoles.length;
 				System.arraycopy(detachableRoles, 0, temp3, 0, detachableRoles.length);
 			}
-			temp1.put(qualifiedRole, index);
-			temp2.put(traitClassId, index);
+			byte actualIndex = (byte)(index+offset);
+			temp1.put(role, actualIndex);
+			temp2.put(traitClassId, actualIndex);
 			temp3[index] = t.cloneState().getBehavior();
 			detachableRoles = temp3;
-			detachableTraitsRolesToIndexes = temp1;
+			traitsRolesToIndexes = temp1;
 			detachableTraitsIdsToIndexes = temp2;
 		}
 
 		@Override
-		public boolean hasRole(String namespace, String role){
-			if(detachableTraitsRolesToIndexes==null){
-				return getPersonality().hasRole(role);
-			}
-			String qualifiedRole = role;
-			if(!namespace.equals(getNamespace())){
-				qualifiedRole = namespace +"." + role;
-				return detachableTraitsRolesToIndexes.containsKey(qualifiedRole);
-			}else{
-				return detachableTraitsRolesToIndexes.containsKey(qualifiedRole) | getPersonality().hasRole(role);
-			}
-
+		public boolean hasRole(String role){
+			return traitsRolesToIndexes.containsKey(role);
 		}
 
 		@Override
 		public Byte getTraitIndex(String role) {
 			Byte result= null;
-			if(detachableTraitsRolesToIndexes!=null){
-				result = detachableTraitsRolesToIndexes.get(role);
-				if(result!=null){
-					result = (byte) (result+offset);
-				}
-			}
+			result = traitsRolesToIndexes.get(role);
 			return  result;
 		}
 
 		@Override
 		public Byte getTraitIndex(TraitClass traitClass) {
 			Byte result= null;
-			if(detachableTraitsRolesToIndexes!=null){
+			if(traitsRolesToIndexes!=null){
 				result = detachableTraitsIdsToIndexes.get(traitClass.reflect().getId());
-				if(result!=null){
-					result = (byte) (result+offset);
-				}
 			}
 			return  result;
 		}
@@ -465,7 +442,7 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public int getTraitsCount() {
-			return getPersonality().getTraitsCount() + (detachableRoles==null?0:detachableRoles.length);
+			return offset + (detachableRoles==null?0:detachableRoles.length);
 		}
 
 	}

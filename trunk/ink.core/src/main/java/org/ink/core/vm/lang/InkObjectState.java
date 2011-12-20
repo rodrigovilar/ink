@@ -42,6 +42,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable{
 	public Context getContext();
 	public String getId();
 	public <B extends InkObject> B getBehavior();
+	@Override
 	public <T extends Trait> T asTrait(String role);
 	public <T extends Trait> T asTrait(TraitClass traitClass);
 	public <T extends InkObjectState> T cloneState();

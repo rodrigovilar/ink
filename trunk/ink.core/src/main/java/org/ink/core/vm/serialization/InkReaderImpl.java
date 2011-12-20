@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,14 +53,14 @@ implements InkReader<Tag>{
 	private List<ParseError> errors = new ArrayList<ParseError>();
 	private URL url = null;
 	private DslFactory serializationContext = null;
-	private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
+	//private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
 	private boolean containsError = false;
 
 	@Override
 	public void reset() {
 		errors = new ArrayList<ParseError>();
 		url = null;
-		objects = new HashMap<String, MirrorAPI>();
+		//objects = new HashMap<String, MirrorAPI>();
 	}
 
 	protected void addError(Tag t, String description) {
@@ -266,16 +265,16 @@ implements InkReader<Tag>{
 				"The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
-				InkObjectState result = objects.get(ref);
-				if(result==null){
-					result = serializationContext.getState(ref, false);
+				//InkObjectState result = objects.get(ref);
+				//if(result==null){
+					InkObjectState result = serializationContext.getState(ref, false);
 					if(result==null){
 						ElementDescriptor<?> desc = serializationContext.getDescriptor(ref);
 						if(desc!=null && !desc.isValid()){
 							return null;
 						}
 					}
-				}
+				//}
 				if (result == null) {
 					addError(tag, "Could not find Ink object with id '" + ref+ "'.");
 				}
@@ -320,7 +319,8 @@ implements InkReader<Tag>{
 				result.setAbstract(isAbstract);
 				result.setSuperId(superId);
 				if(id!=null){
-					objects.put(id, result);
+					//to support circular dependency
+					serializationContext.register(result);
 				}
 				List<Tag> fields = tag.getChildren();
 				PropertyMirror pm;

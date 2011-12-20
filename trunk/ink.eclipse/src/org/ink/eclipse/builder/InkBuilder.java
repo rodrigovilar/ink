@@ -26,7 +26,6 @@ import org.ink.core.utils.sdl.SdlParser;
 import org.ink.core.vm.constraints.ResourceType;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
-import org.ink.core.vm.exceptions.InkExcpetion;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
@@ -284,7 +283,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				for(String ns : nss){
 					result.addAll(InkVM.instance().collectErrors(ns));
 				}
-			} catch (InkExcpetion e) {
+			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 

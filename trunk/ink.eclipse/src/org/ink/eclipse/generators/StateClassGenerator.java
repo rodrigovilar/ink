@@ -40,7 +40,19 @@ public class StateClassGenerator extends BaseGenerator {
 			innerClass.append("public class ").append("Data").append(" extends ")
 			.append(superClassName + "." + "Data")
 			.append(" implements ").append(className).append("{").append(LINE_SEPARATOR);
+
+			Mirror m = classMirror.getPersonality().reflect();
 			PropertyMirror lastPM = null;
+			for(PropertyMirror pm : m.getPropertiesMirrors()){
+				if(!pm.isInherited()){
+					String staticName = "t_"+ pm.getName().toLowerCase();
+					interfaceClass.append("public static final byte ").append(staticName)
+					.append(lastPM==null?" = 0": "= t_" +lastPM.getName().toLowerCase()+"+1").append(";");
+				}
+				lastPM = pm;
+			}
+			lastPM = null;
+
 			for(PropertyMirror pm : classMirror.getOriginalProperties()){
 				if(!pm.isInherited()){
 					String staticName = "p_"+ pm.getName().toLowerCase();

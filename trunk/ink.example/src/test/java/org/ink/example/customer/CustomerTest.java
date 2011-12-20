@@ -12,6 +12,7 @@ import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.mirror.Mirror;
@@ -83,12 +84,13 @@ public class CustomerTest extends TestCase{
 		Customer customerBehav = customer.getBehavior();
 		assertNotNull(customerBehav.sendLetter("Hello !!!!!"));
 		boolean exception = false;
-		try{
-			addr.getBehavior();
-		}catch(UnsupportedOperationException e){
-			exception = true;
-		}
-		assertTrue(exception);
+		//try{
+			InkObject object = addr.getBehavior();
+			assertTrue(object.getClass()==InkObjectImpl.class);
+		//}catch(UnsupportedOperationException e){
+		//	exception = true;
+		//}
+		//assertTrue(exception);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -165,7 +167,9 @@ public class CustomerTest extends TestCase{
 		customer = context.getState("example.customer:TheFirstCustomer");
 		//TODO need to fix this in the state generator
 		//Trait t = customer.asTrait(CustomerState.t_fan);
-		Trait t = customer.asTrait((byte)2);
+		Trait t = customer.asTrait(CustomerState.t_fan);
+		assertNotNull(t);
+		t = customer.asTrait("fan");
 		assertNotNull(t);
 		assertNotNull(customer.reflect().getPropertyValue("fan.favorite_sport"));
 		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.BasketBall);

@@ -86,6 +86,7 @@ Class id="MyProperty" class="ink.core:InkClass" super="ink.core:Reference"{
 		property class="ink.core:Reference"{
 			type ref="CustomerClass"
 			name "type"
+			final_value ref="Customer"
 		}
 	}
 }
@@ -117,7 +118,6 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 		}
 		property class="MyProperty"{
 			name "my_ref"
-			type ref="Customer"
 		}
 		property class="ink.core:StringAttribute"{
 			name "last_name"

@@ -64,26 +64,30 @@ public class InkPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		File f = getBundle().getDataFile("ink_mapping.csv");
-		if(f!=null && f.exists()){
-			BufferedReader reader  = new BufferedReader(new InputStreamReader(f.toURI().toURL().openStream(), "UTF-8"));
-			try{
-				String line;
-				while((line=reader.readLine())!=null){
-					int loc = line.indexOf(",");
-					String javaId = line.substring(0, loc);
-					String inkId = line.substring(loc+1, line.length());
-					Java2InkMappings.put(javaId, inkId);
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
-				if(reader!=null){
-					try{
-						reader.close();
-					}catch(Throwable e){}
+		try{
+			File f = getBundle().getDataFile("ink_mapping.csv");
+			if(f!=null && f.exists()){
+				BufferedReader reader  = new BufferedReader(new InputStreamReader(f.toURI().toURL().openStream(), "UTF-8"));
+				try{
+					String line;
+					while((line=reader.readLine())!=null){
+						int loc = line.indexOf(",");
+						String javaId = line.substring(0, loc);
+						String inkId = line.substring(loc+1, line.length());
+						Java2InkMappings.put(javaId, inkId);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}finally{
+					if(reader!=null){
+						try{
+							reader.close();
+						}catch(Throwable e){}
+					}
 				}
 			}
+		}catch(Throwable e){
+			e.printStackTrace();
 		}
 		plugin = this;
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
@@ -102,7 +106,7 @@ public class InkPlugin extends AbstractUIPlugin {
 			String bundleLocation = url.getPath();
 			bundleLocation = bundleLocation.substring("file:".length(), bundleLocation.length());
 			IPath p = Path.fromOSString(bundleLocation);
-			System.out.println(p.toFile().getAbsolutePath());
+			System.out.println("Bundle Location : " + p.toFile().getAbsolutePath());
 			p = Path.fromOSString(p.toFile().getAbsolutePath());
 			JavaCore.setClasspathVariable(INK_HOME, p, new NullProgressMonitor());
 		} catch (Exception e) {

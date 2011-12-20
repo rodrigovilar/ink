@@ -45,25 +45,24 @@ public class InkNature implements IProjectNature {
 			IPath libFolder = inkHome.append("lib");
 
 			File f = libFolder.toFile();
+			IFolder existingOutputFolder = EclipseUtils.getJavaOutputFolder(project);
 			System.out.println(f.getAbsolutePath());
-			IFolder outputFolder = EclipseUtils.getJavaOutputFolder(project);
-			IFolder genFolder;
-			IFolder binFolder;
-			if(outputFolder.getParent().getType()==IResource.PROJECT){
-				genFolder = outputFolder.getFolder("gen");
-				if(!genFolder.exists()){
-					genFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
-				}
-				binFolder = outputFolder.getFolder("bin");
-				if(!binFolder.exists()){
-					binFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
-				}
-				jProject.setOutputLocation(binFolder.getFullPath(), new NullProgressMonitor());
-			}else{
-				binFolder = outputFolder;
-				genFolder = ((IFolder)outputFolder.getParent()).getFolder("gen");
+			IFolder outputFolder = project.getFolder("output");
+			if(!outputFolder.exists()){
+				outputFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
 			}
-
+			IFolder genFolder = outputFolder.getFolder("gen");
+			IFolder dslFolder = outputFolder.getFolder("main");
+			dslFolder = dslFolder.getFolder("dsl");
+			if(!genFolder.exists()){
+				genFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
+			}
+			IFolder binFolder = outputFolder.getFolder("bin");
+			if(!binFolder.exists()){
+				binFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
+			}
+			jProject.setOutputLocation(binFolder.getFullPath(), new NullProgressMonitor());
+			existingOutputFolder.delete(IResource.FORCE | IResource.DERIVED, null);
 			IPath genPath = genFolder.getFullPath();
 			File[] jars = f.listFiles(new FilenameFilter(){
 				@Override

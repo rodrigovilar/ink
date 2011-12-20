@@ -35,6 +35,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.ink.core.vm.factory.DslFactory;
+import org.ink.core.vm.factory.InkVM;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.builder.InkBuilder;
 import org.ink.eclipse.builder.InkNature;
@@ -200,11 +201,16 @@ public class NewDslWizard extends Wizard implements INewWizard {
 			if(dslPack!=null){
 				String dslsFolder = InkBuilder.INK_DIR_PATH.toString()+ IPath.SEPARATOR+dslPack.substring(1, dslPack.length()-1).replace('.', IPath.SEPARATOR);
 				IContainer cont = EclipseUtils.createFolder(new Path(dslsFolder), container, true);
-				dslfile = cont.getFile(new Path("model.ink"));
-				String contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length()-1) +" DSL elements";
+				dslfile = cont.getFile(new Path("instances.ink"));
+				String contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length()-1) +" DSL instances";
 				InputStream source = new ByteArrayInputStream(contents.getBytes());
 				dslfile.create(source, true, monitor);
+				dslfile = cont.getFile(new Path("model.ink"));
+				contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length()-1) +" DSL model elements";
+				source = new ByteArrayInputStream(contents.getBytes());
+				dslfile.create(source, true, monitor);
 			}
+			InkVM.instance().introduceNewDSl(file.getLocation().toFile().getAbsolutePath());
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}finally{
@@ -242,6 +248,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	private InputStream openContentStream(Map<String, String> tokenMap) throws CoreException {
 
 		StringBuffer sb = new StringBuffer();
+		sb.append(System.getProperty("line.separator"));
 
 		// Creating resolver with the tokeMap built earlier
 		MapTokenResolver resolver = new MapTokenResolver(tokenMap);

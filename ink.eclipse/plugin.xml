@@ -164,7 +164,7 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.ink.eclipse"
-            name="Dsl Wizard">
+            name="Ink">
       </category>
       <wizard
             category="org.ink.eclipse"

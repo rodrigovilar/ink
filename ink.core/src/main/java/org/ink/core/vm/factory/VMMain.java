@@ -17,7 +17,7 @@ import org.ikayzo.sdl.Tag;
 import org.ink.core.utils.sdl.SdlParser;
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.exceptions.InkBootException;
-import org.ink.core.vm.exceptions.InkExcpetion;
+import org.ink.core.vm.exceptions.InkException;
 import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
@@ -270,13 +270,15 @@ public class VMMain {
 				try{
 					classId = (String)elem.getAttribute(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
 					if(classId!=null){
-						//TODO need to check also if subclass of
+						//TODO need to check also if subclass
 						if(classId.equals(CoreNotations.Ids.DSL_FACTORY)){
 							long start = System.currentTimeMillis();
 							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
-							System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
-							factory.setConfigurationFile(inkFile);
-							result.add(factory);
+							if(!allFactories.containsKey(factory.getNamespace())){
+								System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+								factory.setConfigurationFile(inkFile);
+								result.add(factory);
+							}
 						}
 					}
 				}catch(ClassCastException e){
@@ -309,16 +311,20 @@ public class VMMain {
 	}
 
 
-	public static void introduceNewDsl(String path) throws InkExcpetion{
+	public static void introduceNewDsl(String path) throws InkException{
 		if(paths!=null){
+			boolean found = false;
 			for(String p : paths){
 				if(p.equals(path)){
-					throw new InkExcpetion("DSL on path " + path +", is already loaded.");
+					found = true;
+					break;
 				}
 			}
-			String[] newPaths = new String[paths.length+1];
-			System.arraycopy(paths, 0, newPaths, 0, paths.length);
-			newPaths[newPaths.length-1] = path;
+			if(!found){
+				String[] newPaths = new String[paths.length+1];
+				System.arraycopy(paths, 0, newPaths, 0, paths.length);
+				newPaths[newPaths.length-1] = path;
+			}
 		}
 		List<DslFactory> newFactories = collectFactories(path, coreFactory);
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();

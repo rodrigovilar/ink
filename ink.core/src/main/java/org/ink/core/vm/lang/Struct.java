@@ -16,10 +16,5 @@ public interface Struct extends InkObjectState{
 			return false;
 		}
 
-		@Override
-		public final <T extends InkObject> T getBehavior() {
-			throw new UnsupportedOperationException("Could not create behavior for object '"+getId()+"':a struct don't have a behavior.");
-		}
-
 	}
 }

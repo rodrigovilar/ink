@@ -31,7 +31,7 @@ public interface ClassMirrorAPI extends MirrorAPI, InkClassState{
 	public Class<InkObjectState> getStateInterface();
 	public byte[] getRealPropertiesIndex();
 	public void addRole(String namespace, String role, Trait t) throws WeaveException;
-	public boolean hasRole(String namespace, String role);
+	public boolean hasRole(String role);
 	public Trait getDetachableRole(byte index);
 	public Byte getTraitIndex(String role);
 	public Byte getTraitIndex(TraitClass traitClass);

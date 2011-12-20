@@ -18,6 +18,7 @@ import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.operation.Operation;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.traits.Personality;
 import org.ink.core.vm.traits.Trait;
 
 /**
@@ -204,8 +205,8 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	}
 
 	@Override
-	public boolean hasRole(String namespace, String role) {
-		return ((ClassMirrorAPI)getTargetState()).hasRole(namespace, role);
+	public boolean hasRole(String role) {
+		return ((ClassMirrorAPI)getTargetState()).hasRole(role);
 	}
 
 	@Override
@@ -245,6 +246,11 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 			return result;
 		}
 		return result + "." + ownPath;
+	}
+
+	@Override
+	public Personality getPersonality() {
+		return ((ClassMirrorAPI)getTargetState()).getPersonality();
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.ink.tutorial1;
+package org.ink.tutorial2;
 
 public interface A_Customer {
 

@@ -29,6 +29,7 @@ Object id="students_60_percent_discount_for_3_years" super="Student_Offers_Templ
  conditionForPeriodsSigned 3
  freeIssues 3
 }
+
 Object id="Active_offers" class="ActiveOffers" {
 	offers{
 		offer ref="students_30_percent_discount_for_1_year"

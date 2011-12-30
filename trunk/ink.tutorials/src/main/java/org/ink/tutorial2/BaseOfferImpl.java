@@ -106,7 +106,7 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 		}
 		
 		if (!ok) {
-			//throw new RuntimeException("Bad registration form.  Need form of type '" + requiredClass.getId() + "'.");
+			throw new RuntimeException("Bad registration form.");
 		}
 		else {
 			result = "";

@@ -8,7 +8,7 @@ public class BaseRegistrationFormImpl<S extends BaseRegistrationFormState>
 		extends InkObjectImpl<S> implements BaseRegistrationForm {
 
 	@Override
-	public String prepareReceipt() {
+	public String serialize() {
 		String result = "";
 
 		Mirror mirror = this.reflect();

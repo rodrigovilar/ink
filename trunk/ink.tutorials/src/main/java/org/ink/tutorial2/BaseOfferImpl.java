@@ -109,7 +109,7 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 			throw new RuntimeException("Bad registration form.");
 		}
 		else {
-			result = registrationForm.prepareReceipt();
+			result = registrationForm.serialize();
 		}
 		
 		return result;

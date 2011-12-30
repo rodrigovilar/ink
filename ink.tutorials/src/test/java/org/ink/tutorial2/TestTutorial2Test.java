@@ -79,6 +79,63 @@ public class TestTutorial2Test {
 		String registrationReceipt = bestOffer.register(registrationForm);
 		Assert.assertEquals(registrationReceipt, "firstName='Lior',lastName='Schachter',email='lior@ink.org'");
 
+		// Verify that registration without a form fails.
+		boolean registrationFailed = false;
+		try {
+			registrationReceipt = bestOffer.register(null);
+		}
+		catch (Exception e) {
+			registrationFailed = true;
+		}
+		Assert.assertEquals(true, registrationFailed);
+		
+		// Try the 5 years subscription, this falls on the offer that requires
+		// Students_3_years_registration_form
+		registrationFailed = false;
+		subscription = new Subscription(magazine1, customer1, 5, startDate);		
+		bestOffer = subscription.getBestOffer();
+		try {
+			registrationReceipt = bestOffer.register(registrationForm);
+		}
+		catch (Exception e) {
+			registrationFailed = true;
+		}
+		Assert.assertEquals(true, registrationFailed);
+		
+		// Try again with the right registration form.
+		// Create a registration form object.
+		registrationForm = (BaseRegistrationForm)context.newInstance("ink.tutorial2:Students_3_years_registration_form").getBehavior();
+
+		// Edit the object using Mirror.
+		mirror = registrationForm.reflect();
+		editor = mirror.edit();
+		editor.setPropertyValue("firstName", "Lior");
+		editor.setPropertyValue("lastName", "Schachter");
+		editor.setPropertyValue("email", "lior@ink.org");
+		editor.setPropertyValue("optIn", false);
+		editor.save();
+		registrationFailed = false;
+		try {
+			registrationReceipt = bestOffer.register(registrationForm);
+		}
+		catch (Exception e) {
+			registrationFailed = true;
+		}
+		Assert.assertEquals(false, registrationFailed);
+		Assert.assertEquals(registrationReceipt, "firstName='Lior',lastName='Schachter',email='lior@ink.org',optIn='false'");
+
+		// Do it again with a pre-prepared registration form.
+		registrationForm = context.getObject("ink.tutorial2:Student2_registration_form");
+		registrationFailed = false;
+		try {
+			registrationReceipt = bestOffer.register(registrationForm);
+		}
+		catch (Exception e) {
+			registrationFailed = true;
+		}
+		Assert.assertEquals(false, registrationFailed);
+		Assert.assertEquals(registrationReceipt, "firstName='Lior',lastName='Schachter',email='lior@ink.org',optIn='true'");
+		
 	}
 
 }

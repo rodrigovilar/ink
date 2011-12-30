@@ -109,14 +109,7 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 			throw new RuntimeException("Bad registration form.");
 		}
 		else {
-			result = "";
-			PropertyMirror[] propertiesMirrors = mirror.getPropertiesMirrors();
-			for (PropertyMirror propertyMirror : propertiesMirrors) {
-				String name = propertyMirror.getName();
-				Object value = mirror.getPropertyValue(propertyMirror.getIndex());
-				result = result + name + "='"+value+"',";
-			}
-			result = result.substring(0,result.length()-1);
+			result = registrationForm.prepareReceipt();
 		}
 		
 		return result;

@@ -1,0 +1,41 @@
+package org.ink.tutorial2;
+
+
+public class PercentageDiscountOfferImpl<S extends PercentageDiscountOfferState>
+		extends BaseOfferImpl<S> {
+
+	@Override
+	public double getPromotionalPrice(A_Subscription subscription) {
+		double result = 0.0;
+
+		if (isEligible(subscription)) {
+
+			result = subscription.getPriceForSubscriptionPeriod()
+					* (100.0 - getState().getPercentage()) / 100.0;
+
+		} else {
+			result = subscription.getPriceForSubscriptionPeriod();
+		}
+
+		return result;
+	}
+
+	@Override
+	public String getPromotionalMessage(A_Subscription subscription) {
+		String result = null;
+
+		if (isEligible(subscription)) {
+			result = "Save $" + subscription.getPriceForSubscriptionPeriod()
+					* (getState().getPercentage() / 100.0);
+			if (getFreeIssues(subscription) > 0) {
+				result = result + " and get " + getFreeIssues(subscription)
+						+ " issues for free.";
+			} else {
+				result = result + ".";
+			}
+		}
+
+		return result;
+	}
+
+}

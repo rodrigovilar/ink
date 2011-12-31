@@ -2,7 +2,7 @@ Object id="Student_Offers_Template_For_2010" class="ink.tutorial2:BaseOffer" abs
  studentOnlyOffer true
  renewalOnlyOffer false
  validUntil 2013/11/01 
- registrationForm ref="Students_registration_form"
+ registrationForm ref="BaseRegistrationForm"
 } 
 
 
@@ -25,7 +25,7 @@ Object id="ExampleOffer" class="PercentageDiscountOffer" {
 	freeIssues 0
 }
 
-Class id="Students_registration_form" class="MetaRegistrationForm" super="BaseRegistrationForm" {
+Class id="basic_registration_form" class="MetaRegistrationForm" super="BaseRegistrationForm" {
 	java_path ""
 	java_mapping "No_Java"
 	properties{
@@ -44,7 +44,7 @@ Class id="Students_registration_form" class="MetaRegistrationForm" super="BaseRe
 	}
 }
 
-Class id="Students_3_years_registration_form" class="MetaRegistrationForm" super="Students_registration_form" {
+Class id="high_value_registration_form" class="MetaRegistrationForm" super="basic_registration_form" {
 	java_path ""
 	java_mapping "No_Java"
 	properties{
@@ -60,16 +60,16 @@ Object id="students_60_percent_discount_for_3_years" super="Student_Offers_Templ
  percentage 60.0
  conditionForPeriodsSigned 3
  freeIssues 3
- registrationForm ref="Students_3_years_registration_form"
+ registrationForm ref="high_value_registration_form"
 }
 
-Object id="Student1_registration_form" class="Students_registration_form" {
+Object id="Student1_registration_form" class="basic_registration_form" {
 	firstName "Lior"
 	lastName "Schachter"
 	email "lior@ink.org"
 }
 
-Object id="Student2_registration_form" class="Students_3_years_registration_form" super="Student1_registration_form" {
+Object id="Student2_registration_form" class="high_value_registration_form" super="Student1_registration_form" {
 	optIn true
 }
 

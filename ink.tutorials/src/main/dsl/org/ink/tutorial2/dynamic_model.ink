@@ -28,6 +28,7 @@ Object id="ExampleOffer" class="PercentageDiscountOffer" {
 Class id="basic_registration_form" class="MetaRegistrationForm" super="BaseRegistrationForm" {
 	java_path ""
 	java_mapping "No_Java"
+	author "Atzmon"
 	properties{
 		property class="ink.core:StringAttribute"{
 			name "firstName"

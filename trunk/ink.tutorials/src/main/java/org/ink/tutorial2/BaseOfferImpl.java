@@ -85,9 +85,9 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 		ClassMirror classMirror = null;
 		
 		// TODO: The following line should work
-		//InkClass requiredClass = getState().getRegistrationForm();
+		//InkClass requiredClass = getState().getRegistrationFormType();
 		
-		Object rc = reflect().getPropertyValue("registrationForm");
+		Object rc = reflect().getPropertyValue("registrationFormType");
 		InkClass requiredClass = (InkClass)rc;
 		
 		if (requiredClass != null) {

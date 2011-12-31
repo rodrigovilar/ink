@@ -2,7 +2,7 @@ Object id="Student_Offers_Template_For_2010" class="ink.tutorial2:BaseOffer" abs
  studentOnlyOffer true
  renewalOnlyOffer false
  validUntil 2013/11/01 
- registrationForm ref="BaseRegistrationForm"
+ registrationFormType ref="basic_registration_form"
 } 
 
 
@@ -60,7 +60,7 @@ Object id="students_60_percent_discount_for_3_years" super="Student_Offers_Templ
  percentage 60.0
  conditionForPeriodsSigned 3
  freeIssues 3
- registrationForm ref="high_value_registration_form"
+ registrationFormType ref="high_value_registration_form"
 }
 
 Object id="Student1_registration_form" class="basic_registration_form" {

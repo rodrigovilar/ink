@@ -24,7 +24,7 @@ Class id="BaseOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstra
 			mandatory true
 		}
 		property class="ink.core:Reference"{
-			name "registrationForm"
+			name "registrationFormType"
 			type ref="MetaRegistrationForm"
 			mandatory false
 		}

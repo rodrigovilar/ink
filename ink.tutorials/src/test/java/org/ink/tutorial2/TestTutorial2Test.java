@@ -65,7 +65,7 @@ public class TestTutorial2Test {
 		Subscription subscription = new Subscription(magazine1, customer1, 1, startDate);
 
 		// Create a registration form object.
-		BaseRegistrationForm registrationForm = (BaseRegistrationForm)context.newInstance("ink.tutorial2:Students_registration_form").getBehavior();
+		BaseRegistrationForm registrationForm = (BaseRegistrationForm)context.newInstance("ink.tutorial2:basic_registration_form").getBehavior();
 
 		// Edit the object using Mirror.
 		Mirror mirror = registrationForm.reflect();
@@ -104,7 +104,7 @@ public class TestTutorial2Test {
 		
 		// Try again with the right registration form.
 		// Create a registration form object.
-		registrationForm = (BaseRegistrationForm)context.newInstance("ink.tutorial2:Students_3_years_registration_form").getBehavior();
+		registrationForm = (BaseRegistrationForm)context.newInstance("ink.tutorial2:high_value_registration_form").getBehavior();
 
 		// Edit the object using Mirror.
 		mirror = registrationForm.reflect();

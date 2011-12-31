@@ -34,9 +34,15 @@ Class id="BaseOffer" class="ink.core:InkClass" super="ink.core:InkObject" abstra
 Class id="MetaRegistrationForm" class="ink.core:InkClass" super="ink.core:InkClass" abstract=true {
 	java_path ""
 	java_mapping "No_Java"
+	properties{
+		property class="ink.core:StringAttribute"{
+			name "author"
+			mandatory true
+		}
+	}
 }
 
-Class id="BaseRegistrationForm" class="MetaRegistrationForm" super="ink.core:InkObject"  {
+Class id="BaseRegistrationForm" class="MetaRegistrationForm" super="ink.core:InkObject" abstract = true {
 	java_path ""
 	java_mapping "State_Behavior_Interface"
 }

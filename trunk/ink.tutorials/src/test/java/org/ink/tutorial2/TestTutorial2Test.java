@@ -74,7 +74,6 @@ public class TestTutorial2Test {
 		editor.setPropertyValue("lastName", "Schachter");
 		editor.setPropertyValue("email", "lior@ink.org");
 		editor.save();
-
 		A_SpecialOffer bestOffer = subscription.getBestOffer();
 		String registrationReceipt = bestOffer.register(registrationForm);
 		Assert.assertEquals(registrationReceipt, "firstName='Lior',lastName='Schachter',email='lior@ink.org'");

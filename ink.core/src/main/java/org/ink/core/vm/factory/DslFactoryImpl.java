@@ -49,15 +49,14 @@ import org.ink.core.vm.types.ObjectTypeMarker;
 import org.ink.core.vm.types.PrimitiveTypeMarker;
 import org.ink.core.vm.utils.InkNotations;
 
-
 /**
  * @author Lior Schachter
  */
-public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> implements DslFactory{
+public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> implements DslFactory {
 
 	private static final String FACTORY_CONF_FILE = "factory_conf_file";
-	public long numberOfStateInstance=0;
-	public long numberOfBehaviorInstance=0;
+	public long numberOfStateInstance = 0;
+	public long numberOfBehaviorInstance = 0;
 	public List<Trait> detachableTraits = new ArrayList<Trait>();
 	private final ProxyFactory proxyFactory = new ProxyFactory();
 	protected transient ClassLoader classLoader;
@@ -82,21 +81,22 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t){
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t) {
 		return proxyFactory.newBehaviorProxy(this, behaviorInstance, state, types, t);
 	}
+
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		return proxyFactory.newBehaviorProxy(this, behaviorInstance, state, types, t, owner, definingProperty, definingPropertyIndex);
 	}
 
 	@Override
-	public Mirror newMirrorProxy(Mirror behaviorInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
+	public Mirror newMirrorProxy(Mirror behaviorInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		return proxyFactory.newMirrorProxy(behaviorInstance, types, owner, definingProperty, definingPropertyIndex);
 	}
 
 	@Override
-	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
+	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		return proxyFactory.newStructProxy(this, stateInstance, type, owner, definingProperty, definingPropertyIndex);
 	}
 
@@ -111,10 +111,10 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		this.scope = new HashSet<String>();
 		scope.add(getNamespace());
 		List<? extends DslFactory> importsList = getState().getImports();
-		if(importsList!=null && !importsList.isEmpty()){
-			for(DslFactory f : importsList){
-				if(f.isProxied()){
-					f = (DslFactory) ((Proxiability)f).getVanillaBehavior();
+		if (importsList != null && !importsList.isEmpty()) {
+			for (DslFactory f : importsList) {
+				if (f.isProxied()) {
+					f = (DslFactory) ((Proxiability) f).getVanillaBehavior();
 				}
 				boundedFactories.put(f.getNamespace(), f);
 				DslFactoryEventDispatcher dispatcher = f.asTrait(DslFactoryState.t_event_dispatcher);
@@ -127,28 +127,28 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public void scan() {
-		if(!reflect().isAbstract() && !reflect().isCoreObject()){
+		if (!reflect().isAbstract() && !reflect().isCoreObject()) {
 			loader.scan(this);
 			Iterator<InkObjectState> objectIterator = repository.iterator();
-			while(objectIterator.hasNext()){
+			while (objectIterator.hasNext()) {
 				InkObjectState o = objectIterator.next();
-				if(o.reflect().isClass()){
+				if (o.reflect().isClass()) {
 					applyDetachableTraits((InkClassState) o, false);
-					try{
+					try {
 						o.toString();
-					}catch(Exception e){
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}
-			if(VMConfig.instance().getResourceResolver().enableEagerFetch()){
+			if (VMConfig.instance().getResourceResolver().enableEagerFetch()) {
 				Iterator<String> iter = loader.iterator();
-				while(iter.hasNext()){
-					try{
+				while (iter.hasNext()) {
+					try {
 						getState(iter.next(), false);
-					}catch(Exception e){
+					} catch (Exception e) {
 						e.printStackTrace();
-						throw new CoreException("Internal Error.",e);
+						throw new CoreException("Internal Error.", e);
 					}
 				}
 
@@ -156,15 +156,13 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		}
 	}
 
-
 	@Override
-	public List<InkErrorDetails> collectErrors(){
+	public List<InkErrorDetails> collectErrors() {
 		return loader.collectErrors();
 	}
 
-
 	@Override
-	public List<Trait> getDetachableTraits(){
+	public List<Trait> getDetachableTraits() {
 		return new ArrayList<Trait>(detachableTraits);
 	}
 
@@ -173,127 +171,126 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		return getState().getNamespace();
 	}
 
-	private String extractNamespace(String id, boolean reportError){
-		try{
+	private String extractNamespace(String id, boolean reportError) {
+		try {
 			return id.substring(0, id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C));
-		}catch(StringIndexOutOfBoundsException e){
-			if(reportError){
-				throw new CoreException("Illegal Ink object id '"+id +"'. Could not extract namespace.");
+		} catch (StringIndexOutOfBoundsException e) {
+			if (reportError) {
+				throw new CoreException("Illegal Ink object id '" + id + "'. Could not extract namespace.");
 			}
 		}
 		return null;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists){
+	public <T extends InkObjectState> T getState(String id, boolean reportErrorIfNotExists) {
 		InkObjectState result = repository.getObject(id);
-		if(result==null){
+		if (result == null) {
 			String ns = extractNamespace(id, reportErrorIfNotExists);
-			if(ns!=null){
-				if(getNamespace().equals(ns)){
+			if (ns != null) {
+				if (getNamespace().equals(ns)) {
 					try {
 						result = loader.getObject(id, getAppContext());
-						if(result!=null){
+						if (result != null) {
 							repository.setObject(id, result);
-							if(result!=null && result.reflect().isClass()){
+							if (result != null && result.reflect().isClass()) {
 								applyDetachableTraits((InkClassState) result, false);
 							}
 							ModelInfoFactory.getWriteableInstance().register(result.reflect());
-						}else if(reportErrorIfNotExists){
-							throw new CoreException("The object with id '" +id+"', could not be found.");
+						} else if (reportErrorIfNotExists) {
+							throw new CoreException("The object with id '" + id + "', could not be found.");
 						}
 					} catch (ObjectLoadingException e) {
-						if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
+						if (!VMConfig.instance().getResourceResolver().enableEagerFetch()) {
 							throw new RuntimeException(e);
 						}
 						result = e.getObject();
-						if(result!=null){
+						if (result != null) {
 							repository.setObject(id, result);
-							try{
+							try {
 								ModelInfoFactory.getWriteableInstance().register(result.reflect());
-							}catch(Throwable e1){
-								if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
+							} catch (Throwable e1) {
+								if (!VMConfig.instance().getResourceResolver().enableEagerFetch()) {
 									throw new RuntimeException(e);
 								}
 								e.printStackTrace();
 							}
 						}
 					}
-				}else if(scope.contains(ns)){
+				} else if (scope.contains(ns)) {
 					DslFactory factory = boundedFactories.get(ns);
-					if(factory!=null){
+					if (factory != null) {
 						result = factory.getState(id, reportErrorIfNotExists);
-					}else{
-						for(DslFactory p : boundedFactories.values()){
-							if(p.isNamespacesInScope(ns)){
+					} else {
+						for (DslFactory p : boundedFactories.values()) {
+							if (p.isNamespacesInScope(ns)) {
 								result = p.getState(id, false);
-								if(result!=null){
-									//TODO should add code to merge multiple detachable traits and to cache result if necessary
+								if (result != null) {
+									// TODO should add code to merge multiple detachable traits and to cache result if necessary
 								}
 								break;
 							}
 						}
 					}
-					if(result!=null){
-						if(result.reflect().isClass()){
+					if (result != null) {
+						if (result.reflect().isClass()) {
 							InkObjectState temp = applyDetachableTraits((InkClassState) result, true);
-							if(temp!=null){
+							if (temp != null) {
 								result = temp;
 							}
 						}
 						repository.setObject(id, result);
-					}else if(reportErrorIfNotExists){
-						throw new CoreException("The object with id '" +id+"', could not be found");
+					} else if (reportErrorIfNotExists) {
+						throw new CoreException("The object with id '" + id + "', could not be found");
 					}
-				}else if(reportErrorIfNotExists){
-					throw new CoreException("The object with id '" +id+"', could not be found. The namespace '"+ ns +"' is unknown in this scope ( " + getNamespace()+").");
+				} else if (reportErrorIfNotExists) {
+					throw new CoreException("The object with id '" + id + "', could not be found. The namespace '" + ns + "' is unknown in this scope ( " + getNamespace() + ").");
 				}
 			}
 		}
-		return (T)result;
+		return (T) result;
 	}
-
 
 	private InkClassState applyDetachableTraits(InkClassState cls, boolean cloneBeforeChange) {
 		InkClassState result = null;
-		if(cls.reflect().isValid()){
+		if (cls.reflect().isValid()) {
 			ClassMirror clsMrr = cls.reflect();
 			TraitClass traitCls;
-			for(Trait t : detachableTraits){
+			for (Trait t : detachableTraits) {
 				traitCls = t.getMeta();
-				if(t.isAcceptable(clsMrr) && !clsMrr.hasRole(traitCls.getRole())){
+				if (t.isAcceptable(clsMrr) && !clsMrr.hasRole(traitCls.getRole())) {
 					try {
-						if(cloneBeforeChange && result==null){
+						if (cloneBeforeChange && result == null) {
 							result = cls.reflect().cloneTargetState(true);
 							result.reflect().edit().save();
 							clsMrr = result.reflect();
 						}
-						((ClassEditor)clsMrr.edit()).weaveDetachableTrait(t);
+						((ClassEditor) clsMrr.edit()).weaveDetachableTrait(t);
 					} catch (WeaveException e) {
-						throw new CoreException("Could not dynamically weave trait '" + t.reflect().getId() +"' to class '" +clsMrr.getId()+"'.", e);
+						throw new CoreException("Could not dynamically weave trait '" + t.reflect().getId() + "' to class '" + clsMrr.getId() + "'.", e);
 					}
 				}
 			}
 		}
 		return result;
 	}
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkObjectState> T getState(String id){
-		return (T)getState(id, true);
+	public <T extends InkObjectState> T getState(String id) {
+		return (T) getState(id, true);
 	}
 
 	@Override
-	public <T extends InkObject> T getObject(String id){
+	public <T extends InkObject> T getObject(String id) {
 		return getState(id, true).getBehavior();
 	}
 
 	@Override
-	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists){
+	public <T extends InkObject> T getObject(String id, boolean reportErrorIfNotExists) {
 		InkObjectState result = getState(id, reportErrorIfNotExists);
-		if(result==null){
+		if (result == null) {
 			return null;
 		}
 		return result.getBehavior();
@@ -314,35 +311,31 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public synchronized void registerTrait(TraitState state) {
-		if(((TraitClass)state.getMeta()).getKind().isDetachable()){
-			detachableTraits.add((Trait)state.getBehavior());
+		if (((TraitClass) state.getMeta()).getKind().isDetachable()) {
+			detachableTraits.add((Trait) state.getBehavior());
 			register(state);
 		}
 	}
-
-
-
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends InkObjectState> T newInstance(String classId) {
 		InkClass cls = getObject(classId);
-		if(cls!=null){
+		if (cls != null) {
 			return (T) cls.newInstance(getContext());
-		}else{
-			throw new CoreException("Could not find Ink class with ID :" +classId);
+		} else {
+			throw new CoreException("Could not find Ink class with ID :" + classId);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends InkObjectState> T newInstance(String classId,
-			boolean initObjectId, boolean initDefaults) {
+	public <T extends InkObjectState> T newInstance(String classId, boolean initObjectId, boolean initDefaults) {
 		InkClass cls = getObject(classId);
-		if(cls!=null){
+		if (cls != null) {
 			return (T) cls.newInstance(this.getContext(), initObjectId, initDefaults);
-		}else{
-			throw new CoreException("Could not find Ink class with ID :" +classId);
+		} else {
+			throw new CoreException("Could not find Ink class with ID :" + classId);
 		}
 	}
 
@@ -359,7 +352,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		String className = getInstantiationStrategy().getStructDataClassName(cls);
 		return (Class<InkObjectState>) getClass(className, true);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -408,10 +400,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				try {
 					result = classLoader.loadClass(className);
 					classRepository.put(className, result);
-				}
-				catch (ClassNotFoundException e) {
+				} catch (ClassNotFoundException e) {
 					if (reportErrorIfNotFound) {
-						throw new CoreException("Could not load class :" +className, e);
+						throw new CoreException("Could not load class :" + className, e);
 					}
 				}
 			}
@@ -441,15 +432,14 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	@Override
-	public Class<?> resolveCollectionClass(CollectionTypeMarker marker){
-		if(marker==CollectionTypeMarker.List){
+	public Class<?> resolveCollectionClass(CollectionTypeMarker marker) {
+		if (marker == CollectionTypeMarker.List) {
 			return List.class;
-		}else if(marker==CollectionTypeMarker.Map){
+		} else if (marker == CollectionTypeMarker.Map) {
 			return Map.class;
 		}
 		return null;
 	}
-
 
 	@Override
 	public Class<?> resolveEnumClass(EnumTypeState enumState) {
@@ -460,7 +450,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public Class<?> resolvePrimitiveClass(PrimitiveTypeMarker marker) {
 		Class<?> typeClass = null;
-		switch(marker){
+		switch (marker) {
 		case Boolean:
 			typeClass = Boolean.class;
 			break;
@@ -489,12 +479,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			typeClass = String.class;
 			break;
 		default:
-			//do nothing - maybe taken care of by descendent
+			// do nothing - maybe taken care of by descendent
 		}
 		return typeClass;
 	}
 
-	public void boot(){
+	public void boot() {
 		CoreLoaderImpl<CoreLoaderState> coreLoader = new CoreLoaderImpl<CoreLoaderState>();
 		this.classLoader = Thread.currentThread().getContextClassLoader();
 		this.boundedFactories = new HashMap<String, DslFactory>();
@@ -503,7 +493,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		scope = Collections.unmodifiableSet(scope);
 		this.loader = coreLoader;
 		Collection<CoreObjectDescriptor> elements = coreLoader.start(this);
-		for(CoreObjectDescriptor elem : elements){
+		for (CoreObjectDescriptor elem : elements) {
 			repository.setObject(elem.getId(), elem.getObject());
 		}
 	}
@@ -515,13 +505,13 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	private void loadModelReopsitory() {
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
-		for(InkObjectState elem : repository){
-			try{
-				if(elem.reflect().getNamespace().equals(getNamespace())){
+		for (InkObjectState elem : repository) {
+			try {
+				if (elem.reflect().getNamespace().equals(getNamespace())) {
 					repo.register(elem.reflect());
 				}
-			}catch(Throwable e){
-				if(!VMConfig.instance().getResourceResolver().enableEagerFetch()){
+			} catch (Throwable e) {
+				if (!VMConfig.instance().getResourceResolver().enableEagerFetch()) {
 					throw new RuntimeException(e);
 				}
 				e.printStackTrace();
@@ -545,63 +535,62 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	@Override
-	public void printElements(String toFile) throws IOException{
+	public void printElements(String toFile) throws IOException {
 		File f = new File(toFile);
-		if(!f.exists()){
+		if (!f.exists()) {
 			f.getParentFile().mkdirs();
 			f.createNewFile();
 		}
 		FileWriter writer = new FileWriter(f);
-		try{
+		try {
 			InkObjectState o;
 			Mirror m;
 			Iterator<InkObjectState> iter = repository.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				o = iter.next();
 				m = o.reflect();
-				if(m.getObjectTypeMarker()==ObjectTypeMarker.Metaclass){
+				if (m.getObjectTypeMarker() == ObjectTypeMarker.Metaclass) {
 					writer.append(o.toString());
 					writer.append(StringUtils.LINE_SEPARATOR).append(StringUtils.LINE_SEPARATOR);
 				}
 			}
 			iter = repository.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				o = iter.next();
 				m = o.reflect();
-				if(m.getObjectTypeMarker()==ObjectTypeMarker.Class){
+				if (m.getObjectTypeMarker() == ObjectTypeMarker.Class) {
 					writer.append(o.toString());
 					writer.append(StringUtils.LINE_SEPARATOR).append(StringUtils.LINE_SEPARATOR);
 				}
 			}
 			iter = repository.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				o = iter.next();
 				m = o.reflect();
-				if(m.getObjectTypeMarker()==ObjectTypeMarker.Object){
+				if (m.getObjectTypeMarker() == ObjectTypeMarker.Object) {
 					writer.append(o.toString());
 					writer.append(StringUtils.LINE_SEPARATOR).append(StringUtils.LINE_SEPARATOR);
 				}
 			}
 			iter = repository.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				o = iter.next();
 				m = o.reflect();
-				if(m.getObjectTypeMarker()==ObjectTypeMarker.Enumeration){
+				if (m.getObjectTypeMarker() == ObjectTypeMarker.Enumeration) {
 					writer.append(o.toString());
 					writer.append(StringUtils.LINE_SEPARATOR).append(StringUtils.LINE_SEPARATOR);
 				}
 			}
-		}finally{
-			if(writer!=null){
-				try{
+		} finally {
+			if (writer != null) {
+				try {
 					writer.flush();
-				}finally{
+				} finally {
 					writer.close();
 				}
 			}
 		}
 	}
-
 
 	@Override
 	public String getJavaPackage() {
@@ -614,23 +603,24 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	@Override
-	public void validateAllElements(ValidationContext vc){
+	public void validateAllElements(ValidationContext vc) {
 		Iterator<InkObjectState> iter = repository.iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			iter.next().getBehavior().validate(vc, SystemState.Run_Time);
 		}
 	}
 
 	@Override
 	public int compareTo(DslFactory o) {
-		if(o.getScope().contains(getNamespace())){
+		if (o.getScope().contains(getNamespace())) {
 			return 1;
 		}
-		if(getScope().contains(o.getNamespace())){
+		if (getScope().contains(o.getNamespace())) {
 			return -1;
 		}
 		return 0;
 	}
+
 	@Override
 	public File getConfigurationFile() {
 		return (File) reflect().get(FACTORY_CONF_FILE);
@@ -642,18 +632,18 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	@Override
-	public ElementDescriptor<?> getDescriptor(String id){
+	public ElementDescriptor<?> getDescriptor(String id) {
 		return loader.getDescriptor(id);
 	}
 
 	@Override
-	public List<String> getElements(String filepath){
+	public List<String> getElements(String filepath) {
 		return loader.getElements(filepath);
 	}
 
 	@Override
 	public void handleEvent(DslFactoryEvent event) {
-		switch(event.getKind()){
+		switch (event.getKind()) {
 		case reload:
 			repository.clear();
 			DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
@@ -661,6 +651,5 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 			break;
 		}
 	}
-
 
 }

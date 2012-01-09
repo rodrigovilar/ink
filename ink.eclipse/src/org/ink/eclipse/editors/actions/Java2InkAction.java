@@ -15,19 +15,18 @@ import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.cache.Java2InkMappings;
 import org.ink.eclipse.utils.EclipseUtils;
 
-public class Java2InkAction extends ActionDelegate implements IEditorActionDelegate{
+public class Java2InkAction extends ActionDelegate implements IEditorActionDelegate {
 
 	@Override
 	public void run(IAction action) {
-		ITextEditor te = (ITextEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-		.getActivePage().getActiveEditor();
+		ITextEditor te = (ITextEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IEditorInput ei = te.getEditorInput();
-		IFile f = ((IFileEditorInput)ei).getFile();
+		IFile f = ((IFileEditorInput) ei).getFile();
 		IPath p = EclipseUtils.getJavaCompiledClass(f.getProject(), f);
 		String id = Java2InkMappings.get(p.toOSString());
-		if(id!=null){
+		if (id != null) {
 			InkObject o = InkPlugin.getDefault().getInkContext().getObject(id);
-			if(o!=null){
+			if (o != null) {
 				EclipseUtils.openEditor(o);
 			}
 		}

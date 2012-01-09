@@ -5,7 +5,6 @@ import org.ink.core.vm.lang.InkObjectImpl;
 /**
  * @author Lior Schachter
  */
-public abstract class OperationInterceptorImpl<S extends OperationInterceptorState> extends InkObjectImpl<S> implements OperationInterceptor{
-
+public abstract class OperationInterceptorImpl<S extends OperationInterceptorState> extends InkObjectImpl<S> implements OperationInterceptor {
 
 }

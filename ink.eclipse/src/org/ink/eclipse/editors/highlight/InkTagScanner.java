@@ -1,6 +1,5 @@
 package org.ink.eclipse.editors.highlight;
 
-
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -12,14 +11,10 @@ import org.ink.eclipse.editors.utils.ColorManager;
 import org.ink.eclipse.editors.utils.InkColorConstants;
 import org.ink.eclipse.editors.utils.WhitespaceDetector;
 
-
-
 public class InkTagScanner extends RuleBasedScanner {
 
 	public InkTagScanner(ColorManager manager) {
-		IToken string =
-			new Token(
-				new TextAttribute(manager.getColor(InkColorConstants.STRING)));
+		IToken string = new Token(new TextAttribute(manager.getColor(InkColorConstants.STRING)));
 
 		IRule[] rules = new IRule[3];
 

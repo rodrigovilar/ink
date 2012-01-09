@@ -13,32 +13,32 @@ import org.ink.core.vm.lang.operation.interceptors.OperationInterceptor;
 /**
  * @author Lior Schachter
  */
-public class OperationImpl<S extends OperationState> extends InkObjectImpl<S> implements Operation{
+public class OperationImpl<S extends OperationState> extends InkObjectImpl<S> implements Operation {
 
 	@Override
 	public Object execute(InkObject target, Method method, Object[] args) throws Throwable {
 		List<? extends OperationInterceptor> interceptors = getState().getInterceptors();
-		if(interceptors!=null){
-			Map<?,?> context = new HashMap<Object, Object>();
-			for(OperationInterceptor mi : interceptors){
+		if (interceptors != null) {
+			Map<?, ?> context = new HashMap<Object, Object>();
+			for (OperationInterceptor mi : interceptors) {
 				mi.beforeExceution(method, args, target, context);
 			}
 			try {
 				Object result = method.invoke(target, args);
-				for(OperationInterceptor mi : interceptors){
+				for (OperationInterceptor mi : interceptors) {
 					mi.afterExceution(method, args, target, result, context);
 				}
 				return result;
-			}catch(InvocationTargetException e){
-				Throwable cause= e.getTargetException();
-				throw cause!=null?cause:e;
-			}catch (Exception e) {
-				for(OperationInterceptor mi : interceptors){
+			} catch (InvocationTargetException e) {
+				Throwable cause = e.getTargetException();
+				throw cause != null ? cause : e;
+			} catch (Exception e) {
+				for (OperationInterceptor mi : interceptors) {
 					mi.afterException(method, args, target, e, context);
 				}
 				throw e;
 			}
-		}else{
+		} else {
 			try {
 				return method.invoke(target, args);
 			} catch (Exception e) {
@@ -51,6 +51,5 @@ public class OperationImpl<S extends OperationState> extends InkObjectImpl<S> im
 	public String getName() {
 		return getState().getName();
 	}
-
 
 }

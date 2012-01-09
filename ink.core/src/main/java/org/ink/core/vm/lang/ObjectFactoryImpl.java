@@ -16,7 +16,7 @@ import org.ink.core.vm.utils.CoreUtils;
 /**
  * @author Lior Schachter
  */
-public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectImpl<S> implements ObjectFactory{
+public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectImpl<S> implements ObjectFactory {
 
 	private DslFactory factory;
 	private ClassMirror cMirror;
@@ -25,14 +25,14 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	private Byte[] finalValuesIndexes;
 	private Byte[] defaultValuesIndexes;
 
-	public ObjectFactoryImpl() {}
-
+	public ObjectFactoryImpl() {
+	}
 
 	@Override
-	public boolean isPropertyFinal(byte index){
-		if(finalValuesIndexes!=null) {
-			for(byte loc : finalValuesIndexes){
-				if(loc==index){
+	public boolean isPropertyFinal(byte index) {
+		if (finalValuesIndexes != null) {
+			for (byte loc : finalValuesIndexes) {
+				if (loc == index) {
 					return true;
 				}
 			}
@@ -47,7 +47,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	}
 
 	@Override
-	public void bind(ClassMirror cMirror){
+	public void bind(ClassMirror cMirror) {
 		this.cMirror = cMirror;
 		caluculateStates();
 	}
@@ -62,19 +62,19 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 		Property prop;
 		for (byte i = 0; i < mirrors.length; i++) {
 			prop = mirrors[i].getTargetBehavior();
-			if ((value=prop.getFinalValue()) != null) {
+			if ((value = prop.getFinalValue()) != null) {
 				finalLocations.add(i);
 				finalData.add(value);
-			}else if ((value=prop.getDefaultValue()) != null) {
+			} else if ((value = prop.getDefaultValue()) != null) {
 				defaultLocations.add(i);
 				defaultData.add(value);
 			}
 		}
-		if(!finalLocations.isEmpty()){
+		if (!finalLocations.isEmpty()) {
 			finalValuesIndexes = finalLocations.toArray(new Byte[] {});
 			finalState = finalData.toArray(new Object[] {});
 		}
-		if(!defaultLocations.isEmpty()){
+		if (!defaultLocations.isEmpty()) {
 			defaultValuesIndexes = defaultLocations.toArray(new Byte[] {});
 			defaultState = defaultData.toArray(new Object[] {});
 		}
@@ -82,23 +82,22 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 
 	@Override
 	public String getNamespace() {
-		return ((DslFactory)getMeta()).getNamespace();
+		return ((DslFactory) getMeta()).getNamespace();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <T extends InkObjectState> T  newInstance(DslFactory factory, InkClassState cls, boolean initObjectId, boolean initDefaults) {
-		MirrorAPI state = (MirrorAPI) factory.newVanillaStateInstance(((ClassMirror)cls.reflect()).getStateClass());
+	public final <T extends InkObjectState> T newInstance(DslFactory factory, InkClassState cls, boolean initObjectId, boolean initDefaults) {
+		MirrorAPI state = (MirrorAPI) factory.newVanillaStateInstance(((ClassMirror) cls.reflect()).getStateClass());
 		state.init(cls, factory);
 		initInstance(cls, state, initObjectId, initDefaults);
-		return (T)state;
+		return (T) state;
 	}
 
-	private void initInstance(InkClassState cls, MirrorAPI state, boolean initObjectId,
-			boolean initDefaults) {
+	private void initInstance(InkClassState cls, MirrorAPI state, boolean initObjectId, boolean initDefaults) {
 		Object value;
 		byte loc;
-		if(finalState!=null){
+		if (finalState != null) {
 			PropertyMirror[] propMirrors = cMirror.getClassPropertiesMirrors();
 			for (byte i = 0; i < finalValuesIndexes.length; i++) {
 				loc = finalValuesIndexes[i];
@@ -106,8 +105,8 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 				state.insertValue(loc, CoreUtils.cloneOneValue(propMirrors[loc], value, false));
 			}
 		}
-		if(initDefaults){
-			if(defaultState!=null){
+		if (initDefaults) {
+			if (defaultState != null) {
 				PropertyMirror[] propMirrors = cMirror.getClassPropertiesMirrors();
 				for (byte i = 0; i < defaultValuesIndexes.length; i++) {
 					loc = defaultValuesIndexes[i];
@@ -115,39 +114,38 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 					state.setPropertyValue(loc, CoreUtils.cloneOneValue(propMirrors[loc], value, false));
 				}
 			}
-			if(cls.getComponentType()==ComponentType.Root){
+			if (cls.getComponentType() == ComponentType.Root) {
 				state.setRoot(true);
 			}
 		}
-		((InkClass)cls.getBehavior()).initInstance(state, initObjectId, initDefaults);
-		if(initObjectId && state.getId()==null){
+		((InkClass) cls.getBehavior()).initInstance(state, initObjectId, initDefaults);
+		if (initObjectId && state.getId() == null) {
 			state.setId(generateId());
 		}
 	}
 
-	protected String generateId(){
+	protected String generateId() {
 		return CoreUtils.newUUID();
 	}
 
 	@Override
-	public InkObject newBehviorInstance(InkObjectState state, boolean cacheResult, boolean forceNew){
+	public InkObject newBehviorInstance(InkObjectState state, boolean cacheResult, boolean forceNew) {
 		return createBehaviorInstance(state, null, cacheResult, forceNew);
 	}
 
 	@Override
-	public InkObject newBehviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew){
+	public InkObject newBehviorInstance(TraitState state, InkObjectState targetState, boolean cacheResult, boolean forceNew) {
 		return createBehaviorInstance(state, targetState, cacheResult, forceNew);
 	}
 
-	private InkObject createBehaviorInstance(InkObjectState state, InkObjectState targetState,boolean cacheResult, boolean forceNew) {
+	private InkObject createBehaviorInstance(InkObjectState state, InkObjectState targetState, boolean cacheResult, boolean forceNew) {
 		InkObject result = null;
-		if(forceNew || (result = cMirror.getCachedBehavior(state)) == null){
+		if (forceNew || (result = cMirror.getCachedBehavior(state)) == null) {
 			boolean interceptable = cMirror.shouldCreateProxyOnBehaviorInstance();
-			if(!cacheResult){
+			if (!cacheResult) {
 				result = instantiateBehaviorInstance(state, targetState, interceptable, false);
 				return result;
-			}
-			else if (forceNew) {
+			} else if (forceNew) {
 				synchronized (state) {
 					result = instantiateBehaviorInstance(state, targetState, interceptable, cacheResult);
 				}
@@ -155,7 +153,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 			} else {
 				synchronized (state) {
 					if ((result = cMirror.getCachedBehavior(state)) == null) {
-						result = instantiateBehaviorInstance(state,targetState, interceptable, cacheResult);
+						result = instantiateBehaviorInstance(state, targetState, interceptable, cacheResult);
 					}
 				}
 				return result;
@@ -165,42 +163,42 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends InkObject> T instantiateBehaviorInstance(InkObjectState state, InkObjectState targetState,boolean interceptable, boolean cacheResults) {
+	private <T extends InkObject> T instantiateBehaviorInstance(InkObjectState state, InkObjectState targetState, boolean interceptable, boolean cacheResults) {
 		Class<? extends InkObject> bClass = cMirror.getBehaviorClass();
 		try {
 			T result = (T) factory.newVanillaBehaviorInstance(bClass);
 			InkObject vanillaBehavior = result;
 			if (interceptable) {
-				result = (T) newBehaviorProxy(result,state, cMirror.getBehaviorProxyInterfaces(), Proxiability.Kind.BEHAVIOR_INTERCEPTION);
+				result = (T) newBehaviorProxy(result, state, cMirror.getBehaviorProxyInterfaces(), Proxiability.Kind.BEHAVIOR_INTERCEPTION);
 			}
 			if (cacheResults) {
 				cMirror.cacheBeahvior(state, result);
 			}
-			((InkObjectImpl<?>)vanillaBehavior).setState(state, state.getContext());
+			((InkObjectImpl<?>) vanillaBehavior).setState(state, state.getContext());
 			vanillaBehavior.afterStateSet();
-			if(targetState!=null){
-				((TraitImpl<?>)vanillaBehavior).setTargetState(targetState);
-				((TraitImpl<?>)vanillaBehavior).afterTargetSet();
+			if (targetState != null) {
+				((TraitImpl<?>) vanillaBehavior).setTargetState(targetState);
+				((TraitImpl<?>) vanillaBehavior).afterTargetSet();
 			}
 			return result;
 		} catch (Exception e) {
-			throw new CoreException("Could not instantiate behavior class : " + bClass.getName(),e);
+			throw new CoreException("Could not instantiate behavior class : " + bClass.getName(), e);
 		}
 	}
 
 	@Override
-	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
-		return  factory.newStructProxy(stateInstance, type, owner, definingProperty, definingPropertyIndex);
+	public Struct newStructProxy(InkObjectState stateInstance, Class<?>[] type, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
+		return factory.newStructProxy(stateInstance, type, owner, definingProperty, definingPropertyIndex);
 	}
 
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t) {
-		return  factory.newBehaviorProxy(behaviorInstance, state, types, t);
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t) {
+		return factory.newBehaviorProxy(behaviorInstance, state, types, t);
 	}
 
 	@Override
-	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
-		return  factory.newBehaviorProxy(behaviorInstance, state, types, t, owner, definingProperty, definingPropertyIndex);
+	public InkObject newBehaviorProxy(InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
+		return factory.newBehaviorProxy(behaviorInstance, state, types, t, owner, definingProperty, definingPropertyIndex);
 	}
 
 }

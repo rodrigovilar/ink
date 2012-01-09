@@ -13,7 +13,7 @@ import org.ink.core.vm.mirror.MirrorImpl;
 /**
  * @author Lior Schachter
  */
-public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImpl<S> implements PropertyMirror{
+public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImpl<S> implements PropertyMirror {
 
 	private Class<?> typeClass;
 	private DataTypeMarker typeMarker;
@@ -22,13 +22,11 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	private boolean isFinal = false;
 	private boolean isMutable = !isFinal;
 	private String name;
-	private byte index=Property.UNBOUNDED_PROPERTY_INDEX;
-	private boolean isInherited=false;
+	private byte index = Property.UNBOUNDED_PROPERTY_INDEX;
+	private boolean isInherited = false;
 	private ClassMirror definingClass;
 
-	public void boot(byte index, String name, Class<?> typeClass,
-			DataTypeMarker typeMarker, boolean hasStaticValue,
-			boolean isComputed) {
+	public void boot(byte index, String name, Class<?> typeClass, DataTypeMarker typeMarker, boolean hasStaticValue, boolean isComputed) {
 		this.index = index;
 		this.name = name;
 		this.typeClass = typeClass;
@@ -41,20 +39,20 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	public void bind(ClassMirror holdingClass, byte index) {
 		this.index = index;
 		ClassMirror superClass = holdingClass.getSuper();
-		if(index!=Property.UNBOUNDED_PROPERTY_INDEX && superClass!=null && superClass.getProperty(name)!=null){
-			isInherited=true;
-		}else{
+		if (index != Property.UNBOUNDED_PROPERTY_INDEX && superClass != null && superClass.getProperty(name) != null) {
+			isInherited = true;
+		} else {
 			isInherited = false;
 		}
 		definingClass = holdingClass;
 		Mirror classSuper;
 		boolean found = false;
-		while(!found){
+		while (!found) {
 			classSuper = definingClass.getSuper();
-			if(classSuper == null || !((ClassMirror)classSuper).getClassPropertiesIndexes().containsKey(name)){
+			if (classSuper == null || !((ClassMirror) classSuper).getClassPropertiesIndexes().containsKey(name)) {
 				found = true;
-			}else{
-				definingClass = (ClassMirror)classSuper;
+			} else {
+				definingClass = (ClassMirror) classSuper;
 			}
 		}
 	}
@@ -64,28 +62,28 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 		super.afterStateSet();
 		Property prop = getTargetBehavior();
 		InkType t = prop.getType();
-		isFinal = prop.getFinalValue()!=null;
+		isFinal = prop.getFinalValue() != null;
 		isMutable = !isFinal;
 		name = prop.getName();
 		isComputed = false;
 		hasStaticValue = true;
-		//t==null when building up a peroprty e.g. while creating a property in the editor
-		if(t!=null){
+		// t==null when building up a peroprty e.g. while creating a property in the editor
+		if (t != null) {
 			typeClass = t.getTypeClass();
 			typeMarker = t.getTypeMarker();
 		}
 	}
 
-	protected void setIsComputed(boolean value){
+	protected void setIsComputed(boolean value) {
 		isComputed = value;
 	}
 
-	protected void setHasStaticValue(boolean value){
+	protected void setHasStaticValue(boolean value) {
 		hasStaticValue = value;
 	}
 
 	@Override
-	public final Class<?> getTypeClass(){
+	public final Class<?> getTypeClass() {
 		return typeClass;
 	}
 
@@ -95,32 +93,32 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	}
 
 	@Override
-	public boolean isComputed(){
+	public boolean isComputed() {
 		return isComputed;
 	}
 
 	@Override
-	public boolean hasStaticValue(){
+	public boolean hasStaticValue() {
 		return hasStaticValue;
 	}
 
 	@Override
-	public String getName(){
+	public String getName() {
 		return name;
 	}
 
 	@Override
-	public byte getIndex(){
+	public byte getIndex() {
 		return index;
 	}
 
 	@Override
-	public boolean isInherited(){
+	public boolean isInherited() {
 		return isInherited;
 	}
 
 	@Override
-	public Object produceValue(InkObjectState container, Object value){
+	public Object produceValue(InkObjectState container, Object value) {
 		return value;
 	}
 
@@ -141,7 +139,7 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 
 	@Override
 	public InheritanceConstraints getInheritanceConstraints() {
-		return ((PropertyState)getTargetState()).getInheritanceConstraints();
+		return ((PropertyState) getTargetState()).getInheritanceConstraints();
 	}
 
 	@Override
@@ -162,7 +160,7 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 
 	@Override
 	public InkType getPropertyType() {
-		return ((PropertyState)getTargetState()).getType();
+		return ((PropertyState) getTargetState()).getType();
 	}
 
 }

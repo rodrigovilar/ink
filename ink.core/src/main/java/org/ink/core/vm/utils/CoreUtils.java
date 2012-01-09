@@ -44,36 +44,39 @@ public class CoreUtils {
 	private static final char MAP_KEY_END = '>';
 	private static final char LIST_INDEX_END = ']';
 
-	public static String newUUID(){
+	public static String newUUID() {
 		return UUID.randomUUID().toString();
 	}
 
-	public static void toString(MirrorAPI object, ClassMirrorAPI classMirror, StringBuilder builder){
-		if(object.isRoot()){
+	public static void toString(MirrorAPI object, ClassMirrorAPI classMirror, StringBuilder builder) {
+		if (object.isRoot()) {
 			builder.append(object.getObjectTypeMarker()).append(" ");
 			builder.append(InkNotations.Path_Syntax.ID_ATTRIBUTE).append("=\"").append(object.getShortId()).append("\"").append(" ");
-			if(object.isAbstract()){
+			if (object.isAbstract()) {
 				builder.append(InkNotations.Path_Syntax.ABSTRACT_ATTRIBUTE).append("=").append("true").append(" ");
 			}
-		}else if(object.getDefiningProperty()!=null){
+		} else if (object.getDefiningProperty() != null) {
 			Property prop = object.getDefiningProperty().getTargetBehavior();
 			builder.append(prop.getDisplayName()).append(" ");
-		}else{
+		} else {
 			builder.append(object.getObjectTypeMarker()).append(" ");
 		}
 		builder.append(InkNotations.Path_Syntax.CLASS_ATTRIBUTE).append("=\"").append(classMirror.getId()).append("\"");
-		if(object.getSuper()!=null){
-			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=\"").append(object.getSuper().getId()).append("\"");;
-		}if(object.getScope()!=Scope.all){
-			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getScope()).append("\"");;
+		if (object.getSuper() != null) {
+			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=\"").append(object.getSuper().getId()).append("\"");
+			;
+		}
+		if (object.getScope() != Scope.all) {
+			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getScope()).append("\"");
+			;
 		}
 		builder.append("{");
 		Object o;
-		boolean firstValue=true;
-		for(PropertyMirror propMirror:object.getPropertiesMirrors()){
+		boolean firstValue = true;
+		for (PropertyMirror propMirror : object.getPropertiesMirrors()) {
 			o = object.getPropertyValue(propMirror.getIndex());
-			if(o!=null){
-				if(firstValue){
+			if (o != null) {
+				if (firstValue) {
 					firstValue = false;
 					builder.append(StringUtils.LINE_SEPARATOR);
 				}
@@ -83,42 +86,40 @@ public class CoreUtils {
 		builder.append("}");
 	}
 
-	private static void toString(PropertyMirror definingProperty, byte definingPropertyIndex, StringBuilder builder, Object value, boolean isItem){
+	private static void toString(PropertyMirror definingProperty, byte definingPropertyIndex, StringBuilder builder, Object value, boolean isItem) {
 		Property prop = definingProperty.getTargetBehavior();
-		switch(definingProperty.getTypeMarker()){
+		switch (definingProperty.getTypeMarker()) {
 		case Collection:
-			CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror)definingProperty).getCollectionTypeMarker();
-			switch (collectionMarker){
+			CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror) definingProperty).getCollectionTypeMarker();
+			switch (collectionMarker) {
 			case List:
 				builder.append(prop.getDisplayName()).append("{");
-				PropertyMirror itemMirror = ((ListPropertyMirror)definingProperty).getItemMirror();
-				serializeCollection(definingPropertyIndex, builder, (Collection<?>)value,
-						itemMirror);
+				PropertyMirror itemMirror = ((ListPropertyMirror) definingProperty).getItemMirror();
+				serializeCollection(definingPropertyIndex, builder, (Collection<?>) value, itemMirror);
 				builder.append("}").append(StringUtils.LINE_SEPARATOR);
 				break;
 			case Map:
 				builder.append(prop.getDisplayName()).append("{");
-				Dictionary dic = ((MapPropertyMirror)definingProperty).getSpecifictation();
-				PropertyMirror keyMirror = ((MapPropertyMirror)definingProperty).getKeyMirror();
-				PropertyMirror valueMirror = ((MapPropertyMirror)definingProperty).getValueMirror();
-				Map<?,?> mapValue = (Map<?, ?>)value;
-				if(dic instanceof ElementsDictionary){
-					serializeCollection(definingPropertyIndex, builder, mapValue.values(),
-							valueMirror);
-				}else{
+				Dictionary dic = ((MapPropertyMirror) definingProperty).getSpecifictation();
+				PropertyMirror keyMirror = ((MapPropertyMirror) definingProperty).getKeyMirror();
+				PropertyMirror valueMirror = ((MapPropertyMirror) definingProperty).getValueMirror();
+				Map<?, ?> mapValue = (Map<?, ?>) value;
+				if (dic instanceof ElementsDictionary) {
+					serializeCollection(definingPropertyIndex, builder, mapValue.values(), valueMirror);
+				} else {
 
-					if(!mapValue.isEmpty()){
+					if (!mapValue.isEmpty()) {
 						builder.append(StringUtils.LINE_SEPARATOR);
 					}
 					Iterator<?> iter = mapValue.entrySet().iterator();
 					Map.Entry<?, ?> en;
-					while(iter.hasNext()){
+					while (iter.hasNext()) {
 						en = (Entry<?, ?>) iter.next();
 						builder.append(CoreUtils.TAB).append("item{");
 						builder.append(StringUtils.LINE_SEPARATOR);
 						builder.append(CoreUtils.TAB).append("     ");
 						toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true);
-						builder.append(CoreUtils.TAB).append("     ");//.append(valueMirror.getName()).append("=");
+						builder.append(CoreUtils.TAB).append("     ");// .append(valueMirror.getName()).append("=");
 						toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true);
 						builder.append(StringUtils.LINE_SEPARATOR);
 						builder.append(CoreUtils.TAB).append("}");
@@ -132,88 +133,87 @@ public class CoreUtils {
 			}
 			break;
 		case Class:
-			Mirror m = ((Proxiable)value).reflect();
-			if(m.getOwner()==null){
+			Mirror m = ((Proxiable) value).reflect();
+			if (m.getOwner() == null) {
 				builder.append(value);
-				if(!isItem){
+				if (!isItem) {
 					builder.append(StringUtils.LINE_SEPARATOR);
 				}
-			}else{
-				if(((Proxiable)value).isProxied()){
+			} else {
+				if (((Proxiable) value).isProxied()) {
 					builder.append(prop.getDisplayName()).append(" ").append("ref=\"").append(m.getId()).append("\"");
-				}else{
+				} else {
 					String stringValue = value.toString();
 					builder.append(stringValue);
 				}
-				if(!isItem){
+				if (!isItem) {
 					builder.append(StringUtils.LINE_SEPARATOR);
 				}
 			}
 			break;
 		case Enum:
-			builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
+			builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
 			break;
 		case Primitive:
-			if(((PrimitiveAttributeMirror)definingProperty).getPrimitiveTypeMarker()==PrimitiveTypeMarker.String){
-				builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
-			}else{
+			if (((PrimitiveAttributeMirror) definingProperty).getPrimitiveTypeMarker() == PrimitiveTypeMarker.String) {
+				builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
+			} else {
 				builder.append(prop.getDisplayName()).append(" ").append(value).append(StringUtils.LINE_SEPARATOR);
 			}
 			break;
 		default:
-			if(isItem){
+			if (isItem) {
 				builder.append(value);
-			}else{
-				builder.append(prop.getDisplayName()).append(" ").append("\"" + value +"\"").append(StringUtils.LINE_SEPARATOR);
+			} else {
+				builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
 			}
 			break;
 		}
 	}
 
-	private static void serializeCollection(byte definingPropertyIndex,
-			StringBuilder builder, Collection<?> value, PropertyMirror itemMirror) {
-		boolean isClass = itemMirror.getTypeMarker()==DataTypeMarker.Class;
-		if(!value.isEmpty() && isClass){
+	private static void serializeCollection(byte definingPropertyIndex, StringBuilder builder, Collection<?> value, PropertyMirror itemMirror) {
+		boolean isClass = itemMirror.getTypeMarker() == DataTypeMarker.Class;
+		if (!value.isEmpty() && isClass) {
 			builder.append(StringUtils.LINE_SEPARATOR);
 		}
 		StringBuilder listBuilder = null;
-		if(isClass){
+		if (isClass) {
 			listBuilder = new StringBuilder(1000);
-		}else{
+		} else {
 			listBuilder = builder;
 		}
 		Collection<?> col = value;
-		for(Object o : col){
+		for (Object o : col) {
 			toString(itemMirror, definingPropertyIndex, listBuilder, o, true);
-			if(isClass){
+			if (isClass) {
 				listBuilder.append(StringUtils.LINE_SEPARATOR);
 			}
 		}
-		if(listBuilder.length()>0 && isClass){
+		if (listBuilder.length() > 0 && isClass) {
 			builder.append(CoreUtils.TAB);
 			char c;
-			for(int i=0;i<listBuilder.length();i++){
+			for (int i = 0; i < listBuilder.length(); i++) {
 				c = listBuilder.charAt(i);
 				builder.append(c);
-				if(c=='\n' && i<listBuilder.length()-1){
+				if (c == '\n' && i < listBuilder.length() - 1) {
 					builder.append(CoreUtils.TAB);
 				}
 			}
 		}
 	}
 
-	public static Class<?>[] getBehaviorProxyInterfaces(Class<?> behaviorClass){
+	public static Class<?>[] getBehaviorProxyInterfaces(Class<?> behaviorClass) {
 		Class<?>[] interfaces = behaviorClass.getInterfaces();
-		if(interfaces.length==0){
+		if (interfaces.length == 0) {
 			Class<?> s = behaviorClass.getSuperclass();
-			while(interfaces.length==0 && s!=null){
+			while (interfaces.length == 0 && s != null) {
 				interfaces = s.getInterfaces();
 				s = s.getSuperclass();
 			}
 		}
-		Class<?>[] behaviorProxyInterfaces = new Class<?>[interfaces.length+1];
+		Class<?>[] behaviorProxyInterfaces = new Class<?>[interfaces.length + 1];
 		System.arraycopy(interfaces, 0, behaviorProxyInterfaces, 0, interfaces.length);
-		behaviorProxyInterfaces[behaviorProxyInterfaces.length-1] = Proxiability.class;
+		behaviorProxyInterfaces[behaviorProxyInterfaces.length - 1] = Proxiability.class;
 		return behaviorProxyInterfaces;
 	}
 
@@ -223,27 +223,26 @@ public class CoreUtils {
 		DataTypeMarker typeMarker = mirror.getTypeMarker();
 		switch (typeMarker) {
 		case Class:
-			if(((Proxiable)value).isProxied()){
-				value = ((Proxiability)value).getVanillaState();
+			if (((Proxiable) value).isProxied()) {
+				value = ((Proxiability) value).getVanillaState();
 				if (((MirrorAPI) value).isRoot()) {
 					result = value;
 				} else {
 					result = ((MirrorAPI) value).cloneState(identicalTwin);
 				}
-			}
-			else if(((Proxiable)value).getObjectKind()==Kind.Behavior){
+			} else if (((Proxiable) value).getObjectKind() == Kind.Behavior) {
 				Mirror m = ((InkObject) value).reflect();
-				//can't be root since then it would have had proxy
+				// can't be root since then it would have had proxy
 				result = m.cloneTargetState(identicalTwin);
-			}else if (((MirrorAPI) value).isRoot()) {
+			} else if (((MirrorAPI) value).isRoot()) {
 				result = value;
 			} else {
 				result = ((MirrorAPI) value).cloneState(identicalTwin);
 			}
 			break;
 		case Collection:
-			CollectionTypeMarker cMarker = ((CollectionPropertyMirror)mirror).getCollectionTypeMarker();
-			switch(cMarker){
+			CollectionTypeMarker cMarker = ((CollectionPropertyMirror) mirror).getCollectionTypeMarker();
+			switch (cMarker) {
 			case List:
 				List<?> col = (List<?>) value;
 				result = new ArrayList(col.size());
@@ -254,10 +253,10 @@ public class CoreUtils {
 				break;
 			case Map:
 				Map<?, ?> map = (Map) value;
-				result = ((MapPropertyMirror)mirror).getNewInstance();
+				result = ((MapPropertyMirror) mirror).getNewInstance();
 				PropertyMirror innerKeyType = ((MapPropertyMirror) mirror).getKeyMirror();
 				innerType = ((MapPropertyMirror) mirror).getValueMirror();
-				for (Map.Entry<?,?> en : map.entrySet()) {
+				for (Map.Entry<?, ?> en : map.entrySet()) {
 					((Map) result).put(cloneOneValue(innerKeyType, en.getKey(), identicalTwin), cloneOneValue(innerType, en.getValue(), identicalTwin));
 				}
 				break;
@@ -283,62 +282,61 @@ public class CoreUtils {
 		return result;
 	}
 
-	public static String getShortId(String id){
-		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)+1, id.length());
+	public static String getShortId(String id) {
+		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
 	}
 
-
-	public static Object getValue(Mirror mirror, String path) throws InkException{
+	public static Object getValue(Mirror mirror, String path) throws InkException {
 		Object result = null;
-		try{
-			if(path==null || path.length()==0){
+		try {
+			if (path == null || path.length() == 0) {
 				result = mirror;
-			}else{
+			} else {
 				int firstSegmentLocation = getFirstSegment(path);
 				String lastSegments = null;
 				String firstSegment = null;
-				if(firstSegmentLocation>0){
-					firstSegment = path.substring(0, firstSegmentLocation-1);
-					lastSegments = path.substring(firstSegmentLocation+1, path.length()-1);
-				}else if(firstSegmentLocation<0){
+				if (firstSegmentLocation > 0) {
+					firstSegment = path.substring(0, firstSegmentLocation - 1);
+					lastSegments = path.substring(firstSegmentLocation + 1, path.length() - 1);
+				} else if (firstSegmentLocation < 0) {
 					firstSegment = path;
-				}else if(firstSegmentLocation==0){
+				} else if (firstSegmentLocation == 0) {
 					throw new InkException("sdg");
 				}
 				PropertyMirror propertyMirror = getPropertyMirror(mirror, firstSegment);
-				if(propertyMirror==null){
+				if (propertyMirror == null) {
 					throw new InkException("");
 				}
 				result = mirror.getPropertyValue(propertyMirror.getIndex());
-				if(lastSegments!=null && result!=null){
-					switch(propertyMirror.getTypeMarker()){
+				if (lastSegments != null && result != null) {
+					switch (propertyMirror.getTypeMarker()) {
 					case Collection:
-						CollectionPropertyMirror colMirror = (CollectionPropertyMirror)propertyMirror;
-						switch(colMirror.getCollectionTypeMarker()){
+						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
+						switch (colMirror.getCollectionTypeMarker()) {
 						case List:
 							String index = extractKey(lastSegments, LIST_INDEX_START, LIST_INDEX_END);
-							lastSegments = lastSegments.substring(lastSegments.indexOf(PATH_SEPERATOR)+1, lastSegments.length()-1);
-							try{
+							lastSegments = lastSegments.substring(lastSegments.indexOf(PATH_SEPERATOR) + 1, lastSegments.length() - 1);
+							try {
 								int ind = Integer.parseInt(index);
-								if(ind<0){
+								if (ind < 0) {
 									throw new InkException("sdfg");
 								}
 								List<?> l = (List<?>) result;
-								if(ind<l.size()){
+								if (ind < l.size()) {
 									result = l.get(ind);
-								}else{
+								} else {
 									result = null;
 								}
-								if(result!=null && lastSegments.length()>0){
-									PropertyMirror itemMirror = ((ListPropertyMirror)colMirror).getItemMirror();
-									if(itemMirror.getTypeMarker()!=DataTypeMarker.Class){
-										//not supporting collection inside collection
+								if (result != null && lastSegments.length() > 0) {
+									PropertyMirror itemMirror = ((ListPropertyMirror) colMirror).getItemMirror();
+									if (itemMirror.getTypeMarker() != DataTypeMarker.Class) {
+										// not supporting collection inside collection
 										throw new InkException("sdaf");
 									}
-									Mirror innerMirror = ((Proxiable)result).reflect();
+									Mirror innerMirror = ((Proxiable) result).reflect();
 									result = getValue(innerMirror, lastSegments);
 								}
-							}catch(NumberFormatException e){
+							} catch (NumberFormatException e) {
 								throw new InkException("sdfg");
 							}
 							break;
@@ -348,7 +346,7 @@ public class CoreUtils {
 						}
 						break;
 					case Class:
-						Mirror innerMirror = ((Proxiable)result).reflect();
+						Mirror innerMirror = ((Proxiable) result).reflect();
 						result = getValue(innerMirror, lastSegments);
 						break;
 					default:
@@ -356,21 +354,19 @@ public class CoreUtils {
 					}
 				}
 			}
-		}catch(Exception e){
-			throw new InkException("Could not parse path :'"+path+"'.", e);
+		} catch (Exception e) {
+			throw new InkException("Could not parse path :'" + path + "'.", e);
 		}
 
 		return result;
 	}
 
-	private static String extractKey(String lastSegments, char listIndexStart,
-			char listIndexEnd) {
+	private static String extractKey(String lastSegments, char listIndexStart, char listIndexEnd) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	private static PropertyMirror getPropertyMirror(Mirror mirror,
-			String firstSegment) {
+	private static PropertyMirror getPropertyMirror(Mirror mirror, String firstSegment) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -378,11 +374,10 @@ public class CoreUtils {
 	private static int getFirstSegment(String path) {
 		int result = path.indexOf(PATH_SEPERATOR);
 		int tmp = path.indexOf(LIST_INDEX_START);
-		result = tmp > result?tmp:result;
+		result = tmp > result ? tmp : result;
 		tmp = path.indexOf(MAP_KEY_START);
-		result = tmp > result?tmp:result;
+		result = tmp > result ? tmp : result;
 		return result;
 	}
-
 
 }

@@ -3,7 +3,7 @@ package org.ink.core.vm.types;
 /**
  * @author Lior Schachter
  */
-public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeImpl<S> implements NumericType{
+public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeImpl<S> implements NumericType {
 
 	private boolean isByte;
 	private boolean isDouble;
@@ -21,7 +21,7 @@ public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeIm
 		isInteger = false;
 		isLong = false;
 		isShort = false;
-		switch(getPrimitiveMarker()){
+		switch (getPrimitiveMarker()) {
 		case Byte:
 			isByte = true;
 			break;
@@ -40,10 +40,10 @@ public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeIm
 		case Short:
 			isShort = true;
 			break;
-			
+
 		}
 	}
-	
+
 	@Override
 	public boolean isByte() {
 		return isByte;
@@ -73,6 +73,5 @@ public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeIm
 	public boolean isShort() {
 		return isShort;
 	}
-	
-	
+
 }

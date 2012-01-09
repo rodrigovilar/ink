@@ -9,6 +9,8 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CoreInstanceSpec {
 	public String[] ids();
+
 	public CoreInstanceValuesLocation[] locations();
+
 	public CoreInstanceValues[] values();
 }

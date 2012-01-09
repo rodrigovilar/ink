@@ -8,7 +8,7 @@ import org.ink.core.vm.utils.InkNotations;
 /**
  * @author Lior Schachter
  */
-public class SdlElementDescriptor extends BaseElementDescriptor<Tag>{
+public class SdlElementDescriptor extends BaseElementDescriptor<Tag> {
 
 	private String id;
 	private String superId;
@@ -16,10 +16,10 @@ public class SdlElementDescriptor extends BaseElementDescriptor<Tag>{
 	private Tag data;
 	private File f;
 
-	public SdlElementDescriptor(String ns, Tag data, File f){
+	public SdlElementDescriptor(String ns, Tag data, File f) {
 		this.data = data;
 		this.id = (String) data.getAttribute(InkNotations.Path_Syntax.ID_ATTRIBUTE);
-		if(ns!=null){
+		if (ns != null) {
 			this.id = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + this.id;
 		}
 		this.f = f;
@@ -29,8 +29,8 @@ public class SdlElementDescriptor extends BaseElementDescriptor<Tag>{
 		this.classId = applyNamespace(ns, this.classId);
 	}
 
-	private String applyNamespace(String ns, String id){
-		if(id!=null && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+	private String applyNamespace(String ns, String id) {
+		if (id != null && id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
 			return ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 		}
 		return id;

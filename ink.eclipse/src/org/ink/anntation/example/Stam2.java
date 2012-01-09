@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Stam2 {
 
 	public int ints();
-	@ArrayInheritance(override=false)
+
+	@ArrayInheritance(override = false)
 	public int ints2() default 44;
 }

@@ -12,20 +12,19 @@ import org.ink.core.vm.utils.CoreUtils;
  */
 public abstract class CoreResourceResolver extends ResourceResolver {
 
-	public InkClassState findCoreClass(InkClassState cls){
+	public InkClassState findCoreClass(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		if(cm.isCoreObject() && !cm.isAbstract()){
+		if (cm.isCoreObject() && !cm.isAbstract()) {
 			return cls;
 		}
 		return findCoreClass((InkClassState) cls.reflect().getSuper().edit().getEditedState());
 	}
 
-
 	@Override
 	public String getBehaviorClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getBehaviorShortClassName(cm);
+		String result = cm.getFullJavaPackage() + "." + getBehaviorShortClassName(cm);
 		return result;
 	}
 
@@ -33,7 +32,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getInterfaceClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getInterfaceClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getInterfaceClassShortName(cm);
 		return result;
 	}
 
@@ -41,7 +40,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getDataClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getDataClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getDataClassShortName(cm);
 		return result;
 	}
 
@@ -49,23 +48,23 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public String getStructDataClassName(InkClassState cls) {
 		InkClassState coreClass = findCoreClass(cls);
 		ClassMirror cm = coreClass.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getStructDataClassShortName(cm);
 		return result;
 	}
 
 	@Override
 	public String getEnumClassName(EnumTypeState enumState) {
-		if(enumState.reflect().isCoreObject()){
+		if (enumState.reflect().isCoreObject()) {
 			StringBuilder builder = new StringBuilder(100);
 			String javaPack = enumState.getJavaPath();
 			DslFactory factory = enumState.reflect().getTragetOwnerFactory();
-			if(javaPack==null || javaPack.equals("")){
+			if (javaPack == null || javaPack.equals("")) {
 				builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(enumState.getId()));
-			}else{
+			} else {
 				builder.append(factory.getJavaPackage()).append(".").append(javaPack).append(".").append(CoreUtils.getShortId(enumState.getId()));
 			}
-			return  builder.toString();
-		}else{
+			return builder.toString();
+		} else {
 			return GenericEnum.class.getName();
 		}
 	}
@@ -74,7 +73,5 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 	public boolean enableEagerFetch() {
 		return true;
 	}
-
-
 
 }

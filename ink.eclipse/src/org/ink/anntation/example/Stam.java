@@ -8,5 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 @Inherited
 public @interface Stam {
 	public int ints() default 4;
+
 	public Stam2 o();
 }

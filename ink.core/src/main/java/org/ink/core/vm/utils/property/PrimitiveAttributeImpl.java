@@ -3,7 +3,6 @@ package org.ink.core.vm.utils.property;
 import org.ink.core.vm.lang.property.AttributeImpl;
 import org.ink.core.vm.types.PrimitiveType;
 
-
 /**
  * @author Lior Schachter
  */

@@ -44,15 +44,13 @@ import org.ink.eclipse.utils.InkUtils;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 
-	public static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR
-			+ "main" + IPath.SEPARATOR + "dsl");
+	public static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR + "main" + IPath.SEPARATOR + "dsl");
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
 	private final List<IFile> changedInkFiles = new ArrayList<IFile>();
 	private final Map<IFile, String> changedJavaFiles = new HashMap<IFile, String>();
 	private boolean fullBuild = false;
-
 
 	@Override
 	protected void startupOnInitialize() {
@@ -69,7 +67,6 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 		/*
 		 * (non-Javadoc)
-		 *
 		 * @see
 		 * org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse
 		 * .core.resources.IResourceDelta)
@@ -119,8 +116,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	class InkErrorHandler {
 
-		private void addMarker(IFile file, String msg, int lineNumber,
-				int severity) {
+		private void addMarker(IFile file, String msg, int lineNumber, int severity) {
 			InkBuilder.this.addMarker(file, msg, lineNumber, severity);
 		}
 
@@ -141,8 +137,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	private static final String MARKER_TYPE = "ink.eclipse.inkProblem";
 
-	private void addMarker(IResource file, String message, int lineNumber,
-			int severity) {
+	private void addMarker(IResource file, String message, int lineNumber, int severity) {
 		try {
 			IMarker marker = file.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE, message);
@@ -160,14 +155,11 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
 	 * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
-	protected IProject[] build(int kind,
-			@SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor)
-			throws CoreException {
+	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {
 		try {
 			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
@@ -181,7 +173,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			addMarker(getProject(), "internal error.", 0,IMarker.SEVERITY_ERROR);
+			addMarker(getProject(), "internal error.", 0, IMarker.SEVERITY_ERROR);
 		}
 		return getProject().getReferencedProjects();
 	}
@@ -189,8 +181,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	boolean processInkFile(IResource resource, IProgressMonitor monitor) {
 		IPath resourcePath = resource.getProjectRelativePath();
 		boolean result = false;
-		if (resource.getName().endsWith(".ink")	&& (resourcePath.uptoSegment(3).equals(INK_DIR_PATH))
-				|| (DSL_DEF_FILENAME.equals(resourcePath.lastSegment()) && resourcePath.segments().length==1)) {
+		if (resource.getName().endsWith(".ink") && (resourcePath.uptoSegment(3).equals(INK_DIR_PATH)) || (DSL_DEF_FILENAME.equals(resourcePath.lastSegment()) && resourcePath.segments().length == 1)) {
 			if (checkInkFile((IFile) resource)) {
 				changedInkFiles.add((IFile) resource);
 				result = true;
@@ -200,12 +191,12 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void processJavaFile(IResource resource, IProgressMonitor monitor) {
-		try{
+		try {
 			Object inkId = Java2InkMappings.get(resource.getFullPath().toOSString());
-			if(inkId!=null){
+			if (inkId != null) {
 				changedJavaFiles.put((IFile) resource, inkId.toString());
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -247,10 +238,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	protected void fullBuild(final IProgressMonitor monitor)
-			throws CoreException {
-		//todo - this is a hack until I fix that project full
-		//build causes the kernel to restart
+	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
+		// todo - this is a hack until I fix that project full
+		// build causes the kernel to restart
 		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
 
 		IFolder output = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
@@ -266,21 +256,21 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		genrateJavaFiles(output);
 	}
 
-	private List<InkErrorDetails> reloadProjectDSLs(){
+	private List<InkErrorDetails> reloadProjectDSLs() {
 		String[] nss = InkUtils.getProjectNamespaces(getProject());
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
-		if(nss.length>0){
-			for(String ns : nss){
+		if (nss.length > 0) {
+			for (String ns : nss) {
 				System.out.println("Reloading DSL " + ns);
 				InkVM.instance().reloadDSL(ns);
 				result.addAll(InkVM.instance().collectErrors(ns));
 			}
-		}else{
+		} else {
 			IFile f = getProject().getFile("dsls.ink");
 			try {
 				InkVM.instance().introduceNewDSl(f.getLocation().toFile().getAbsolutePath());
 				nss = InkUtils.getProjectNamespaces(getProject());
-				for(String ns : nss){
+				for (String ns : nss) {
 					result.addAll(InkVM.instance().collectErrors(ns));
 				}
 			} catch (Throwable e) {
@@ -313,11 +303,11 @@ public class InkBuilder extends IncrementalProjectBuilder {
 
 	private void mapJavaToInk(ClassMirror cm) {
 		IFile f = EclipseUtils.getJavaBehaviorFile(cm);
-		if(f!=null){
+		if (f != null) {
 			addJavaToInkMapping(cm, f);
 		}
 		f = EclipseUtils.getJavaInterfaceFile(cm);
-		if(f!=null){
+		if (f != null) {
 			addJavaToInkMapping(cm, f);
 		}
 	}
@@ -344,30 +334,30 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 			changedInkFiles.clear();
 			fullBuild = false;
-		}else if(!changedJavaFiles.isEmpty()){
+		} else if (!changedJavaFiles.isEmpty()) {
 			Context context = InkPlugin.getDefault().getInkContext();
 			ValidationContext vc = context.newInstance(CoreNotations.Ids.VALIDATION_CONTEXT).getBehavior();
-			for(Map.Entry<IFile, String> en : changedJavaFiles.entrySet()){
+			for (Map.Entry<IFile, String> en : changedJavaFiles.entrySet()) {
 				InkObjectState o = context.getState(en.getValue(), false);
-				if(o!=null){
+				if (o != null) {
 					String filename = en.getKey().getFullPath().removeFileExtension().lastSegment();
 					IFile sourceFile;
-					if(filename.endsWith(InkNotations.Names.BEHAVIOR_EXTENSION)){
+					if (filename.endsWith(InkNotations.Names.BEHAVIOR_EXTENSION)) {
 						sourceFile = EclipseUtils.getJavaBehaviorFile((ClassMirror) o.reflect());
-					}else{
+					} else {
 						sourceFile = EclipseUtils.getJavaInterfaceFile((ClassMirror) o.reflect());
 					}
-					if(sourceFile!=null && sourceFile.exists()){
+					if (sourceFile != null && sourceFile.exists()) {
 						sourceFile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_ZERO);
 					}
 					File inkFile = o.reflect().getDescriptor().getResource();
 					IFile eclipseInkFile = EclipseUtils.getEclipseFile(inkFile);
-					if(eclipseInkFile.exists()){
+					if (eclipseInkFile.exists()) {
 						eclipseInkFile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_ZERO);
 					}
 					List<String> ids = context.getFactory().getElements(inkFile.getAbsolutePath());
-					if(ids!=null){
-						for(String id : ids){
+					if (ids != null) {
+						for (String id : ids) {
 							o = context.getState(id);
 							o.validate(vc);
 							processErrors(o.reflect(), vc.getMessages(), monitor);
@@ -383,9 +373,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void processErrors(Mirror mirror, List<ValidationMessage> messages, IProgressMonitor monitor) {
-		if(messages!=null && !messages.isEmpty()){
+		if (messages != null && !messages.isEmpty()) {
 			List<InkErrorDetails> errors = new ArrayList<InkErrorDetails>();
-			for(ValidationMessage vm : messages){
+			for (ValidationMessage vm : messages) {
 				InkErrorDetails err = new InkErrorDetails(mirror.getId(), vm.getErrorPath(), vm.getFormattedMessage(), mirror.getDescriptor().getResource(), vm.getResourceType());
 				errors.add(err);
 			}
@@ -398,9 +388,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			for (InkErrorDetails err : errors) {
 				try {
 					String id = err.getId();
-					switch(err.getResourceType()){
+					switch (err.getResourceType()) {
 					case INK:
-						id = "id=\""+ id.substring(id.indexOf(":") + 1, id.length())+ "\"";
+						id = "id=\"" + id.substring(id.indexOf(":") + 1, id.length()) + "\"";
 						File f = err.getInkSourceDefinition();
 						int lineNumber = EclipseUtils.findLineNumber(EclipseUtils.getFile(f), id);
 						IFile file = EclipseUtils.getEclipseFile(f);
@@ -408,12 +398,12 @@ public class InkBuilder extends IncrementalProjectBuilder {
 						break;
 					default:
 						InkObjectState o = InkPlugin.getDefault().getInkContext().getState(id, false);
-						if(o!=null){
+						if (o != null) {
 							ClassMirror cm = o.reflect();
 							IFile javaFile;
-							if(err.getResourceType()==ResourceType.JAVA_CLASS){
+							if (err.getResourceType() == ResourceType.JAVA_CLASS) {
 								javaFile = EclipseUtils.getJavaBehaviorFile(cm);
-							}else{
+							} else {
 								javaFile = EclipseUtils.getJavaInterfaceFile(cm);
 
 							}

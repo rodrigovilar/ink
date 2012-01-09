@@ -6,7 +6,6 @@ import java.util.Map;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 
-
 /**
  * @author Lior Schachter
  */
@@ -19,12 +18,12 @@ public class KeyValueDictionaryImpl<S extends KeyValueDictionaryState> extends D
 	public void afterStateSet() {
 		super.afterStateSet();
 		Property desc = getState().getValue();
-		if(desc!=null){
-			valueMirror = (PropertyMirror)desc.reflect();
+		if (desc != null) {
+			valueMirror = (PropertyMirror) desc.reflect();
 		}
 		desc = getState().getKey();
-		if(desc!=null){
-			keyMirror = (PropertyMirror)desc.reflect();
+		if (desc != null) {
+			keyMirror = (PropertyMirror) desc.reflect();
 		}
 	}
 
@@ -35,14 +34,14 @@ public class KeyValueDictionaryImpl<S extends KeyValueDictionaryState> extends D
 		Object mapKey = null;
 		Object mapValue = null;
 		Property desc = getState().getKey();
-		if(desc!=null){
+		if (desc != null) {
 			mapKey = desc.getDefaultValue();
 		}
 		desc = getState().getValue();
-		if(desc!=null){
+		if (desc != null) {
 			mapValue = desc.getDefaultValue();
 		}
-		if(mapKey!=null || mapValue!=null){
+		if (mapKey != null || mapValue != null) {
 			result = new HashMap();
 			result.put(mapKey, mapValue);
 		}
@@ -56,14 +55,14 @@ public class KeyValueDictionaryImpl<S extends KeyValueDictionaryState> extends D
 		Object mapKey = null;
 		Object mapValue = null;
 		Property desc = getState().getKey();
-		if(desc!=null){
+		if (desc != null) {
 			mapKey = desc.getFinalValue();
 		}
 		desc = getState().getValue();
-		if(desc!=null){
+		if (desc != null) {
 			mapValue = desc.getFinalValue();
 		}
-		if(mapKey!=null || mapValue!=null){
+		if (mapKey != null || mapValue != null) {
 			result = new HashMap();
 			result.put(mapKey, mapValue);
 		}
@@ -84,6 +83,5 @@ public class KeyValueDictionaryImpl<S extends KeyValueDictionaryState> extends D
 	public String getEntryName() {
 		return getState().getEntryName();
 	}
-
 
 }

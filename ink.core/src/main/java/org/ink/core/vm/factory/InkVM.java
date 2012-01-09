@@ -7,8 +7,6 @@ import java.util.List;
 import org.ink.core.vm.exceptions.InkException;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -16,15 +14,14 @@ public class InkVM implements VM {
 
 	private static VM vm = null;
 
-	public static VM instance(){
+	public static VM instance() {
 		return instance(null, null);
 	}
 
-
-	public static VM instance(String defaultNamespace, String[] paths){
-		if(vm==null){
+	public static VM instance(String defaultNamespace, String[] paths) {
+		if (vm == null) {
 			synchronized (InkVM.class) {
-				if(vm==null){
+				if (vm == null) {
 					vm = new InkVM(defaultNamespace, paths);
 				}
 			}
@@ -32,25 +29,25 @@ public class InkVM implements VM {
 		return vm;
 	}
 
-	private InkVM(){
+	private InkVM() {
 	}
 
-	private InkVM(String defaultNamespace, String[] paths){
+	private InkVM(String defaultNamespace, String[] paths) {
 		VMMain.start(defaultNamespace, paths);
 	}
 
 	@Override
-	public Context getContext(){
+	public Context getContext() {
 		return VMMain.getDefaultFactory().getAppContext();
 	}
 
 	@Override
-	public DslFactory getFactory(){
+	public DslFactory getFactory() {
 		return VMMain.getDefaultFactory();
 	}
 
 	public static void destroy() {
-		vm=null;
+		vm = null;
 		VMMain.stop();
 		ModelInfoFactory.getInstance().destroy();
 	}
@@ -60,10 +57,10 @@ public class InkVM implements VM {
 	}
 
 	@Override
-	public DslFactory getOwnerFactory(File f){
+	public DslFactory getOwnerFactory(File f) {
 		DslFactory result = null;
-		for(DslFactory fac : VMMain.getAllFactories()){
-			if(fac.containsFile(f)){
+		for (DslFactory fac : VMMain.getAllFactories()) {
+			if (fac.containsFile(f)) {
 				result = fac;
 				break;
 			}
@@ -72,34 +69,34 @@ public class InkVM implements VM {
 	}
 
 	@Override
-	public void introduceNewDSl(String path) throws InkException{
+	public void introduceNewDSl(String path) throws InkException {
 		VMMain.introduceNewDsl(path);
 	}
 
 	@Override
-	public DslFactory getFactory(String namespace){
+	public DslFactory getFactory(String namespace) {
 		return VMMain.getFactory(namespace);
 	}
 
 	@Override
-	public List<InkErrorDetails> collectErrors(){
+	public List<InkErrorDetails> collectErrors() {
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
-		for(DslFactory factory : VMMain.getAllFactories()){
+		for (DslFactory factory : VMMain.getAllFactories()) {
 			result.addAll(factory.collectErrors());
 		}
 		return result;
 	}
 
 	@Override
-	public List<InkErrorDetails> collectErrors(String namespace){
+	public List<InkErrorDetails> collectErrors(String namespace) {
 		DslFactory factory = VMMain.getFactory(namespace);
 		return factory.collectErrors();
 	}
 
 	@Override
-	public void reloadDSL(String namespace){
+	public void reloadDSL(String namespace) {
 		DslFactory factory = VMMain.getFactory(namespace);
-		if(factory!=null){
+		if (factory != null) {
 			factory.reload();
 		}
 	}

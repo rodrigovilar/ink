@@ -19,18 +19,29 @@ import org.ink.core.vm.traits.PersonalityState;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CoreClassSpec{
+public @interface CoreClassSpec {
 	public Scope scope() default Scope.all;
+
 	public boolean isAbstract() default false;
+
 	public Class<?> metaclass() default InkClassState.class;
+
 	public Class<? extends MirrorState> mirrorClass() default MirrorState.class;
+
 	public Class<? extends ConstraintsState> constraintsClass() default ConstraintsState.class;
+
 	public Class<? extends GenericInstanceValidatorState> genericValidatorClass() default GenericInstanceValidatorState.class;
+
 	public Class<? extends PersonalityState> traitsClass() default PersonalityState.class;
+
 	public JavaMapping javaMapping() default JavaMapping.State_Behavior_Interface;
+
 	public byte[] finalValuesLocation() default {};
+
 	public String[] finalValues() default {};
+
 	public String[] validatorsKeys() default {};
+
 	public Class<? extends InstanceValidatorState>[] validatorsClasses() default {};
 
 }

@@ -10,15 +10,15 @@ import org.ink.core.vm.serialization.ParseError;
 /**
  * @author Lior Schachter
  */
-public class ObjectLoadingException extends Exception{
+public class ObjectLoadingException extends Exception {
 
 	public InkObjectState object;
 	public File f = null;
 	List<ParseError> parseErrors;
 	List<ValidationMessage> validationErrors;
 
-	public ObjectLoadingException(InkObjectState object, List<ValidationMessage> validationErrors, List<ParseError> parseErrors, File f, String id){
-		super("Error while Loading Ink Object '" + id +"'.");
+	public ObjectLoadingException(InkObjectState object, List<ValidationMessage> validationErrors, List<ParseError> parseErrors, File f, String id) {
+		super("Error while Loading Ink Object '" + id + "'.");
 		this.object = object;
 		this.f = f;
 		this.parseErrors = parseErrors;

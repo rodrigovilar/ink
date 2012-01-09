@@ -7,23 +7,25 @@ import org.ink.core.vm.traits.PersonalityState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping=JavaMapping.Only_State)
-public interface DslFactoryPersonalityState extends PersonalityState{
+@CoreClassSpec(javaMapping = JavaMapping.Only_State)
+public interface DslFactoryPersonalityState extends PersonalityState {
 
 	public static final byte p_app_context = 2;
 	public static final byte p_event_dispatcher = 3;
 
 	public Context getAppContext();
+
 	public void setAppContext(ContextState value);
 
 	public DslFactoryEventDispatcherState getEventDispatcher();
+
 	public void setEventDispatcher(DslFactoryEventDispatcherState value);
 
-	public class Data extends PersonalityState.Data implements DslFactoryPersonalityState{
+	public class Data extends PersonalityState.Data implements DslFactoryPersonalityState {
 
 		@Override
 		public Context getAppContext() {
-			return (Context)getValue(p_app_context);
+			return (Context) getValue(p_app_context);
 		}
 
 		@Override
@@ -33,7 +35,7 @@ public interface DslFactoryPersonalityState extends PersonalityState{
 
 		@Override
 		public DslFactoryEventDispatcherState getEventDispatcher() {
-			return (DslFactoryEventDispatcherState)getValue(p_event_dispatcher);
+			return (DslFactoryEventDispatcherState) getValue(p_event_dispatcher);
 		}
 
 		@Override

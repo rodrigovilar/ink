@@ -6,11 +6,10 @@ import org.ink.core.vm.mirror.StructClassMirror;
 import org.ink.core.vm.types.ReferenceTypeMarker;
 import org.ink.core.vm.utils.property.ReferenceState;
 
-
 /**
  * @author Lior Schachter
  */
-public class ReferenceMirrorImpl<S extends ReferenceMirrorState> extends ValuePropertyMirrorImpl<S> implements ReferenceMirror{
+public class ReferenceMirrorImpl<S extends ReferenceMirrorState> extends ValuePropertyMirrorImpl<S> implements ReferenceMirror {
 
 	@Override
 	public boolean isValueContainsInkObject() {
@@ -21,8 +20,8 @@ public class ReferenceMirrorImpl<S extends ReferenceMirrorState> extends ValuePr
 	public ReferenceTypeMarker getReferenceTypeMarker() {
 		ReferenceState refState = getTargetState();
 		ClassMirror type = refState.getType().reflect();
-		//todo - remove instance of
-		if(type instanceof StructClassMirror){
+		// todo - remove instance of
+		if (type instanceof StructClassMirror) {
 			return ReferenceTypeMarker.Struct;
 		}
 		return ReferenceTypeMarker.Object;

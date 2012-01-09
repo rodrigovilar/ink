@@ -5,6 +5,7 @@ import org.ink.core.vm.traits.TraitState;
 /**
  * @author Lior Schachter
  */
-public interface DslFactoryEventDispatcherState extends TraitState{
-	public class Data extends TraitState.Data implements DslFactoryEventDispatcherState{}
+public interface DslFactoryEventDispatcherState extends TraitState {
+	public class Data extends TraitState.Data implements DslFactoryEventDispatcherState {
+	}
 }

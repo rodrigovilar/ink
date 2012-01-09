@@ -5,9 +5,9 @@ import org.ink.core.vm.lang.InkObjectState;
 /**
  * @author Lior Schachter
  */
-public interface InkReaderState extends InkObjectState{
-	
-	public class Data extends InkObjectState.Data implements InkReaderState{
+public interface InkReaderState extends InkObjectState {
+
+	public class Data extends InkObjectState.Data implements InkReaderState {
 	}
 
 }

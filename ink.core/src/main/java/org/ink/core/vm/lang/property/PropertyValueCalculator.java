@@ -7,9 +7,10 @@ import org.ink.core.vm.lang.Property;
 /**
  * @author Lior Schachter
  */
-public interface PropertyValueCalculator extends InkObject{
+public interface PropertyValueCalculator extends InkObject {
 
 	public Object getValue(InkObjectState container, Property property, Object staticValue);
+
 	public boolean hasStaticValue();
 
 }

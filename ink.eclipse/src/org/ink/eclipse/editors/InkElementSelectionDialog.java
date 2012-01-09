@@ -60,12 +60,10 @@ public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 	}
 
 	@Override
-	protected void fillContentProvider(AbstractContentProvider contentProvider,
-			ItemsFilter itemsFilter, IProgressMonitor progressMonitor)
-			throws CoreException {
+	protected void fillContentProvider(AbstractContentProvider contentProvider, ItemsFilter itemsFilter, IProgressMonitor progressMonitor) throws CoreException {
 		// TODO Auto-generated method stub
 		Collection<Mirror> all = InkUtils.getInstances(CoreNotations.Ids.INK_OBJECT, true);
-		for(Mirror m : all){
+		for (Mirror m : all) {
 			contentProvider.add(m.getShortId() + " - " + m.getNamespace(), itemsFilter);
 		}
 	}
@@ -76,7 +74,7 @@ public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 		return null;
 	}
 
-	private final class InkItemsFilter extends ItemsFilter{
+	private final class InkItemsFilter extends ItemsFilter {
 
 		@Override
 		public boolean matchItem(Object item) {

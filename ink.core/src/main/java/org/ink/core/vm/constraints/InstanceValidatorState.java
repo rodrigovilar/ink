@@ -6,10 +6,10 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(metaclass=ValidatorClassState.class, javaMapping=JavaMapping.State_Interface)
-public interface InstanceValidatorState extends ValidatorState{
-	
-	public class Data extends ValidatorState.Data implements InstanceValidatorState{
+@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.State_Interface)
+public interface InstanceValidatorState extends ValidatorState {
+
+	public class Data extends ValidatorState.Data implements InstanceValidatorState {
 	}
 
 }

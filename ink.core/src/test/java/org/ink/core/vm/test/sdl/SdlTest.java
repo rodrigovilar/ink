@@ -14,24 +14,22 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.serialization.InkReader;
 
-public class SdlTest extends TestCase{
-	
+public class SdlTest extends TestCase {
+
 	private Context context = InkVM.instance().getContext();
-	
+
 	@Override
 	protected void tearDown() throws Exception {
 		VMMain.stop();
 	}
-	
-	public void testParsing() throws Exception{
+
+	public void testParsing() throws Exception {
 		try {
-			new Tag("root").read(new InputStreamReader(
-					SdlTest.class.getResourceAsStream("test.ink"),
-					"UTF8"));
-		} catch(IOException ioe) {
+			new Tag("root").read(new InputStreamReader(SdlTest.class.getResourceAsStream("test.ink"), "UTF8"));
+		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			assertFalse(true);
-		} catch(SDLParseException spe) {
+		} catch (SDLParseException spe) {
 			spe.printStackTrace();
 			assertFalse(true);
 		}
@@ -40,5 +38,5 @@ public class SdlTest extends TestCase{
 		InkObjectState[] result = reader.read(SdlTest.class.getResource("test.ink"));
 		assertTrue(result.length == 2);
 	}
-	
+
 }

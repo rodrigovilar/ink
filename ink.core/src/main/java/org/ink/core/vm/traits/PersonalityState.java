@@ -9,18 +9,20 @@ import org.ink.core.vm.mirror.MirrorState;
 /**
  * @author Lior Schachter
  */
-public interface PersonalityState extends InkObjectState{
-	
+public interface PersonalityState extends InkObjectState {
+
 	public static final byte p_reflection = 0;
 	public static final byte p_constraints = 1;
-	
+
 	public Mirror getReflection();
+
 	public void setReflection(MirrorState value);
-	
+
 	public Constraints getConstraints();
+
 	public void setConstraints(ConstraintsState value);
-	
-	public class Data extends InkObjectState.Data implements PersonalityState{
+
+	public class Data extends InkObjectState.Data implements PersonalityState {
 		@Override
 		public Mirror getReflection() {
 			return (Mirror) getValue(p_reflection);

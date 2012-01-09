@@ -1,6 +1,5 @@
 package org.ink.core.vm.lang.property;
 
-
 /**
  * @author Lior Schachter
  */

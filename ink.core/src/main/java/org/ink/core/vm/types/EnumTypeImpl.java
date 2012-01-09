@@ -9,11 +9,10 @@ import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.utils.InkNotations;
 
-
 /**
  * @author Lior Schachter
  */
-public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> implements EnumType{
+public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> implements EnumType {
 
 	private Class<?> typeClass;
 	private Method getValueMethod;
@@ -23,16 +22,16 @@ public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> impl
 		super.afterStateSet();
 		typeClass = getContext().getFactory().resolveEnumClass(getState());
 		try {
-			getValueMethod = typeClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[]{String.class});
+			getValueMethod = typeClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[] { String.class });
 		} catch (Exception e) {
 			throw new CoreException("Could not find valueOf() method for enumeration " + getState().getId(), e);
 		}
 	}
 
 	@Override
-	public Object getEnumObject(String value){
+	public Object getEnumObject(String value) {
 		try {
-			return getValueMethod.invoke(null, new Object[]{value});
+			return getValueMethod.invoke(null, new Object[] { value });
 		} catch (Exception e) {
 			throw new CoreException("Could not obtain enum value for string value " + value, e);
 		}

@@ -10,15 +10,19 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CoreMapField{
-	public enum Kind{
-		key_value,elements;
+public @interface CoreMapField {
+	public enum Kind {
+		key_value, elements;
 	}
 
 	public boolean mandatory() default false;
+
 	public Kind kind() default Kind.elements;
+
 	public String keyName();
+
 	public String valueName();
+
 	public boolean ordered() default false;
 
 }

@@ -1,6 +1,5 @@
 package org.ink.eclipse.editors.processors;
 
-
 import java.io.File;
 import java.util.List;
 

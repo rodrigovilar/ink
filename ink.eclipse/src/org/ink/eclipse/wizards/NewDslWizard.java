@@ -59,7 +59,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	private final static String NAMESPACE_TOKEN = "NAMESPACE";
 	private final static String DSL_PACKAGE_TOKEN = "DSL_PACKAGE";
 	private final static String DSL_DESCRIPTION_TOKEN = "DESCRIPTION";
-    private final static String JAVA_PACKAGE_TOKEN = "JAVA_PACKAGE";
+	private final static String JAVA_PACKAGE_TOKEN = "JAVA_PACKAGE";
 
 	/**
 	 * Constructor for NewDslWizard.
@@ -103,7 +103,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName,tokens, monitor);
+					doFinish(containerName, tokens, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -126,18 +126,13 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	/**
 	 * Builds Class id name from DSL namespace name
 	 */
-	String getClassIdName()
-	{
+	String getClassIdName() {
 		String namespace = page.getNamaspace();
 		String className = "";
 		int dotLoc = namespace.lastIndexOf('.');
-		if (dotLoc != -1)
-		{
-			className = namespace.substring(dotLoc + 1,dotLoc +2).toUpperCase() +
-						namespace.substring(dotLoc + 2);
-		}
-		else
-		{
+		if (dotLoc != -1) {
+			className = namespace.substring(dotLoc + 1, dotLoc + 2).toUpperCase() + namespace.substring(dotLoc + 2);
+		} else {
 			className = namespace;
 		}
 		className += "Factory";
@@ -148,19 +143,13 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	/**
 	 * Builds IMPORTS token value
 	 */
-	String getImportsString()
-	{
+	String getImportsString() {
 		StringBuilder importString = new StringBuilder();
-		String [] importsList = page.getImportsList();
-		Map<String, DslFactory> namespaceToDslFactoryMap =
-			page.getNamespaceToDslFactoryMap();
+		String[] importsList = page.getImportsList();
+		Map<String, DslFactory> namespaceToDslFactoryMap = page.getNamespaceToDslFactoryMap();
 
-		for (String importItem : importsList)
-		{
-			importString.append("import ref=\"")
-						.append(namespaceToDslFactoryMap.get(importItem)
-								.reflect().getId())
-						.append("\"\n\t\t");
+		for (String importItem : importsList) {
+			importString.append("import ref=\"").append(namespaceToDslFactoryMap.get(importItem).reflect().getId()).append("\"\n\t\t");
 		}
 		importString.append("import ref=\"ink.core:ObjectFactory\"\n");
 		return importString.toString();
@@ -172,11 +161,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish(
-		String containerName,
-		Map<String, String> tokenMap,
-		IProgressMonitor monitor)
-		throws CoreException {
+	private void doFinish(String containerName, Map<String, String> tokenMap, IProgressMonitor monitor) throws CoreException {
 		// create a sample file
 		monitor.beginTask("Creating dsl in " + FILE_NAME, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -191,36 +176,38 @@ public class NewDslWizard extends Wizard implements INewWizard {
 		try {
 			stream = openContentStream(tokenMap);
 			if (file.exists()) {
-				//file.setContents(stream, true, true, monitor);
+				// file.setContents(stream, true, true, monitor);
 
 				file.appendContents(stream, true, true, monitor);
 			} else {
 				file.create(stream, true, monitor);
 			}
 			String dslPack = tokenMap.get(DSL_PACKAGE_TOKEN);
-			if(dslPack!=null){
-				String dslsFolder = InkBuilder.INK_DIR_PATH.toString()+ IPath.SEPARATOR+dslPack.substring(1, dslPack.length()-1).replace('.', IPath.SEPARATOR);
+			if (dslPack != null) {
+				String dslsFolder = InkBuilder.INK_DIR_PATH.toString() + IPath.SEPARATOR + dslPack.substring(1, dslPack.length() - 1).replace('.', IPath.SEPARATOR);
 				IContainer cont = EclipseUtils.createFolder(new Path(dslsFolder), container, true);
 				dslfile = cont.getFile(new Path("instances.ink"));
-				String contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length()-1) +" DSL instances";
+				String contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length() - 1) + " DSL instances";
 				InputStream source = new ByteArrayInputStream(contents.getBytes());
 				dslfile.create(source, true, monitor);
 				dslfile = cont.getFile(new Path("model.ink"));
-				contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length()-1) +" DSL model elements";
+				contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length() - 1) + " DSL model elements";
 				source = new ByteArrayInputStream(contents.getBytes());
 				dslfile.create(source, true, monitor);
 			}
 			InkVM.instance().introduceNewDSl(file.getLocation().toFile().getAbsolutePath());
 		} catch (Throwable e) {
 			e.printStackTrace();
-		}finally{
-			try{
+		} finally {
+			try {
 				stream.close();
-			}catch(Throwable e){e.printStackTrace();}
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 
-		IProject p = (IProject)resource;
-		if(!p.hasNature(InkNature.NATURE_ID)){
+		IProject p = (IProject) resource;
+		if (!p.hasNature(InkNature.NATURE_ID)) {
 			ToggleNatureAction action = new ToggleNatureAction();
 			action.toggleNature(p);
 		}
@@ -230,8 +217,7 @@ public class NewDslWizard extends Wizard implements INewWizard {
 		getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				IWorkbenchPage page =
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				try {
 					IDE.openEditor(page, tragetFile, true);
 				} catch (PartInitException e) {
@@ -253,31 +239,23 @@ public class NewDslWizard extends Wizard implements INewWizard {
 		// Creating resolver with the tokeMap built earlier
 		MapTokenResolver resolver = new MapTokenResolver(tokenMap);
 		URL templateUrl = InkPlugin.getDefault().getBundle().getResource(TEMPLATE_NAME);
-		try
-		{
+		try {
 			InputStream input = templateUrl.openStream();
 
 			// Getting template content with tokens real values (according to
 			// tokenMap)
-			Reader reader = new TokenReplacingReader(
-			        new InputStreamReader(input), resolver);
-			try
-			{
+			Reader reader = new TokenReplacingReader(new InputStreamReader(input), resolver);
+			try {
 				int data = reader.read();
-			    while(data != -1){
-			        sb.append((char) data);
-			        data = reader.read();
-			    }
-			}
-			finally
-			{
+				while (data != -1) {
+					sb.append((char) data);
+					data = reader.read();
+				}
+			} finally {
 				reader.close();
 			}
-		}
-		catch(IOException e)
-		{
-			IStatus status = new Status(IStatus.ERROR, "newDSLWizard",
-										IStatus.OK, e.getLocalizedMessage(), null);
+		} catch (IOException e) {
+			IStatus status = new Status(IStatus.ERROR, "newDSLWizard", IStatus.OK, e.getLocalizedMessage(), null);
 			throw new CoreException(status);
 		}
 
@@ -286,14 +264,14 @@ public class NewDslWizard extends Wizard implements INewWizard {
 	}
 
 	private void throwCoreException(String message) throws CoreException {
-		IStatus status =
-			new Status(IStatus.ERROR, "ink.eclipse", IStatus.OK, message, null);
+		IStatus status = new Status(IStatus.ERROR, "ink.eclipse", IStatus.OK, message, null);
 		throw new CoreException(status);
 	}
 
 	/**
 	 * We will accept the selection in the workbench to see if
 	 * we can initialize from it.
+	 * 
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
 	 */
 	@Override

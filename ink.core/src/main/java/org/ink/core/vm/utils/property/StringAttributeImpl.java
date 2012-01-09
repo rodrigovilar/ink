@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -21,7 +19,7 @@ public class StringAttributeImpl<S extends StringAttributeState> extends Primiti
 	public String getRegularExpression() {
 		return getState().getRegExp();
 	}
-	
+
 	@Override
 	public String getDefaultValue() {
 		return getState().getDefaultValue();

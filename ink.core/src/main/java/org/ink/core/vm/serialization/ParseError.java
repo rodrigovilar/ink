@@ -5,12 +5,12 @@ import java.net.URL;
 /**
  * @author Lior Schachter
  */
-public class ParseError{
-	private int lineNumber=-1;
-	private int position=-1;
+public class ParseError {
+	private int lineNumber = -1;
+	private int position = -1;
 	private String desc;
 	private URL url;
-	
+
 	public ParseError(int lineNumber, int position, String desc, URL url) {
 		this.lineNumber = lineNumber;
 		this.position = position;
@@ -33,6 +33,5 @@ public class ParseError{
 	public URL getURL() {
 		return url;
 	}
-	
-	
+
 }

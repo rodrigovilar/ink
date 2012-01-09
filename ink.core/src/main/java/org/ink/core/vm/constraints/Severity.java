@@ -9,13 +9,12 @@ public enum Severity {
 
 	private int level;
 
-	private Severity(int level){
+	private Severity(int level) {
 		this.level = level;
 	}
 
-	public int getLevel(){
+	public int getLevel() {
 		return this.level;
 	}
-
 
 }

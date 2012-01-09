@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -11,10 +9,10 @@ public class BooleanAttributeImpl<S extends BooleanAttributeState> extends Primi
 	public Boolean getDefaultValue() {
 		return getState().getDefaultValue();
 	}
-	
+
 	@Override
 	public Boolean getFinalValue() {
 		return getState().getFinalValue();
 	}
-	
+
 }

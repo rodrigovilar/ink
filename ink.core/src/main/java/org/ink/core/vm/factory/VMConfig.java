@@ -18,7 +18,7 @@ public class VMConfig {
 		return INSTANCE;
 	}
 
-	public static void setInstantiationStrategy(ResourceResolver strategy){
+	public static void setInstantiationStrategy(ResourceResolver strategy) {
 		initStrategy = strategy;
 	}
 

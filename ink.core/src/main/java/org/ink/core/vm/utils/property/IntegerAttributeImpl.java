@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -27,5 +25,4 @@ public class IntegerAttributeImpl<S extends IntegerAttributeState> extends Numer
 		return getState().getFinalValue();
 	}
 
-	
 }

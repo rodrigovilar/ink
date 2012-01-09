@@ -9,8 +9,10 @@ import org.ink.core.vm.mirror.ClassMirror;
 public interface Trait extends InkObject {
 
 	public void afterTargetSet();
+
 	public <T extends InkObject> T getTargetBehavior();
-	//public Set<InkClass> getTragetClasses();
+
+	// public Set<InkClass> getTragetClasses();
 	public boolean isAcceptable(ClassMirror cls);
 
 }

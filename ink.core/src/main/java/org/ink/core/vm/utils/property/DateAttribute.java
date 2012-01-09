@@ -2,8 +2,6 @@ package org.ink.core.vm.utils.property;
 
 import java.util.Date;
 
-
-
 /**
  * @author Lior Schachter
  */

@@ -5,7 +5,7 @@ package org.ink.core.vm.utils;
  */
 public class InkNotations {
 
-	public static class Path_Syntax{
+	public static class Path_Syntax {
 		public static final char NAMESPACE_DELIMITER_C = ':';
 		public static final String ABSTRACT_ATTRIBUTE = "abstract";
 		public static final String SUPER_ATTRIBUTE = "super";
@@ -15,7 +15,7 @@ public class InkNotations {
 		public static final String SCOPE_ATTRIBUTE = "scope";
 	}
 
-	public static class Names{
+	public static class Names {
 		public static final String INK_FILE_EXTENSION = "ink";
 		public static final String STATE_CLASS_EXTENSION = "State";
 		public static final String DATA_CLASS_EXTENSION = "State$Data";
@@ -24,9 +24,8 @@ public class InkNotations {
 
 	}
 
-	public static class Reflection{
+	public static class Reflection {
 		public static final String VALUE_OF_METHOD_NAME = "valueOf";
 	}
-
 
 }

@@ -10,7 +10,7 @@ import org.ink.core.vm.lang.InkObjectState;
 /**
  * @author Lior Schachter
  */
-public class DslRepositoryImpl<S extends DslRepositoryState> extends InkObjectImpl<S> implements DslRepository{
+public class DslRepositoryImpl<S extends DslRepositoryState> extends InkObjectImpl<S> implements DslRepository {
 
 	private final Map<String, InkObjectState> store = new ConcurrentHashMap<String, InkObjectState>(500);
 

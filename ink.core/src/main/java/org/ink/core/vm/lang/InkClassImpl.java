@@ -5,7 +5,6 @@ import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.mirror.ClassMirror;
 
-
 /**
  * @author Lior Schachter
  */
@@ -20,36 +19,35 @@ public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> impl
 	public DataTypeMarker getTypeMarker() {
 		return DataTypeMarker.Class;
 	}
-	
+
 	@Override
-	public final <T extends InkObjectState> T  newInstance(boolean initObjectId, boolean initDefaults) {
-		return ((ClassMirror)reflect()).getFactory().newInstance(InkVM.instance().getFactory(), getState(), initObjectId, initDefaults);
+	public final <T extends InkObjectState> T newInstance(boolean initObjectId, boolean initDefaults) {
+		return ((ClassMirror) reflect()).getFactory().newInstance(InkVM.instance().getFactory(), getState(), initObjectId, initDefaults);
 	}
-	
+
 	@Override
-	public final <T extends InkObjectState> T  newInstance(Context context, boolean initObjectId, boolean initDefaults) {
-		return ((ClassMirror)reflect()).getFactory().newInstance(context.getFactory(), getState(), initObjectId, initDefaults);
+	public final <T extends InkObjectState> T newInstance(Context context, boolean initObjectId, boolean initDefaults) {
+		return ((ClassMirror) reflect()).getFactory().newInstance(context.getFactory(), getState(), initObjectId, initDefaults);
 	}
-	
+
 	@Override
-	public final <T extends InkObjectState> T  newInstance(DslFactory factory, boolean initObjectId, boolean initDefaults) {
-		return ((ClassMirror)reflect()).getFactory().newInstance(factory, getState(), initObjectId, initDefaults);
+	public final <T extends InkObjectState> T newInstance(DslFactory factory, boolean initObjectId, boolean initDefaults) {
+		return ((ClassMirror) reflect()).getFactory().newInstance(factory, getState(), initObjectId, initDefaults);
 	}
 
 	@Override
 	public final <T extends InkObjectState> T newInstance() {
 		return newInstance(getContext(), false, true);
 	}
-	
+
 	@Override
 	public final <T extends InkObjectState> T newInstance(Context context) {
 		return newInstance(context, false, true);
 	}
 
 	@Override
-	public void initInstance(InkObjectState state, boolean initObjectId,
-			boolean initDefaults) {
-		//implement
+	public void initInstance(InkObjectState state, boolean initObjectId, boolean initDefaults) {
+		// implement
 	}
 
 	@Override

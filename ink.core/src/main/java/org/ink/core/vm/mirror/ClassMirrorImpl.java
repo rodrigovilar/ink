@@ -24,28 +24,28 @@ import org.ink.core.vm.traits.Trait;
 /**
  * @author Lior Schachter
  */
-public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> implements ClassMirror{
+public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> implements ClassMirror {
 
 	@Override
 	public Map<String, Byte> getClassPropertiesIndexes() {
-		return ((ClassMirrorAPI)getTargetState()).getClassPropertiesIndexes();
+		return ((ClassMirrorAPI) getTargetState()).getClassPropertiesIndexes();
 	}
 
 	@Override
-	public PropertyMirror[] getClassPropertiesMirrors(){
-		return ((ClassMirrorAPI)getTargetState()).getClassPropertiesMirrors();
+	public PropertyMirror[] getClassPropertiesMirrors() {
+		return ((ClassMirrorAPI) getTargetState()).getClassPropertiesMirrors();
 	}
 
 	@Override
 	public boolean isMetaClass() {
-		return ((ClassMirrorAPI)getTargetState()).isMetaClass();
+		return ((ClassMirrorAPI) getTargetState()).isMetaClass();
 	}
 
 	@Override
-	public Map<String, PropertyMirror> getClassPropertiesMap(){
+	public Map<String, PropertyMirror> getClassPropertiesMap() {
 		PropertyMirror[] props = getClassPropertiesMirrors();
 		Map<String, PropertyMirror> result = new HashMap<String, PropertyMirror>(props.length);
-		for(PropertyMirror pm : props){
+		for (PropertyMirror pm : props) {
 			result.put(pm.getName(), pm);
 		}
 		return result;
@@ -53,22 +53,22 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Class<InkObjectState> getStateClass() {
-		return ((ClassMirrorAPI)getTargetState()).getDataClass();
+		return ((ClassMirrorAPI) getTargetState()).getDataClass();
 	}
 
 	@Override
 	public Class<? extends InkObject> getBehaviorClass() {
-		ClassMirrorAPI target = (ClassMirrorAPI)getTargetState();
-		if(target.isAbstract()){
-			return ((ClassMirror)target.reflect().getSuper()).getBehaviorClass();
+		ClassMirrorAPI target = (ClassMirrorAPI) getTargetState();
+		if (target.isAbstract()) {
+			return ((ClassMirror) target.reflect().getSuper()).getBehaviorClass();
 		}
-		return ((ClassMirrorAPI)getTargetState()).getBehaviorClass();
+		return ((ClassMirrorAPI) getTargetState()).getBehaviorClass();
 	}
 
 	@Override
 	public boolean shouldCreateProxyOnBehaviorInstance() {
-		List<? extends Operation> ops = ((ClassMirrorAPI)getTargetState()).getOperations();
-		if(ops!=null){
+		List<? extends Operation> ops = ((ClassMirrorAPI) getTargetState()).getOperations();
+		if (ops != null) {
 			return !ops.isEmpty();
 		}
 		return false;
@@ -76,36 +76,35 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public void cacheBeahvior(InkObjectState state, InkObject behavior) {
-		((MirrorAPI)state).cacheBeahvior(behavior);
+		((MirrorAPI) state).cacheBeahvior(behavior);
 	}
 
 	@Override
-	public void cacheTrait(byte index, InkObjectState state, Trait trait){
-		((MirrorAPI)state).cacheTrait(index, trait);
+	public void cacheTrait(byte index, InkObjectState state, Trait trait) {
+		((MirrorAPI) state).cacheTrait(index, trait);
 	}
 
 	@Override
-	public <T extends Trait> T getTrait(byte index, InkObjectState state){
-		return ((MirrorAPI)state).getCachedTrait(index);
+	public <T extends Trait> T getTrait(byte index, InkObjectState state) {
+		return ((MirrorAPI) state).getCachedTrait(index);
 	}
 
 	@Override
 	public InkObject getCachedBehavior(InkObjectState state) {
-		return ((MirrorAPI)state).getCachedBehavior();
+		return ((MirrorAPI) state).getCachedBehavior();
 	}
 
 	@Override
 	public Class<?>[] getBehaviorProxyInterfaces() {
-		return ((ClassMirrorAPI)getTargetState()).getBehaviorProxyInterfaces();
+		return ((ClassMirrorAPI) getTargetState()).getBehaviorProxyInterfaces();
 	}
-
 
 	@Override
 	public Operation getMethod(String methodName, Object[] args) {
-		List<? extends Operation> allOps = ((InkClassState)getTargetState()).getOperations();
-		if(allOps!=null){
-			for(Operation op : allOps){
-				if(op.getName().equals(methodName)){
+		List<? extends Operation> allOps = ((InkClassState) getTargetState()).getOperations();
+		if (allOps != null) {
+			for (Operation op : allOps) {
+				if (op.getName().equals(methodName)) {
 					return op;
 				}
 			}
@@ -115,8 +114,8 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Property getProperty(String propertyName) {
-		Byte index = ((ClassMirrorAPI)getTargetState()).getClassPropertiesIndexes().get(propertyName);
-		if(index!=null){
+		Byte index = ((ClassMirrorAPI) getTargetState()).getClassPropertiesIndexes().get(propertyName);
+		if (index != null) {
 			return (Property) getAllProperties().get(index).getTargetBehavior();
 		}
 		return null;
@@ -124,13 +123,13 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Property getProperty(byte index) {
-		return ((InkClassState)getTargetState()).getProperties().get(index);
+		return ((InkClassState) getTargetState()).getProperties().get(index);
 	}
 
 	@Override
 	public PropertyMirror getClassPropertyMirror(String propertyName) {
-		Byte index = ((ClassMirrorAPI)getTargetState()).getClassPropertiesIndexes().get(propertyName);
-		if(index != null){
+		Byte index = ((ClassMirrorAPI) getTargetState()).getClassPropertiesIndexes().get(propertyName);
+		if (index != null) {
 			return getClassPropertyMirror(index);
 		}
 		return null;
@@ -138,22 +137,22 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public PropertyMirror getClassPropertyMirror(byte index) {
-		return ((ClassMirrorAPI)getTargetState()).getClassPropertiesMirrors()[index];
+		return ((ClassMirrorAPI) getTargetState()).getClassPropertiesMirrors()[index];
 	}
 
 	@Override
 	public byte getTraitsCount() {
-		return ((InkClassState)getTargetState()).getPersonality().getTraitsCount();
+		return ((InkClassState) getTargetState()).getPersonality().getTraitsCount();
 	}
 
 	@Override
 	public boolean canCacheBehaviorInstance() {
-		return ((InkClassState)getTargetState()).getCanCacheBehaviorInstance();
+		return ((InkClassState) getTargetState()).getCanCacheBehaviorInstance();
 	}
 
 	@Override
-	public Class<InkObjectState> getStateInterface(){
-		return ((ClassMirrorAPI)getTargetState()).getStateInterface();
+	public Class<InkObjectState> getStateInterface() {
+		return ((ClassMirrorAPI) getTargetState()).getStateInterface();
 	}
 
 	@Override
@@ -163,11 +162,11 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public ObjectFactory getFactory() {
-		return ((ClassMirrorAPI)getTargetState()).getFactory();
+		return ((ClassMirrorAPI) getTargetState()).getFactory();
 	}
 
 	@Override
-	public boolean isPropertyFinal(byte index){
+	public boolean isPropertyFinal(byte index) {
 		return getFactory().isPropertyFinal(index);
 	}
 
@@ -176,8 +175,8 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 		InkClassState target = getTargetState();
 		Map<String, ? extends Property> properties = target.getProperties();
 		List<PropertyMirror> result = new ArrayList<PropertyMirror>(properties.size());
-		for(Property prop : properties.values()){
-			result.add((PropertyMirror)prop.reflect());
+		for (Property prop : properties.values()) {
+			result.add((PropertyMirror) prop.reflect());
 		}
 		return result;
 	}
@@ -191,12 +190,12 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public boolean isSubClassOf(ClassMirror otherClass) {
-		if(otherClass.getId().equals(getId())){
+		if (otherClass.getId().equals(getId())) {
 			return true;
 		}
 		Mirror zuper = getSuper();
-		while(zuper!=null && zuper.isClass()){
-			if(zuper.getId().equals(otherClass.getId())){
+		while (zuper != null && zuper.isClass()) {
+			if (zuper.getId().equals(otherClass.getId())) {
 				return true;
 			}
 			zuper = zuper.getSuper();
@@ -206,43 +205,43 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public boolean hasRole(String role) {
-		return ((ClassMirrorAPI)getTargetState()).hasRole(role);
+		return ((ClassMirrorAPI) getTargetState()).hasRole(role);
 	}
 
 	@Override
 	public boolean isSubClassOf(InkClass otherClass) {
-		return isSubClassOf((ClassMirror)otherClass.reflect());
+		return isSubClassOf((ClassMirror) otherClass.reflect());
 	}
 
 	@Override
 	public Trait getRole(byte index) {
-		if(index < getTraitsCount()){
-			return ((InkClassState)getTargetState()).getPersonality().getTrait(index);
-		}else{
-			return ((ClassMirrorAPI)getTargetState()).getDetachableRole(index);
+		if (index < getTraitsCount()) {
+			return ((InkClassState) getTargetState()).getPersonality().getTrait(index);
+		} else {
+			return ((ClassMirrorAPI) getTargetState()).getDetachableRole(index);
 		}
 	}
 
 	@Override
 	public JavaMapping getJavaMapping() {
-		return ((ClassMirrorAPI)getTargetState()).getJavaMapping();
+		return ((ClassMirrorAPI) getTargetState()).getJavaMapping();
 	}
 
 	@Override
 	public ComponentType getComponentType() {
-		return ((ClassMirrorAPI)getTargetState()).getComponentType();
+		return ((ClassMirrorAPI) getTargetState()).getComponentType();
 	}
 
 	@Override
 	public String getJavaPath() {
-		return ((ClassMirrorAPI)getTargetState()).getJavaPath();
+		return ((ClassMirrorAPI) getTargetState()).getJavaPath();
 	}
 
 	@Override
-	public String getFullJavaPackage(){
+	public String getFullJavaPackage() {
 		String result = getTragetOwnerFactory().getJavaPackage();
 		String ownPath = getJavaPath();
-		if(ownPath==null || ownPath.equals("")){
+		if (ownPath == null || ownPath.equals("")) {
 			return result;
 		}
 		return result + "." + ownPath;
@@ -250,7 +249,7 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public Personality getPersonality() {
-		return ((ClassMirrorAPI)getTargetState()).getPersonality();
+		return ((ClassMirrorAPI) getTargetState()).getPersonality();
 	}
 
 }

@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 public class MD5Utils {
 	private static MessageDigest m;
 
-	static{
+	static {
 		try {
 			m = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
@@ -15,16 +15,13 @@ public class MD5Utils {
 		}
 	}
 
-
-	public static String digest(String s){
+	public static String digest(String s) {
 		byte[] result = m.digest(s.getBytes());
-		return new BigInteger(1,result).toString(16);
+		return new BigInteger(1, result).toString(16);
 	}
 
-
-	public static void main(String args[]) throws Exception{
-		System.out.println("MD5: "+digest("asfafdsaf"));
+	public static void main(String args[]) throws Exception {
+		System.out.println("MD5: " + digest("asfafdsaf"));
 	}
-
 
 }

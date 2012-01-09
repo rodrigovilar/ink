@@ -9,26 +9,24 @@ import org.ink.core.vm.lang.internal.annotations.CoreField;
 import org.ink.core.vm.lang.property.CollectionPropertyState;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirrorState;
 
-
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=ListPropertyMirrorState.class, constraintsClass=PropertyConstraintsState.class,
-		javaMapping=JavaMapping.State_Behavior,
-		finalValuesLocation={PropertyState.p_type}, finalValues={"ink.core:List"})
-public interface ListPropertyState extends CollectionPropertyState{
+@CoreClassSpec(mirrorClass = ListPropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, javaMapping = JavaMapping.State_Behavior, finalValuesLocation = { PropertyState.p_type }, finalValues = { "ink.core:List" })
+public interface ListPropertyState extends CollectionPropertyState {
 
-	@CoreField(mandatory=true)
+	@CoreField(mandatory = true)
 	public static final byte p_list_item = 8;
 
 	public Property getListItem();
+
 	public void setListItem(PropertyState value);
 
-	public class Data extends CollectionPropertyState.Data implements ListPropertyState{
+	public class Data extends CollectionPropertyState.Data implements ListPropertyState {
 
 		@Override
 		public Property getListItem() {
-			return (Property)getValue(p_list_item);
+			return (Property) getValue(p_list_item);
 		}
 
 		@Override

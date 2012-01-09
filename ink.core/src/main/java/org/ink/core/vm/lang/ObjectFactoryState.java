@@ -6,11 +6,11 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(metaclass=DslFactoryState.class)
-public interface ObjectFactoryState extends InkObjectState{
-	
-	public class Data extends InkObjectState.Data implements ObjectFactoryState{
-		
+@CoreClassSpec(metaclass = DslFactoryState.class)
+public interface ObjectFactoryState extends InkObjectState {
+
+	public class Data extends InkObjectState.Data implements ObjectFactoryState {
+
 	}
 
 }

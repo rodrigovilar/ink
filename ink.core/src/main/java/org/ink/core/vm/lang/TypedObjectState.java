@@ -6,16 +6,17 @@ import org.ink.core.vm.lang.internal.annotations.CoreField;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(isAbstract=true)
-public interface TypedObjectState extends InkObjectState{
+@CoreClassSpec(isAbstract = true)
+public interface TypedObjectState extends InkObjectState {
 
-	@CoreField(mandatory=true)
+	@CoreField(mandatory = true)
 	public static final byte p_type = 0;
 
 	public InkType getType();
+
 	public void setType(InkTypeState value);
 
-	public class Data extends InkObjectState.Data implements TypedObjectState{
+	public class Data extends InkObjectState.Data implements TypedObjectState {
 
 		@Override
 		public InkType getType() {

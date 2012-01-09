@@ -8,18 +8,18 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(isAbstract=true,mirrorClass=PrimitiveAttributeMirrorState.class, constraintsClass=PropertyConstraintsState.class)
-public interface NumericAttributeState extends PrimitiveAttributeState{
-	
-	@CoreField(mandatory=false)
+@CoreClassSpec(isAbstract = true, mirrorClass = PrimitiveAttributeMirrorState.class, constraintsClass = PropertyConstraintsState.class)
+public interface NumericAttributeState extends PrimitiveAttributeState {
+
+	@CoreField(mandatory = false)
 	public static final byte p_default_value = 7;
-	@CoreField(mandatory=false)
+	@CoreField(mandatory = false)
 	public static final byte p_final_value = 8;
-	@CoreField(mandatory=false)
+	@CoreField(mandatory = false)
 	public static final byte p_min_value = 9;
-	@CoreField(mandatory=false)
+	@CoreField(mandatory = false)
 	public static final byte p_max_value = 10;
-	
-	public class Data extends PrimitiveAttributeState.Data implements NumericAttributeState{
+
+	public class Data extends PrimitiveAttributeState.Data implements NumericAttributeState {
 	}
 }

@@ -7,9 +7,9 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping=JavaMapping.State_Behavior)
-public interface ValidationInterceptorState extends OperationInterceptorState{
-	public class Data extends InkObjectState.Data implements ValidationInterceptorState{
+@CoreClassSpec(javaMapping = JavaMapping.State_Behavior)
+public interface ValidationInterceptorState extends OperationInterceptorState {
+	public class Data extends InkObjectState.Data implements ValidationInterceptorState {
 	}
 
 }

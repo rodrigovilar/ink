@@ -13,21 +13,19 @@ import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.EclipseUtils;
 import org.ink.eclipse.utils.MD5Utils;
 
-
 public abstract class BaseGenerator implements Generator {
 
 	public final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	protected final IFolder outputFolder;
 
-
 	public BaseGenerator(IFolder outputFolder) {
-		if(sourceGenerator()){
+		if (sourceGenerator()) {
 			this.outputFolder = outputFolder;
-		}else{
+		} else {
 			this.outputFolder = outputFolder.getFolder("gen");
 		}
-		if(!this.outputFolder.exists()){
+		if (!this.outputFolder.exists()) {
 			try {
 				createFolder(outputFolder);
 			} catch (CoreException e) {
@@ -41,36 +39,36 @@ public abstract class BaseGenerator implements Generator {
 	}
 
 	protected void writeFile(String data, String fullJavaPackage, String className) {
-		try{
+		try {
 			String relativeFolderPath = fullJavaPackage.replace(".", File.separator);
 			IFolder folder = outputFolder.getFolder(relativeFolderPath);
 			createFolder(folder);
-			IFile f = folder.getFile(className +".java");
+			IFile f = folder.getFile(className + ".java");
 			boolean shouldWrite = true;
 			String newData = EclipseUtils.format(data);
 			QualifiedName qn = new QualifiedName(InkPlugin.PLUGIN_ID, "hash");
 			String newHash = MD5Utils.digest(newData);
-			if(f.exists()){
+			if (f.exists()) {
 				String hash = f.getPersistentProperty(qn);
-				if(hash !=null && hash.equals(newHash)){
+				if (hash != null && hash.equals(newHash)) {
 					shouldWrite = false;
-				}else{
+				} else {
 					f.delete(true, null);
 				}
 			}
-			if(shouldWrite){
+			if (shouldWrite) {
 				byte[] bytes = newData.getBytes();
-				f.create(new ByteArrayInputStream(bytes, 0, bytes.length),true, null);
+				f.create(new ByteArrayInputStream(bytes, 0, bytes.length), true, null);
 				f.setPersistentProperty(qn, newHash);
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	private IContainer createFolder(IFolder folder) throws CoreException {
 		if (!folder.exists()) {
-			if(folder.getParent().getType()==IResource.FOLDER) {
+			if (folder.getParent().getType() == IResource.FOLDER) {
 				createFolder((IFolder) folder.getParent());
 			}
 			folder.create(IResource.FORCE | IResource.DERIVED, true, null);

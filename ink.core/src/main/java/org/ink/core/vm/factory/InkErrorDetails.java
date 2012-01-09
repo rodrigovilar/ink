@@ -13,7 +13,6 @@ public class InkErrorDetails {
 	private final File inkSourceDefinition;
 	private int lineNumber = -1;
 
-
 	public InkErrorDetails(String id, String path, String formattedMessage, File inkSourceDefinition, ResourceType resourceType) {
 		this.id = id;
 		this.path = path;
@@ -33,12 +32,15 @@ public class InkErrorDetails {
 	public String getId() {
 		return id;
 	}
+
 	public String getFormattedMessage() {
 		return formattedMessage;
 	}
+
 	public String getPath() {
 		return path;
 	}
+
 	public File getInkSourceDefinition() {
 		return inkSourceDefinition;
 	}
@@ -46,6 +48,5 @@ public class InkErrorDetails {
 	public ResourceType getResourceType() {
 		return resourceType;
 	}
-
 
 }

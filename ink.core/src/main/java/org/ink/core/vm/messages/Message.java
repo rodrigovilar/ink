@@ -5,6 +5,6 @@ import org.ink.core.vm.lang.InkObject;
 /**
  * @author Lior Schachter
  */
-public interface Message extends InkObject{
+public interface Message extends InkObject {
 	public String getFormattedMessage(Object... args);
 }

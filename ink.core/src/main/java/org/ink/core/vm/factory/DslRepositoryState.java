@@ -5,9 +5,9 @@ import org.ink.core.vm.lang.InkObjectState;
 /**
  * @author Lior Schachter
  */
-public interface DslRepositoryState extends InkObjectState{
-	
-	public class Data extends InkObjectState.Data implements DslRepositoryState{
+public interface DslRepositoryState extends InkObjectState {
+
+	public class Data extends InkObjectState.Data implements DslRepositoryState {
 	}
-	
+
 }

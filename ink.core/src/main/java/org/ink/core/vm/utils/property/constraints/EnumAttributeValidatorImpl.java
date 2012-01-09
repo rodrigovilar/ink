@@ -15,31 +15,28 @@ import org.ink.core.vm.utils.property.EnumAttributeState;
 /**
  * @author Lior Schachter
  */
-public class EnumAttributeValidatorImpl<S extends EnumAttributeValidatorState> extends ValidatorImpl<S> implements InstanceValidator{
+public class EnumAttributeValidatorImpl<S extends EnumAttributeValidatorState> extends ValidatorImpl<S> implements InstanceValidator {
 
 	@Override
-	public void validate(InkObjectState target, Mirror targetSuper,
-			ValidationContext context, SystemState systemState) {
-		EnumAttributeState att = (EnumAttributeState)target;
+	public void validate(InkObjectState target, Mirror targetSuper, ValidationContext context, SystemState systemState) {
+		EnumAttributeState att = (EnumAttributeState) target;
 		String defaultValue = att.getDefaultValue();
-		if(defaultValue!=null){
+		if (defaultValue != null) {
 			EnumType eType = att.getType();
 			Collection<String> vals = eType.getValues();
-			if(!vals.contains(defaultValue)){
+			if (!vals.contains(defaultValue)) {
 				String values = "";
 				Iterator<String> iter = vals.iterator();
-				for(int i=0;i<vals.size();i++){
-					values +=iter.next();
-					if(i<vals.size()-1){
-						values +=",";
+				for (int i = 0; i < vals.size(); i++) {
+					values += iter.next();
+					if (i < vals.size() - 1) {
+						values += ",";
 					}
 				}
-				context.addError(target, this, "enum.illegal.value", defaultValue, eType.reflect().getId(),values);
+				context.addError(target, this, "enum.illegal.value", defaultValue, eType.reflect().getId(), values);
 			}
 			return;
 		}
 	}
-
-
 
 }

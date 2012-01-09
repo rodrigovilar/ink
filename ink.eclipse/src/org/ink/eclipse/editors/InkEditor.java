@@ -1,7 +1,5 @@
 package org.ink.eclipse.editors;
 
-
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -28,7 +26,7 @@ import org.ink.eclipse.editors.operations.InkEditorOperation;
 import org.ink.eclipse.editors.operations.QuickHierarchyOperation;
 import org.ink.eclipse.editors.utils.ColorManager;
 
-public class InkEditor extends TextEditor{
+public class InkEditor extends TextEditor {
 
 	private static final String INK_ECLIPSE_GOTO_ELEMENT = "ink.eclipse.gotoElement";
 
@@ -42,7 +40,7 @@ public class InkEditor extends TextEditor{
 
 	public InkEditor() {
 		setEditorContextMenuId("#InkEditorContext");
-		//setRulerContextMenuId("#InkEditorContext");
+		// setRulerContextMenuId("#InkEditorContext");
 		colorManager = new ColorManager();
 		setSourceViewerConfiguration(new InkSourceViewerConfiguration(colorManager));
 		setDocumentProvider(new InkDocumentProvider());
@@ -50,7 +48,7 @@ public class InkEditor extends TextEditor{
 
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] { "ink.eclipse.context.editor" });  //$NON-NLS-1$
+		setKeyBindingScopes(new String[] { "ink.eclipse.context.editor" }); //$NON-NLS-1$
 	}
 
 	/*
@@ -59,13 +57,12 @@ public class InkEditor extends TextEditor{
 	@Override
 	protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
 
-		fAnnotationAccess= getAnnotationAccess();
-		fOverviewRuler= createOverviewRuler(getSharedColors());
+		fAnnotationAccess = getAnnotationAccess();
+		fOverviewRuler = createOverviewRuler(getSharedColors());
 
-		ISourceViewer viewer= new InkSourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
+		ISourceViewer viewer = new InkSourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
 		// ensure decoration support has been created and configured.
 		getSourceViewerDecorationSupport(viewer);
-
 
 		return viewer;
 	}
@@ -83,27 +80,27 @@ public class InkEditor extends TextEditor{
 		action.setEnabled(true);
 		setAction(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY, action);
 
-		action= new TextOperationAction(bundle,"generate_ java", this, 300, true);
+		action = new TextOperationAction(bundle, "generate_ java", this, 300, true);
 		action.setText("Generate Java Classes");
 		action.setToolTipText("Generate Java Classes");
 		action.setActionDefinitionId(INK_ECLIPSE_GENERATE_JAVA);
 		action.setEnabled(true);
 		setAction(INK_ECLIPSE_GENERATE_JAVA, action);
 
-		action= new TextOperationAction(bundle,"goto_java", this, 200, true);
+		action = new TextOperationAction(bundle, "goto_java", this, 200, true);
 		action.setText("Goto Java");
 		action.setToolTipText("Goto Java");
 		action.setActionDefinitionId(INK_ECLIPSE_GOTO_JAVA);
 		action.setEnabled(true);
 		setAction(INK_ECLIPSE_GOTO_JAVA, action);
 
-		action= new TextOperationAction(bundle,"goto_ink", this, 100, true);
+		action = new TextOperationAction(bundle, "goto_ink", this, 100, true);
 		action.setText("Goto Ink Element");
 		action.setToolTipText("Goto Ink Element");
 		action.setActionDefinitionId(INK_ECLIPSE_GOTO_ELEMENT);
 		action.setEnabled(true);
 		setAction(INK_ECLIPSE_GOTO_ELEMENT, action);
-		action= new TextOperationAction(bundle,"goto_ink", this, 100, true);
+		action = new TextOperationAction(bundle, "goto_ink", this, 100, true);
 	}
 
 	@Override
@@ -111,31 +108,28 @@ public class InkEditor extends TextEditor{
 		super.editorContextMenuAboutToShow(menu);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		IAction action= getAction(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY);
+		IAction action = getAction(QuickHierarchyOperation.INK_ECLIPSE_QUICK_HIERARCHY);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		action= getAction(INK_ECLIPSE_GENERATE_JAVA);
+		action = getAction(INK_ECLIPSE_GENERATE_JAVA);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		action= getAction(INK_ECLIPSE_GOTO_JAVA);
+		action = getAction(INK_ECLIPSE_GOTO_JAVA);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(IContextMenuConstants.GROUP_SHOW));
-		action= getAction(INK_ECLIPSE_GOTO_ELEMENT);
+		action = getAction(INK_ECLIPSE_GOTO_ELEMENT);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 
 	}
 
-	public class InkSourceViewer extends ProjectionViewer{
+	public class InkSourceViewer extends ProjectionViewer {
 
 		Map<Integer, InkEditorOperation> codeToOps = new HashMap<Integer, InkEditorOperation>();
 
-
-		public InkSourceViewer(Composite parent, IVerticalRuler ruler,
-				IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
-				int styles) {
+		public InkSourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles) {
 			super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
 			codeToOps.put(100, new GotoInkOperation());
 			codeToOps.put(200, new GotoJavaOperation());
@@ -145,13 +139,13 @@ public class InkEditor extends TextEditor{
 
 		@Override
 		public void doOperation(int operation) {
-			if(operation>=100){
+			if (operation >= 100) {
 				InkEditorOperation op = codeToOps.get(operation);
-				if(op!=null){
+				if (op != null) {
 					try {
 
-						boolean save = op.run(getDocument(), (TextSelection) getSelection(), getControl().getShell(), ((FileEditorInput)getEditorInput()).getFile());
-						if(save){
+						boolean save = op.run(getDocument(), (TextSelection) getSelection(), getControl().getShell(), ((FileEditorInput) getEditorInput()).getFile());
+						if (save) {
 							doSave(new NullProgressMonitor());
 						}
 					} catch (Exception e) {
@@ -164,6 +158,5 @@ public class InkEditor extends TextEditor{
 		}
 
 	}
-
 
 }

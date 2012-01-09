@@ -8,26 +8,26 @@ import org.ink.core.vm.lang.property.ValuePropertyState;
 /**
  * @author Lior Schachter
  */
-public class ValuePropertyMirrorImpl<S extends ValuePropertyMirrorState> extends PropertyMirrorImpl<S> implements ValuePropertyMirror{
-	
-	private PropertyValueCalculator calculator; 
-	
+public class ValuePropertyMirrorImpl<S extends ValuePropertyMirrorState> extends PropertyMirrorImpl<S> implements ValuePropertyMirror {
+
+	private PropertyValueCalculator calculator;
+
 	@Override
 	public void afterTargetSet() {
 		super.afterTargetSet();
-		calculator = ((ValuePropertyState)getTargetState()).getValueCalculator(); 
-		if(calculator!=null){
+		calculator = ((ValuePropertyState) getTargetState()).getValueCalculator();
+		if (calculator != null) {
 			setIsComputed(true);
-			if(calculator.hasStaticValue()){
+			if (calculator.hasStaticValue()) {
 				setHasStaticValue(true);
 			}
 		}
 	}
-	
+
 	@Override
 	public Object produceValue(InkObjectState container, Object value) {
-		if(isComputed()){
-			return calculator.getValue(container, (Property)getTargetBehavior(), value); 
+		if (isComputed()) {
+			return calculator.getValue(container, (Property) getTargetBehavior(), value);
 		}
 		return super.produceValue(container, value);
 	}

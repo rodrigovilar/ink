@@ -2,7 +2,6 @@ package org.ink.core.vm.lang.property;
 
 import org.ink.core.vm.lang.Property;
 
-
 /**
  * @author Lior Schachter
  */

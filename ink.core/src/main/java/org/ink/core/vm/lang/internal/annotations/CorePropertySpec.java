@@ -12,9 +12,10 @@ import org.ink.core.vm.constraints.PropertyValueValidatorState;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CorePropertySpec{
+public @interface CorePropertySpec {
 
 	public String[] keys();
+
 	public Class<? extends PropertyValueValidatorState>[] validatorsClasses();
 
 }

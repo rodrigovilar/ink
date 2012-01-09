@@ -16,41 +16,39 @@ import org.ink.core.vm.factory.resources.JavaClassDescription;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.eclipse.utils.EclipseUtils;
 
-public class EclipseResourceResolver extends CoreResourceResolver{
+public class EclipseResourceResolver extends CoreResourceResolver {
 
 	@Override
 	public File getDslResourcesLocation(DslFactory factory) {
 		File dslConfFile = factory.getConfigurationFile();
-		File result = new File(dslConfFile.getParentFile().getAbsolutePath() +
-				File.separatorChar + "src" + File.separatorChar +"main" + File.separatorChar +"dsl"
-				+ File.separatorChar +factory.getDslPackage().replace('.', File.separatorChar));
+		File result = new File(dslConfFile.getParentFile().getAbsolutePath() + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "dsl" + File.separatorChar + factory.getDslPackage().replace('.', File.separatorChar));
 		return result;
 	}
 
 	private JavaClassDescription getClassDetails(ClassMirror cm, IJavaElement je, String shortClassName) {
 		IType t;
-		if(je instanceof IClassFile){
-			t = ((IClassFile)je).getType();
-		}else{
-			t = ((ICompilationUnit)je).getType(shortClassName);
+		if (je instanceof IClassFile) {
+			t = ((IClassFile) je).getType();
+		} else {
+			t = ((ICompilationUnit) je).getType(shortClassName);
 		}
-		try{
+		try {
 			ITypeHierarchy hier = t.newSupertypeHierarchy(null);
 			JavaClassDescription result = new JavaClassDescription();
 			IType superClass = hier.getSuperclass(t);
-			if(superClass!=null){
+			if (superClass != null) {
 				result.setSuperClass(superClass.getFullyQualifiedName());
 			}
 			IType[] interfaces = hier.getSuperInterfaces(t);
-			if(interfaces!=null && interfaces.length>0){
+			if (interfaces != null && interfaces.length > 0) {
 				Set<String> s = new HashSet<String>(interfaces.length);
-				for(IType i : interfaces){
+				for (IType i : interfaces) {
 					s.add(i.getFullyQualifiedName());
 				}
 				result.setInterfaces(s);
 			}
 			return result;
-		}catch(JavaModelException e){
+		} catch (JavaModelException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -59,7 +57,7 @@ public class EclipseResourceResolver extends CoreResourceResolver{
 	@Override
 	public JavaClassDescription getBehaviorClassDescription(ClassMirror cm) {
 		IJavaElement je = EclipseUtils.getJavaBehaviorElement(cm);
-		if(je!=null){
+		if (je != null) {
 			return getClassDetails(cm, je, getBehaviorShortClassName(cm));
 		}
 		return null;
@@ -68,7 +66,7 @@ public class EclipseResourceResolver extends CoreResourceResolver{
 	@Override
 	public JavaClassDescription getInterfaceDescription(ClassMirror cm) {
 		IJavaElement je = EclipseUtils.getJavaInterfaceElement(cm);
-		if(je!=null){
+		if (je != null) {
 			return getClassDetails(cm, je, getInterfaceClassShortName(cm));
 		}
 		return null;

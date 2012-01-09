@@ -34,6 +34,7 @@ public class ProxyPerformanceComparison {
 	static void iterate(Callable<Integer> callable, String label) throws Exception {
 		int count = 10000000;
 		long time = System.currentTimeMillis();
+		@SuppressWarnings("unused")
 		int total = 0;
 		for (int i = 0; i < count; i++) {
 			total += callable.call();
@@ -50,6 +51,7 @@ public class ProxyPerformanceComparison {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public Object invoke(Object object, Method method, Object[] objects) throws Throwable {
 			return method.invoke(delegate, objects);
 		}
@@ -63,6 +65,7 @@ public class ProxyPerformanceComparison {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public Object intercept(Object object, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
 			return methodProxy.invoke(delegate, objects);
 		}
@@ -71,6 +74,7 @@ public class ProxyPerformanceComparison {
 	static class Counter implements Callable<Integer> {
 		int count = 0;
 
+		@Override
 		public Integer call() throws Exception {
 			return count++;
 		}

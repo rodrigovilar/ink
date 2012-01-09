@@ -3,12 +3,11 @@ package org.ink.core.vm.types;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObjectImpl;
 
-
 /**
  * @author Lior Schachter
  */
 public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectImpl<S> implements PrimitiveType {
-	
+
 	private boolean isBoolean;
 	private boolean isString;
 	private boolean isNumeric;
@@ -21,7 +20,7 @@ public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectIm
 		super.afterStateSet();
 		marker = getState().getTypeMarker();
 		typeClass = getContext().getFactory().resolvePrimitiveClass(marker);
-		switch(marker){
+		switch (marker) {
 		case Boolean:
 			isBoolean = true;
 			isString = false;
@@ -76,57 +75,56 @@ public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectIm
 			isNumeric = false;
 			isDate = false;
 			break;
-			default:
-				//do nothing - maybe taken care of by descendent
+		default:
+			// do nothing - maybe taken care of by descendent
 		}
 	}
-	
-	
+
 	@Override
 	public final boolean isBoolean() {
 		return isBoolean;
 	}
-	
+
 	@Override
 	public final Class<?> getTypeClass() {
 		return typeClass;
 	}
-	
+
 	@Override
 	public final boolean isString() {
 		return isString;
 	}
-	
+
 	@Override
 	public final boolean isNumeric() {
 		return isNumeric;
 	}
-	
+
 	@Override
 	public final boolean isDate() {
 		return isDate;
 	}
-	
+
 	@Override
 	public final PrimitiveTypeMarker getPrimitiveMarker() {
 		return marker;
 	}
-	
+
 	@Override
 	public final boolean isObject() {
 		return false;
 	}
-	
+
 	@Override
 	public final boolean isPrimitive() {
 		return true;
 	}
-	
+
 	@Override
 	public final boolean isCollection() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isEnumeration() {
 		return false;

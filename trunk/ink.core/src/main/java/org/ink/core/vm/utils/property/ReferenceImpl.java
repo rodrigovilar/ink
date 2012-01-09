@@ -4,7 +4,6 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.property.ValuePropertyImpl;
 import org.ink.core.vm.proxy.Proxiable;
 
-
 /**
  * @author Lior Schachter
  */

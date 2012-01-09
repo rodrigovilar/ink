@@ -19,7 +19,7 @@ public class SimpleTreeNode<T> {
 	}
 
 	public List<SimpleTreeNode<T>> getChildren() {
-		return children == null ? Collections.<SimpleTreeNode<T>>emptyList() : Collections.unmodifiableList(children);
+		return children == null ? Collections.<SimpleTreeNode<T>> emptyList() : Collections.unmodifiableList(children);
 	}
 
 	public void addChild(T child) {

@@ -10,21 +10,21 @@ import org.ink.core.vm.traits.Trait;
 /**
  * @author Lior Schachter
  */
-public class InkObjectImpl<S extends InkObjectState> implements InkObject{
+public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	private S state = null;
 	private Context context = null;
 
 	@SuppressWarnings("unchecked")
-	protected void setState(InkObjectState state, Context context){
+	protected void setState(InkObjectState state, Context context) {
 		this.state = (S) state;
 		this.context = context;
 	}
 
-	protected S getState(){
+	protected S getState() {
 		return state;
 	}
 
-	protected Context getContext(){
+	protected Context getContext() {
 		return context;
 	}
 
@@ -39,7 +39,7 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	}
 
 	@Override
-	public <M extends InkClass> M getMeta(){
+	public <M extends InkClass> M getMeta() {
 		return state.getMeta();
 	}
 
@@ -48,7 +48,7 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	}
 
 	@Override
-	public <T extends InkObjectState> T cloneState(){
+	public <T extends InkObjectState> T cloneState() {
 		return getState().cloneState();
 	}
 
@@ -65,11 +65,11 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
-		    return true;
+			return true;
 		}
 		String id = state.getId();
-		if(obj!=null && id!=null && obj instanceof InkObject){
-			return id.equals(((InkObject)obj).reflect().getId());
+		if (obj != null && id != null && obj instanceof InkObject) {
+			return id.equals(((InkObject) obj).reflect().getId());
 		}
 		return false;
 	}
@@ -93,6 +93,5 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject{
 	public <T extends Trait> T asTrait(String role) {
 		return getState().asTrait(role);
 	}
-
 
 }

@@ -10,9 +10,10 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CoreListField{
-	
+public @interface CoreListField {
+
 	public boolean mandatory() default false;
+
 	public String itemName();
 
 }

@@ -9,7 +9,7 @@ public class CoreNotations {
 	public static final String CORE_SOURCE_PATH = "org.ink.core.vm";
 	public static final String CORE_PACKAGE = "org.ink.core.vm";
 
-	public class Ids{
+	public class Ids {
 		public static final String DEFAULT_CONTEXT = "ink.core:DefaultContext";
 		public static final String CORE_LOADER = "ink.core:CoreLoader";
 		public static final String DSL_REPOSITORY = "ink.core:DslRepository";
@@ -103,8 +103,8 @@ public class CoreNotations {
 
 	}
 
-	public class Properties{
-		public static final String  CLASS_JAVA_MAPPING = "java_mapping";
+	public class Properties {
+		public static final String CLASS_JAVA_MAPPING = "java_mapping";
 	}
 
 }

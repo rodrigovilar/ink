@@ -8,17 +8,14 @@ import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.types.CollectionTypeMarker;
 import org.ink.core.vm.utils.property.ListPropertyState;
 
-
 /**
  * @author Lior Schachter
  */
-public class ListPropertyMirrorImpl<S extends ListPropertyMirrorState> extends CollectionPropertyMirrorImpl<S> implements ListPropertyMirror{
+public class ListPropertyMirrorImpl<S extends ListPropertyMirrorState> extends CollectionPropertyMirrorImpl<S> implements ListPropertyMirror {
 
 	private PropertyMirror itemMirror;
 
-	public void boot(byte index, String name, Class<?> typeClass,
-			DataTypeMarker typeMarker, boolean hasStaticValue,
-			boolean isComputed, CollectionTypeMarker collectionMarker, PropertyMirror itemMirror) {
+	public void boot(byte index, String name, Class<?> typeClass, DataTypeMarker typeMarker, boolean hasStaticValue, boolean isComputed, CollectionTypeMarker collectionMarker, PropertyMirror itemMirror) {
 		super.boot(index, name, typeClass, typeMarker, hasStaticValue, isComputed, collectionMarker);
 		this.itemMirror = itemMirror;
 	}
@@ -26,7 +23,7 @@ public class ListPropertyMirrorImpl<S extends ListPropertyMirrorState> extends C
 	@Override
 	public void bind(ClassMirror holdingClass, byte index) {
 		super.bind(holdingClass, index);
-		if(itemMirror!=null){
+		if (itemMirror != null) {
 			itemMirror.bind(getDefiningClass(), getIndex());
 		}
 	}
@@ -34,14 +31,14 @@ public class ListPropertyMirrorImpl<S extends ListPropertyMirrorState> extends C
 	@Override
 	public void afterTargetSet() {
 		super.afterTargetSet();
-		Property desc = ((ListPropertyState)getTargetState()).getListItem();
-		if(desc!=null){
+		Property desc = ((ListPropertyState) getTargetState()).getListItem();
+		if (desc != null) {
 			itemMirror = desc.reflect();
 		}
 	}
 
 	@Override
-	public PropertyMirror getItemMirror(){
+	public PropertyMirror getItemMirror() {
 		return itemMirror;
 	}
 

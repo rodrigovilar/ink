@@ -42,13 +42,13 @@ import org.ink.eclipse.InkPlugin;
 
 public class InkUtils {
 
-	private static String[] getScope(String ns){
-		return InkVM.instance().getFactory(ns).getScope().toArray(new String[]{});
+	private static String[] getScope(String ns) {
+		return InkVM.instance().getFactory(ns).getScope().toArray(new String[] {});
 	}
 
-	public static final String getClassId(String objectId){
+	public static final String getClassId(String objectId) {
 		InkObjectState base = InkPlugin.getDefault().getInkContext().getState(objectId, false);
-		if(base!=null){
+		if (base != null) {
 			return base.getMeta().reflect().getId();
 		}
 		return null;
@@ -58,14 +58,14 @@ public class InkUtils {
 		if (is == null) {
 			return null;
 		}
-		BufferedReader reader= null;
+		BufferedReader reader = null;
 		try {
-			StringBuffer buffer= new StringBuffer();
-			char[] part= new char[2048];
-			int read= 0;
-			reader= new BufferedReader(new InputStreamReader(is, encoding));
+			StringBuffer buffer = new StringBuffer();
+			char[] part = new char[2048];
+			int read = 0;
+			reader = new BufferedReader(new InputStreamReader(is, encoding));
 
-			while ((read= reader.read(part)) != -1) {
+			while ((read = reader.read(part)) != -1) {
 				buffer.append(part, 0, read);
 			}
 
@@ -83,12 +83,12 @@ public class InkUtils {
 		return null;
 	}
 
-	public static Collection<Mirror> getAllClasses(String[] nss){
+	public static Collection<Mirror> getAllClasses(String[] nss) {
 		Collection<Mirror> result = new ArrayList<Mirror>();
 		InkObject base = InkPlugin.getDefault().getInkContext().getObject(CoreNotations.Ids.INK_OBJECT);
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		Collection<Mirror> temp = repo.findReferrers(base.reflect(), ExtendsRelation.getInstance(), true, nss);
-		if(temp!=null){
+		if (temp != null) {
 			result.addAll(temp);
 		}
 		return result;
@@ -104,7 +104,7 @@ public class InkUtils {
 			for (String ns : nss) {
 				DslFactory factory = vm.getFactory(ns);
 				File factoryConfFile = factory.getConfigurationFile();
-				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+				if (factoryConfFile != null && factoryConfFile.getAbsolutePath().equals(path)) {
 					nssList.add(ns);
 				}
 			}
@@ -120,7 +120,7 @@ public class InkUtils {
 			String path = f.getLocation().toFile().getAbsolutePath();
 			for (DslFactory factory : factories) {
 				File factoryConfFile = factory.getConfigurationFile();
-				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+				if (factoryConfFile != null && factoryConfFile.getAbsolutePath().equals(path)) {
 					ids.add(factory.reflect().getId());
 				}
 			}
@@ -136,7 +136,7 @@ public class InkUtils {
 			String path = f.getLocation().toFile().getAbsolutePath();
 			for (DslFactory factory : factories) {
 				File factoryConfFile = factory.getConfigurationFile();
-				if (factoryConfFile != null	&& factoryConfFile.getAbsolutePath().equals(path)) {
+				if (factoryConfFile != null && factoryConfFile.getAbsolutePath().equals(path)) {
 					result.put(factory.getNamespace(), factory);
 				}
 			}
@@ -144,50 +144,48 @@ public class InkUtils {
 		return result;
 	}
 
-
-
-	public static List<String> getAllSupers(String classId){
+	public static List<String> getAllSupers(String classId) {
 		Context context = InkPlugin.getDefault().getInkContext();
 		List<String> result = new ArrayList<String>();
-		try{
+		try {
 			InkObject o = context.getObject(classId);
-			if(o!=null){
+			if (o != null) {
 				Mirror m = o.reflect();
-				while(m!=null){
+				while (m != null) {
 					m = m.getSuper();
-					if(m!=null){
+					if (m != null) {
 						result.add(m.getId());
 					}
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
-	public static Collection<Mirror> getInstances(String classId, boolean recursive){
+	public static Collection<Mirror> getInstances(String classId, boolean recursive) {
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
-		if(inkObject!=null){
+		if (inkObject != null) {
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
 			Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), recursive);
-			if(temp!=null){
+			if (temp != null) {
 				referrers.addAll(temp);
 			}
 		}
 		return referrers;
 	}
 
-	public static Collection<Mirror> getInstances(String[] nss, String classId, boolean recursive, boolean topLevelOnly){
+	public static Collection<Mirror> getInstances(String[] nss, String classId, boolean recursive, boolean topLevelOnly) {
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
-		if(inkObject!=null){
+		if (inkObject != null) {
 			ModelInfoRepository repo = ModelInfoFactory.getInstance();
 			Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), recursive, nss);
-			if(temp!=null){
-				for(Mirror m : temp){
-					if(m.isRoot() || !topLevelOnly) {
+			if (temp != null) {
+				for (Mirror m : temp) {
+					if (m.isRoot() || !topLevelOnly) {
 						referrers.add(m);
 					}
 				}
@@ -196,19 +194,19 @@ public class InkUtils {
 		return referrers;
 	}
 
-	public static List<String> getInstancesIds(String[] nss, String classId, boolean recursive){
+	public static List<String> getInstancesIds(String[] nss, String classId, boolean recursive) {
 		return createResultList(getInstances(nss, classId, recursive, true), true);
 	}
 
-	public static List<String> getInstancesIds(String ns, String classId, boolean recursive){
+	public static List<String> getInstancesIds(String ns, String classId, boolean recursive) {
 		return getInstancesIds(getScope(ns), classId, recursive);
 	}
 
-	private static List<String> createResultList(Collection<Mirror> referrers, boolean includingAbstract){
+	private static List<String> createResultList(Collection<Mirror> referrers, boolean includingAbstract) {
 		List<String> result = new ArrayList<String>();
-		if(referrers!=null){
-			for(Mirror m : referrers){
-				if(includingAbstract || !m.isAbstract()){
+		if (referrers != null) {
+			for (Mirror m : referrers) {
+				if (includingAbstract || !m.isAbstract()) {
 					result.add(m.getId());
 				}
 			}
@@ -217,9 +215,9 @@ public class InkUtils {
 
 			@Override
 			public int compare(String arg0, String arg1) {
-				if(arg0==null){
+				if (arg0 == null) {
 					return -1;
-				}else if(arg1==null){
+				} else if (arg1 == null) {
 					return 1;
 				}
 				return arg0.compareTo(arg1);
@@ -230,16 +228,16 @@ public class InkUtils {
 		return result;
 	}
 
-	public static List<String> getInstances(String ns, List<String> classes, boolean rootOnly){
+	public static List<String> getInstances(String ns, List<String> classes, boolean rootOnly) {
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
-		for(String clsId : classes){
+		for (String clsId : classes) {
 			InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(clsId, false);
-			if(inkObject!=null){
+			if (inkObject != null) {
 				Collection<Mirror> temp = repo.findReferrers(inkObject.reflect(), IsInstanceOfRelation.getInstance(), false, getScope(ns));
-				if(temp!=null){
-					for(Mirror m : temp){
-						if(m.isRoot() || !rootOnly){
+				if (temp != null) {
+					for (Mirror m : temp) {
+						if (m.isRoot() || !rootOnly) {
 							referrers.add(m);
 						}
 					}
@@ -249,24 +247,24 @@ public class InkUtils {
 		return createResultList(referrers, true);
 	}
 
-	public static List<String> getSubClasses(String ns, String classId, boolean recursive, boolean includingAbstract){
+	public static List<String> getSubClasses(String ns, String classId, boolean recursive, boolean includingAbstract) {
 		Collection<Mirror> referrers = new ArrayList<Mirror>();
 		ModelInfoRepository repo = ModelInfoFactory.getInstance();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
-		if(inkObject!=null){
+		if (inkObject != null) {
 			referrers = repo.findReferrers(inkObject.reflect(), ExtendsRelation.getInstance(), recursive, getScope(ns));
 		}
 		return createResultList(referrers, includingAbstract);
 	}
 
-	public static Collection<PropertyMirror> getPropertiesMirrors(String classId, Collection<String> exclude){
+	public static Collection<PropertyMirror> getPropertiesMirrors(String classId, Collection<String> exclude) {
 		Collection<PropertyMirror> result = new ArrayList<PropertyMirror>();
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
-		if(inkObject!=null && inkObject.reflect().isClass()){
+		if (inkObject != null && inkObject.reflect().isClass()) {
 			ClassMirror cm = inkObject.reflect();
-			if(cm.isValid()){
+			if (cm.isValid()) {
 				Map<String, PropertyMirror> props = new HashMap<String, PropertyMirror>(cm.getClassPropertiesMap());
-				for(String key : exclude){
+				for (String key : exclude) {
 					props.remove(key);
 				}
 				return props.values();
@@ -275,78 +273,74 @@ public class InkUtils {
 		return result;
 	}
 
-	public static PropertyMirror getPropertyMirror(String classId, String propertyName, List<String> path){
+	public static PropertyMirror getPropertyMirror(String classId, String propertyName, List<String> path) {
 		PropertyMirror result = null;
 		InkObject inkObject = InkPlugin.getDefault().getInkContext().getFactory().getObject(classId, false);
-		if(inkObject!=null && inkObject.reflect().isClass()){
+		if (inkObject != null && inkObject.reflect().isClass()) {
 			ClassMirror cm = inkObject.reflect();
 			Map<String, PropertyMirror> props = cm.getClassPropertiesMap();
-			if(path!=null && !path.isEmpty()){
-				//TODO should handle unlimited number of inner maps and lists
+			if (path != null && !path.isEmpty()) {
+				// TODO should handle unlimited number of inner maps and lists
 				PropertyMirror temp = null;
 				temp = props.get(path.get(0));
-				if(temp!=null && temp.getTypeMarker()==DataTypeMarker.Collection){
-					switch(((CollectionPropertyMirror)temp).getCollectionTypeMarker()){
+				if (temp != null && temp.getTypeMarker() == DataTypeMarker.Collection) {
+					switch (((CollectionPropertyMirror) temp).getCollectionTypeMarker()) {
 					case List:
-						result = ((ListPropertyMirror)temp).getItemMirror().getName().equals(propertyName)?
-								((ListPropertyMirror)temp).getItemMirror():null;
-								break;
+						result = ((ListPropertyMirror) temp).getItemMirror().getName().equals(propertyName) ? ((ListPropertyMirror) temp).getItemMirror() : null;
+						break;
 					case Map:
-						result = ((MapPropertyMirror)temp).getKeyMirror().getName().equals(propertyName)?
-								((MapPropertyMirror)temp).getKeyMirror():null;
-								if(result==null){
-									result = ((MapPropertyMirror)temp).getValueMirror().getName().equals(propertyName)?
-											((MapPropertyMirror)temp).getValueMirror():null;
+						result = ((MapPropertyMirror) temp).getKeyMirror().getName().equals(propertyName) ? ((MapPropertyMirror) temp).getKeyMirror() : null;
+						if (result == null) {
+							result = ((MapPropertyMirror) temp).getValueMirror().getName().equals(propertyName) ? ((MapPropertyMirror) temp).getValueMirror() : null;
 
-								}
-								break;
+						}
+						break;
 
 					}
 				}
 
-			}else{
+			} else {
 				result = props.get(propertyName);
 			}
 		}
 		return result;
 	}
 
-	public static List<IClasspathEntry> getJavaSrcPaths(IProject p){
+	public static List<IClasspathEntry> getJavaSrcPaths(IProject p) {
 		List<IClasspathEntry> result = new ArrayList<IClasspathEntry>();
 		try {
 			IJavaProject jProject = JavaCore.create(p);
 			IClasspathEntry[] paths = jProject.getResolvedClasspath(true);
-			for(IClasspathEntry cpe : paths){
-				if(cpe.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+			for (IClasspathEntry cpe : paths) {
+				if (cpe.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 					result.add(cpe);
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
-	public static List<IClasspathEntry> getJavaLibs(IProject p){
+	public static List<IClasspathEntry> getJavaLibs(IProject p) {
 		List<IClasspathEntry> result = new ArrayList<IClasspathEntry>();
 		try {
 			IJavaProject jProject = JavaCore.create(p);
 			IClasspathEntry[] paths = jProject.getResolvedClasspath(true);
-			for(IClasspathEntry cpe : paths){
-				if(cpe.getEntryKind()==IClasspathEntry.CPE_LIBRARY){
+			for (IClasspathEntry cpe : paths) {
+				if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					result.add(cpe);
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-
 
 	public static String resolveNamespace(File f) {
 		DslFactory factory = InkVM.instance().getOwnerFactory(f);
-		if(factory!=null){
+		if (factory != null) {
 			return factory.getNamespace();
 		}
 		return null;

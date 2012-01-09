@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
-
 public class PageAnalyzer {
 
 	private String text;
@@ -22,21 +21,21 @@ public class PageAnalyzer {
 		scan();
 	}
 
-	public List<ICompletionProposal> getContentAssist(){
+	public List<ICompletionProposal> getContentAssist() {
 		ObjectDataBlock currentElement = getCurrentElement();
 		List<ICompletionProposal> result = null;
-		if(currentElement!=null){
+		if (currentElement != null) {
 			DataBlock b = currentElement.getBlock(cursorLocation);
 			result = b.getContentAssist(cursorLocation);
-		}else{
+		} else {
 			result = getResultForNewElement();
 		}
 		return result;
 	}
 
-	public ObjectDataBlock getRootElement(){
+	public ObjectDataBlock getRootElement() {
 		DataBlock result = getCurrentElement();
-		while(result.getParent()!=null){
+		while (result.getParent() != null) {
 			result = result.getParent();
 		}
 		return (ObjectDataBlock) result;
@@ -45,61 +44,59 @@ public class PageAnalyzer {
 	private List<ICompletionProposal> getResultForNewElement() {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
-		result.add(new CompletionProposal("Object ", cursorLocation, 0,"Object ".length(), null, null, null, null));
-//		result.add(new CompletionProposal("Ink ", cursorLocation, 0,"Ink ".length(), null, null, null, null));
-//		result.add(new CompletionProposal("InkInk ", cursorLocation, 0,"InkInk ".length(), null, null, null, null));
+		result.add(new CompletionProposal("Object ", cursorLocation, 0, "Object ".length(), null, null, null, null));
+		// result.add(new CompletionProposal("Ink ", cursorLocation, 0,"Ink ".length(), null, null, null, null));
+		// result.add(new CompletionProposal("InkInk ", cursorLocation, 0,"InkInk ".length(), null, null, null, null));
 		return result;
 	}
 
-	private void scan(){
+	private void scan() {
 		StringBuilder currentLine = new StringBuilder(150);
-		int startB=0;
+		int startB = 0;
 		int endB = 0;
 		char[] cs = text.toCharArray();
-		int elementStart=0;
+		int elementStart = 0;
 		boolean checkStartElement = false;
-		int i=0;
+		int i = 0;
 		StringBuilder lastLine = currentLine;
 		boolean comment = false;
-		for(;i<cs.length;i++){
-			if(comment && cs[i]!='\n'){
+		for (; i < cs.length; i++) {
+			if (comment && cs[i] != '\n') {
 				continue;
 			}
-			switch(cs[i]){
+			switch (cs[i]) {
 			case '{':
 				startB++;
 				break;
 			case '}':
 				endB++;
-				if(startB == endB){
-					addElement(cs, elementStart, i+1);
-					elementStart = i+2;
+				if (startB == endB) {
+					addElement(cs, elementStart, i + 1);
+					elementStart = i + 2;
 				}
 				break;
 			case '\n':
 				comment = false;
 				checkStartElement = true;
 				lastLine = currentLine;
-				if(startB == endB && currentLine.toString().trim().length() > 0){
-					addElement(cs, i-currentLine.length(), i+1);
-					elementStart = i+2;
+				if (startB == endB && currentLine.toString().trim().length() > 0) {
+					addElement(cs, i - currentLine.length(), i + 1);
+					elementStart = i + 2;
 				}
 				currentLine = new StringBuilder(100);
 				break;
 			case ' ':
-				if(checkStartElement){
+				if (checkStartElement) {
 					String currentLineString = currentLine.toString();
-					if(currentLineString.startsWith("Object") || currentLineString.startsWith("Class") ||
-							currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")){
-						if(startB!=endB){
-							addElement(cs, elementStart, i-currentLineString.length());
+					if (currentLineString.startsWith("Object") || currentLineString.startsWith("Class") || currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")) {
+						if (startB != endB) {
+							addElement(cs, elementStart, i - currentLineString.length());
 						}
 						String lastLineSting = lastLine.toString();
-						if(lastLineSting.startsWith("Object") || lastLineSting.startsWith("Class") ||
-							currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")){
-							addElement(cs, i-lastLineSting.length()-currentLineString.length()-1, i-currentLineString.length()-1);
+						if (lastLineSting.startsWith("Object") || lastLineSting.startsWith("Class") || currentLineString.startsWith("Ink") || currentLineString.startsWith("InkInk")) {
+							addElement(cs, i - lastLineSting.length() - currentLineString.length() - 1, i - currentLineString.length() - 1);
 						}
-						elementStart = i-currentLine.length();
+						elementStart = i - currentLine.length();
 						startB = endB = 0;
 					}
 					checkStartElement = false;
@@ -107,7 +104,7 @@ public class PageAnalyzer {
 				currentLine.append(cs[i]);
 				break;
 			case '/':
-				if(cs.length>i+1 && cs[i+1]=='/'){
+				if (cs.length > i + 1 && cs[i + 1] == '/') {
 					comment = true;
 					break;
 				}
@@ -115,8 +112,8 @@ public class PageAnalyzer {
 				currentLine.append(cs[i]);
 			}
 		}
-		if(currentLine.toString().trim().length()>0){
-			addElement(cs, i-currentLine.length(), i);
+		if (currentLine.toString().trim().length() > 0) {
+			addElement(cs, i - currentLine.length(), i);
 		}
 
 	}
@@ -125,15 +122,13 @@ public class PageAnalyzer {
 		ObjectDataBlock block;
 		block = new ObjectDataBlock(ns, null, text, blockStart, blockEnd);
 		elements.add(block);
-		if(blockStart <= cursorLocation && blockEnd >= cursorLocation){
+		if (blockStart <= cursorLocation && blockEnd >= cursorLocation) {
 			currentElement = block;
 		}
 	}
 
-	public ObjectDataBlock getCurrentElement(){
+	public ObjectDataBlock getCurrentElement() {
 		return currentElement;
 	}
-
-
 
 }

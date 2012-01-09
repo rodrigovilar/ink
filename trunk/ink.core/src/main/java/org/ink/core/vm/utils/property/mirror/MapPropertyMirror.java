@@ -9,11 +9,14 @@ import org.ink.core.vm.utils.property.Dictionary;
 /**
  * @author Lior Schachter
  */
-public interface MapPropertyMirror extends CollectionPropertyMirror{
+public interface MapPropertyMirror extends CollectionPropertyMirror {
 
-	public Map<?,?> getNewInstance();
+	public Map<?, ?> getNewInstance();
+
 	public PropertyMirror getValueMirror();
+
 	public PropertyMirror getKeyMirror();
+
 	public Dictionary getSpecifictation();
 
 }

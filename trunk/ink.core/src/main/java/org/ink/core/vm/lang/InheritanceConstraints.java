@@ -7,8 +7,6 @@ import org.ink.core.vm.lang.internal.annotations.CoreEnumField;
  */
 
 public enum InheritanceConstraints {
-	Instance_Must_Override_Inherited_Value,
-	@CoreEnumField(isDefault=true)
-	Instance_Can_Refine_Inherited_Value, 
-	Instance_Can_Override_or_Refine_Inherited_Value;
+	Instance_Must_Override_Inherited_Value, @CoreEnumField(isDefault = true)
+	Instance_Can_Refine_Inherited_Value, Instance_Can_Override_or_Refine_Inherited_Value;
 }

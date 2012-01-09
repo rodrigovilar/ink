@@ -5,8 +5,8 @@ import org.ink.core.vm.lang.InkClass;
 /**
  * @author Lior Schachter
  */
-public interface ValidationContextClass extends InkClass{
+public interface ValidationContextClass extends InkClass {
 
 	public <T extends ValidationMessage> T instantiateErrorMessage();
-	
+
 }

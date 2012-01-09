@@ -1,6 +1,5 @@
 package org.ink.core.vm.lang;
 
-
 /**
  * @author Lior Schachter
  */
@@ -10,18 +9,18 @@ public abstract class PropertyImpl<S extends PropertyState> extends TypedObjectI
 	public String getName() {
 		return getState().getName();
 	}
-	
+
 	@Override
-	public String getDisplayName(){
+	public String getDisplayName() {
 		String result = getState().getDisplayName();
-		if(result==null){
+		if (result == null) {
 			return getName();
 		}
 		return result;
 	}
-	
-	public boolean isMandatory(){
+
+	public boolean isMandatory() {
 		return getState().getMandatory();
 	}
-		
+
 }

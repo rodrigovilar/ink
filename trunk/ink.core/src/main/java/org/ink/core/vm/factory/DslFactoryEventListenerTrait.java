@@ -5,6 +5,6 @@ import org.ink.core.vm.traits.Trait;
 /**
  * @author Lior Schachter
  */
-public interface DslFactoryEventListenerTrait extends Trait, DslFactoryEventListener{
+public interface DslFactoryEventListenerTrait extends Trait, DslFactoryEventListener {
 
 }

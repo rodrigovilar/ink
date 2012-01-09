@@ -43,17 +43,15 @@ public class VMMain {
 	private static boolean startupInProgress = false;
 	private static InstanceFactory instanceFactory = null;
 
-
-	public static void restart(){
+	public static void restart() {
 		stop();
 		start(defaultNS, paths);
 	}
 
-
-	public static void stop(){
+	public static void stop() {
 		List<DslFactory> factories = new ArrayList<DslFactory>(allFactories.values());
 		Collections.sort(factories);
-		for(DslFactory f : factories){
+		for (DslFactory f : factories) {
 			f.destroy();
 		}
 		allFactories.clear();
@@ -65,54 +63,53 @@ public class VMMain {
 		instanceFactory = null;
 	}
 
-	protected static DslFactory getFactory(String namespace){
+	protected static DslFactory getFactory(String namespace) {
 		return allFactories.get(namespace);
 	}
 
-	public static DslFactory getDefaultFactory(){
-		if(factory==null){
+	public static DslFactory getDefaultFactory() {
+		if (factory == null) {
 			throw new InkBootException("Error in intialization. The start method should be called first.");
 		}
 		return factory;
 	}
 
-	public static void start(String defaultNamespace, String[] paths){
+	public static void start(String defaultNamespace, String[] paths) {
 		defaultNS = defaultNamespace;
 		VMMain.paths = paths;
-		if(factory==null){
+		if (factory == null) {
 			synchronized (VMMain.class) {
-				if(factory==null && !startupInProgress){
+				if (factory == null && !startupInProgress) {
 					for (InstanceFactory currentInstanceFactory : ServiceLoader.load(InstanceFactory.class)) {
 						// Later we'll add prioritization.
 						instanceFactory = currentInstanceFactory;
 					}
 					startupInProgress = true;
-					if(paths==null){
+					if (paths == null) {
 						String pathArgument = System.getProperty("ink.classpath");
-						if(pathArgument!=null){
+						if (pathArgument != null) {
 							List<String> pathsList = new ArrayList<String>();
 							StringBuilder builder = new StringBuilder(40);
-							for(char c : pathArgument.toCharArray()){
-								if(c==','){
+							for (char c : pathArgument.toCharArray()) {
+								if (c == ',') {
 									pathsList.add(builder.toString());
 									builder = new StringBuilder(40);
-								}
-								else if(builder.length()==0 && c==' '){
+								} else if (builder.length() == 0 && c == ' ') {
 									continue;
-								}else{
+								} else {
 									builder.append(c);
 								}
 							}
-							if(builder.length()>0){
+							if (builder.length() > 0) {
 								pathsList.add(builder.toString());
 							}
-							if(pathsList.size()>0){
-								loadApplication(defaultNamespace, pathsList.toArray(new String[]{}));
+							if (pathsList.size() > 0) {
+								loadApplication(defaultNamespace, pathsList.toArray(new String[] {}));
 							}
-						}else{
-							loadApplication(defaultNamespace, new String[]{"dsls.ink"});
+						} else {
+							loadApplication(defaultNamespace, new String[] { "dsls.ink" });
 						}
-					}else{
+					} else {
 						loadApplication(defaultNamespace, paths);
 					}
 					for (DslFactory currentFactory : allFactories.values()) {
@@ -128,7 +125,7 @@ public class VMMain {
 		loadFactories(defaultNamespace, sourcePaths);
 	}
 
-	public static DslFactory getCoreFactory(){
+	public static DslFactory getCoreFactory() {
 		return coreFactory;
 	}
 
@@ -137,66 +134,64 @@ public class VMMain {
 	}
 
 	private static void loadFactories(String defaultNamespace, String[] sourcePaths) {
-		if(sourcePaths==null){
+		if (sourcePaths == null) {
 			coreFactory = factory = loadCoreFactory();
 			allFactories.put(factory.getNamespace(), factory);
-		}else{
+		} else {
 			coreFactory = loadCoreFactory();
 			allFactories.put(coreFactory.getNamespace(), coreFactory);
 			namespaces.add(coreFactory.getNamespace());
 			List<DslFactory> factories = new ArrayList<DslFactory>();
-			for(String p : sourcePaths){
+			for (String p : sourcePaths) {
 				factories.addAll(collectFactories(p, coreFactory));
 			}
-			for(DslFactory f : factories){
+			for (DslFactory f : factories) {
 				allFactories.put(f.getNamespace(), f);
 				namespaces.add(f.getNamespace());
 			}
 			ModelInfoFactory.getInstance().reload();
-			for(DslFactory f : factories){
+			for (DslFactory f : factories) {
 				f.scan();
 			}
 			arrangeFactories(defaultNamespace, factories);
 		}
 	}
 
-
-	private static void arrangeFactories(String defaultNamespace,
-			List<DslFactory> factories) {
-		if(factories.isEmpty()){
+	private static void arrangeFactories(String defaultNamespace, List<DslFactory> factories) {
+		if (factories.isEmpty()) {
 			factory = coreFactory;
-		}else{
+		} else {
 			Collections.sort(factories);
-			if(factories.size()==1){
+			if (factories.size() == 1) {
 				factory = factories.get(0);
-			}else if(factories.size()>1){
-				if(factories.get(0).compareTo(factories.get(1))==0){
-					if(defaultNamespace!=null){
+			} else if (factories.size() > 1) {
+				if (factories.get(0).compareTo(factories.get(1)) == 0) {
+					if (defaultNamespace != null) {
 						factory = allFactories.get(defaultNamespace);
-						if(factory == null){
-							System.out.println("Could not find DSL factory '" + defaultNamespace +"', can't load");
-							throw new CoreException("Could not find DSL factory '" + defaultNamespace +"', can't load.");
+						if (factory == null) {
+							System.out.println("Could not find DSL factory '" + defaultNamespace + "', can't load");
+							throw new CoreException("Could not find DSL factory '" + defaultNamespace + "', can't load.");
 						}
-					}else{
+					} else {
 						String defaultFactoryNS = System.getProperty("default.factory");
-						if(defaultFactoryNS==null){
+						if (defaultFactoryNS == null) {
 							System.out.println("More than one possible default factory was found, creating a facade factory...");
 							factory = createFacadeFactory(coreFactory, factories);
-						}else{
-							for(DslFactory f : factories){
-								if(f.getNamespace().equals(defaultFactoryNS)){
+						} else {
+							for (DslFactory f : factories) {
+								if (f.getNamespace().equals(defaultFactoryNS)) {
 									factory = f;
 									break;
 								}
 							}
-							if(factory==null){
-								System.out.println("Could not find DSL factory '" + defaultFactoryNS +"', can't load");
-								throw new CoreException("Could not find DSL factory '" + defaultFactoryNS +"', can't load.");
+							if (factory == null) {
+								System.out.println("Could not find DSL factory '" + defaultFactoryNS + "', can't load");
+								throw new CoreException("Could not find DSL factory '" + defaultFactoryNS + "', can't load.");
 							}
 						}
 					}
 				}
-			}else{
+			} else {
 				System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
 			}
 		}
@@ -210,15 +205,15 @@ public class VMMain {
 		ObjectEditor editor = facadeFactory.reflect().edit();
 		InkObjectState superFactory = coreFactory.getState(CoreNotations.Ids.OBJECT_FACTORY);
 		editor.setSuper(superFactory);
-		DslLoaderState loader = ((InkClass)coreFactory.getObject(CoreNotations.Ids.EMPTY_DSL_LOADER)).newInstance();
+		DslLoaderState loader = ((InkClass) coreFactory.getObject(CoreNotations.Ids.EMPTY_DSL_LOADER)).newInstance();
 		facadeFactory.setLoader(loader);
 		facadeFactory.setJavaPath("");
 		facadeFactory.setJavaMapping(JavaMapping.No_Java);
 		facadeFactory.setDslPackage("");
 		facadeFactory.setJavaPackage("");
 		facadeFactory.setNamespace("ink.facade");
-		for(int i=1;i<factories.size();i++){
-			if(firstFactory.compareTo(factories.get(i))==0){
+		for (int i = 1; i < factories.size(); i++) {
+			if (firstFactory.compareTo(factories.get(i)) == 0) {
 				imports.add((DslFactoryState) factories.get(i).reflect().edit().getEditedState());
 			}
 		}
@@ -227,26 +222,24 @@ public class VMMain {
 		return facadeFactory.getBehavior();
 	}
 
-
-	private static List<DslFactory> collectFactories(String path, DslFactory coreFactory){
+	private static List<DslFactory> collectFactories(String path, DslFactory coreFactory) {
 		List<DslFactory> result = new ArrayList<DslFactory>();
 		File inkFile = new File(path);
-		if(!inkFile.exists()){
-			//TODO log warning
+		if (!inkFile.exists()) {
+			// TODO log warning
 			return result;
 		}
-		if(inkFile.isFile()){
+		if (inkFile.isFile()) {
 			result.addAll(locateFactory(inkFile, coreFactory));
-		}else{
+		} else {
 			result.addAll(loadDirectory(inkFile, coreFactory));
 		}
 		return result;
 	}
 
-
 	private static List<DslFactory> loadDirectory(File dir, DslFactory coreFactory) {
 		List<DslFactory> result = new ArrayList<DslFactory>();
-		for(File f : FileUtils.listInkFiles(dir)){
+		for (File f : FileUtils.listInkFiles(dir)) {
 			result.addAll(locateFactory(f, coreFactory));
 		}
 		return result;
@@ -255,7 +248,6 @@ public class VMMain {
 	protected static InstanceFactory getInstanceFactory() {
 		return instanceFactory;
 	}
-
 
 	private static List<DslFactory> locateFactory(File inkFile, DslFactory coreFactory) {
 		try {
@@ -266,31 +258,31 @@ public class VMMain {
 			InkClass readerCls = coreFactory.getObject(CoreNotations.Ids.INK_READER.toString());
 			InkReader<Tag> reader = readerCls.newInstance(coreFactory.getAppContext(), false, true).getBehavior();
 			DslFactory factory;
-			for(Tag elem : elements){
-				try{
-					classId = (String)elem.getAttribute(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
-					if(classId!=null){
-						//TODO need to check also if subclass
-						if(classId.equals(CoreNotations.Ids.DSL_FACTORY)){
+			for (Tag elem : elements) {
+				try {
+					classId = (String) elem.getAttribute(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
+					if (classId != null) {
+						// TODO need to check also if subclass
+						if (classId.equals(CoreNotations.Ids.DSL_FACTORY)) {
 							long start = System.currentTimeMillis();
 							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
-							if(!allFactories.containsKey(factory.getNamespace())){
-								System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+							if (!allFactories.containsKey(factory.getNamespace())) {
+								System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis() - start) + " millis.");
 								factory.setConfigurationFile(inkFile);
 								result.add(factory);
 							}
 						}
 					}
-				}catch(ClassCastException e){
+				} catch (ClassCastException e) {
 					e.printStackTrace();
-					//TODO log error. no need to throw an exception, this is not the place (InkReader should do that...
+					// TODO log error. no need to throw an exception, this is not the place (InkReader should do that...
 				}
 			}
 			return result;
 		} catch (IOException e) {
-			throw new InkBootException("Could not open the file '"+inkFile.getAbsolutePath() +"'.", e);
+			throw new InkBootException("Could not open the file '" + inkFile.getAbsolutePath() + "'.", e);
 		} catch (SDLParseException e) {
-			throw new InkBootException("Could not parse the file '"+inkFile.getAbsolutePath() +"'.", e);
+			throw new InkBootException("Could not parse the file '" + inkFile.getAbsolutePath() + "'.", e);
 		}
 	}
 
@@ -298,7 +290,7 @@ public class VMMain {
 		long start = System.currentTimeMillis();
 		DslFactoryImpl<DslFactoryState> factory = new DslFactoryImpl<DslFactoryState>();
 		factory.boot();
-		System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis()-start) +" millis.");
+		System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis() - start) + " millis.");
 		return factory;
 	}
 
@@ -306,35 +298,33 @@ public class VMMain {
 		return Collections.unmodifiableList(new ArrayList<DslFactory>(allFactories.values()));
 	}
 
-
 	public static void main(String[] args) {
 	}
 
-
-	public static void introduceNewDsl(String path) throws InkException{
-		if(paths!=null){
+	public static void introduceNewDsl(String path) throws InkException {
+		if (paths != null) {
 			boolean found = false;
-			for(String p : paths){
-				if(p.equals(path)){
+			for (String p : paths) {
+				if (p.equals(path)) {
 					found = true;
 					break;
 				}
 			}
-			if(!found){
-				String[] newPaths = new String[paths.length+1];
+			if (!found) {
+				String[] newPaths = new String[paths.length + 1];
 				System.arraycopy(paths, 0, newPaths, 0, paths.length);
-				newPaths[newPaths.length-1] = path;
+				newPaths[newPaths.length - 1] = path;
 			}
 		}
 		List<DslFactory> newFactories = collectFactories(path, coreFactory);
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
-		for(DslFactory f : newFactories){
+		for (DslFactory f : newFactories) {
 			allFactories.put(f.getNamespace(), f);
 			namespaces.add(f.getNamespace());
 			repo.introduceNewDsl(f.getNamespace());
 		}
 
-		for(DslFactory f : newFactories){
+		for (DslFactory f : newFactories) {
 			f.scan();
 		}
 		List<DslFactory> nonCoreFactories = new ArrayList<DslFactory>(allFactories.values());

@@ -5,24 +5,23 @@ import java.util.Map;
 import org.ink.core.vm.lang.InkClassImpl;
 import org.ink.core.vm.messages.Message;
 
-
 /**
  * @author Lior Schachter
-*/
-public class ValidatorClassImpl<S extends ValidatorClassState> extends InkClassImpl<S> implements ValidatorClass{
+ */
+public class ValidatorClassImpl<S extends ValidatorClassState> extends InkClassImpl<S> implements ValidatorClass {
 
 	@Override
 	public boolean shouldValidate(SystemState systemState) {
 		ActivationMode whenToValidate = getState().getActiveAt();
-		switch(whenToValidate){
+		switch (whenToValidate) {
 		case Always:
 			return true;
 		default:
-			switch(systemState){
+			switch (systemState) {
 			case Design_Time:
-				return whenToValidate==ActivationMode.Design_Time;
+				return whenToValidate == ActivationMode.Design_Time;
 			default:
-				return whenToValidate==ActivationMode.Run_Time;
+				return whenToValidate == ActivationMode.Run_Time;
 			}
 		}
 	}
@@ -31,11 +30,11 @@ public class ValidatorClassImpl<S extends ValidatorClassState> extends InkClassI
 	public Message getDefaultMessage() {
 		return getState().getDefaultMessage();
 	}
-	
+
 	@Override
 	public Message getMessage(String code) {
 		Map<String, Message> messages = getState().getSpecificMessages();
-		if(messages!=null){
+		if (messages != null) {
 			return messages.get(code);
 		}
 		return null;
@@ -51,5 +50,5 @@ public class ValidatorClassImpl<S extends ValidatorClassState> extends InkClassI
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

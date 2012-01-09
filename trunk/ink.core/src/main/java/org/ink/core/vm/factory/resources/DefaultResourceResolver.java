@@ -17,10 +17,9 @@ import org.ink.core.vm.utils.CoreUtils;
 /**
  * @author Lior Schachter
  */
-public class DefaultResourceResolver extends ResourceResolver{
+public class DefaultResourceResolver extends ResourceResolver {
 
-
-	private DslFactory getFactory(InkObjectState o){
+	private DslFactory getFactory(InkObjectState o) {
 		return o.reflect().getTragetOwnerFactory();
 	}
 
@@ -35,7 +34,6 @@ public class DefaultResourceResolver extends ResourceResolver{
 		return result;
 	}
 
-
 	@Override
 	public String getInterfaceClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
@@ -43,10 +41,9 @@ public class DefaultResourceResolver extends ResourceResolver{
 	}
 
 	public String getInterfaceClassName(ClassMirror cm) {
-		String result = cm.getFullJavaPackage() + "." +getInterfaceClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getInterfaceClassShortName(cm);
 		return result;
 	}
-
 
 	@Override
 	public String getDataClassName(InkClassState cls) {
@@ -55,29 +52,27 @@ public class DefaultResourceResolver extends ResourceResolver{
 	}
 
 	public String getDataClassName(ClassMirror cm) {
-		String result = cm.getFullJavaPackage() + "." +getDataClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getDataClassShortName(cm);
 		return result;
 	}
-
 
 	@Override
 	public String getStructDataClassName(InkClassState cls) {
 		ClassMirror cm = cls.reflect();
-		String result = cm.getFullJavaPackage() + "."+ getStructDataClassShortName(cm);
+		String result = cm.getFullJavaPackage() + "." + getStructDataClassShortName(cm);
 		return result;
 	}
-
 
 	@Override
 	public String getEnumClassName(EnumTypeState enumState) {
 		StringBuilder builder = new StringBuilder(100);
 		String javaPack = enumState.getJavaPath();
-		if(javaPack==null || javaPack.equals("")){
+		if (javaPack == null || javaPack.equals("")) {
 			builder.append(getFactory(enumState).getJavaPackage()).append(".").append(CoreUtils.getShortId(enumState.getId()));
-		}else{
+		} else {
 			builder.append(getFactory(enumState).getJavaPackage()).append(".").append(javaPack).append(".").append(CoreUtils.getShortId(enumState.getId()));
 		}
-		return  builder.toString();
+		return builder.toString();
 	}
 
 	@Override
@@ -87,9 +82,9 @@ public class DefaultResourceResolver extends ResourceResolver{
 
 	@Override
 	public File getDslResourcesLocation(DslFactory factory) {
-		URL dir  = Thread.currentThread().getContextClassLoader().getResource(factory.getDslPackage().replace('.', '/'));
-		if(dir==null){
-			//TODO log error
+		URL dir = Thread.currentThread().getContextClassLoader().getResource(factory.getDslPackage().replace('.', '/'));
+		if (dir == null) {
+			// TODO log error
 			throw new CoreException("Could not locate dsl reources location for DSL factory :" + factory.getNamespace());
 		}
 		File folder = new File(dir.getPath());
@@ -101,27 +96,28 @@ public class DefaultResourceResolver extends ResourceResolver{
 			Class<?> javaCls = Thread.currentThread().getContextClassLoader().loadClass(className);
 			JavaClassDescription result = new JavaClassDescription();
 			Class<?> sClass = javaCls.getSuperclass();
-			if(sClass!=null){
+			if (sClass != null) {
 				result.setSuperClass(sClass.getName());
 			}
 			Class<?>[] interfaces = javaCls.getInterfaces();
-			if(interfaces!=null && interfaces.length>0){
+			if (interfaces != null && interfaces.length > 0) {
 				Set<String> s = new HashSet<String>(interfaces.length);
-				for(Class<?> c : interfaces){
+				for (Class<?> c : interfaces) {
 					s.add(c.getName());
 				}
 				result.setInterfaces(s);
 			}
 			Method[] methods = javaCls.getMethods();
-			if(methods!=null && methods.length>0){
+			if (methods != null && methods.length > 0) {
 				Set<String> s = new HashSet<String>(interfaces.length);
-				for(Method m : methods){
+				for (Method m : methods) {
 					s.add(m.getName());
 				}
 				result.setMethods(s);
 			}
 			return result;
-		} catch (ClassNotFoundException e) {}
+		} catch (ClassNotFoundException e) {
+		}
 		return null;
 	}
 

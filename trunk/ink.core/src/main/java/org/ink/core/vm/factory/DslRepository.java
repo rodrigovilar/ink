@@ -19,6 +19,4 @@ public interface DslRepository extends InkObject, Iterable<InkObjectState> {
 
 	public void clear();
 
-
-
 }

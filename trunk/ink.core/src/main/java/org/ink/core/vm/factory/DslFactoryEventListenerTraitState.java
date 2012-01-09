@@ -6,19 +6,20 @@ import org.ink.core.vm.traits.TraitState;
 /**
  * @author Lior Schachter
  */
-public interface DslFactoryEventListenerTraitState extends TraitState{
-	
-	@CoreField(defaultValue="true")
+public interface DslFactoryEventListenerTraitState extends TraitState {
+
+	@CoreField(defaultValue = "true")
 	public static final byte p_bind_on_creation = 1;
-	
+
 	public Boolean getBindOnCreation();
+
 	public void setBindOnCreation(Boolean value);
-	
-	public class Data extends TraitState.Data implements DslFactoryEventListenerTraitState{
+
+	public class Data extends TraitState.Data implements DslFactoryEventListenerTraitState {
 
 		@Override
 		public Boolean getBindOnCreation() {
-			return (Boolean)getValue(p_bind_on_creation);
+			return (Boolean) getValue(p_bind_on_creation);
 		}
 
 		@Override

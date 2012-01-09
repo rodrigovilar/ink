@@ -57,12 +57,10 @@ import org.ink.eclipse.jobs.ErrorMessageJob;
 
 public class EclipseUtils {
 
-
-	public static IFile getEclipseFile(File f){
+	public static IFile getEclipseFile(File f) {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IPath location = Path.fromOSString(f.getAbsolutePath());
-		IFile file = workspace.getRoot().getFileForLocation(
-				location);
+		IFile file = workspace.getRoot().getFileForLocation(location);
 		return file;
 	}
 
@@ -73,17 +71,14 @@ public class EclipseUtils {
 
 		// initialize the compiler settings to be able to format 1.5 code
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM,
-				JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 
 		// instantiate the default code formatter with the given options
-		final CodeFormatter codeFormatter = ToolFactory
-				.createCodeFormatter(options);
+		final CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(options);
 
 		// retrieve the source to format
-		final TextEdit edit = codeFormatter.format(CodeFormatter.K_UNKNOWN, code, 0, code.length(), 0,
-				System.getProperty("line.separator")); //$NON-NLS-1$
+		final TextEdit edit = codeFormatter.format(CodeFormatter.K_UNKNOWN, code, 0, code.length(), 0, System.getProperty("line.separator")); //$NON-NLS-1$
 		if (edit == null) {
 			new IllegalArgumentException("cannot format this: " + code).printStackTrace(); //$NON-NLS-1$
 			return code;
@@ -101,7 +96,7 @@ public class EclipseUtils {
 		}
 	}
 
-	public static IJavaElement getJavaElement(ClassMirror cm, IPath p, boolean isCoreObject){
+	public static IJavaElement getJavaElement(ClassMirror cm, IPath p, boolean isCoreObject) {
 		IProject project = null;
 		if (!isCoreObject) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -109,7 +104,7 @@ public class EclipseUtils {
 			IPath location = Path.fromOSString(f.getAbsolutePath());
 			IFile file = workspace.getRoot().getFileForLocation(location);
 			project = file.getProject();
-		}else{
+		} else {
 			project = InkPlugin.getDefault().getInkProjects().get(0);
 		}
 		IJavaProject jProject = JavaCore.create(project);
@@ -122,31 +117,31 @@ public class EclipseUtils {
 		}
 	}
 
-	public static IFile getJavaInterfaceFile(ClassMirror cm){
-		if(!cm.getJavaMapping().hasInterface() || cm.isCoreObject()){
+	public static IFile getJavaInterfaceFile(ClassMirror cm) {
+		if (!cm.getJavaMapping().hasInterface() || cm.isCoreObject()) {
 			return null;
 		}
 		return getJavaFile(cm, getJavaInterfacePath(cm));
 	}
 
-	public static IFile getJavaBehaviorFile(ClassMirror cm){
-		if(!cm.getJavaMapping().hasBehavior() || cm.isCoreObject()){
+	public static IFile getJavaBehaviorFile(ClassMirror cm) {
+		if (!cm.getJavaMapping().hasBehavior() || cm.isCoreObject()) {
 			return null;
 		}
 		return getJavaFile(cm, getJavaBehaviorPath(cm));
 	}
 
-	public static IFolder getJavaSourceFolder(IFile inkFile) throws Exception{
+	public static IFolder getJavaSourceFolder(IFile inkFile) throws Exception {
 		IFolder result = null;
 		IProject project = inkFile.getProject();
 		IJavaProject jProject = JavaCore.create(project);
 		IClasspathEntry[] entries = jProject.getRawClasspath();
-		boolean isMain = inkFile.getFullPath().toOSString().contains(File.separator + "main" +File.separator+"dsl" );
-		for(IClasspathEntry en : entries){
-			if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
-				if(isMain && en.getPath().toOSString().contains("main" +File.separator+"java")){
+		boolean isMain = inkFile.getFullPath().toOSString().contains(File.separator + "main" + File.separator + "dsl");
+		for (IClasspathEntry en : entries) {
+			if (en.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				if (isMain && en.getPath().toOSString().contains("main" + File.separator + "java")) {
 					return project.getFolder(en.getPath().removeFirstSegments(1));
-				}else if(!isMain && en.getPath().toOSString().contains("test" +File.separator+"java")){
+				} else if (!isMain && en.getPath().toOSString().contains("test" + File.separator + "java")) {
 					return project.getFolder(en.getPath().removeFirstSegments(1));
 				}
 			}
@@ -155,7 +150,7 @@ public class EclipseUtils {
 	}
 
 	private static IFile getJavaFile(ClassMirror cm, IPath p) {
-		try{
+		try {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			File f = cm.getDescriptor().getResource();
 			IPath location = Path.fromOSString(f.getAbsolutePath());
@@ -164,47 +159,45 @@ public class EclipseUtils {
 			IJavaProject jProject = JavaCore.create(project);
 			IClasspathEntry[] entries = jProject.getRawClasspath();
 			IFile result = null;
-			for(IClasspathEntry en : entries){
-				if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+			for (IClasspathEntry en : entries) {
+				if (en.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 					IPath fullPath = en.getPath().append(p);
 					fullPath = fullPath.makeRelativeTo(project.getFullPath());
 					result = project.getFile(fullPath);
-					if(result!=null){
+					if (result != null) {
 						return result;
 					}
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.fillInStackTrace();
 		}
 		return null;
 	}
 
 	public static IFile getJavaFile(IProject project, IPath p) {
-		try{
+		try {
 			IJavaProject jProject = JavaCore.create(project);
 			IClasspathEntry[] entries = jProject.getRawClasspath();
 			IFile result = null;
-			for(IClasspathEntry en : entries){
-				if(en.getEntryKind()==IClasspathEntry.CPE_SOURCE){
+			for (IClasspathEntry en : entries) {
+				if (en.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 					IPath fullPath = en.getPath().append(p);
 					fullPath = fullPath.makeRelativeTo(project.getFullPath());
 					result = project.getFile(fullPath);
-					if(result!=null){
+					if (result != null) {
 						return result;
 					}
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.fillInStackTrace();
 		}
 		return null;
 	}
 
-
-
-	public static IJavaElement getJavaBehaviorElement(ClassMirror cm){
-		while(!cm.getJavaMapping().hasBehavior() && cm.getSuper()!=null){
+	public static IJavaElement getJavaBehaviorElement(ClassMirror cm) {
+		while (!cm.getJavaMapping().hasBehavior() && cm.getSuper() != null) {
 			cm = cm.getSuper();
 		}
 		IPath p = getJavaBehaviorPath(cm);
@@ -227,8 +220,8 @@ public class EclipseUtils {
 		return p;
 	}
 
-	public static IJavaElement getJavaInterfaceElement(ClassMirror cm){
-		while(!cm.getJavaMapping().hasInterface() && cm.getSuper()!=null){
+	public static IJavaElement getJavaInterfaceElement(ClassMirror cm) {
+		while (!cm.getJavaMapping().hasInterface() && cm.getSuper() != null) {
 			cm = cm.getSuper();
 		}
 		String javaPath = cm.getFullJavaPackage();
@@ -238,33 +231,33 @@ public class EclipseUtils {
 		return getJavaElement(cm, p, cm.isCoreObject());
 	}
 
-	public static void openJava(InkObject o){
+	public static void openJava(InkObject o) {
 		Mirror m = o.reflect();
-		if(!m.isClass()){
+		if (!m.isClass()) {
 			m = m.getClassMirror();
 		}
-		try{
-			IJavaElement je = getJavaBehaviorElement((ClassMirror)m);
+		try {
+			IJavaElement je = getJavaBehaviorElement((ClassMirror) m);
 			openJavaElement(je);
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 	}
 
-	public static IFolder getJavaOutputFolder(IProject p){
+	public static IFolder getJavaOutputFolder(IProject p) {
 		try {
 			IJavaProject jProject = JavaCore.create(p);
 			IPath outputPath = jProject.getOutputLocation().removeFirstSegments(1);
 			return p.getFolder(outputPath);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public static IFile getOutputFile(IProject p, IFile sourceFile){
+	public static IFile getOutputFile(IProject p, IFile sourceFile) {
 		try {
 			IPath relativeFilepath = sourceFile.getFullPath().removeFirstSegments(4);
-			if(relativeFilepath.isEmpty()){
+			if (relativeFilepath.isEmpty()) {
 				relativeFilepath = sourceFile.getFullPath().removeFirstSegments(1);
 			}
 			IFolder outputFolder = getJavaOutputFolder(p);
@@ -276,7 +269,7 @@ public class EclipseUtils {
 		return null;
 	}
 
-	public static IPath getJavaCompiledClass(IProject project, IFile javaSourceFile){
+	public static IPath getJavaCompiledClass(IProject project, IFile javaSourceFile) {
 		try {
 			IFile result = getOutputFile(project, javaSourceFile);
 			IPath p = result.getFullPath().removeFileExtension().addFileExtension("class");
@@ -287,85 +280,78 @@ public class EclipseUtils {
 		return null;
 	}
 
-	private static void openJavaElement(IJavaElement je)
-			throws JavaModelException, PartInitException {
-		if(je.exists()){
+	private static void openJavaElement(IJavaElement je) throws JavaModelException, PartInitException {
+		if (je.exists()) {
 			JavaUI.openInEditor(je);
-		}else{
-			Job errorJ = new ErrorMessageJob("Could not find the class '" +je.getElementName() +"'.");
+		} else {
+			Job errorJ = new ErrorMessageJob("Could not find the class '" + je.getElementName() + "'.");
 			errorJ.setPriority(Job.INTERACTIVE);
 			errorJ.schedule();
 		}
 	}
 
-	public static IFile getFile(File f){
+	public static IFile getFile(File f) {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IPath location = Path.fromOSString(f.getAbsolutePath());
 		return workspace.getRoot().getFileForLocation(location);
 	}
 
-	public static int findLineNumber(IFile file, String token){
+	public static int findLineNumber(IFile file, String token) {
 		IEditorInput ei = new FileEditorInput(file);
-		try{
+		try {
 			int offset = findOffset(ei, token);
 			IDocument doc = getDocument(ei);
 			return doc.getLineOfOffset(offset) + 1;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return 0;
 	}
 
-
-	public static void openEditor(InkObject o){
+	public static void openEditor(InkObject o) {
 		openEditor(o.reflect());
 	}
 
-	public static void openEditor(Mirror mirror){
+	public static void openEditor(Mirror mirror) {
 		if (!mirror.isCoreObject()) {
 			File f = mirror.getDescriptor().getResource();
 			IFile file = getFile(f);
 			IEditorInput ei = new FileEditorInput(file);
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
-				revealInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().getActiveEditor(),
-						findOffset(ei, "id=\"" + mirror.getShortId() + "\""),
-						0);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(ei, IDE.getEditorDescriptor(file.getName()).getId());
+				revealInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor(), findOffset(ei, "id=\"" + mirror.getShortId() + "\""), 0);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}else{
+		} else {
 			IProject project = InkPlugin.getDefault().getInkProjects().get(0);
-			try{
-				if(!mirror.isClass()){
+			try {
+				if (!mirror.isClass()) {
 					mirror = mirror.getClassMirror();
 				}
-				ClassMirror cm = (ClassMirror)mirror;
-				while(!cm.getJavaMapping().hasState() && cm.getSuper()!=null){
+				ClassMirror cm = (ClassMirror) mirror;
+				while (!cm.getJavaMapping().hasState() && cm.getSuper() != null) {
 					cm = cm.getSuper();
 				}
 				String javaPath = cm.getFullJavaPackage();
 				String javaFileName;
-				if(cm.isStruct()){
+				if (cm.isStruct()) {
 					javaFileName = cm.getShortId() + ".java";
-				}else{
+				} else {
 					javaFileName = cm.getShortId() + InkNotations.Names.STATE_CLASS_EXTENSION + ".java";
 				}
 				IPath p = new Path(javaPath.replace(".", File.separator) + File.separatorChar + javaFileName);
 				IJavaProject jProject = JavaCore.create(project);
 				IJavaElement je = jProject.findElement(p);
 				JavaUI.openInEditor(je);
-			}catch(Exception e){
+			} catch (Exception e) {
 			}
 		}
 
 	}
 
-	public static void revealInEditor(IEditorPart editor, final int offset,
-			final int length) {
+	public static void revealInEditor(IEditorPart editor, final int offset, final int length) {
 		if (editor instanceof ITextEditor) {
 			((ITextEditor) editor).selectAndReveal(offset, length);
 			return;
@@ -376,23 +362,19 @@ public class EclipseUtils {
 		if (editor instanceof IGotoMarker) {
 			gotoMarkerTarget = (IGotoMarker) editor;
 		} else {
-			gotoMarkerTarget = editor != null ? (IGotoMarker) editor
-					.getAdapter(IGotoMarker.class) : null;
+			gotoMarkerTarget = editor != null ? (IGotoMarker) editor.getAdapter(IGotoMarker.class) : null;
 		}
 		if (gotoMarkerTarget != null) {
 			final IEditorInput input = editor.getEditorInput();
 			if (input instanceof IFileEditorInput) {
 				WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 					@Override
-					protected void execute(IProgressMonitor monitor)
-							throws CoreException {
+					protected void execute(IProgressMonitor monitor) throws CoreException {
 						IMarker marker = null;
 						try {
-							marker = ((IFileEditorInput) input).getFile()
-									.createMarker(IMarker.TEXT);
+							marker = ((IFileEditorInput) input).getFile().createMarker(IMarker.TEXT);
 							marker.setAttribute(IMarker.CHAR_START, offset);
-							marker.setAttribute(IMarker.CHAR_END, offset
-									+ length);
+							marker.setAttribute(IMarker.CHAR_END, offset + length);
 
 							gotoMarkerTarget.gotoMarker(marker);
 
@@ -415,7 +397,7 @@ public class EclipseUtils {
 		}
 	}
 
-	private static IDocument getDocument(IEditorInput ei) throws CoreException{
+	private static IDocument getDocument(IEditorInput ei) throws CoreException {
 		IDocumentProvider dp = DocumentProviderRegistry.getDefault().getDocumentProvider(ei);
 		dp.connect(ei);
 		return dp.getDocument(ei);
@@ -424,9 +406,9 @@ public class EclipseUtils {
 	private static int findOffset(IEditorInput ei, String token) throws Exception {
 		IDocument doc = getDocument(ei);
 
-		FindReplaceDocumentAdapter searcher= new FindReplaceDocumentAdapter(doc);
+		FindReplaceDocumentAdapter searcher = new FindReplaceDocumentAdapter(doc);
 		IRegion r = searcher.find(0, token, true, true, false, false);
-		if(r!=null){
+		if (r != null) {
 			return r.getOffset();
 		}
 		return 0;
@@ -435,8 +417,7 @@ public class EclipseUtils {
 	private static int findOffset(File f, String token) throws Exception {
 		int offset = 0;
 		boolean found = false;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new FileInputStream(f), "UTF-8"));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
 		try {
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -455,8 +436,7 @@ public class EclipseUtils {
 		return 0;
 	}
 
-	public static IContainer createFolder(IPath packagePath, IContainer outputFolder, boolean isSourceFolder)
-			throws CoreException {
+	public static IContainer createFolder(IPath packagePath, IContainer outputFolder, boolean isSourceFolder) throws CoreException {
 		if (packagePath.isEmpty()) {
 			return outputFolder;
 		}
@@ -464,9 +444,9 @@ public class EclipseUtils {
 		if (!folder.exists()) {
 			createFolder(packagePath.removeLastSegments(1), outputFolder, isSourceFolder);
 			int flag;
-			if(isSourceFolder){
+			if (isSourceFolder) {
 				flag = IResource.FORCE;
-			}else{
+			} else {
 				flag = IResource.FORCE | IResource.DERIVED;
 			}
 			folder.create(flag, true, null);

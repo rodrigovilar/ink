@@ -1,4 +1,3 @@
-
 package org.ink.core.vm.factory.internal;
 
 import java.lang.reflect.Field;
@@ -17,7 +16,7 @@ import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 /**
  * @author Lior Schachter
  */
-public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements CoreClassDescriptor{
+public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements CoreClassDescriptor {
 
 	private Map<String, Class<?>> settersMap = new HashMap<String, Class<?>>();
 	private Field[] fields;
@@ -30,42 +29,43 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 	private byte numberOfTraits;
 	private Class<?> behaviorClass;
 
-	public CoreClassDescriptorImpl(String id, String classId, Class<?> stateClass,
-			InkObjectState object, Field[] fields, byte numberOfTraits) {
+	public CoreClassDescriptorImpl(String id, String classId, Class<?> stateClass, InkObjectState object, Field[] fields, byte numberOfTraits) {
 		super(id, classId, stateClass, object);
 		this.fields = fields;
-		for(Field f : fields){
+		for (Field f : fields) {
 			fieldsMap.put(f.getName(), f);
 		}
 		this.numberOfTraits = numberOfTraits;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.ink.core.vm.internal.CoreClassDescriptor#getFields()
 	 */
 	@Override
-	public Field[] getFields(){
+	public Field[] getFields() {
 		return fields;
 	}
 
 	@Override
-	public Field getField(String name){
+	public Field getField(String name) {
 		return fieldsMap.get(name);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.ink.core.vm.internal.CoreClassDescriptor#getNumberOfFields()
 	 */
 	@Override
-	public byte getNumberOfFields(){
-		return (byte)fields.length;
+	public byte getNumberOfFields() {
+		return (byte) fields.length;
 	}
 
 	@Override
 	public String toString() {
 		String result = super.toString();
-		result+= ". " + getNumberOfFields() + " Properties : ";
-		//getObject().getPropertyValue(InkClassState.p_properties);
+		result += ". " + getNumberOfFields() + " Properties : ";
+		// getObject().getPropertyValue(InkClassState.p_properties);
 		return result;
 	}
 
@@ -74,12 +74,12 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 		return true;
 	}
 
-	public void setMetadata(CoreClassSpec metadata){
+	public void setMetadata(CoreClassSpec metadata) {
 		this.metadata = metadata;
 	}
 
 	@Override
-	public CoreClassSpec getMetadata(){
+	public CoreClassSpec getMetadata() {
 		return metadata;
 	}
 
@@ -112,7 +112,7 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 	@Override
 	public CoreField getFieldAnntation(String name) {
 		Field f = fieldsMap.get(name);
-		if(f!=null){
+		if (f != null) {
 			return f.getAnnotation(CoreField.class);
 		}
 		return null;
@@ -130,7 +130,7 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 
 	@Override
 	public ClassMirrorAPI getObject() {
-		return (ClassMirrorAPI)super.getObject();
+		return (ClassMirrorAPI) super.getObject();
 	}
 
 	@Override
@@ -154,9 +154,8 @@ public class CoreClassDescriptorImpl extends CoreObjectDescriptorImpl implements
 	}
 
 	@Override
-	public Class<?> getPropertyClass(String fieldName){
+	public Class<?> getPropertyClass(String fieldName) {
 		return settersMap.get(fieldName);
 	}
-
 
 }

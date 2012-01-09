@@ -11,24 +11,26 @@ import org.ink.core.vm.lang.operation.interceptors.OperationInterceptorState;
 /**
  * @author Lior Schachter
  */
-public interface OperationState extends InkObjectState{
+public interface OperationState extends InkObjectState {
 
-	@CoreField(mandatory=true)
+	@CoreField(mandatory = true)
 	public static final byte p_name = 0;
 
-	@CoreListField(itemName="interceptor")
+	@CoreListField(itemName = "interceptor")
 	public static final byte p_interceptors = p_name + 1;
 
 	public String getName();
+
 	public void setName(String value);
 
 	public List<? extends OperationInterceptor> getInterceptors();
+
 	public void setInterceptors(List<? extends OperationInterceptorState> value);
 
-	public class Data extends InkObjectState.Data implements OperationState{
+	public class Data extends InkObjectState.Data implements OperationState {
 		@Override
 		public String getName() {
-			return (String)getValue(p_name);
+			return (String) getValue(p_name);
 		}
 
 		@Override
@@ -43,8 +45,7 @@ public interface OperationState extends InkObjectState{
 		}
 
 		@Override
-		public void setInterceptors(
-				List<? extends OperationInterceptorState> value) {
+		public void setInterceptors(List<? extends OperationInterceptorState> value) {
 			setValue(p_interceptors, value);
 		}
 	}

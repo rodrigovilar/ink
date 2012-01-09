@@ -6,11 +6,11 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(metaclass=ObjectEditorClassState.class)
-public interface ObjectEditorState extends InkObjectState{
-	
-	public class Data extends InkObjectState.Data implements ObjectEditorState{
-		
+@CoreClassSpec(metaclass = ObjectEditorClassState.class)
+public interface ObjectEditorState extends InkObjectState {
+
+	public class Data extends InkObjectState.Data implements ObjectEditorState {
+
 	}
 
 }

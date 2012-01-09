@@ -1,6 +1,5 @@
 package org.ink.eclipse.editors.actions;
 
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ISelection;
@@ -16,13 +15,11 @@ import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.editors.InkElementSelectionDialog;
 import org.ink.eclipse.utils.EclipseUtils;
 
-public class OpenElementAction implements IWorkbenchWindowActionDelegate,
-		IActionDelegate2 {
+public class OpenElementAction implements IWorkbenchWindowActionDelegate, IActionDelegate2 {
 
 	@Override
 	public void run(IAction action) {
-		SelectionDialog dialog = new InkElementSelectionDialog(PlatformUI
-				.getWorkbench().getActiveWorkbenchWindow().getShell());
+		SelectionDialog dialog = new InkElementSelectionDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 		dialog.setTitle("Open Ink Element");
 		// dialog.setMessage(JavaUIMessages.OpenTypeAction_dialogMessage);
 
@@ -37,11 +34,9 @@ public class OpenElementAction implements IWorkbenchWindowActionDelegate,
 		}
 		String label = types[0].toString();
 		int loc = label.indexOf("-");
-		String fullId = label.substring(loc + 2, label.length())
-				+ InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C
-				+ label.substring(0, loc - 1);
+		String fullId = label.substring(loc + 2, label.length()) + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + label.substring(0, loc - 1);
 		InkObject o = InkPlugin.getDefault().getInkContext().getFactory().getObject(fullId, false);
-		if(o!=null){
+		if (o != null) {
 			EclipseUtils.openEditor(o);
 		}
 	}

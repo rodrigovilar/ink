@@ -6,8 +6,8 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(metaclass=ValidationContextClassState.class)
-public interface ValidationContextState extends InkObjectState{
-	public class Data extends InkObjectState.Data implements ValidationContextState{
+@CoreClassSpec(metaclass = ValidationContextClassState.class)
+public interface ValidationContextState extends InkObjectState {
+	public class Data extends InkObjectState.Data implements ValidationContextState {
 	}
 }

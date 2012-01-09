@@ -33,7 +33,6 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.eclipse.core.resources.IProjectNature#configure()
 	 */
 	@Override
@@ -48,26 +47,26 @@ public class InkNature implements IProjectNature {
 			IFolder existingOutputFolder = EclipseUtils.getJavaOutputFolder(project);
 			System.out.println(f.getAbsolutePath());
 			IFolder outputFolder = project.getFolder("output");
-			if(!outputFolder.exists()){
+			if (!outputFolder.exists()) {
 				outputFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
 			}
 			IFolder genFolder = outputFolder.getFolder("gen");
 			IFolder dslFolder = outputFolder.getFolder("main");
 			dslFolder = dslFolder.getFolder("dsl");
-			if(!genFolder.exists()){
+			if (!genFolder.exists()) {
 				genFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
 			}
 			IFolder binFolder = outputFolder.getFolder("bin");
-			if(!binFolder.exists()){
+			if (!binFolder.exists()) {
 				binFolder.create(IResource.FORCE | IResource.DERIVED, true, null);
 			}
 			jProject.setOutputLocation(binFolder.getFullPath(), new NullProgressMonitor());
 			existingOutputFolder.delete(IResource.FORCE | IResource.DERIVED, null);
 			IPath genPath = genFolder.getFullPath();
-			File[] jars = f.listFiles(new FilenameFilter(){
+			File[] jars = f.listFiles(new FilenameFilter() {
 				@Override
 				public boolean accept(File dir, String name) {
-					if(name.endsWith(".jar")){
+					if (name.endsWith(".jar")) {
 						return true;
 					}
 					return false;
@@ -76,26 +75,26 @@ public class InkNature implements IProjectNature {
 			List<File> jarsToAdd = new ArrayList<File>(jars.length);
 			IClasspathEntry[] entries = jProject.getRawClasspath();
 			boolean foundGenClasspath = false;
-			for(File j : jars){
+			for (File j : jars) {
 				boolean found = false;
-				for(IClasspathEntry en : entries){
-					if(en.getPath().toFile().getName().equals(j.getName())){
+				for (IClasspathEntry en : entries) {
+					if (en.getPath().toFile().getName().equals(j.getName())) {
 						found = true;
-					}else if(en.getPath().toFile().getName().equals(genPath.toFile().getName())){
+					} else if (en.getPath().toFile().getName().equals(genPath.toFile().getName())) {
 						foundGenClasspath = true;
 					}
 				}
-				if(!found){
+				if (!found) {
 					jarsToAdd.add(j);
 				}
 			}
 			List<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>(Arrays.asList(entries));
 			File j;
 			IClasspathEntry cpe;
-			int i=0;
+			int i = 0;
 			IPath jarPath;
 			IPath pathToSet;
-			for(;i<jarsToAdd.size();i++){
+			for (; i < jarsToAdd.size(); i++) {
 				j = jarsToAdd.get(i);
 				jarPath = new Path(j.getAbsolutePath()).makeRelativeTo(inkHome);
 				pathToSet = new Path(InkPlugin.INK_HOME);
@@ -103,15 +102,14 @@ public class InkNature implements IProjectNature {
 				cpe = JavaCore.newVariableEntry(pathToSet, null, null);
 				newEntries.add(cpe);
 			}
-			if(!foundGenClasspath){
+			if (!foundGenClasspath) {
 				cpe = JavaCore.newSourceEntry(genPath);
 				newEntries.add(cpe);
 			}
-			jProject.setRawClasspath(newEntries.toArray(new IClasspathEntry[]{}), new NullProgressMonitor());
+			jProject.setRawClasspath(newEntries.toArray(new IClasspathEntry[] {}), new NullProgressMonitor());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 
 		ICommand[] commands = desc.getBuildSpec();
 
@@ -132,7 +130,6 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.eclipse.core.resources.IProjectNature#deconfigure()
 	 */
 	@Override
@@ -143,8 +140,7 @@ public class InkNature implements IProjectNature {
 			if (commands[i].getBuilderName().equals(InkBuilder.BUILDER_ID)) {
 				ICommand[] newCommands = new ICommand[commands.length - 1];
 				System.arraycopy(commands, 0, newCommands, 0, i);
-				System.arraycopy(commands, i + 1, newCommands, i,
-						commands.length - i - 1);
+				System.arraycopy(commands, i + 1, newCommands, i, commands.length - i - 1);
 				description.setBuildSpec(newCommands);
 				project.setDescription(description, null);
 				return;
@@ -154,7 +150,6 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.eclipse.core.resources.IProjectNature#getProject()
 	 */
 	@Override
@@ -164,7 +159,6 @@ public class InkNature implements IProjectNature {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.eclipse.core.resources.IProjectNature#setProject(org.eclipse.core.resources.IProject)
 	 */
 	@Override

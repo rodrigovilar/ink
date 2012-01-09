@@ -7,11 +7,14 @@ import org.ink.core.vm.proxy.Proxiable;
 /**
  * @author Lior chachter
  */
-public interface InkObject extends Proxiable{
-	
+public interface InkObject extends Proxiable {
+
 	public void afterStateSet();
+
 	public <T extends InkObjectState> T cloneState();
+
 	public boolean validate(ValidationContext context, SystemState systemState);
+
 	public boolean validate(ValidationContext context);
-	
+
 }

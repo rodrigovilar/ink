@@ -31,53 +31,61 @@ import org.ink.core.vm.utils.CoreUtils;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(constraintsClass=ClassConstraintsState.class,mirrorClass=ClassMirrorState.class, javaMapping=JavaMapping.State_Behavior_Interface
-		/*,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type}*/)
-public interface InkClassState extends InkTypeState{
+@CoreClassSpec(constraintsClass = ClassConstraintsState.class, mirrorClass = ClassMirrorState.class, javaMapping = JavaMapping.State_Behavior_Interface
+/* ,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type} */)
+public interface InkClassState extends InkTypeState {
 
-	@CoreField(valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_java_path = 0;
 
-	//TODO - should be mandatory true
-	@CoreField(mandatory=false, valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	// TODO - should be mandatory true
+	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_description = 1;
-	@CoreField(mandatory=true, defaultValue="State_Behavior_Interface", valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(mandatory = true, defaultValue = "State_Behavior_Interface", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_java_mapping = 2;
-	@CoreField(defaultValue="true")
+	@CoreField(defaultValue = "true")
 	public static final byte p_can_cache_behavior_instance = 3;
-	@CoreField(defaultValue="Root_or_Pure_Component")
+	@CoreField(defaultValue = "Root_or_Pure_Component")
 	public static final byte p_component_type = 4;
-	@CoreMapField(keyName="name", valueName="property", kind=org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.elements, ordered=true)
+	@CoreMapField(keyName = "name", valueName = "property", kind = org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.elements, ordered = true)
 	public static final byte p_properties = 5;
-	@CoreListField(itemName="operation")
+	@CoreListField(itemName = "operation")
 	public static final byte p_operations = 6;
 	public static final byte p_personality = 7;
 
 	public String getDescription();
+
 	public void setDescription(String value);
 
 	public JavaMapping getJavaMapping();
+
 	public void setJavaMapping(JavaMapping value);
 
 	public Map<String, ? extends Property> getProperties();
+
 	public void setProperties(Map<String, ? extends PropertyState> value);
 
 	public List<? extends Operation> getOperations();
+
 	public void setOperations(List<? extends OperationState> value);
 
 	public Personality getPersonality();
+
 	public void setPersonality(PersonalityState value);
 
 	public String getJavaPath();
+
 	public void setJavaPath(String value);
 
 	public Boolean getCanCacheBehaviorInstance();
+
 	public void setCanCacheBehaviorInstance(Boolean value);
 
 	public ComponentType getComponentType();
+
 	public void setComponentType(ComponentType value);
 
-	public class Data extends InkTypeState.Data implements ClassMirrorAPI{
+	public class Data extends InkTypeState.Data implements ClassMirrorAPI {
 
 		private ObjectFactoryState factory = null;
 		private Map<String, Byte> classPropertiesIndexes;
@@ -96,31 +104,31 @@ public interface InkClassState extends InkTypeState{
 		private boolean created = false;
 
 		@Override
-		public void bootClass(InkClassState c, PropertyMirror[] propsMirrors, PropertyMirror[] intancePropsMirrors, Map<String, Byte> propertiesIndexes, Map<String, Byte> instancePropertiesIndexes, Class<?>[] behaviorProxyInterfaces, DslFactory context, Class<InkObjectState> dataClass){
-			if(!isCoreObject()){
+		public void bootClass(InkClassState c, PropertyMirror[] propsMirrors, PropertyMirror[] intancePropsMirrors, Map<String, Byte> propertiesIndexes, Map<String, Byte> instancePropertiesIndexes, Class<?>[] behaviorProxyInterfaces, DslFactory context, Class<InkObjectState> dataClass) {
+			if (!isCoreObject()) {
 				throw new CoreException("This method should be used for core objects only !!");
 			}
 			this.classPropsMirrors = propsMirrors;
 			this.propsMirrors = intancePropsMirrors;
 			this.classPropertiesIndexes = propertiesIndexes;
 			this.propertiesIndexes = instancePropertiesIndexes;
-			this.myClass = (ClassMirrorAPI)c;
+			this.myClass = (ClassMirrorAPI) c;
 			this.myFactory = context;
 			this.dataClass = dataClass;
 			this.behaviorProxyInterfaces = behaviorProxyInterfaces;
-			//TODO this should go away once we have metaclas class.
-			if(InkClassState.Data.class.isAssignableFrom(dataClass)){
+			// TODO this should go away once we have metaclas class.
+			if (InkClassState.Data.class.isAssignableFrom(dataClass)) {
 				isMetaClass = true;
 			}
 			classRealPropertiesIndex = new byte[classPropsMirrors.length];
-			for(byte i=0;i<classRealPropertiesIndex.length;i++){
-				classRealPropertiesIndex[i]=i;
+			for (byte i = 0; i < classRealPropertiesIndex.length; i++) {
+				classRealPropertiesIndex[i] = i;
 			}
 		}
 
-		protected Class<InkObjectState> resolveDataClass(){
-			if(!this.getJavaMapping().hasState()){
-				return ((ClassMirrorAPI)getSuper()).getDataClass();
+		protected Class<InkObjectState> resolveDataClass() {
+			if (!this.getJavaMapping().hasState()) {
+				return ((ClassMirrorAPI) getSuper()).getDataClass();
 			}
 			return myFactory.resolveDataClass(this);
 		}
@@ -133,7 +141,7 @@ public interface InkClassState extends InkTypeState{
 		@Override
 		public <T extends InkObjectState> T cloneState(boolean identicalTwin) {
 			T result = super.cloneState(identicalTwin);
-			((ClassMirrorAPI)result).setFactory((ObjectFactoryState)this.factory.cloneState());
+			((ClassMirrorAPI) result).setFactory((ObjectFactoryState) this.factory.cloneState());
 			return result;
 		}
 
@@ -186,7 +194,7 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public String getJavaPath() {
-			return (String)getValue(p_java_path);
+			return (String) getValue(p_java_path);
 		}
 
 		@Override
@@ -196,7 +204,7 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public Boolean getCanCacheBehaviorInstance() {
-			return (Boolean)getValue(p_can_cache_behavior_instance);
+			return (Boolean) getValue(p_can_cache_behavior_instance);
 		}
 
 		@Override
@@ -210,65 +218,65 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public void applyProperties(List<Property> properties){
-			//TODO - add basic validation (properties contains getProperties)
-			if(properties!=null){
+		public void applyProperties(List<Property> properties) {
+			// TODO - add basic validation (properties contains getProperties)
+			if (properties != null) {
 				Collection<? extends Property> originalProperties = getProperties().values();
 				classRealPropertiesIndex = new byte[originalProperties.size()];
 				classPropertiesIndexes = new HashMap<String, Byte>(properties.size());
 				classPropsMirrors = new PropertyMirror[properties.size()];
 				Property prop;
-				byte counter=0;
-				for(byte i=0;i<properties.size();i++){
+				byte counter = 0;
+				for (byte i = 0; i < properties.size(); i++) {
 					prop = properties.get(i);
-					for(Property p : originalProperties){
-						if(p.getName().equals(prop.getName())){
-							classRealPropertiesIndex[counter]=i;
+					for (Property p : originalProperties) {
+						if (p.getName().equals(prop.getName())) {
+							classRealPropertiesIndex[counter] = i;
 							counter++;
 							break;
 						}
 					}
 					classPropsMirrors[i] = prop.reflect();
-					//currently can't add detachable traits to core elements need to find a way to allow this
-					if(created && (!isCoreObject())){
-						//if the class was created then instances of it hold a pointer to the property mirror
-						//need to create a new object
+					// currently can't add detachable traits to core elements need to find a way to allow this
+					if (created && (!isCoreObject())) {
+						// if the class was created then instances of it hold a pointer to the property mirror
+						// need to create a new object
 						classPropsMirrors[i] = classPropsMirrors[i].asTrait(t_reflection, true);
 					}
 					classPropsMirrors[i].bind((ClassMirror) reflect(), i);
 					classPropertiesIndexes.put(prop.getName(), i);
 				}
-			}else{
+			} else {
 				classPropertiesIndexes = new HashMap<String, Byte>();
 				classPropsMirrors = new PropertyMirror[0];
 				classRealPropertiesIndex = new byte[0];
 			}
-			getFactory().bind((ClassMirror)reflect());
+			getFactory().bind((ClassMirror) reflect());
 		}
 
 		@Override
-		public void afterPropertiesSet(){
+		public void afterPropertiesSet() {
 			super.afterPropertiesSet();
-			applyProperties( new ArrayList<Property>(getProperties().values()));
+			applyProperties(new ArrayList<Property>(getProperties().values()));
 			behaviorClass = resolveBehaviorClass();
 			interfaceClass = resolveInterfaceClass();
 			behaviorProxyInterfaces = CoreUtils.getBehaviorProxyInterfaces(behaviorClass);
 			dataClass = resolveDataClass();
 			stateInterface = dataClass.getInterfaces()[0];
-			if(stateInterface.equals(MirrorAPI.class)){
+			if (stateInterface.equals(MirrorAPI.class)) {
 				stateInterface = InkObjectState.class;
-			}else if(stateInterface.equals(ClassMirrorAPI.class)){
+			} else if (stateInterface.equals(ClassMirrorAPI.class)) {
 				stateInterface = InkClassState.class;
 			}
-			//TODO this should go away once we have metaclas class.
-			if(InkClassState.Data.class.isAssignableFrom(dataClass)){
+			// TODO this should go away once we have metaclas class.
+			if (InkClassState.Data.class.isAssignableFrom(dataClass)) {
 				isMetaClass = true;
 			}
 			Personality personality = getPersonality();
-			if(personality!=null){
+			if (personality != null) {
 				offset = personality.getTraitsCount();
 				try {
-					personality.bind((ClassMirror)this.reflect());
+					personality.bind((ClassMirror) this.reflect());
 					traitsRolesToIndexes = new HashMap<String, Byte>(4);
 					traitsRolesToIndexes.putAll(personality.reflect().getClassMirror().getClassPropertiesIndexes());
 				} catch (WeaveException e) {
@@ -279,60 +287,60 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		protected Class<? extends InkObject> resolveBehaviorClass() {
-			if(!this.getJavaMapping().hasBehavior()){
-				return ((ClassMirrorAPI)getSuper()).getBehaviorClass();
-			}else{
+			if (!this.getJavaMapping().hasBehavior()) {
+				return ((ClassMirrorAPI) getSuper()).getBehaviorClass();
+			} else {
 				return myFactory.resolveBehaviorClass(this);
 			}
 		}
 
 		private Class<? extends InkObject> resolveInterfaceClass() {
-			if(!this.getJavaMapping().hasInterface()){
-				return ((ClassMirrorAPI)getSuper()).getInterfaceClass();
-			}else{
+			if (!this.getJavaMapping().hasInterface()) {
+				return ((ClassMirrorAPI) getSuper()).getInterfaceClass();
+			} else {
 				return myFactory.resolveInterfaceClass(this);
 			}
 		}
 
 		@Override
-		public boolean isClass(){
+		public boolean isClass() {
 			return true;
 		}
 
 		@Override
-		public boolean isMetaClass(){
+		public boolean isMetaClass() {
 			return isMetaClass;
 		}
 
 		@Override
-		public Class<InkObjectState> getDataClass(){
+		public Class<InkObjectState> getDataClass() {
 			return dataClass;
 		}
 
 		@Override
-		public Class<? extends InkObject> getBehaviorClass(){
+		public Class<? extends InkObject> getBehaviorClass() {
 			return behaviorClass;
 		}
 
 		@Override
-		public Class<? extends InkObject> getInterfaceClass(){
+		public Class<? extends InkObject> getInterfaceClass() {
 			return interfaceClass;
 		}
 
 		@Override
-		public Class<?>[] getBehaviorProxyInterfaces(){
+		public Class<?>[] getBehaviorProxyInterfaces() {
 			return behaviorProxyInterfaces;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Class<InkObjectState> getStateInterface(){
+		public Class<InkObjectState> getStateInterface() {
 			return (Class<InkObjectState>) stateInterface;
 		}
 
 		@Override
 		public ComponentType getComponentType() {
-			return (ComponentType)getValue(p_component_type);
+			return (ComponentType) getValue(p_component_type);
 		}
 
 		@Override
@@ -348,7 +356,7 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public ObjectTypeMarker getObjectTypeMarker() {
-			if(isMetaClass()){
+			if (isMetaClass()) {
 				return ObjectTypeMarker.Metaclass;
 			}
 			return ObjectTypeMarker.Class;
@@ -356,12 +364,12 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public String getDescription() {
-			return (String)getValue(p_description);
+			return (String) getValue(p_description);
 		}
 
 		@Override
 		public JavaMapping getJavaMapping() {
-			return (JavaMapping)getValue(p_java_mapping);
+			return (JavaMapping) getValue(p_java_mapping);
 		}
 
 		@Override
@@ -375,33 +383,33 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public byte[] getRealPropertiesIndex(){
+		public byte[] getRealPropertiesIndex() {
 			return classRealPropertiesIndex;
 		}
 
 		@Override
-		public synchronized void addRole(String namespace, String role, Trait t) throws WeaveException{
-			if(traitsRolesToIndexes.containsKey(role)){
-				throw new WeaveException("The class '" + getId() +"', already contains the role '" + role +"'.");
+		public synchronized void addRole(String namespace, String role, Trait t) throws WeaveException {
+			if (traitsRolesToIndexes.containsKey(role)) {
+				throw new WeaveException("The class '" + getId() + "', already contains the role '" + role + "'.");
 			}
 			Map<String, Byte> temp1 = new HashMap<String, Byte>();
 			String traitClassId = t.getMeta().reflect().getId();
-			if(detachableTraitsIdsToIndexes != null && detachableTraitsIdsToIndexes.containsKey(traitClassId)){
-				throw new WeaveException("The class '" + getId() +"', already contains the a role with the same behavior class '" + traitClassId +"'.");
+			if (detachableTraitsIdsToIndexes != null && detachableTraitsIdsToIndexes.containsKey(traitClassId)) {
+				throw new WeaveException("The class '" + getId() + "', already contains the a role with the same behavior class '" + traitClassId + "'.");
 			}
 			temp1.putAll(traitsRolesToIndexes);
 			Map<String, Byte> temp2 = new HashMap<String, Byte>();
 			Trait[] temp3 = null;
 			Byte index = null;
-			if(detachableRoles==null){
+			if (detachableRoles == null) {
 				index = (byte) 0;
 				temp3 = new Trait[1];
-			}else{
+			} else {
 				temp3 = new Trait[detachableRoles.length + 1];
 				index = (byte) detachableRoles.length;
 				System.arraycopy(detachableRoles, 0, temp3, 0, detachableRoles.length);
 			}
-			byte actualIndex = (byte)(index+offset);
+			byte actualIndex = (byte) (index + offset);
 			temp1.put(role, actualIndex);
 			temp2.put(traitClassId, actualIndex);
 			temp3[index] = t.cloneState().getBehavior();
@@ -411,30 +419,30 @@ public interface InkClassState extends InkTypeState{
 		}
 
 		@Override
-		public boolean hasRole(String role){
+		public boolean hasRole(String role) {
 			return traitsRolesToIndexes.containsKey(role);
 		}
 
 		@Override
 		public Byte getTraitIndex(String role) {
-			Byte result= null;
+			Byte result = null;
 			result = traitsRolesToIndexes.get(role);
-			return  result;
+			return result;
 		}
 
 		@Override
 		public Byte getTraitIndex(TraitClass traitClass) {
-			Byte result= null;
-			if(traitsRolesToIndexes!=null){
+			Byte result = null;
+			if (traitsRolesToIndexes != null) {
 				result = detachableTraitsIdsToIndexes.get(traitClass.reflect().getId());
 			}
-			return  result;
+			return result;
 		}
 
 		@Override
 		public Trait getDetachableRole(byte index) {
 			byte loc = (byte) (index - offset);
-			if(loc < detachableRoles.length){
+			if (loc < detachableRoles.length) {
 				return detachableRoles[loc];
 			}
 			return null;
@@ -442,7 +450,7 @@ public interface InkClassState extends InkTypeState{
 
 		@Override
 		public int getTraitsCount() {
-			return offset + (detachableRoles==null?0:detachableRoles.length);
+			return offset + (detachableRoles == null ? 0 : detachableRoles.length);
 		}
 
 	}

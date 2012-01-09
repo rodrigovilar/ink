@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -26,5 +24,5 @@ public class DoubleAttributeImpl<S extends DoubleAttributeState> extends Numeric
 	public Double getFinalValue() {
 		return getState().getFinalValue();
 	}
-	
+
 }

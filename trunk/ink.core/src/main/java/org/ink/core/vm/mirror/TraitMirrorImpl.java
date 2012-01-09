@@ -7,13 +7,12 @@ import org.ink.core.vm.traits.TraitState;
 /**
  * @author Lior Schachter
  */
-public class TraitMirrorImpl<S extends TraitMirrorState> extends MirrorImpl<S> implements TraitMirror{
+public class TraitMirrorImpl<S extends TraitMirrorState> extends MirrorImpl<S> implements TraitMirror {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Trait> T adapt(InkObjectState state) {
-		return (T) getContext().getFactory().newBehaviorInstance((TraitState)getTargetState(), state, false, true);
+		return (T) getContext().getFactory().newBehaviorInstance((TraitState) getTargetState(), state, false, true);
 	}
 
-	
 }

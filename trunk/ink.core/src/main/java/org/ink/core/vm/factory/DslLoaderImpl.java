@@ -33,7 +33,7 @@ import org.ink.core.vm.utils.file.FileUtils;
 /**
  * @author Lior Schachter
  */
-public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader{
+public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S> implements DslLoader {
 
 	private final Map<String, ElementDescriptor<D>> elements = new HashMap<String, ElementDescriptor<D>>(100);
 	private static final Map<String, List<String>> file2Elements = new ConcurrentHashMap<String, List<String>>(1000);
@@ -53,64 +53,64 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	}
 
 	@Override
-	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException{
+	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException {
 		ElementDescriptor<D> desc = elements.get(id);
 		boolean readerCreated = false;
-		if(desc!=null){
-			try{
+		if (desc != null) {
+			try {
 				Mirror clsMirror = null;
-				if(desc.getClassId()!=null){
+				if (desc.getClassId() != null) {
 					InkObjectState clsState = context.getState(desc.getClassId(), false);
-					if(clsState!=null){
+					if (clsState != null) {
 						clsMirror = clsState.reflect();
 					}
 				}
 				Mirror superMirror = null;
-				if(desc.getSuperId()!=null){
+				if (desc.getSuperId() != null) {
 					InkObjectState superState = context.getState(desc.getSuperId(), false);
-					if(superState!=null){
+					if (superState != null) {
 						superMirror = superState.reflect();
 					}
 				}
-				if((clsMirror==null || clsMirror.isValid()) && (superMirror==null || superMirror.isValid())){
+				if ((clsMirror == null || clsMirror.isValid()) && (superMirror == null || superMirror.isValid())) {
 					InkReader<D> reader = createReader();
 					s.add(reader);
 					readerCreated = true;
 					InkObjectState result = reader.read(desc.getRawData(), context);
-					if(reader.containsErrors()){
+					if (reader.containsErrors()) {
 						List<ParseError> errors = reader.getErrors();
 						desc.setInvalid();
 						desc.setParsingErrors(errors);
-						if(!errors.isEmpty()){
+						if (!errors.isEmpty()) {
 							System.out.println("============================================Load Error=====================================================================================");
-							for(ParseError er : errors){
-								System.out.println("Object '" +id+"':" + er.getDescription());
+							for (ParseError er : errors) {
+								System.out.println("Object '" + id + "':" + er.getDescription());
 							}
 							System.out.println("=================================================================================================================================");
 						}
 						throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
-					}else if( shouldValidateResult(result)&&!result.validate(vc)){
+					} else if (shouldValidateResult(result) && !result.validate(vc)) {
 						List<ValidationMessage> errors = vc.getMessages();
 						desc.setValidationErrorMessages(errors);
-						if(!errors.isEmpty()){
+						if (!errors.isEmpty()) {
 							System.out.println("============================================Load Error=====================================================================================");
-							for(ValidationMessage er : errors){
-								System.out.println("Object '" +id+"':" + er.getFormattedMessage());
+							for (ValidationMessage er : errors) {
+								System.out.println("Object '" + id + "':" + er.getFormattedMessage());
 							}
 							System.out.println("=================================================================================================================================");
 						}
-						//todo -this is a hack
-						if(vc.containsMessage(Severity.INK_ERROR)){
+						// todo -this is a hack
+						if (vc.containsMessage(Severity.INK_ERROR)) {
 							desc.setInvalid();
-							throw new ObjectLoadingException(result, errors, null,desc.getResource(), id);
+							throw new ObjectLoadingException(result, errors, null, desc.getResource(), id);
 						}
 					}
 					return result;
-				}else{
+				} else {
 					desc.setInvalid();
 				}
-			}finally{
-				if(readerCreated){
+			} finally {
+				if (readerCreated) {
 					s.pop();
 				}
 				vc.reset();
@@ -119,14 +119,14 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		return null;
 	}
 
-	private boolean shouldValidateResult(InkObjectState result){
+	private boolean shouldValidateResult(InkObjectState result) {
 		Mirror mirror = result.reflect();
 		ClassMirror cMirror = mirror.getClassMirror();
-		if(!cMirror.isCoreObject() && !result.reflect().getClassMirror().getDescriptor().isValid()){
+		if (!cMirror.isCoreObject() && !result.reflect().getClassMirror().getDescriptor().isValid()) {
 			return false;
 		}
 		Mirror superObject = mirror.getSuper();
-		if(superObject!=null && !superObject.isCoreObject()){
+		if (superObject != null && !superObject.isCoreObject()) {
 			return superObject.getDescriptor().isValid();
 		}
 		return true;
@@ -137,17 +137,17 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		try {
 			loadElements(ownerFactory);
 		} catch (IOException e) {
-			//TODO - log error
+			// TODO - log error
 		}
 		List<String> startupObjects = locateStartupObjects(ownerFactory.getDslPackage());
 		List<InkObjectState> objects = new ArrayList<InkObjectState>();
 		ClassMirror tc = getContext().getObject(CoreNotations.Ids.TRAIT).reflect();
 		InkObjectState o = null;
-		for(String id : startupObjects){
+		for (String id : startupObjects) {
 			try {
 				ElementDescriptor<D> ed = elements.get(id);
-				if(ed.isValid()){
-					o  = getObject(id, ownerFactory.getAppContext());
+				if (ed.isValid()) {
+					o = getObject(id, ownerFactory.getAppContext());
 					objects.add(o);
 				}
 			} catch (ObjectLoadingException e) {
@@ -155,22 +155,21 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 			}
 		}
 		InkClass cls;
-		for(ListIterator<InkObjectState> iter=objects.listIterator();iter.hasNext();){
+		for (ListIterator<InkObjectState> iter = objects.listIterator(); iter.hasNext();) {
 			o = iter.next();
 			cls = o.getMeta();
-			if(((ClassMirror)cls.reflect()).isSubClassOf(tc)
-					&& ((TraitClass)cls).getKind().isDetachable()){
+			if (((ClassMirror) cls.reflect()).isSubClassOf(tc) && ((TraitClass) cls).getKind().isDetachable()) {
 				iter.remove();
-				ownerFactory.registerTrait((TraitState)o);
+				ownerFactory.registerTrait((TraitState) o);
 			}
 		}
-		for(ListIterator<InkObjectState> iter=objects.listIterator();iter.hasNext();){
+		for (ListIterator<InkObjectState> iter = objects.listIterator(); iter.hasNext();) {
 			o = iter.next();
 			ownerFactory.register(o);
 		}
 	}
 
-	private InkReader<D> createReader(){
+	private InkReader<D> createReader() {
 		return readerCls.newInstance(ownerFactory.getAppContext()).getBehavior();
 	}
 
@@ -178,31 +177,31 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private synchronized void loadElements(DslFactory ownerFactory) throws IOException {
 		this.ownerFactory = ownerFactory;
 		folder = VMConfig.instance().getResourceResolver().getDslResourcesLocation(ownerFactory);
-		//TODO - the reader should be a property on DSLoader
+		// TODO - the reader should be a property on DSLoader
 		readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
 		InkReader<D> reader = createReader();
-		vc = ((InkClass)ownerFactory.getObject(CoreNotations.Ids.VALIDATION_CONTEXT.toString())).newInstance().getBehavior();
+		vc = ((InkClass) ownerFactory.getObject(CoreNotations.Ids.VALIDATION_CONTEXT.toString())).newInstance().getBehavior();
 		List<ElementDescriptor<D>> fileElements;
 		String id;
-		try{
-			for(File f : getInkFiles()){
+		try {
+			for (File f : getInkFiles()) {
 				fileElements = reader.extractRawData(f, ownerFactory.getAppContext());
-				if(!reader.containsErrors()){
+				if (!reader.containsErrors()) {
 					List<String> ids = new ArrayList<String>(25);
 					file2Elements.put(f.getAbsolutePath(), ids);
 					ElementDescriptor existingDesc;
-					for(ElementDescriptor desc : fileElements){
+					for (ElementDescriptor desc : fileElements) {
 						id = desc.getId();
-						if(id!=null){
-							if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) <0){
-								id = ownerFactory.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
+						if (id != null) {
+							if (id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
+								id = ownerFactory.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 							}
-							if((existingDesc=elements.get(id))!=null){
+							if ((existingDesc = elements.get(id)) != null) {
 								String postfix = "";
-								if(existingDesc.getResource().equals(desc.getResource())){
+								if (existingDesc.getResource().equals(desc.getResource())) {
 									postfix = "file " + existingDesc.getResource().getName();
-								}else{
-									postfix = "the following files: " + existingDesc.getResource().getName() +","+desc.getResource().getName();
+								} else {
+									postfix = "the following files: " + existingDesc.getResource().getName() + "," + desc.getResource().getName();
 								}
 								vc.add(null, getMessage(), Severity.INK_ERROR, ResourceType.INK, false, id, postfix);
 								List<ValidationMessage> errors = vc.getMessages();
@@ -212,53 +211,52 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							}
 							elements.put(id, desc);
 							ids.add(id);
-						}else{
-							//TODO - log error
+						} else {
+							// TODO - log error
 						}
 					}
-				}else{
-					for(ParseError pe : reader.getErrors()){
-						//TODO - should refactor this
-						System.out.println("Error while parsing ink file '" + f.getAbsolutePath() +"', line number " + pe.getLineNumber() +";" + pe.getDescription());
+				} else {
+					for (ParseError pe : reader.getErrors()) {
+						// TODO - should refactor this
+						System.out.println("Error while parsing ink file '" + f.getAbsolutePath() + "', line number " + pe.getLineNumber() + ";" + pe.getDescription());
 					}
 				}
 			}
-		}finally{
+		} finally {
 			vc.reset();
 		}
 	}
 
 	private Message getMessage() {
-		//this is to solve eclipse bootsrapping problem. need to fixed using metaclass
+		// this is to solve eclipse bootsrapping problem. need to fixed using metaclass
 		return VMMain.getCoreFactory().getObject(CoreNotations.Ids.DUPLICATE_ID);
 	}
 
-	private String findSuperId(String id){
+	private String findSuperId(String id) {
 		String result = null;
 		ElementDescriptor<D> superElem = elements.get(id);
-		if(superElem!=null){
+		if (superElem != null) {
 			result = superElem.getSuperId();
-		}else{
+		} else {
 			InkObjectState ios = ownerFactory.getState(id, false);
-			if(ios!=null){
+			if (ios != null) {
 				Mirror superObject = ios.reflect().getSuper();
-				if(superObject!=null){
+				if (superObject != null) {
 					result = superObject.getId();
 				}
-			}else{
+			} else {
 				System.out.println("Could not locate object with id " + id);
 			}
 		}
 		return result;
 	}
 
-
 	private List<String> locateStartupObjects(String dslPackage) {
 		List<String> result = new ArrayList<String>();
-		for(ElementDescriptor<D> elem : elements.values()){
+		for (ElementDescriptor<D> elem : elements.values()) {
 			String superId = findSuperId(elem.getClassId());
-			while(superId!=null){
-				if(superId.equals(CoreNotations.Ids.TRAIT)){
+			while (superId != null) {
+				if (superId.equals(CoreNotations.Ids.TRAIT)) {
 					result.add(elem.getId());
 					break;
 				}
@@ -283,16 +281,16 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
 		ElementDescriptor<D> elem;
 		InkErrorDetails err;
-		for(Map.Entry<String, ElementDescriptor<D>> en : elements.entrySet()){
+		for (Map.Entry<String, ElementDescriptor<D>> en : elements.entrySet()) {
 			elem = en.getValue();
-			if(elem.getParsingErrors()!=null){
-				for(ParseError pe : elem.getParsingErrors()){
+			if (elem.getParsingErrors() != null) {
+				for (ParseError pe : elem.getParsingErrors()) {
 					err = new InkErrorDetails(en.getKey(), pe.getLineNumber(), pe.getDescription(), elem.getResource(), ResourceType.INK);
 					result.add(err);
 				}
 			}
-			if(elem.getValidationErrorMessages()!=null){
-				for(ValidationMessage vm : elem.getValidationErrorMessages()){
+			if (elem.getValidationErrorMessages() != null) {
+				for (ValidationMessage vm : elem.getValidationErrorMessages()) {
 					err = new InkErrorDetails(en.getKey(), vm.getErrorPath(), vm.getFormattedMessage(), elem.getResource(), vm.getResourceType());
 					result.add(err);
 				}

@@ -3,18 +3,17 @@ package org.ink.core.vm.mirror;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.proxy.Proxiability;
 
-
 /**
  * @author Lior Schachter
  */
-public class StructClassMirrorImpl<S extends StructClassMirrorState> extends ClassMirrorImpl<S> implements StructClassMirror{
+public class StructClassMirrorImpl<S extends StructClassMirrorState> extends ClassMirrorImpl<S> implements StructClassMirror {
 
 	private Class<?>[] stateProxyInterfaces;
 
 	@Override
 	public void afterTargetSet() {
 		super.afterTargetSet();
-		stateProxyInterfaces = new Class[]{getStateInterface(), MirrorAPI.class, Proxiability.class};
+		stateProxyInterfaces = new Class[] { getStateInterface(), MirrorAPI.class, Proxiability.class };
 	}
 
 	@Override
@@ -26,6 +25,5 @@ public class StructClassMirrorImpl<S extends StructClassMirrorState> extends Cla
 	public boolean isStruct() {
 		return true;
 	}
-
 
 }

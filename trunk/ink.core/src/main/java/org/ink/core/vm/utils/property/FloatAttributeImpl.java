@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -21,10 +19,10 @@ public class FloatAttributeImpl<S extends FloatAttributeState> extends NumericAt
 	public Float getDefaultValue() {
 		return getState().getDefaultValue();
 	}
-	
+
 	@Override
 	public Float getFinalValue() {
 		return getState().getFinalValue();
 	}
-	
+
 }

@@ -11,31 +11,34 @@ import org.ink.core.vm.messages.MessageState;
 /**
  * @author Lior Schachter
  */
-public interface ValidatorClassState extends InkClassState{
+public interface ValidatorClassState extends InkClassState {
 
-	@CoreField(defaultValue="false")
+	@CoreField(defaultValue = "false")
 	public static final byte p_abort_on_error = p_personality + 1;
-	@CoreField(defaultValue="Always")
+	@CoreField(defaultValue = "Always")
 	public static final byte p_active_at = p_abort_on_error + 1;
-	@CoreField(mandatory=false)
-	public static final byte p_default_message = p_active_at +1;
-	@CoreMapField(keyName="code", valueName="message", kind=org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.key_value)
+	@CoreField(mandatory = false)
+	public static final byte p_default_message = p_active_at + 1;
+	@CoreMapField(keyName = "code", valueName = "message", kind = org.ink.core.vm.lang.internal.annotations.CoreMapField.Kind.key_value)
 	public static final byte p_specific_messages = p_default_message + 1;
 
-
 	public Boolean getAbortOnError();
+
 	public void setAbortOnError(Boolean value);
 
 	public ActivationMode getActiveAt();
+
 	public void setActiveAt(ActivationMode value);
 
 	public Message getDefaultMessage();
+
 	public void setDefaultMessage(MessageState value);
 
 	public Map<String, Message> getSpecificMessages();
+
 	public void setSpecificMessages(Map<String, MessageState> value);
 
-	public class Data extends InkClassState.Data implements ValidatorClassState{
+	public class Data extends InkClassState.Data implements ValidatorClassState {
 
 		@Override
 		public Boolean getAbortOnError() {
@@ -59,7 +62,7 @@ public interface ValidatorClassState extends InkClassState{
 
 		@Override
 		public Message getDefaultMessage() {
-			return (Message)getValue(p_default_message);
+			return (Message) getValue(p_default_message);
 		}
 
 		@Override

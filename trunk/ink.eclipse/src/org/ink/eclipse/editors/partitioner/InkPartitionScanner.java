@@ -21,13 +21,13 @@ public class InkPartitionScanner extends RuleBasedPartitionScanner {
 	public InkPartitionScanner() {
 		IToken inkComment = new Token(INK_COMMENT);
 		IToken inkString = new Token(INK_STRING);
-		//IToken startObject = new Token(INK_START_OBJECT);
-		List<IPredicateRule> rules= new ArrayList<IPredicateRule>();
+		// IToken startObject = new Token(INK_START_OBJECT);
+		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		rules.add(new EndOfLineRule("//", inkComment));
 		rules.add(new MultiLineRule("/*", "*/", inkComment));
 		rules.add(new SingleLineRule("\"", "\"", inkString, '\\'));
-		//rules.add(new StartObjectRule(startObject));
+		// rules.add(new StartObjectRule(startObject));
 
-		setPredicateRules(rules.toArray(new IPredicateRule[]{}));
+		setPredicateRules(rules.toArray(new IPredicateRule[] {}));
 	}
 }

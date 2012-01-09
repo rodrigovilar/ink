@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -24,8 +22,7 @@ public class ShortAttributeImpl<S extends ShortAttributeState> extends NumericAt
 
 	@Override
 	public Short getFinalValue() {
-		return getState().getFinalValue();	
+		return getState().getFinalValue();
 	}
 
-	
 }

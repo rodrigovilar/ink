@@ -8,7 +8,7 @@ import org.ink.core.vm.lang.internal.MirrorAPI;
 public interface CoreObjectDescriptor extends ObjectDescriptor {
 
 	public MirrorAPI getObject();
+
 	public boolean isClass();
-	
 
 }

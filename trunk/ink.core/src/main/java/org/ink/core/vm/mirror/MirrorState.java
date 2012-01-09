@@ -7,15 +7,15 @@ import org.ink.core.vm.traits.TraitState;
 /**
  * @author Lior Schachter
  */
-public interface MirrorState extends TraitState{
-	
+public interface MirrorState extends TraitState {
+
 	public static final byte p_editor = 1;
-	
-	
+
 	public ObjectEditor getEditor();
+
 	public void setEditor(ObjectEditorState value);
-	
-	public class Data extends TraitState.Data implements MirrorState{
+
+	public class Data extends TraitState.Data implements MirrorState {
 
 		@Override
 		public ObjectEditor getEditor() {
@@ -26,7 +26,7 @@ public interface MirrorState extends TraitState{
 		public void setEditor(ObjectEditorState value) {
 			setValue(p_editor, value);
 		}
-		
+
 	}
 
 }

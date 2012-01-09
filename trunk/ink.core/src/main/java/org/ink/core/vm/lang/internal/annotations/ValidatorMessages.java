@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidatorMessages {
 	public String defaultMessage() default "";
+
 	public String[] codes() default {};
+
 	public String[] messages() default {};
 }

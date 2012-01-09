@@ -19,17 +19,17 @@ public abstract class InkEditorOperation {
 
 	protected PageAnalyzer pa = null;
 
-
-	public final boolean run(IDocument doc, TextSelection selection, Shell shell, IFile file) throws Exception{
+	public final boolean run(IDocument doc, TextSelection selection, Shell shell, IFile file) throws Exception {
 		InkObject o = findInkObject(doc, selection);
-		if(o!=null){
+		if (o != null) {
 			return execute(o, shell, doc, file);
 		}
 		return false;
 	}
 
 	protected abstract boolean execute(InkObject o, Shell shell, IDocument doc, IFile file) throws Exception;
-	protected boolean findTopLevelObjectOnly(){
+
+	protected boolean findTopLevelObjectOnly() {
 		return false;
 	}
 
@@ -41,47 +41,47 @@ public abstract class InkEditorOperation {
 		IEditorInput ei = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
 		IFile sourceFile = ((FileEditorInput) ei).getFile();
 		String ns = InkUtils.resolveNamespace(sourceFile.getLocation().toFile());
-		if(!findTopLevelObjectOnly()){
+		if (!findTopLevelObjectOnly()) {
 			StringBuilder builder = new StringBuilder(50);
-			for(int i=offset;i>0;i--){
+			for (int i = offset; i > 0; i--) {
 				char c = text.charAt(i);
-				if(c=='\n' || c=='\"'){
+				if (c == '\n' || c == '\"') {
 					break;
 				}
 				builder.append(c);
 			}
 			builder = builder.reverse();
-			for(int i=offset+1;i<text.length();i++){
+			for (int i = offset + 1; i < text.length(); i++) {
 				char c = text.charAt(i);
-				if(c=='\n' || c=='\"'){
+				if (c == '\n' || c == '\"') {
 					break;
 				}
 				builder.append(c);
 			}
 			id = builder.toString();
-			if(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0){
+			if (id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
 				id = ns + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 			}
 			o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
 		}
-		if(o==null){
+		if (o == null) {
 			pa = new PageAnalyzer(ns, text, offset);
 			ObjectDataBlock root = pa.getCurrentElement();
-			if(root!=null){
+			if (root != null) {
 				DataBlock element = root.getBlock(offset);
-				if(element!=null){
-					while(o==null && element!=null){
-						if(element instanceof ObjectDataBlock){
-							id = ((ObjectDataBlock)element).getAttributeValue(InkNotations.Path_Syntax.ID_ATTRIBUTE);
-							if(id==null){
-								id = ((ObjectDataBlock)element).getAttributeValue(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
+				if (element != null) {
+					while (o == null && element != null) {
+						if (element instanceof ObjectDataBlock) {
+							id = ((ObjectDataBlock) element).getAttributeValue(InkNotations.Path_Syntax.ID_ATTRIBUTE);
+							if (id == null) {
+								id = ((ObjectDataBlock) element).getAttributeValue(InkNotations.Path_Syntax.CLASS_ATTRIBUTE);
 							}
-							if(id==null){
+							if (id == null) {
 								element = element.getParent();
-							}else{
+							} else {
 								o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
 							}
-						}else{
+						} else {
 							element = element.getParent();
 						}
 					}
@@ -90,7 +90,5 @@ public abstract class InkEditorOperation {
 		}
 		return o;
 	}
-
-
 
 }

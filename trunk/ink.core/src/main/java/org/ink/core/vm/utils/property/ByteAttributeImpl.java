@@ -1,7 +1,5 @@
 package org.ink.core.vm.utils.property;
 
-
-
 /**
  * @author Lior Schachter
  */
@@ -21,11 +19,10 @@ public class ByteAttributeImpl<S extends ByteAttributeState> extends NumericAttr
 	public Byte getDefaultValue() {
 		return getState().getDefaultValue();
 	}
-	
+
 	@Override
 	public Byte getFinalValue() {
 		return getState().getFinalValue();
 	}
 
-	
 }

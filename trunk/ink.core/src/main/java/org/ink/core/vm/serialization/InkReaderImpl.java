@@ -46,21 +46,19 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 /**
  * @author Lior Schachter
  */
-public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S>
-implements InkReader<Tag>{
-
+public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> implements InkReader<Tag> {
 
 	private List<ParseError> errors = new ArrayList<ParseError>();
 	private URL url = null;
 	private DslFactory serializationContext = null;
-	//private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
+	// private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
 	private boolean containsError = false;
 
 	@Override
 	public void reset() {
 		errors = new ArrayList<ParseError>();
 		url = null;
-		//objects = new HashMap<String, MirrorAPI>();
+		// objects = new HashMap<String, MirrorAPI>();
 	}
 
 	protected void addError(Tag t, String description) {
@@ -126,13 +124,13 @@ implements InkReader<Tag>{
 	}
 
 	@Override
-	public List<ElementDescriptor<Tag>> extractRawData(File f, Context context) throws IOException{
+	public List<ElementDescriptor<Tag>> extractRawData(File f, Context context) throws IOException {
 		try {
 			Tag tag = SdlParser.parse(f);
 			List<Tag> tags = tag.getChildren();
 			List<ElementDescriptor<Tag>> result = new ArrayList<ElementDescriptor<Tag>>(tags.size());
-			for(Tag t : tags){
-				result.add(new SdlElementDescriptor(context.getNamespace(),t, f));
+			for (Tag t : tags) {
+				result.add(new SdlElementDescriptor(context.getNamespace(), t, f));
 			}
 			return result;
 		} catch (SDLParseException e) {
@@ -175,108 +173,107 @@ implements InkReader<Tag>{
 				if (isInnerObject) {
 					addError(tag, "The attribute '" + attName + "' is invalid in this context.");
 				} else if (id != null) {
-					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName + "' was found.");
 					return null;
 				} else {
 					try {
 						id = (String) en.getValue();
-						if(id==null || id.trim().length()==0){
-							addError(tag, "Attribute '" + attName+ "' should not be empty.");
+						if (id == null || id.trim().length() == 0) {
+							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
-						id = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+id;
+						id = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName + "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(CLASS_ATTRIBUTE)) {
 				if (classId != null) {
-					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName + "' was found.");
 					return null;
 				} else {
 					try {
 						classId = (String) en.getValue();
-						if(classId==null || classId.trim().length()==0){
-							addError(tag, "Attribute '" + attName+ "' should not be empty.");
+						if (classId == null || classId.trim().length() == 0) {
+							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
-						if(classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
-							classId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+classId;
+						if (classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
+							classId = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + classId;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName + "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(REF_ATTRIBUTE)) {
 				if (ref != null) {
-					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName + "' was found.");
 					return null;
 				} else {
 					try {
 						ref = (String) en.getValue();
-						if(ref==null || ref.trim().length()==0){
-							addError(tag, "Attribute '" + attName+ "' should not be empty.");
+						if (ref == null || ref.trim().length() == 0) {
+							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
-						if(ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
-							ref = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+ref;
+						if (ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
+							ref = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + ref;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName + "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(SUPER_ATTRIBUTE)) {
 				if (superId != null) {
-					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName + "' was found.");
 				} else {
 					try {
 						superId = (String) en.getValue();
-						if(superId==null || superId.trim().length()==0){
-							addError(tag, "Attribute '" + attName+ "' should not be empty.");
+						if (superId == null || superId.trim().length() == 0) {
+							addError(tag, "Attribute '" + attName + "' should not be empty.");
 							return null;
 						}
-						if(superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C)<0){
-							superId = serializationContext.getNamespace() +InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C+superId;
+						if (superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
+							superId = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + superId;
 						}
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName+ "' should be of a string type.");
+						addError(tag, "Attribute '" + attName + "' should be of a string type.");
 						return null;
 					}
 				}
 			} else if (attName.equals(ABSTRACT_ATTRIBUTE)) {
 				if (isAbstract != null) {
-					addError(tag, "Duplicate attribute '" + attName	+ "' was found.");
+					addError(tag, "Duplicate attribute '" + attName + "' was found.");
 				} else {
 					try {
 						isAbstract = (Boolean) en.getValue();
 					} catch (ClassCastException e) {
-						addError(tag, "Attribute '" + attName+ "' should be of a boolean type.");
+						addError(tag, "Attribute '" + attName + "' should be of a boolean type.");
 					}
 				}
 			} else {
-				addError(tag, "The attribute '" + attName+ "' is invalid in this context.");
+				addError(tag, "The attribute '" + attName + "' is invalid in this context.");
 			}
 
 		}
 		// todo should support no classId if superId exists
 		if (ref != null) {
 			if (classId != null) {
-				addError(tag,
-				"The attribute 'class' is invalid in this context.");
+				addError(tag, "The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
-				//InkObjectState result = objects.get(ref);
-				//if(result==null){
-					InkObjectState result = serializationContext.getState(ref, false);
-					if(result==null){
-						ElementDescriptor<?> desc = serializationContext.getDescriptor(ref);
-						if(desc!=null && !desc.isValid()){
-							return null;
-						}
-					}
-				//}
+				// InkObjectState result = objects.get(ref);
+				// if(result==null){
+				InkObjectState result = serializationContext.getState(ref, false);
 				if (result == null) {
-					addError(tag, "Could not find Ink object with id '" + ref+ "'.");
+					ElementDescriptor<?> desc = serializationContext.getDescriptor(ref);
+					if (desc != null && !desc.isValid()) {
+						return null;
+					}
+				}
+				// }
+				if (result == null) {
+					addError(tag, "Could not find Ink object with id '" + ref + "'.");
 				}
 				return result;
 			}
@@ -285,41 +282,39 @@ implements InkReader<Tag>{
 			addError(tag, "Attribute 'classId' must be assigned a value.");
 			return null;
 		}
-		return createInkObject(tag, id, classId, superId,
-				isAbstract == null ? false : isAbstract, isInnerObject);
+		return createInkObject(tag, id, classId, superId, isAbstract == null ? false : isAbstract, isInnerObject);
 	}
 
-	protected InkObjectState createInkObject(Tag tag, String id,
-			String classId, String superId, boolean isAbstract, boolean isInnerObject) {
+	protected InkObjectState createInkObject(Tag tag, String id, String classId, String superId, boolean isAbstract, boolean isInnerObject) {
 		InkClassState clsState = serializationContext.getState(classId, false);
 		if (clsState == null) {
 			containsError = true;
-			if(serializationContext.getDescriptor(classId)==null){
+			if (serializationContext.getDescriptor(classId) == null) {
 				addError(tag, "Could not resolve class id '" + classId + "'.");
 			}
 			return null;
 		}
 		ClassMirror cm = clsState.reflect();
-		if(cm.isMetaClass() && superId==null){
+		if (cm.isMetaClass() && superId == null) {
 			addError(tag, "An Ink class must sepecify its 'super' attribute.");
 		}
 		MirrorAPI result = null;
-		if(!clsState.reflect().isValid()){
+		if (!clsState.reflect().isValid()) {
 			containsError = true;
 			return null;
-		}else{
+		} else {
 			InkClass cls = clsState.getBehavior();
 			result = cls.newInstance(serializationContext, false, false);
-			try{
+			try {
 				ClassMirror cMirror = cls.reflect();
 				Map<String, PropertyMirror> propertiesMap = cMirror.getClassPropertiesMap();
-				//no defaults here - defaults are resolved in compilation
+				// no defaults here - defaults are resolved in compilation
 				result.setId(id);
 				result.setRoot(!isInnerObject);
 				result.setAbstract(isAbstract);
 				result.setSuperId(superId);
-				if(id!=null){
-					//to support circular dependency
+				if (id != null) {
+					// to support circular dependency
 					serializationContext.register(result);
 				}
 				List<Tag> fields = tag.getChildren();
@@ -328,74 +323,73 @@ implements InkReader<Tag>{
 				Set<String> visited = new HashSet<String>(fields.size());
 				for (Tag field : fields) {
 					propertyName = field.getName();
-					if(visited.contains(propertyName)){
-						addError(field, "The property with name '" + propertyName +"' appears more than once.");
+					if (visited.contains(propertyName)) {
+						addError(field, "The property with name '" + propertyName + "' appears more than once.");
 						continue;
 					}
 					visited.add(propertyName);
 					pm = propertiesMap.get(propertyName);
 					if (pm == null) {
-						addError(field, "The property with name '" + propertyName
-								+ "' does not exist for class '" + classId + "'.");
+						addError(field, "The property with name '" + propertyName + "' does not exist for class '" + classId + "'.");
 					} else {
 						result.setPropertyValue(pm.getIndex(), transformPropertyValue(field, pm));
 					}
 				}
-				if(!containsErrors()){
-					if(!isInnerObject){
-						try{
+				if (!containsErrors()) {
+					if (!isInnerObject) {
+						try {
 							result.reflect().edit().compile();
-						}catch(Exception e){
+						} catch (Exception e) {
 							addError(tag, e.getMessage());
 						}
 					}
 				}
-			}catch(CoreException e){
+			} catch (CoreException e) {
 				addError(tag, e.getMessage());
-			}catch(Throwable e){
-				addError(tag, "Could not read object '"+id +"'.");
+			} catch (Throwable e) {
+				addError(tag, "Could not read object '" + id + "'.");
 			}
 		}
 		return result;
 	}
 
-	private Object convertPrimitiveTypeValue(Tag t,Object val, PrimitiveAttributeMirror pm){
+	private Object convertPrimitiveTypeValue(Tag t, Object val, PrimitiveAttributeMirror pm) {
 		Object result = val;
-		if(result!=null){
-			try{
-				switch((pm).getPrimitiveTypeMarker()){
+		if (result != null) {
+			try {
+				switch ((pm).getPrimitiveTypeMarker()) {
 				case Byte:
-					result = ((Number)val).byteValue();
+					result = ((Number) val).byteValue();
 					break;
 				case Double:
-					result = ((Number)val).doubleValue();
+					result = ((Number) val).doubleValue();
 					break;
 				case Float:
-					result = ((Number)val).floatValue();
+					result = ((Number) val).floatValue();
 					break;
 				case Integer:
-					result = ((Number)val).intValue();
+					result = ((Number) val).intValue();
 					break;
 				case Long:
-					result = ((Number)val).longValue();
+					result = ((Number) val).longValue();
 					break;
 				case Short:
-					result = ((Number)val).shortValue();
+					result = ((Number) val).shortValue();
 					break;
 				case Date:
-					result = ((Calendar)val).getTime();
+					result = ((Calendar) val).getTime();
 					break;
 				}
-			}catch(ClassCastException e){
-				//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
-				//						+" type, while the value is of '" + val.getClass() +"'");
+			} catch (ClassCastException e) {
+				// addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
+				// +" type, while the value is of '" + val.getClass() +"'");
 			}
-			//no need to add an error here - validation framework should report the error
-			//			if(!pm.getPropertyType().getTypeClass().equals(result.getClass())){
-			//				addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
-			//						+" type, while the value is of '" + result.getClass() +"'");
-			//				result = null;
-			//			}
+			// no need to add an error here - validation framework should report the error
+			// if(!pm.getPropertyType().getTypeClass().equals(result.getClass())){
+			// addError(t, "Property '" + pm.getName() +"' is of '" +pm.getPropertyType().reflect().getId()
+			// +" type, while the value is of '" + result.getClass() +"'");
+			// result = null;
+			// }
 		}
 		return result;
 	}
@@ -403,13 +397,12 @@ implements InkReader<Tag>{
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Object transformPropertyValue(Tag tag, PropertyMirror pm) {
 		Object result = null;
-		try{
+		try {
 			switch (pm.getTypeMarker()) {
 			case Primitive:
-				if(tag.getValues().size() > 1){
-					addError(tag, "Invalid value specified for property '"
-							+ tag.getName() + "'. Expected 1 value but found " + tag.getValues().size() +" values.");
-				}else{
+				if (tag.getValues().size() > 1) {
+					addError(tag, "Invalid value specified for property '" + tag.getName() + "'. Expected 1 value but found " + tag.getValues().size() + " values.");
+				} else {
 					result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
 				}
 				break;
@@ -420,25 +413,24 @@ implements InkReader<Tag>{
 					switch (itemMirror.getTypeMarker()) {
 					case Primitive:
 						result = new ArrayList<Object>();
-						for(Tag t: tag.getChildren()){
+						for (Tag t : tag.getChildren()) {
 							List<?> values = t.getValues();
-							for(Object o : values){
-								((List)result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
+							for (Object o : values) {
+								((List) result).add(convertPrimitiveTypeValue(tag, o, (PrimitiveAttributeMirror) itemMirror));
 							}
 						}
 
 						break;
 					case Enum:
 						result = new ArrayList<Object>();
-						for(Tag t: tag.getChildren()){
+						for (Tag t : tag.getChildren()) {
 							List<?> values = t.getValues();
-							for(Object o : values){
+							for (Object o : values) {
 								try {
-									Object val = ((EnumType) ((Property) itemMirror.getTargetBehavior())
-											.getType()).getEnumObject(o.toString());
-									((List)result).add(val);
+									Object val = ((EnumType) ((Property) itemMirror.getTargetBehavior()).getType()).getEnumObject(o.toString());
+									((List) result).add(val);
 								} catch (CoreException e) {
-									addError(tag, "Invalid enumeration value : '" + tag.getValue()	+ "'");
+									addError(tag, "Invalid enumeration value : '" + tag.getValue() + "'");
 								}
 							}
 						}
@@ -446,16 +438,13 @@ implements InkReader<Tag>{
 					default:
 						List<Tag> tags = tag.getChildren();
 						result = new ArrayList<Object>(tags.size());
-						PropertyMirror innerPM = ((ListPropertyMirror) pm)
-						.getItemMirror();
+						PropertyMirror innerPM = ((ListPropertyMirror) pm).getItemMirror();
 						for (Tag t : tags) {
 							if (!t.getName().equals(innerPM.getName())) {
-								addError(t, "Invalid list item name '"
-										+ t.getName() + "'. Expected name '"
-										+ pm.getName() + "'.");
+								addError(t, "Invalid list item name '" + t.getName() + "'. Expected name '" + pm.getName() + "'.");
 							} else {
 								Object o = transformPropertyValue(t, innerPM);
-								if(o!=null){
+								if (o != null) {
 									((List) result).add(o);
 								}
 							}
@@ -473,19 +462,17 @@ implements InkReader<Tag>{
 				break;
 			case Enum:
 				try {
-					result = ((EnumType) ((Property) pm.getTargetBehavior())
-							.getType()).getEnumObject(tag.getValue().toString());
+					result = ((EnumType) ((Property) pm.getTargetBehavior()).getType()).getEnumObject(tag.getValue().toString());
 				} catch (CoreException e) {
-					addError(tag, "Invalid enumeration value : '" + tag.getValue()
-							+ "'");
+					addError(tag, "Invalid enumeration value : '" + tag.getValue() + "'");
 				}
 				break;
 			}
-		}catch(CoreException e){
-			addError(tag, "Invalid property value '" + pm.getName() +"':"+e.getMessage());
-		}catch(Throwable e){
+		} catch (CoreException e) {
+			addError(tag, "Invalid property value '" + pm.getName() + "':" + e.getMessage());
+		} catch (Throwable e) {
 			e.printStackTrace();
-			addError(tag, "Invalid property value '" + pm.getName() +"'.");
+			addError(tag, "Invalid property value '" + pm.getName() + "'.");
 		}
 		return result;
 	}
@@ -501,14 +488,14 @@ implements InkReader<Tag>{
 		result = mapPM.getNewInstance();
 		Dictionary spec = mapPM.getSpecifictation();
 		boolean isKeyValue = true;
-		if(spec instanceof ElementsDictionary){
+		if (spec instanceof ElementsDictionary) {
 			isKeyValue = false;
 		}
 		for (Tag t : tags) {
 			entries = t.getChildren();
 			Object mapKey = null;
 			Object mapvalue = null;
-			if(isKeyValue){
+			if (isKeyValue) {
 				boolean keyFound = false;
 				boolean valueFound = false;
 				for (Tag mapEn : entries) {
@@ -519,31 +506,26 @@ implements InkReader<Tag>{
 						valueFound = true;
 						mapvalue = transformPropertyValue(mapEn, valueM);
 					} else {
-						addError(mapEn,
-								"Unexpected field found inside map item. Expected fields are '"
-								+ keyM.getName() + "','"
-								+ valueM.getName() + "'.");
+						addError(mapEn, "Unexpected field found inside map item. Expected fields are '" + keyM.getName() + "','" + valueM.getName() + "'.");
 					}
 				}
 				if (!keyFound) {
-					addError(t, "could not find map key '" + keyM.getName()
-							+ "'.");
+					addError(t, "could not find map key '" + keyM.getName() + "'.");
 				}
 				if (!valueFound) {
-					addError(t, "could not find map value '"
-							+ valueM.getName() + "'.");
+					addError(t, "could not find map value '" + valueM.getName() + "'.");
 				}
-			}else{
+			} else {
 				mapvalue = transformPropertyValue(t, valueM);
-				mapKey = ((Proxiable)mapvalue).reflect().getPropertyValue(keyM.getName());
-				if(mapKey==null){
-					addError(t, "The field '"+keyM.getName()+"' should not be empty.");
+				mapKey = ((Proxiable) mapvalue).reflect().getPropertyValue(keyM.getName());
+				if (mapKey == null) {
+					addError(t, "The field '" + keyM.getName() + "' should not be empty.");
 				}
 			}
 			if (mapKey != null && mapvalue != null) {
-				if(result.containsKey(mapKey)){
-					addError(t, "Entry with key '" +mapKey +"' already exists.");
-				}else{
+				if (result.containsKey(mapKey)) {
+					addError(t, "Entry with key '" + mapKey + "' already exists.");
+				} else {
 					result.put(mapKey, mapvalue);
 				}
 			}

@@ -5,51 +5,54 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 import org.ink.core.vm.lang.internal.annotations.CoreField;
 import org.ink.core.vm.lang.property.mirror.PropertyMirrorState;
 
-
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass=PropertyMirrorState.class,
-		constraintsClass=PropertyConstraintsState.class, isAbstract=true)
-public interface PropertyState extends TypedObjectState{
+@CoreClassSpec(mirrorClass = PropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, isAbstract = true)
+public interface PropertyState extends TypedObjectState {
 
-	@CoreField(mandatory=true)
+	@CoreField(mandatory = true)
 	public static final byte p_name = 1;
-	@CoreField(defaultValue="false")
+	@CoreField(defaultValue = "false")
 	public static final byte p_mandatory = 2;
 	public static final byte p_display_name = 3;
 
-	//TODO should be mandatory true
-	@CoreField(mandatory=false, valuePropagationStrategy=InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	// TODO should be mandatory true
+	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_description = 4;
-	@CoreField(defaultValue="Instance_Can_Refine_Inherited_Value")
+	@CoreField(defaultValue = "Instance_Can_Refine_Inherited_Value")
 	public static final byte p_inheritance_constraints = 5;
 
 	public String getName();
+
 	public void setName(String value);
 
 	public Boolean getMandatory();
+
 	public void setMandatory(Boolean value);
 
 	public String getDescription();
+
 	public void setDescription(String value);
 
 	public String getDisplayName();
+
 	public void setDisplayName(String value);
 
 	public InheritanceConstraints getInheritanceConstraints();
+
 	public void setInheritanceConstraints(InheritanceConstraints value);
 
-	public class Data extends TypedObjectState.Data implements PropertyState{
+	public class Data extends TypedObjectState.Data implements PropertyState {
 
 		@Override
 		public Boolean getMandatory() {
-			return (Boolean)getValue(p_mandatory);
+			return (Boolean) getValue(p_mandatory);
 		}
 
 		@Override
 		public String getName() {
-			return (String)getValue(p_name);
+			return (String) getValue(p_name);
 		}
 
 		@Override
@@ -65,7 +68,7 @@ public interface PropertyState extends TypedObjectState{
 
 		@Override
 		public String getDescription() {
-			return (String)getValue(p_description);
+			return (String) getValue(p_description);
 		}
 
 		@Override
@@ -75,7 +78,7 @@ public interface PropertyState extends TypedObjectState{
 
 		@Override
 		public InheritanceConstraints getInheritanceConstraints() {
-			return (InheritanceConstraints)getValue(p_inheritance_constraints);
+			return (InheritanceConstraints) getValue(p_inheritance_constraints);
 		}
 
 		@Override
@@ -85,7 +88,7 @@ public interface PropertyState extends TypedObjectState{
 
 		@Override
 		public String getDisplayName() {
-			return (String)getValue(p_display_name);
+			return (String) getValue(p_display_name);
 		}
 
 		@Override

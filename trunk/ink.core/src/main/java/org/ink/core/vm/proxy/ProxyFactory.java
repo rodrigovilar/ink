@@ -19,23 +19,23 @@ public class ProxyFactory {
 	private int numberOfStructProxyInstances = 0;
 	private transient ClassLoader loader;
 
-	public ProxyFactory(){
+	public ProxyFactory() {
 		loader = Thread.currentThread().getContextClassLoader();
 	}
 
-	public InkObject newBehaviorProxy(DslFactory factory, InkObject behaviorInstance, InkObjectState state,Class<?>[] types, Proxiability.Kind t) {
+	public InkObject newBehaviorProxy(DslFactory factory, InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t) {
 		numberOfBehviorProxyInstances++;
-		return (InkObject) Proxy.newProxyInstance(loader, types , new BehaviorProxy(factory, behaviorInstance, state, t));
+		return (InkObject) Proxy.newProxyInstance(loader, types, new BehaviorProxy(factory, behaviorInstance, state, t));
 	}
 
 	public Mirror newMirrorProxy(Mirror behaviorInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		numberOfMirrorProxyInstances++;
-		return (Mirror) Proxy.newProxyInstance(loader, types , new MirrorProxy(behaviorInstance, owner, definingProperty, definingPropertyIndex));
+		return (Mirror) Proxy.newProxyInstance(loader, types, new MirrorProxy(behaviorInstance, owner, definingProperty, definingPropertyIndex));
 	}
 
-	public InkObject newBehaviorProxy(DslFactory factory, InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex){
+	public InkObject newBehaviorProxy(DslFactory factory, InkObject behaviorInstance, InkObjectState state, Class<?>[] types, Proxiability.Kind t, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {
 		numberOfBehviorProxyInstances++;
-		return (InkObject) Proxy.newProxyInstance(loader, types , new BehaviorProxy(factory, behaviorInstance, state, t, owner, definingProperty, definingPropertyIndex));
+		return (InkObject) Proxy.newProxyInstance(loader, types, new BehaviorProxy(factory, behaviorInstance, state, t, owner, definingProperty, definingPropertyIndex));
 	}
 
 	public Struct newStructProxy(DslFactory factory, InkObjectState stateInstance, Class<?>[] types, InkObjectState owner, PropertyMirror definingProperty, byte definingPropertyIndex) {

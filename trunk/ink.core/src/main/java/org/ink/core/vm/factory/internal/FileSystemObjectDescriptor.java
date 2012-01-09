@@ -3,13 +3,12 @@ package org.ink.core.vm.factory.internal;
 /**
  * @author Lior Schachter
  */
-public class FileSystemObjectDescriptor implements ObjectDescriptor{
+public class FileSystemObjectDescriptor implements ObjectDescriptor {
 
 	private String classId;
 	private String id;
 	private Class<?> stateClass;
 
-	
 	public FileSystemObjectDescriptor(String id, String classId, Class<?> stateClass) {
 		super();
 		this.classId = classId;
@@ -43,7 +42,5 @@ public class FileSystemObjectDescriptor implements ObjectDescriptor{
 	public void setStateClass(Class<?> stateClass) {
 		this.stateClass = stateClass;
 	}
-	
-	
 
 }

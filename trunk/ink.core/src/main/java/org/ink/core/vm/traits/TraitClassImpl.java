@@ -8,8 +8,8 @@ import org.ink.core.vm.lang.Property;
 /**
  * @author Lior Schachter
  */
-public class TraitClassImpl<S extends TraitClassState> extends InkClassImpl<S> implements TraitClass{
-	
+public class TraitClassImpl<S extends TraitClassState> extends InkClassImpl<S> implements TraitClass {
+
 	@Override
 	public List<? extends Property> getInjectedTargetProperties() {
 		return getState().getInjectedProperties();
@@ -19,7 +19,7 @@ public class TraitClassImpl<S extends TraitClassState> extends InkClassImpl<S> i
 	public TraitKind getKind() {
 		return getState().getKind();
 	}
-	
+
 	@Override
 	public String getRole() {
 		return getState().getRole();

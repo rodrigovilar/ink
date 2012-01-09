@@ -341,6 +341,7 @@ public class CoreUtils {
 							}
 							break;
 						case Map:
+							@SuppressWarnings("unused")
 							String key = extractKey(lastSegments, MAP_KEY_START, MAP_KEY_END);
 							break;
 						}

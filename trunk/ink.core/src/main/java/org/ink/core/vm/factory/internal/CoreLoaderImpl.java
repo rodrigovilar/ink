@@ -1081,6 +1081,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		return defaultValue;
 	}
 
+	@SuppressWarnings("unused")
 	private Method extractSetter(Field f, Class<?> stateClass) {
 		String setterName = f.getName();
 		StringBuilder buf = new StringBuilder(setterName.length());

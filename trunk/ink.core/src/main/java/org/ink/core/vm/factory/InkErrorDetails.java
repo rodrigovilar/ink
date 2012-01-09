@@ -9,7 +9,7 @@ public class InkErrorDetails {
 	private final String id;
 	private final String formattedMessage;
 	private String path = null;
-	private ResourceType resourceType;
+	private final ResourceType resourceType;
 	private final File inkSourceDefinition;
 	private int lineNumber = -1;
 
@@ -49,4 +49,7 @@ public class InkErrorDetails {
 		return resourceType;
 	}
 
+	public int getLineNumber() {
+		return lineNumber;
+	}
 }

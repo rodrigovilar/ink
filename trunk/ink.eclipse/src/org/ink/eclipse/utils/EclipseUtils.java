@@ -414,6 +414,7 @@ public class EclipseUtils {
 		return 0;
 	}
 
+	@SuppressWarnings("unused")
 	private static int findOffset(File f, String token) throws Exception {
 		int offset = 0;
 		boolean found = false;

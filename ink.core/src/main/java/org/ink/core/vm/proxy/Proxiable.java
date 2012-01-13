@@ -66,7 +66,6 @@ public interface Proxiable {
 	/**
 	 * reify (reflect) and return mirror
 	 * 
-	 * @param <M extends Mirror>
 	 * @return the mirror meta-object for this object
 	 */
 	public <M extends Mirror> M reflect();

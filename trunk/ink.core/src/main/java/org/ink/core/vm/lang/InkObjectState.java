@@ -230,11 +230,11 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public final <T extends Trait> T asTrait(byte trait) {
 			return asTrait(trait, false);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public <T extends Trait> T asTrait(byte trait, boolean forceNew) {
 			Trait result = null;

@@ -95,7 +95,6 @@ public class CoreBasicTests extends TestCase {
 		assertNotNull(listener);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void testOwner() {
 		InkClass stringAttClass = context.getObject(CoreNotations.Ids.STRING_ATTRIBUTE);
 		ClassMirror mirror = stringAttClass.reflect();
@@ -147,7 +146,6 @@ public class CoreBasicTests extends TestCase {
 		assertTrue(output.exists());
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testStructuralTraitWeave() throws WeaveException {
 		InkClass tClass = context.getObject(CoreNotations.Ids.MIRROR);
 		TraitClassState newTrait = tClass.cloneState();

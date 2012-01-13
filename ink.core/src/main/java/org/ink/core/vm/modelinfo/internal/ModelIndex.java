@@ -56,6 +56,7 @@ class ModelIndex {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void recursiveFindReferents(ModelRelation relation, Mirror referrer) {
 		if (!isRef(referrer)) {
 			addToIndex(relation, referrer);

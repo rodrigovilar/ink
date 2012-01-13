@@ -7,6 +7,7 @@ import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.traits.TraitImpl;
 
 /**
+ * Implementation of the {@link Context} trait.
  * @author Lior Schachter
  */
 public class ContextImpl<S extends ContextState> extends TraitImpl<S> implements Context {

@@ -5,10 +5,10 @@ Object id="ComponentType" class="ink.core:EnumType"{
 	}
 }
 
-Class id="StringAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
+Class id="TestStringAttribute" class="ink.core:InkClass" super="ink.core:PrimitiveAttribute"{
 	factory class="ink.core:ObjectFactory"
 	java_path "utils.property"
-	java_mapping "State_Behavior_Interface"
+	java_mapping "No_Java"
 	can_cache_behavior_instance true
 	component_type "Root_or_Pure_Component"
 	properties{

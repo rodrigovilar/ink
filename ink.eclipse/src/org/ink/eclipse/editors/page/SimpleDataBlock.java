@@ -33,7 +33,7 @@ public class SimpleDataBlock extends DataBlock {
 	protected List<ICompletionProposal> getInlineProposals(int cursorLocation, String prefix) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		List<String> pathsToClassBlock = getPathToClassBlock();
-		PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
+		PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), pathsToClassBlock);
 		if (pm == null && pathsToClassBlock != null && pathsToClassBlock.size() > 0) {
 			List<String> paths = new ArrayList<String>(pathsToClassBlock);
 			pm = InkUtils.getPropertyMirror(getContainingClass(), paths.remove(pathsToClassBlock.size() - 1), paths);
@@ -84,35 +84,35 @@ public class SimpleDataBlock extends DataBlock {
 						}
 					}
 					break;
-				/*
-				 * case Map:
-				 * PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
-				 * PropertyMirror valueMirror = ((MapPropertyMirror)pm).getValueMirror();
-				 * if(keyMirror !=null && valueMirror!=null){
-				 * if(mapItem){
-				 * String keyName = keyMirror.getName();
-				 * String valueName = valueMirror.getName();
-				 * if(!innerBlocks.containsKey(keyName)){
-				 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
-				 * }
-				 * if(!innerBlocks.containsKey(valueName)){
-				 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
-				 * }
-				 * }else{
-				 * Dictionary dic = ((MapPropertyMirror)pm).getSpecifictation();
-				 * if(dic instanceof ElementsDictionary){
-				 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
-				 * }else{
-				 * String name = dic.getEntryName();
-				 * String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) +","+getTypeDisplayString(valueMirror) +">";
-				 * String tabs = calculateTabs() + "\t";
-				 * addPropertyNameCompletion(cursorLocation, tabs.length()+1,result,
-				 * displayString, name, "{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
-				 * }
-				 * }
-				 * }
-				 * break;
-				 */
+					/*
+					 * case Map:
+					 * PropertyMirror keyMirror = ((MapPropertyMirror)pm).getKeyMirror();
+					 * PropertyMirror valueMirror = ((MapPropertyMirror)pm).getValueMirror();
+					 * if(keyMirror !=null && valueMirror!=null){
+					 * if(mapItem){
+					 * String keyName = keyMirror.getName();
+					 * String valueName = valueMirror.getName();
+					 * if(!innerBlocks.containsKey(keyName)){
+					 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getKeyMirror(), prefix);
+					 * }
+					 * if(!innerBlocks.containsKey(valueName)){
+					 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+					 * }
+					 * }else{
+					 * Dictionary dic = ((MapPropertyMirror)pm).getSpecifictation();
+					 * if(dic instanceof ElementsDictionary){
+					 * getProposal(cursorLocation, result,((MapPropertyMirror)pm).getValueMirror(), prefix);
+					 * }else{
+					 * String name = dic.getEntryName();
+					 * String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) +","+getTypeDisplayString(valueMirror) +">";
+					 * String tabs = calculateTabs() + "\t";
+					 * addPropertyNameCompletion(cursorLocation, tabs.length()+1,result,
+					 * displayString, name, "{\n" + tabs+"\n"+tabs.substring(0, tabs.length()-1)+"}", prefix);
+					 * }
+					 * }
+					 * }
+					 * break;
+					 */
 				}
 
 				break;

@@ -76,7 +76,6 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 	}
 
 	private boolean validateCollection(Mirror stateSuper, ValidationContext context, SystemState systemState, Object value, PropertyMirror p) {
-		Object superValue;
 		boolean toContinue = true;
 		PropertyMirror innerP;
 		CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) p).getCollectionTypeMarker();
@@ -93,14 +92,19 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 			if (!((Map<?, ?>) value).isEmpty()) {
 				innerP = ((MapPropertyMirror) p).getKeyMirror();
 				if (innerP.isValueDrillable()) {
-					toContinue = validateInnerCollection(null, context, systemState, ((Map<?, ?>) value).keySet(), innerP);
+					for(Object innerCol : ((Map<?, ?>) value).values()){
+						toContinue = validateInnerCollection(null, context, systemState, (Collection)innerCol, innerP);
+					}
 				}
 				if (toContinue) {
 					innerP = ((MapPropertyMirror) p).getValueMirror();
 					if (innerP.isValueDrillable()) {
 						byte index = p.getIndex();
-						if (innerP.getTypeMarker() == DataTypeMarker.Class && stateSuper != null && index < stateSuper.getPropertiesCount()) {
-							superValue = stateSuper.getPropertyValue(index);
+						if (innerP.getTypeMarker() == DataTypeMarker.Class) {
+							Object superValue = null;
+							if(stateSuper != null && index < stateSuper.getPropertiesCount()){
+								superValue = stateSuper.getPropertyValue(index);
+							}
 							Object temp;
 							Map.Entry<?, ?> en;
 							Iterator<?> enIter = ((Map<?, ?>) value).entrySet().iterator();
@@ -117,7 +121,9 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 								}
 							}
 						} else {
-							toContinue = validateInnerCollection(null, context, systemState, ((Map<?, ?>) value).values(), innerP);
+							for(Object innerCol : ((Map<?, ?>) value).values()){
+								toContinue = validateInnerCollection(null, context, systemState, (Collection)innerCol, innerP);
+							}
 						}
 					}
 				}

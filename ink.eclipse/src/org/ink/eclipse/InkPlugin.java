@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -64,30 +66,29 @@ public class InkPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		try {
+		try{
 			File f = getBundle().getDataFile("ink_mapping.csv");
-			if (f != null && f.exists()) {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(f.toURI().toURL().openStream(), "UTF-8"));
-				try {
+			if(f!=null && f.exists()){
+				BufferedReader reader  = new BufferedReader(new InputStreamReader(f.toURI().toURL().openStream(), "UTF-8"));
+				try{
 					String line;
-					while ((line = reader.readLine()) != null) {
+					while((line=reader.readLine())!=null){
 						int loc = line.indexOf(",");
 						String javaId = line.substring(0, loc);
-						String inkId = line.substring(loc + 1, line.length());
+						String inkId = line.substring(loc+1, line.length());
 						Java2InkMappings.put(javaId, inkId);
 					}
-				} catch (Exception e) {
+				}catch(Exception e){
 					e.printStackTrace();
-				} finally {
-					if (reader != null) {
-						try {
+				}finally{
+					if(reader!=null){
+						try{
 							reader.close();
-						} catch (Throwable e) {
-						}
+						}catch(Throwable e){}
 					}
 				}
 			}
-		} catch (Throwable e) {
+		}catch(Throwable e){
 			e.printStackTrace();
 		}
 		plugin = this;
@@ -97,54 +98,53 @@ public class InkPlugin extends AbstractUIPlugin {
 		startInkVM();
 	}
 
-	public int getMaxBuildIterations() {
+	public int getMaxBuildIterations(){
 		return maxBuildIterations;
 	}
 
 	private void addInkClasspath() {
 		try {
-			URL url = new URL(getBundle().getLocation());
-			String bundleLocation = url.getPath();
-			bundleLocation = bundleLocation.substring("file:".length(), bundleLocation.length());
-			IPath p = Path.fromOSString(bundleLocation);
-			System.out.println("Bundle Location : " + p.toFile().getAbsolutePath());
-			p = Path.fromOSString(p.toFile().getAbsolutePath());
-			JavaCore.setClasspathVariable(INK_HOME, p, new NullProgressMonitor());
+			IPath path = new Path("");
+			URL fileURL = FileLocator.find(getBundle(), path, null);
+			String fileStr= FileLocator.toFileURL(fileURL).getPath();
+			fileStr= URLDecoder.decode(fileStr, "UTF-8"); //$NON-NLS-1$
+			path = new Path(fileStr);
+			JavaCore.setClasspathVariable(INK_HOME, path, new NullProgressMonitor());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public List<InkErrorDetails> reloadInk() {
+	public List<InkErrorDetails> reloadInk(){
 		startInkVM();
 		return InkVM.instance().collectErrors();
 	}
 
-	public void startInkVM() {
+	public void startInkVM(){
 		InkVM.destroy();
 		VMConfig.setInstantiationStrategy(new EclipseResourceResolver());
 		List<IProject> inkProjects = getInkProjects();
 		List<String> paths = new ArrayList<String>();
 		IFile f;
-		for (IProject p : inkProjects) {
+		for(IProject p : inkProjects){
 			f = p.getFile("dsls.ink");
-			if (f != null) {
+			if(f!=null){
 				paths.add(f.getLocation().toFile().getAbsolutePath());
 			}
 		}
-		InkVM.instance(null, paths.toArray(new String[] {})).getContext();
+		InkVM.instance(null, paths.toArray(new String[]{})).getContext();
 	}
 
-	public Context getInkContext() {
+	public Context getInkContext(){
 		return InkVM.instance().getContext();
 	}
 
-	public List<IProject> getInkProjects() {
+	public List<IProject> getInkProjects(){
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		List<IProject> inkProjects = new ArrayList<IProject>();
-		for (IProject p : projects) {
+		for(IProject p : projects){
 			try {
-				if (p.isOpen() && p.hasNature(InkNature.NATURE_ID)) {
+				if(p.isOpen() && p.hasNature(InkNature.NATURE_ID)){
 					inkProjects.add(p);
 				}
 			} catch (CoreException e) {
@@ -154,13 +154,13 @@ public class InkPlugin extends AbstractUIPlugin {
 		return inkProjects;
 	}
 
-	public List<IProject> getInkProjects(IProject dependentProject) {
+	public List<IProject> getInkProjects(IProject dependentProject){
 		List<IProject> inkProjects = new ArrayList<IProject>();
-		if (dependentProject.isOpen()) {
+		if(dependentProject.isOpen()){
 			try {
-				IProject[] projects = dependentProject.getReferencedProjects();
-				for (IProject p : projects) {
-					if (p.isOpen() && p.hasNature(InkNature.NATURE_ID)) {
+				IProject[]  projects = dependentProject.getReferencedProjects();
+				for(IProject p : projects){
+					if(p.isOpen() && p.hasNature(InkNature.NATURE_ID)){
 						inkProjects.add(p);
 					}
 				}
@@ -172,6 +172,7 @@ public class InkPlugin extends AbstractUIPlugin {
 
 	}
 
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
@@ -181,32 +182,31 @@ public class InkPlugin extends AbstractUIPlugin {
 		plugin = null;
 		VMMain.stop();
 		File f = getBundle().getDataFile("ink_mapping.csv");
-		if (f.exists()) {
+		if(f.exists()){
 			f.delete();
 		}
 		f.createNewFile();
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
-		try {
+		try{
 			Iterator<Map.Entry<String, String>> iter = Java2InkMappings.iterate();
-			while (iter.hasNext()) {
+			while(iter.hasNext()){
 				Map.Entry<String, String> en = iter.next();
-				writer.write(en.getKey() + "," + en.getValue() + StringUtils.LINE_SEPARATOR);
+				writer.write(en.getKey() +","+en.getValue() +StringUtils.LINE_SEPARATOR);
 			}
-		} catch (Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();
-		} finally {
-			try {
+		}finally{
+			try{
 				writer.flush();
 				writer.close();
-			} catch (Throwable e) {
-			}
+			}catch(Throwable e){}
 		}
 		super.stop(context);
 	}
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static InkPlugin getDefault() {
@@ -216,9 +216,8 @@ public class InkPlugin extends AbstractUIPlugin {
 	/**
 	 * Returns an image descriptor for the image file at the given
 	 * plug-in relative path
-	 * 
-	 * @param path
-	 *            the path
+	 *
+	 * @param path the path
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {

@@ -50,7 +50,7 @@ public class BehaviorClassGenerator extends BaseGenerator {
 		imports += "\n\n";
 		sig += "{\n\n\n}";
 		String content = pack + imports + sig;
-		writeFile(content, cm.getFullJavaPackage(), clsName);
+		writeFile(content, cm.getFullJavaPackage(), clsName, false);
 	}
 
 	@Override

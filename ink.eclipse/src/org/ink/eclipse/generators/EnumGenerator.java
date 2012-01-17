@@ -35,7 +35,7 @@ public class EnumGenerator extends BaseGenerator {
 			}
 
 			result.append("}");
-			writeFile(result.toString(), fullJavaPack, name);
+			writeFile(result.toString(), fullJavaPack, name, true);
 		}
 	}
 

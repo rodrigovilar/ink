@@ -164,7 +164,7 @@ public class EclipseUtils {
 					IPath fullPath = en.getPath().append(p);
 					fullPath = fullPath.makeRelativeTo(project.getFullPath());
 					result = project.getFile(fullPath);
-					if (result != null) {
+					if (result != null && result.exists()) {
 						return result;
 					}
 				}

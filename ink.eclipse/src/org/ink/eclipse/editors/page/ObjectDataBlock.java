@@ -124,68 +124,64 @@ public class ObjectDataBlock extends DataBlock {
 				}
 			}
 		} else if (parent != null) {
-			classId = parent.getClassId();
-			String key = getKey();
-			boolean mapItem = false;
-			if (classId == null && parent.getParent() != null) {
-				classId = parent.getParent().getClassId();
-				key = parent.getKey();
-				mapItem = true;
+			List<String> pathsToClassBlock = getPathToClassBlock();
+			PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), pathsToClassBlock);
+			if (pm == null && pathsToClassBlock != null && pathsToClassBlock.size() > 0) {
+				List<String> paths = new ArrayList<String>(pathsToClassBlock);
+				pm = InkUtils.getPropertyMirror(getContainingClass(), paths.remove(pathsToClassBlock.size() - 1), paths);
 			}
-			if (classId != null) {
-				PropertyMirror pm = InkUtils.getPropertyMirror(classId, key, new ArrayList<String>());
-				if (pm != null && pm.getTypeMarker() == DataTypeMarker.Collection) {
-					switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-					case List:
-						PropertyMirror itempMirror = ((ListPropertyMirror) pm).getItemMirror();
-						if (itempMirror.getPropertyType().isEnumeration()) {
-							EnumType enumT = (EnumType) itempMirror.getPropertyType();
-							for (String val : enumT.getValues()) {
-								addValueProposal(result, "\"" + val + "\"", val, cursorLocation, prefix);
+			if (pm != null && pm.getTypeMarker() == DataTypeMarker.Collection) {
+				switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
+				case List:
+					PropertyMirror itempMirror = ((ListPropertyMirror) pm).getItemMirror();
+					if (itempMirror.getPropertyType().isEnumeration()) {
+						EnumType enumT = (EnumType) itempMirror.getPropertyType();
+						for (String val : enumT.getValues()) {
+							addValueProposal(result, "\"" + val + "\"", val, cursorLocation, prefix);
+						}
+					} else if (itempMirror.getPropertyType().isPrimitive()) {
+						PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
+						switch (primitivePM.getPrimitiveTypeMarker()) {
+						case String:
+							addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", "", " \"\"", prefix);
+							break;
+						case Date:
+							addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", "", " \"\"", prefix);
+							break;
+						default:
+							result.add(new CompletionProposal("", cursorLocation, prefix.length(), 0, null, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", null, null));
+						}
+					} else {
+						getProposal(cursorLocation, result, ((ListPropertyMirror) pm).getItemMirror(), prefix);
+					}
+					break;
+				case Map:
+					PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
+					PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
+					if (keyMirror != null && valueMirror != null) {
+						Dictionary dic = ((MapPropertyMirror) pm).getSpecifictation();
+						if (getKey().equals(dic.getEntryName())) {
+							String keyName = keyMirror.getName();
+							String valueName = valueMirror.getName();
+							if (!innerBlocks.containsKey(keyName)) {
+								getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getKeyMirror(), prefix);
 							}
-						} else if (itempMirror.getPropertyType().isPrimitive()) {
-							PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
-							switch (primitivePM.getPrimitiveTypeMarker()) {
-							case String:
-								addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", "", " \"\"", prefix);
-								break;
-							case Date:
-								addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", "", " \"\"", prefix);
-								break;
-							default:
-								result.add(new CompletionProposal("", cursorLocation, prefix.length(), 0, null, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", null, null));
+							if (!innerBlocks.containsKey(valueName)) {
+								getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getValueMirror(), prefix);
 							}
 						} else {
-							getProposal(cursorLocation, result, ((ListPropertyMirror) pm).getItemMirror(), prefix);
-						}
-						break;
-					case Map:
-						PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
-						PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
-						if (keyMirror != null && valueMirror != null) {
-							if (mapItem) {
-								String keyName = keyMirror.getName();
-								String valueName = valueMirror.getName();
-								if (!innerBlocks.containsKey(keyName)) {
-									getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getKeyMirror(), prefix);
-								}
-								if (!innerBlocks.containsKey(valueName)) {
-									getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getValueMirror(), prefix);
-								}
+							dic = ((MapPropertyMirror) pm).getSpecifictation();
+							if (dic instanceof ElementsDictionary) {
+								getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getValueMirror(), prefix);
 							} else {
-								Dictionary dic = ((MapPropertyMirror) pm).getSpecifictation();
-								if (dic instanceof ElementsDictionary) {
-									getProposal(cursorLocation, result, ((MapPropertyMirror) pm).getValueMirror(), prefix);
-								} else {
-									String name = dic.getEntryName();
-									String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) + "," + getTypeDisplayString(valueMirror) + ">";
-									String tabs = calculateTabs() + "\t";
-									addPropertyNameCompletion(cursorLocation, tabs.length() + 1, result, displayString, name, "{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", prefix);
-								}
+								String name = dic.getEntryName();
+								String displayString = name + " - " + "<" + getTypeDisplayString(keyMirror) + "," + getTypeDisplayString(valueMirror) + ">";
+								String tabs = calculateTabs() + "\t";
+								addPropertyNameCompletion(cursorLocation, tabs.length() + 1, result, displayString, name, "{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", prefix);
 							}
 						}
-						break;
 					}
+					break;
 				}
 			}
 		}

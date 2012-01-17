@@ -242,21 +242,20 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 		}
 		PropertyMirror[] pMirrors = object.getPropertiesMirrors();
 		Object o;
-		Object valuesToSet;
 		for (PropertyMirror pm : pMirrors) {
+			Object superObjectValue = null;
+			if (superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
+				superObjectValue = superObject.getPropertyValue(pm.getIndex());
+			}
 			if (pm.isMutable()) {
 				o = object.getRawValue(pm.getIndex());
 				if (o == null) {
-					valuesToSet = null;
-					if (superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
-						valuesToSet = superObject.getPropertyValue(pm.getIndex());
-					}
-					if (valuesToSet != null) {
-						valuesToSet = CoreUtils.cloneOneValue(pm, valuesToSet, false);
+					if (superObjectValue != null) {
+						superObjectValue = CoreUtils.cloneOneValue(pm, superObjectValue, false);
 					} else {
-						valuesToSet = ((Property) pm.getTargetBehavior()).getDefaultValue();
+						superObjectValue = ((Property) pm.getTargetBehavior()).getDefaultValue();
 					}
-					object.setRawValue(pm.getIndex(), valuesToSet);
+					object.setRawValue(pm.getIndex(), superObjectValue);
 				} else {
 					if (pm.getTypeMarker() == DataTypeMarker.Class) {
 						if (((Proxiable) o).isProxied()) {
@@ -264,11 +263,8 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 						}
 						if (!((MirrorAPI) o).reflect().isRoot()) {
 							Mirror innerSuper = null;
-							if (superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
-								Proxiable innerSuperO = (Proxiable) superObject.getPropertyValue(pm.getIndex());
-								if (innerSuperO != null) {
-									innerSuper = innerSuperO.reflect();
-								}
+							if (superObjectValue != null) {
+								innerSuper = ((Proxiable)superObjectValue).reflect();
 							}
 							innerCompile((MirrorAPI) o, innerSuper);
 						}
@@ -286,26 +282,21 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 									}
 								}
 							}
-							if (superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
-								List<?> superValue = (List<?>) superObject.getPropertyValue(pm.getIndex());
-								if (superValue != null) {
-									PropertyMirror itemPM = ((ListPropertyMirror) pm).getItemMirror();
-									Object itemToAdd;
-									List mergedList = new ArrayList();
-									for (Object i : superValue) {
-										itemToAdd = CoreUtils.cloneOneValue(itemPM, i, false);
-										mergedList.add(itemToAdd);
-									}
-									((List) o).addAll(0, mergedList);
+							if (superObjectValue != null) {
+								List<?> superValue = (List<?>) superObjectValue;
+								PropertyMirror itemPM = ((ListPropertyMirror) pm).getItemMirror();
+								Object itemToAdd;
+								List mergedList = new ArrayList();
+								for (Object i : superValue) {
+									itemToAdd = CoreUtils.cloneOneValue(itemPM, i, false);
+									mergedList.add(itemToAdd);
 								}
+								((List) o).addAll(0, mergedList);
 							}
 							break;
 						case Map:
 							Map map = (Map) o;
-							Map<?, ?> superValue = null;
-							if (superObject != null) {
-								superValue = (Map<?, ?>) superObject.getPropertyValue(pm.getIndex());
-							}
+							Map<?, ?> superValue = (Map<?, ?>)superObjectValue;
 							PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
 							PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
 							if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {

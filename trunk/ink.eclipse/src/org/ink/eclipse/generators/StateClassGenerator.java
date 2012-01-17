@@ -68,7 +68,7 @@ public class StateClassGenerator extends BaseGenerator {
 				lastPM = pm;
 			}
 			result.append(interfaceClass).append(innerClass).append("}").append("}");
-			writeFile(result.toString(), fullJavaPackage, className);
+			writeFile(result.toString(), fullJavaPackage, className, true);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class StateClassGenerator extends BaseGenerator {
 		if (m.getJavaMapping().hasBehavior()) {
 			result = m.getFullJavaPackage() + "." + m.getShortId();
 		} else {
-			return resolveRealStateClassName((ClassMirror) m.getSuper());
+			return resolveRealBehaviorClassName((ClassMirror) m.getSuper());
 		}
 		return result;
 	}

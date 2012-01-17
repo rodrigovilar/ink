@@ -353,13 +353,13 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 					Map<?, ?> map = (Map<?, ?>) value;
 					result = map;
 					if (!map.isEmpty()) {
-						result = ((MapPropertyMirror) propMirror).getNewInstance();
 						PropertyMirror innerKeyType = ((MapPropertyMirror) propMirror).getKeyMirror();
 						innerType = ((MapPropertyMirror) propMirror).getValueMirror();
 						boolean isKeyDrillable = innerKeyType.isValueDrillable();
 						boolean isValueDrillable = innerType.isValueDrillable();
 						if (isKeyDrillable || isValueDrillable) {
 							Object mapValue;
+							result = ((MapPropertyMirror) propMirror).getNewInstance();
 							for (Object mapKey : map.keySet()) {
 								mapValue = map.get(mapKey);
 								if (isKeyDrillable && mapKey != null) {

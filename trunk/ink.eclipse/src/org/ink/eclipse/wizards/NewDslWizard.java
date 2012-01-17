@@ -187,11 +187,13 @@ public class NewDslWizard extends Wizard implements INewWizard {
 				String dslsFolder = InkBuilder.INK_DIR_PATH.toString() + IPath.SEPARATOR + dslPack.substring(1, dslPack.length() - 1).replace('.', IPath.SEPARATOR);
 				IContainer cont = EclipseUtils.createFolder(new Path(dslsFolder), container, true);
 				dslfile = cont.getFile(new Path("instances.ink"));
-				String contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length() - 1) + " DSL instances";
+				String ns = tokenMap.get(NAMESPACE_TOKEN);
+				ns = ns.substring(1, ns.length() - 1);
+				String contents = "//" + ns + " DSL instances";
 				InputStream source = new ByteArrayInputStream(contents.getBytes());
 				dslfile.create(source, true, monitor);
 				dslfile = cont.getFile(new Path("model.ink"));
-				contents = "//" + tokenMap.get(NAMESPACE_TOKEN).substring(1, dslPack.length() - 1) + " DSL model elements";
+				contents = "//" + ns + " DSL model elements";
 				source = new ByteArrayInputStream(contents.getBytes());
 				dslfile.create(source, true, monitor);
 			}

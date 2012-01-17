@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.EclipseUtils;
@@ -20,14 +21,16 @@ public abstract class BaseGenerator implements Generator {
 	protected final IFolder outputFolder;
 
 	public BaseGenerator(IFolder outputFolder) {
+		boolean derived = true;
 		if (sourceGenerator()) {
+			derived = false;
 			this.outputFolder = outputFolder;
 		} else {
 			this.outputFolder = outputFolder.getFolder("gen");
 		}
 		if (!this.outputFolder.exists()) {
 			try {
-				createFolder(outputFolder);
+				createFolder(outputFolder, derived);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
@@ -38,11 +41,11 @@ public abstract class BaseGenerator implements Generator {
 		return false;
 	}
 
-	protected void writeFile(String data, String fullJavaPackage, String className) {
+	protected void writeFile(String data, String fullJavaPackage, String className, boolean isDerived) {
 		try {
 			String relativeFolderPath = fullJavaPackage.replace(".", File.separator);
 			IFolder folder = outputFolder.getFolder(relativeFolderPath);
-			createFolder(folder);
+			createFolder(folder, isDerived);
 			IFile f = folder.getFile(className + ".java");
 			boolean shouldWrite = true;
 			String newData = EclipseUtils.format(data);
@@ -60,18 +63,20 @@ public abstract class BaseGenerator implements Generator {
 				byte[] bytes = newData.getBytes();
 				f.create(new ByteArrayInputStream(bytes, 0, bytes.length), true, null);
 				f.setPersistentProperty(qn, newHash);
+				f.setDerived(isDerived, new NullProgressMonitor());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private IContainer createFolder(IFolder folder) throws CoreException {
+	private IContainer createFolder(IFolder folder, boolean derived) throws CoreException {
 		if (!folder.exists()) {
 			if (folder.getParent().getType() == IResource.FOLDER) {
-				createFolder((IFolder) folder.getParent());
+				createFolder((IFolder) folder.getParent(), derived);
 			}
-			folder.create(IResource.FORCE | IResource.DERIVED, true, null);
+			int flags = derived ? IResource.FORCE | IResource.DERIVED:IResource.FORCE;
+			folder.create(flags, true, null);
 		}
 		return folder;
 	}

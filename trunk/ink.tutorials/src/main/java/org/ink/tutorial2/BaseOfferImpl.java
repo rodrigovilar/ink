@@ -84,7 +84,6 @@ public abstract class BaseOfferImpl<S extends BaseOfferState> extends
 		Mirror mirror = null;
 		ClassMirror classMirror = null;
 		
-		// TODO: The following line should work
 		InkClass requiredClass = getState().getRegistrationFormType();
 		
 		if (requiredClass != null) {

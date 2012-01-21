@@ -199,7 +199,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	}
 
 	@Override
-	public DslFactory getTragetOwnerFactory() {
+	public DslFactory getTargetOwnerFactory() {
 		return getTargetState().getContext().getFactory();
 	}
 

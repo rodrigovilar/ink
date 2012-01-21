@@ -239,7 +239,7 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 
 	@Override
 	public String getFullJavaPackage() {
-		String result = getTragetOwnerFactory().getJavaPackage();
+		String result = getTargetOwnerFactory().getJavaPackage();
 		String ownPath = getJavaPath();
 		if (ownPath == null || ownPath.equals("")) {
 			return result;

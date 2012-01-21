@@ -57,7 +57,7 @@ public abstract class CoreResourceResolver extends ResourceResolver {
 		if (enumState.reflect().isCoreObject()) {
 			StringBuilder builder = new StringBuilder(100);
 			String javaPack = enumState.getJavaPath();
-			DslFactory factory = enumState.reflect().getTragetOwnerFactory();
+			DslFactory factory = enumState.reflect().getTargetOwnerFactory();
 			if (javaPack == null || javaPack.equals("")) {
 				builder.append(factory.getJavaPackage()).append(".").append(CoreUtils.getShortId(enumState.getId()));
 			} else {

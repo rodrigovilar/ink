@@ -42,7 +42,6 @@ public interface InkObject extends Proxiable {
 	 * Validates this object by executing the validators from the <code>constraints</code> trait relevant to the required system state.
 	 * The messages reported during validation are collected into the context object.
 	 * <br/>
-	 * <b>Application code shouldn't override this method. Validation logic should be modified by changing the <code>constraints</code> trait.</b>
 	 * @param context a {@link ValidationContext} object into which the validation messages are collected.
 	 * @param systemState denotes whether design-time or run-time validators should be invoked.
 	 * @return <code>true</code> if no validation errors were encountered, <code>false</code> otherwise.
@@ -57,7 +56,6 @@ public interface InkObject extends Proxiable {
 	 * Equivalent to calling <code>validate(context, SystemState.Run_Time)</code>.
 	 * The messages reported during validation are collected into the context object.
 	 * <br/>
-	 * <b>Application code shouldn't override this method. Validation logic should be modified by changing the <code>constraints</code> trait.</b>
 	 * @param context a {@link ValidationContext} object into which the validation messages are collected.
 	 * @return <code>true</code> if no validation errors were encountered, <code>false</code> otherwise.
 	 * @see Validator

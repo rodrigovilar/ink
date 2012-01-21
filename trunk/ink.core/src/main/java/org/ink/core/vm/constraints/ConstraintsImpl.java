@@ -93,7 +93,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 				innerP = ((MapPropertyMirror) p).getKeyMirror();
 				if (innerP.isValueDrillable()) {
 					for(Object innerCol : ((Map<?, ?>) value).values()){
-						toContinue = validateInnerCollection(null, context, systemState, (Collection)innerCol, innerP);
+						toContinue = validateInnerCollection(null, context, systemState, (Collection<?>)innerCol, innerP);
 					}
 				}
 				if (toContinue) {
@@ -122,7 +122,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 							}
 						} else {
 							for(Object innerCol : ((Map<?, ?>) value).values()){
-								toContinue = validateInnerCollection(null, context, systemState, (Collection)innerCol, innerP);
+								toContinue = validateInnerCollection(null, context, systemState, (Collection<?>)innerCol, innerP);
 							}
 						}
 					}

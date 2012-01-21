@@ -9,7 +9,7 @@ public class EnumTypeMirrorImpl<S extends EnumTypeMirrorState> extends MirrorImp
 
 	@Override
 	public String getFullJavaPackage() {
-		String result = getTragetOwnerFactory().getJavaPackage();
+		String result = getTargetOwnerFactory().getJavaPackage();
 		String ownPath = ((EnumTypeState) getTargetState()).getJavaPath();
 		if (ownPath == null || ownPath.equals("")) {
 			return result;

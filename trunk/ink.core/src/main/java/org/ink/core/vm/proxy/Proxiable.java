@@ -47,7 +47,7 @@ public interface Proxiable {
 	 * </pre>
 	 * 
 	 * @param index an absolute index of the trait.
-	 * @return the <i>i</i>-th trait.
+	 * @return this object cast to the required trait.
 	 * @see org.ink.core.vm.traits.Trait
 	 * @see org.ink.core.vm.lang.InkObjectImpl#asTrait(byte)
 	 * @see InkObjectState#getBehavior()

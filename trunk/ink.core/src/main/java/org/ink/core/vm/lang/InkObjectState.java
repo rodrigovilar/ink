@@ -7,8 +7,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ink.core.vm.constraints.Constraints;
+import org.ink.core.vm.constraints.InstanceValidator;
+import org.ink.core.vm.constraints.PropertyValueValidator;
 import org.ink.core.vm.constraints.SystemState;
 import org.ink.core.vm.constraints.ValidationContext;
+import org.ink.core.vm.constraints.Validator;
 import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
@@ -34,33 +37,97 @@ import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 
 /**
+ * The interface of the base Ink state object. Every state object in Ink implements this interface (explicitly or implicitly).
+ * 
+ * @see InkObject
+ * @see InkObjectImpl
+ * 
  * @author Lior Schachter
  */
 public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 
+	/**
+	 * The {@link Context} of this state object. This is the <code>context</code> trait of the {@link DslFactory} that loaded this object.
+	 * @return the {@link Context} of this state object.
+	 */
 	public Context getContext();
 
+	/**
+	 * Retrieves the unique ID of this state object.
+	 * @return the unique ID of this state object.
+	 */
 	public String getId();
 
+	/**
+	 * Retrieves the behavior object of this state object. If the Ink class is defined with Java mapping "No Java", "State-Interface" or "State only", the behavior is inherited,
+	 * i.e. the behavior object will be an instance of the behavior class of a superclass.
+	 * The behavior object will be created and initialized on the first invocation of this method.
+	 * @return the state object of this behavior object.
+	 */
 	public <B extends InkObject> B getBehavior();
 
 	@Override
 	public <T extends Trait> T asTrait(String role);
 
+	/**
+	 * Cast this object as a trait. A trait is a part of an object's personality.
+	 * @param traitClass the class of the trait to which this object should be cast.
+	 * @return this object cast to the required trait, or <code>null</code> if the trait class wasn't found.
+	 */
 	public <T extends Trait> T asTrait(TraitClass traitClass);
 
+	/**
+	 * Creates a deep clone of this object. The clone operation traverses the state object and creates a clone of every mutable
+	 * object it encounters, such as inner state objects and collections. (Primitive values are immutable and therefore are shallow-copied.)
+	 * <br/>
+	 * Object IDs are not cloned. The cloned state object and all its inner objects have unique IDs. Behavior objects are not created during this
+	 * operation.
+	 * @return a deep clone of this state object.
+	 */
 	public <T extends InkObjectState> T cloneState();
 
+	/**
+	 * Validates this object by executing the validators from the <code>constraints</code> trait relevant to run-time system state.
+	 * Equivalent to calling <code>validate(context, SystemState.Run_Time)</code>.
+	 * The messages reported during validation are collected into the context object.
+	 * <br/>
+	 * @param context a {@link ValidationContext} object into which the validation messages are collected.
+	 * @return <code>true</code> if no validation errors were encountered, <code>false</code> otherwise.
+	 * @see Validator
+	 * @see InstanceValidator#validate(InkObjectState, org.ink.core.vm.mirror.Mirror, ValidationContext, SystemState)
+	 * @see PropertyValueValidator#validate(Property, Object, InkObjectState, ValidationContext, SystemState)
+	 */
 	public boolean validate(ValidationContext context);
 
+	/**
+	 * Validates this object by executing the validators from the <code>constraints</code> trait relevant to the required system state.
+	 * The messages reported during validation are collected into the context object.
+	 * <br/>
+	 * @param context a {@link ValidationContext} object into which the validation messages are collected.
+	 * @param systemState denotes whether design-time or run-time validators should be invoked.
+	 * @return <code>true</code> if no validation errors were encountered, <code>false</code> otherwise.
+	 * @see Validator
+	 * @see InstanceValidator#validate(InkObjectState, org.ink.core.vm.mirror.Mirror, ValidationContext, SystemState)
+	 * @see PropertyValueValidator#validate(Property, Object, InkObjectState, ValidationContext, SystemState)
+	 */
 	public boolean validate(ValidationContext context, SystemState systemState);
 
+	/**
+	 * Index of the <code>reflection</code> trait of this class.
+	 */
 	public static final byte t_reflection = 0;
+
+	/**
+	 * Index of the <code>constraints</code> trait of this class.
+	 */
 	public static final byte t_constraints = 1;
 
+	/**
+	 * The base Ink state inner class. Every state object in Ink extends this class.
+	 */
 	public class Data implements MirrorAPI {
 
-		public static int cache_max_entries = 100;
+		private static int cache_max_entries = 100;
 
 		// static state
 		private String id = null;
@@ -249,6 +316,9 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			return (T) result;
 		}
 
+		/**
+		 * Returns a string representation of this object in the Ink source format.
+		 */
 		@Override
 		public String toString() {
 			StringBuilder temp = new StringBuilder(1000);
@@ -286,6 +356,9 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
 		}
 
+		/**
+		 * Returns <code>true</code> if <code>obj</code> is an Ink state object whose ID is equal to this object's ID, <code>false</code> otherwise.
+		 */
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
@@ -295,6 +368,14 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 				return id.equals(((InkObjectState) obj).getId());
 			}
 			return false;
+		}
+
+		/**
+		 * Returns the hash code of this object's ID.
+		 */
+		@Override
+		public int hashCode() {
+			return id == null ? 0 : id.hashCode();
 		}
 
 		@Override
@@ -528,7 +609,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		public final Object getPropertyValue(String propertyName) {
 			Byte loc = propertiesIndexes.get(propertyName);
 			if (loc == null) {
-				throw new IllegalArgumentException("The property '" + propertyName + "', does not exist on instance '" + getId() + "', of type '" + myClass.getId() + "'.");
+				throw new IllegalArgumentException("The property '" + propertyName + "' does not exist on instance '" + getId() + "' of type '" + myClass.getId() + "'.");
 			}
 			return getPropertyValue(loc);
 		}
@@ -562,7 +643,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		public final void setPropertyValue(String propertyName, Object value) {
 			Byte loc = propertiesIndexes.get(propertyName);
 			if (loc == null) {
-				throw new IllegalArgumentException("The property '" + propertyName + "', does not exist on instance '" + getId() + "', of type '" + myClass.getId() + "'.");
+				throw new IllegalArgumentException("The property '" + propertyName + "' does not exist on instance '" + getId() + "' of type '" + myClass.getId() + "'.");
 			}
 			setPropertyValue(loc, value);
 		}
@@ -743,6 +824,9 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			this.loadOnStartUp = loadOnStartUp;
 		}
 
+		/**
+		 * Returns <code>Kind.State</code>.
+		 */
 		@Override
 		public Kind getObjectKind() {
 			return Proxiable.Kind.State;

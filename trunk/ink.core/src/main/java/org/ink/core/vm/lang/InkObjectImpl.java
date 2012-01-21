@@ -26,7 +26,7 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	 * <b>This method is intended for internal use by the Ink VM only.</b>
 	 */
 	@SuppressWarnings("unchecked")
-	protected void setState(InkObjectState state, Context context) {
+	void setState(InkObjectState state, Context context) {
 		this.state = (S) state;
 		this.context = context;
 	}
@@ -103,6 +103,15 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	/**
+	 * Returns the hash code of this object's ID.
+	 */
+	@Override
+	public int hashCode() {
+		String id = state.getId();
+		return id == null ? 0 : id.hashCode();
+	}
+
+	/**
 	 * Returns <code>Kind.Behavior</code>.
 	 */
 	@Override
@@ -111,12 +120,12 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	@Override
-	public boolean validate(ValidationContext context) {
+	public final boolean validate(ValidationContext context) {
 		return getState().validate(context, SystemState.Run_Time);
 	}
 
 	@Override
-	public boolean validate(ValidationContext context, SystemState systemState) {
+	public final boolean validate(ValidationContext context, SystemState systemState) {
 		return getState().validate(context, systemState);
 	}
 

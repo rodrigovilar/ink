@@ -20,7 +20,7 @@ import org.ink.core.vm.utils.CoreUtils;
 public class DefaultResourceResolver extends ResourceResolver {
 
 	private DslFactory getFactory(InkObjectState o) {
-		return o.reflect().getTragetOwnerFactory();
+		return o.reflect().getTargetOwnerFactory();
 	}
 
 	@Override

@@ -146,7 +146,7 @@ public class SimpleDataBlock extends DataBlock {
 							addIdProposal(result, cursorLocation, id, prefix);
 						}
 					} else {
-						if (line.contains("class") && !line.contains("{")) {
+						if (attributes.containsKey("class") && !line.contains("{")) {
 							String tabs = calculateTabs();
 							result.add(new CompletionProposal("{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", cursorLocation, 0, new String("{\n" + tabs + "\n}").length() - 2, null, "{", null, null));
 						}

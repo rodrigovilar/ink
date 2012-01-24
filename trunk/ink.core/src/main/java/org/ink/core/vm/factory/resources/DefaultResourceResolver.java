@@ -81,14 +81,14 @@ public class DefaultResourceResolver extends ResourceResolver {
 	}
 
 	@Override
-	public File getDslResourcesLocation(DslFactory factory) {
+	public File[] getDslResourcesLocation(DslFactory factory) {
 		URL dir = Thread.currentThread().getContextClassLoader().getResource(factory.getDslPackage().replace('.', '/'));
 		if (dir == null) {
 			// TODO log error
 			throw new CoreException("Could not locate dsl reources location for DSL factory :" + factory.getNamespace());
 		}
 		File folder = new File(dir.getPath());
-		return folder;
+		return new File[]{folder};
 	}
 
 	private JavaClassDescription getClassDetails(String className) {

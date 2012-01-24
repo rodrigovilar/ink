@@ -45,6 +45,7 @@ import org.ink.eclipse.utils.InkUtils;
 public class InkBuilder extends IncrementalProjectBuilder {
 
 	public static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR + "main" + IPath.SEPARATOR + "dsl");
+	public static final IPath INK_TEST_DIR_PATH = new Path("src" + IPath.SEPARATOR + "test" + IPath.SEPARATOR + "dsl");
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
@@ -161,6 +162,8 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {
 		try {
+			//in full build don't copy ink resources since the Java builder will delete them
+			//only in the next incremental build (always happens after full build) copy the files.
 			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
 			} else {
@@ -169,6 +172,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					fullBuild(monitor);
 				} else {
 					incrementalBuild(delta, monitor);
+					changedInkFiles.clear();
 				}
 			}
 		} catch (Throwable e) {
@@ -181,7 +185,9 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	boolean processInkFile(IResource resource, IProgressMonitor monitor) {
 		IPath resourcePath = resource.getProjectRelativePath();
 		boolean result = false;
-		if (resource.getName().endsWith(".ink") && (resourcePath.uptoSegment(3).equals(INK_DIR_PATH)) || (DSL_DEF_FILENAME.equals(resourcePath.lastSegment()) && resourcePath.segments().length == 1)) {
+		if (resource.getName().endsWith(".ink") && 
+				(resourcePath.uptoSegment(3).equals(INK_DIR_PATH) || resourcePath.uptoSegment(3).equals(INK_TEST_DIR_PATH)) || 
+				(DSL_DEF_FILENAME.equals(resourcePath.lastSegment()) && resourcePath.segments().length == 1)) {
 			if (checkInkFile((IFile) resource)) {
 				changedInkFiles.add((IFile) resource);
 				result = true;

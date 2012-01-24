@@ -1,6 +1,7 @@
 Class id="VelocityExecutor" class="ink.core:InkClass" super="ink.core:InkObject"{
 	java_mapping "State_Behavior_Interface"
 	can_cache_behavior_instance true
+	java_path ""
 	properties{
 		property class="ink.core:MapProperty"{
 			name "configurations"
@@ -18,8 +19,9 @@ Class id="VelocityExecutor" class="ink.core:InkClass" super="ink.core:InkObject"
 	}
 }
 
-Class id="VelocityGeneratorMeta" class="ink.core:InkClass" super="ink.core:InkClass"{
+Class id="VelocityGeneratorMeta" class="ink.core:InkClass" super="ink.core:TraitClass"{
 	java_mapping "State_Behavior_Interface"
+	java_path ""
 	properties{
 		property class="ink.core:Reference"{
 			name "configurator"
@@ -28,9 +30,10 @@ Class id="VelocityGeneratorMeta" class="ink.core:InkClass" super="ink.core:InkCl
 	}
 }
 
-Class id="VelocityGenerator" class="VelocityGeneratorMeta" super="ink.core:InkObject"{
+Class id="VelocityGenerator" class="VelocityGeneratorMeta" super="ink.core:Trait"{
 	java_mapping "State_Behavior_Interface"
 	configurator ref="defaultVelocityExecutor"
+	java_path ""
 	properties{
 		property class="ink.core:StringAttribute"{
 			name "template_relative_path"

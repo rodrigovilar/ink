@@ -87,5 +87,7 @@ public interface ClassMirror extends Mirror {
 	public String getFullJavaPackage();
 
 	public boolean isStruct();
+	
+	public String getDescription();
 
 }

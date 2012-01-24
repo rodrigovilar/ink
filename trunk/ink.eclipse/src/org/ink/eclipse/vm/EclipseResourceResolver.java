@@ -19,10 +19,11 @@ import org.ink.eclipse.utils.EclipseUtils;
 public class EclipseResourceResolver extends CoreResourceResolver {
 
 	@Override
-	public File getDslResourcesLocation(DslFactory factory) {
+	public File[] getDslResourcesLocation(DslFactory factory) {
 		File dslConfFile = factory.getConfigurationFile();
-		File result = new File(dslConfFile.getParentFile().getAbsolutePath() + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "dsl" + File.separatorChar + factory.getDslPackage().replace('.', File.separatorChar));
-		return result;
+		File loc1 = new File(dslConfFile.getParentFile().getAbsolutePath() + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "dsl" + File.separatorChar + factory.getDslPackage().replace('.', File.separatorChar));
+		File loc2 = new File(dslConfFile.getParentFile().getAbsolutePath() + File.separatorChar + "src" + File.separatorChar + "test" + File.separatorChar + "dsl" + File.separatorChar + factory.getDslPackage().replace('.', File.separatorChar));
+		return new File[]{loc1, loc2};
 	}
 
 	private JavaClassDescription getClassDetails(ClassMirror cm, IJavaElement je, String shortClassName) {

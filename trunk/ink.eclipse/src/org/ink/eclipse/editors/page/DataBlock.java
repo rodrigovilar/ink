@@ -22,7 +22,7 @@ public abstract class DataBlock {
 
 	protected ObjectDataBlock parent = null;
 	protected int startIndex = -1;
-	private final Map<String, String> attributes = new HashMap<String, String>();
+	protected final Map<String, String> attributes = new HashMap<String, String>();
 	protected int endIndex = -1;
 	protected String startLine;
 	protected char[] text;
@@ -206,19 +206,17 @@ public abstract class DataBlock {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
 		if (text[cursorLocation - 1] == ' ') {
-			if (!line.contains(" class") && !line.contains(" ref")) {
+			if (!attributes.containsKey("class") && !attributes.containsKey("ref")) {
 				result.add(createAttributeProposal("class", cursorLocation, count, true));
-			}
-			if (!line.contains(" ref")) {
 				result.add(createAttributeProposal("ref", cursorLocation, count, true));
 			}
 			if (result.isEmpty()) {
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length() - 2, null, "{", null, null));
 			}
-			if (!line.contains(" super")) {
+			if (!attributes.containsKey("super")) {
 				result.add(createAttributeProposal("super", cursorLocation, count, true));
 			}
-			if (line.contains(" class") && !line.contains("{")) {
+			if (attributes.containsKey("class") && !line.contains("{")) {
 				String tabs = calculateTabs();
 				result.add(new CompletionProposal("{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", cursorLocation, 0, new String("{\n" + tabs + "\n}").length() - 2, null, "{", null, null));
 			}
@@ -262,7 +260,7 @@ public abstract class DataBlock {
 						addRefPropsals(cursorLocation, prefix, result);
 					}
 				}
-			} else if (!line.contains(" ref") && result.isEmpty() && (text[cursorLocation - 1] != '\"' || text.length > cursorLocation && text[cursorLocation + 1] != '\"')) {
+			} else if (!attributes.containsKey("ref") && result.isEmpty() && (text[cursorLocation - 1] != '\"' || text.length > cursorLocation && text[cursorLocation + 1] != '\"')) {
 				String tabs = calculateTabs();
 				String str = "{\n" + tabs + "\n" + tabs.substring(1) + "}";
 				result.add(new CompletionProposal(str, cursorLocation, 0, str.length() - (tabs.length() + 1), null, "{", null, null));
@@ -346,19 +344,19 @@ public abstract class DataBlock {
 		}
 		String line = textString.substring(newLineLoc, lastIndex).trim();
 		if (text[cursorLocation - 1] == ' ') {
-			if (!line.contains("id")) {
+			if (!attributes.containsKey("id")) {
 				result.add(createAttributeProposal("id", cursorLocation, count, true));
 			}
-			if (!line.contains("class")) {
+			if (!attributes.containsKey("class")) {
 				result.add(createAttributeProposal("class", cursorLocation, count, true));
 			}
 			if (result.isEmpty()) {
 				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length() - 2, null, "{", null, null));
 			}
-			if (!line.contains("super")) {
+			if (!attributes.containsKey("super")) {
 				result.add(createAttributeProposal("super", cursorLocation, count, true));
 			}
-			if (!line.contains("abstract")) {
+			if (!attributes.containsKey("abstract")) {
 				result.add(createAttributeProposal("abstract", cursorLocation, count, false));
 			}
 			if (result.isEmpty() && !(text[cursorLocation - 1] == '\"' && text.length > cursorLocation + 1 && text[cursorLocation + 1] == '\"')) {
@@ -423,16 +421,16 @@ public abstract class DataBlock {
 					result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length() - 2, null, "{", null, null));
 				}
 			} else if (prefix.length() > 0) {
-				if (isPrefix("class", prefix, false) && !line.contains("class")) {
+				if (isPrefix("class", prefix, false) && !attributes.containsKey("class")) {
 					result.add(createAttributeProposal("class", cursorLocation, count, true));
 				}
-				if (isPrefix("id", prefix, false) && !line.contains("id")) {
+				if (isPrefix("id", prefix, false) && !attributes.containsKey("id")) {
 					result.add(createAttributeProposal("id", cursorLocation, count, true));
 				}
-				if (isPrefix("super", prefix, false) && !line.contains("super")) {
+				if (isPrefix("super", prefix, false) && !attributes.containsKey("super")) {
 					result.add(createAttributeProposal("super", cursorLocation, count, true));
 				}
-				if (isPrefix("abstract", prefix, false) && !line.contains("abstract")) {
+				if (isPrefix("abstract", prefix, false) && !attributes.containsKey("abstract")) {
 					result.add(createAttributeProposal("abstract", cursorLocation, count, true));
 				}
 				if (isPrefix("Object", prefix, false) && !line.contains("Object") && !line.contains("Class")) {

@@ -41,7 +41,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private InkClass readerCls = null;
 	Stack<InkReader<D>> s = new Stack<InkReader<D>>();
 	ValidationContext vc = null;
-	private File folder = null;
+	private File[] folders = null;
 
 	@Override
 	public void init() {
@@ -49,7 +49,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		file2Elements.clear();
 		readerCls = null;
 		vc = null;
-		folder = null;
+		folders = null;
 	}
 
 	@Override
@@ -176,7 +176,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void loadElements(DslFactory ownerFactory) throws IOException {
 		this.ownerFactory = ownerFactory;
-		folder = VMConfig.instance().getResourceResolver().getDslResourcesLocation(ownerFactory);
+		folders = VMConfig.instance().getResourceResolver().getDslResourcesLocation(ownerFactory);
 		// TODO - the reader should be a property on DSLoader
 		readerCls = ownerFactory.getObject(CoreNotations.Ids.INK_READER.toString());
 		InkReader<D> reader = createReader();
@@ -273,7 +273,11 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 
 	@Override
 	public List<File> getInkFiles() {
-		return FileUtils.listInkFiles(folder);
+		List<File> result = new ArrayList<File>();
+		for(File f : folders){
+			result.addAll(FileUtils.listInkFiles(f));
+		}
+		return result;
 	}
 
 	@Override

@@ -2,9 +2,11 @@ package org.ink.core.vm.factory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.modelinfo.ModelInfoFactory;
 import org.ink.core.vm.modelinfo.ModelInfoWriteableRepository;
 import org.ink.core.vm.serialization.InkReader;
+import org.ink.core.vm.serialization.ParseError;
 import org.ink.core.vm.utils.InkNotations;
 import org.ink.core.vm.utils.file.FileUtils;
 
@@ -107,7 +110,17 @@ public class VMMain {
 								loadApplication(defaultNamespace, pathsList.toArray(new String[] {}));
 							}
 						} else {
-							loadApplication(defaultNamespace, new String[] { "dsls.ink" });
+							try {
+								Enumeration<URL> urls = VMMain.class.getClassLoader().getResources("dsls.ink");
+								List<String> dslsDefPaths = new ArrayList<String>(); 
+								while(urls.hasMoreElements()){
+									URL url = urls.nextElement();
+									dslsDefPaths.add(0, new File(url.toURI()).getAbsolutePath());
+								}
+								loadApplication(defaultNamespace, dslsDefPaths.toArray(new String[]{}));
+							} catch (Exception e) {
+								throw new CoreException(e);
+							}
 						}
 					} else {
 						loadApplication(defaultNamespace, paths);
@@ -190,6 +203,8 @@ public class VMMain {
 							}
 						}
 					}
+				}else{
+					factory = factories.get(0);
 				}
 			} else {
 				System.out.println("No DSL factory found on classpath. Using core factory as default factory.");
@@ -199,8 +214,6 @@ public class VMMain {
 
 	private static DslFactory createFacadeFactory(DslFactory coreFactory, List<DslFactory> factories) {
 		List<DslFactoryState> imports = new ArrayList<DslFactoryState>();
-		DslFactory firstFactory = factories.get(0);
-		imports.add((DslFactoryState) firstFactory.reflect().edit().getEditedState());
 		DslFactoryState facadeFactory = coreFactory.cloneState();
 		ObjectEditor editor = facadeFactory.reflect().edit();
 		InkObjectState superFactory = coreFactory.getState(CoreNotations.Ids.OBJECT_FACTORY);
@@ -212,9 +225,17 @@ public class VMMain {
 		facadeFactory.setDslPackage("");
 		facadeFactory.setJavaPackage("");
 		facadeFactory.setNamespace("ink.facade");
-		for (int i = 1; i < factories.size(); i++) {
-			if (firstFactory.compareTo(factories.get(i)) == 0) {
-				imports.add((DslFactoryState) factories.get(i).reflect().edit().getEditedState());
+		for (int i = factories.size()-1; i >=0; i--) {
+			boolean shouldAdd = true; 
+			DslFactory imp = factories.get(i);
+			for(int j=0;j<imports.size();j++){
+				DslFactory existingImp = imports.get(j).getBehavior(); 
+				if(existingImp.compareTo(imp)<0){
+					shouldAdd = false;
+				}
+			}
+			if(shouldAdd){
+				imports.add((DslFactoryState) imp.reflect().edit().getEditedState());
 			}
 		}
 		facadeFactory.setImports(imports);
@@ -265,11 +286,23 @@ public class VMMain {
 						// TODO need to check also if subclass
 						if (classId.equals(CoreNotations.Ids.DSL_FACTORY)) {
 							long start = System.currentTimeMillis();
-							factory = reader.read(elem, coreFactory.getAppContext()).getBehavior();
+							DslFactoryState factoryState = (DslFactoryState) reader.read(elem, coreFactory.getAppContext());
+							if(factoryState==null || reader.containsErrors()){
+								String errorMsg = "Could not loaf factory in file " + inkFile.getAbsolutePath() +".";
+								if(reader.containsErrors()){
+									errorMsg += "Errors:";
+									for(ParseError err : reader.getErrors()){
+										errorMsg +=err.getDescription()+",";
+									}
+								}
+								throw new CoreException(errorMsg);
+							}
+							factory = factoryState.getBehavior();
 							if (!allFactories.containsKey(factory.getNamespace())) {
 								System.out.println("DSL factory '" + factory.getNamespace() + "' loaded in " + (System.currentTimeMillis() - start) + " millis.");
 								factory.setConfigurationFile(inkFile);
 								result.add(factory);
+								coreFactory.register(factoryState);
 							}
 						}
 					}

@@ -251,5 +251,10 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	public Personality getPersonality() {
 		return ((ClassMirrorAPI) getTargetState()).getPersonality();
 	}
+	
+	@Override
+	public String getDescription() {
+		return ((ClassMirrorAPI) getTargetState()).getDescription();
+	}
 
 }

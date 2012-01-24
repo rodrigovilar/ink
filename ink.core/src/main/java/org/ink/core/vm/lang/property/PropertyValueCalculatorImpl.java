@@ -7,7 +7,7 @@ import org.ink.core.vm.lang.Property;
 /**
  * @author Lior Schachter
  */
-public abstract class PropertyValueCalculatorImpl<S extends PropertyValueCalculatorState> extends InkObjectImpl<S> implements PropertyValueCalculator {
+public class PropertyValueCalculatorImpl<S extends PropertyValueCalculatorState> extends InkObjectImpl<S> implements PropertyValueCalculator {
 
 	@Override
 	public boolean hasStaticValue() {
@@ -18,7 +18,7 @@ public abstract class PropertyValueCalculatorImpl<S extends PropertyValueCalcula
 		return result;
 	}
 
-	protected abstract <T extends InkObjectState> Object calculate(T container, Property property);
+	protected <T extends InkObjectState> Object calculate(T container, Property property){return null;}
 
 	@Override
 	public Object getValue(InkObjectState container, Property property, Object staticValue) {

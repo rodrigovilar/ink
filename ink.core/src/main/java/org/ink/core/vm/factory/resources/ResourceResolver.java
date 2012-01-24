@@ -25,7 +25,7 @@ public abstract class ResourceResolver {
 
 	public abstract boolean enableEagerFetch();
 
-	public abstract File getDslResourcesLocation(DslFactory factory);
+	public abstract File[] getDslResourcesLocation(DslFactory factory);
 
 	public abstract JavaClassDescription getBehaviorClassDescription(ClassMirror cm);
 

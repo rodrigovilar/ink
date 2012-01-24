@@ -135,9 +135,11 @@ public class CoreUtils {
 		case Class:
 			Mirror m = ((Proxiable) value).reflect();
 			if (m.getOwner() == null) {
-				builder.append(value);
-				if (!isItem) {
-					builder.append(StringUtils.LINE_SEPARATOR);
+				if(!definingProperty.isComputed()){
+					builder.append(value);
+					if (!isItem) {
+						builder.append(StringUtils.LINE_SEPARATOR);
+					}
 				}
 			} else {
 				if (((Proxiable) value).isProxied()) {

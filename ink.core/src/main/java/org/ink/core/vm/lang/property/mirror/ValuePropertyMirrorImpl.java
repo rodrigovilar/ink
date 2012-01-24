@@ -18,9 +18,7 @@ public class ValuePropertyMirrorImpl<S extends ValuePropertyMirrorState> extends
 		calculator = ((ValuePropertyState) getTargetState()).getValueCalculator();
 		if (calculator != null) {
 			setIsComputed(true);
-			if (calculator.hasStaticValue()) {
-				setHasStaticValue(true);
-			}
+			setHasStaticValue(calculator.hasStaticValue());
 		}
 	}
 

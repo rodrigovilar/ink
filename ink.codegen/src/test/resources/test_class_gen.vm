@@ -1,0 +1,8 @@
+#if($target)
+package $target.javaPath;
+public class $target.id{
+#foreach($p in $target.properties)
+	private $p.javaType $p.name; 
+#end
+}
+#end

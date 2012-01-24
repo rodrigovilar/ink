@@ -1,5 +1,9 @@
 <html>
 <body>
-Hello $foo World!
-</body>
+#if($l)
+	#foreach($i in $l)$i #end
+#end
+
+	Hello $foo World!
+	</body>
 <html>

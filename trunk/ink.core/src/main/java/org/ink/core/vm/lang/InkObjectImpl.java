@@ -9,7 +9,7 @@ import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.traits.Trait;
 
 /**
- * The the base Ink behavior object. Every behavior object in Ink extends this class (explicitly or implicitly).
+ * The class of the base Ink behavior object. Every behavior class in Ink extends this class (explicitly or implicitly).
  * 
  * @see InkObject
  * @see InkObjectState

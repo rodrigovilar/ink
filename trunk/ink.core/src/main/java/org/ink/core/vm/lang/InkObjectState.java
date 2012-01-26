@@ -37,7 +37,7 @@ import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
 
 /**
- * The interface of the base Ink state object. Every state object in Ink implements this interface (explicitly or implicitly).
+ * The interface of the base Ink state class. Every state class in Ink implements this interface (explicitly or implicitly).
  * 
  * @see InkObject
  * @see InkObjectImpl
@@ -60,7 +60,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 
 	/**
 	 * Retrieves the behavior object of this state object. If the Ink class is defined with Java mapping "No Java", "State-Interface" or "State only", the behavior is inherited,
-	 * i.e. the behavior object will be an instance of the behavior class of a superclass.
+	 * i.e., the behavior object will be an instance of the behavior class of a superclass.
 	 * The behavior object will be created and initialized on the first invocation of this method.
 	 * @return the state object of this behavior object.
 	 */
@@ -123,7 +123,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 	public static final byte t_constraints = 1;
 
 	/**
-	 * The base Ink state inner class. Every state object in Ink extends this class.
+	 * The base Ink state inner class. Every state class in Ink has an inner class that extends this one.
 	 */
 	public class Data implements MirrorAPI {
 

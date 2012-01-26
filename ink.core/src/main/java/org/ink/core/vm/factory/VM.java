@@ -66,7 +66,7 @@ public interface VM {
 	public void reloadDSL(String namespace);
 
 	/**
-	 * Loads a new {@link DslFactory} and adds it to the running Ink VM. This also loads the new factory's dependencies (i.e. additional DSL factories).
+	 * Loads a new {@link DslFactory} and adds it to the running Ink VM. This also loads the new factory's dependencies (i.e., additional DSL factories).
 	 * @param path the path to the <code>dsls.ink</code> metadata file (those files are normally handled by Ink itself).
 	 * @throws InkException if the factory couldn't be loaded successfully.
 	 */

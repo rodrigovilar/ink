@@ -9,7 +9,7 @@ import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.proxy.Proxiable;
 
 /**
- * The interface of the base Ink behavior object. Every behavior object in Ink implements this interface (explicitly or via inheritance).
+ * The interface of the base Ink behavior class. Every behavior class in Ink implements this interface (explicitly or via inheritance).
  * 
  * @see InkObjectImpl
  * @see InkObjectState
@@ -22,7 +22,7 @@ public interface InkObject extends Proxiable {
 	 * A hook method, notifying the behavior object that the state object has been created (or modified externally). This method is a rough
 	 * equivalent of a constructor method in Java. However, note that it may be invoked multiple times during the lifecycle
 	 * of a behavior object: when a behavior is first created and injected with its state object, and after the state object has been modified
-	 * (e.g. by an {@link ObjectEditor}).
+	 * (e.g., by an {@link ObjectEditor}).
 	 * <br/>
 	 * <b>This method should contain initialization logic of the behavior object.</b>
 	 */

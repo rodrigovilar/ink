@@ -35,8 +35,8 @@ public interface Mirror extends Trait {
 	public String getId();
 
 	/**
-	 * Retrieves the short ID (i.e. not including the namespace) of the target.
-	 * @return the short ID (i.e. not including the namespace) of the target.
+	 * Retrieves the short ID (i.e., not including the namespace) of the target.
+	 * @return the short ID (i.e., not including the namespace) of the target.
 	 */
 	public String getShortId();
 
@@ -74,19 +74,19 @@ public interface Mirror extends Trait {
 	public <T extends InkObjectState> T getTarget();
 
 	/**
-	 * Retrieves the <code>Mirror</code> of the target's owner (i.e. the object containing the target).
+	 * Retrieves the <code>Mirror</code> of the target's owner (i.e., the object containing the target).
 	 * @return the <code>Mirror</code> of the target's owner.
 	 */
 	public <M extends Mirror> M getOwner();
 
 	/**
-	 * Retrieves the <code>Mirror</code> of the target's root owner (i.e. the top-level object containing the target).
+	 * Retrieves the <code>Mirror</code> of the target's root owner (i.e., the top-level object containing the target).
 	 * @return the <code>Mirror</code> of the target's root owner.
 	 */
 	public <M extends Mirror> M getRootOwner();
 
 	/**
-	 * Retrieves the <code>Mirror</code> of the target's super-object (i.e. the object which the target extends).
+	 * Retrieves the <code>Mirror</code> of the target's super-object (i.e., the object which the target extends).
 	 * @return the <code>Mirror</code> of the target's super-object.
 	 */
 	public <M extends Mirror> M getSuper();

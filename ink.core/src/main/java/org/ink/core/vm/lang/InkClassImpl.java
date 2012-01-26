@@ -15,6 +15,9 @@ public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> impl
 		return ((ClassMirror) reflect()).getStateInterface();
 	}
 
+	/**
+	 * Returns <code>DataTypeMarker.Class</code>.
+	 */
 	@Override
 	public DataTypeMarker getTypeMarker() {
 		return DataTypeMarker.Class;

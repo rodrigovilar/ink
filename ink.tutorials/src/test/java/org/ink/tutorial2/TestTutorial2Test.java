@@ -6,6 +6,9 @@ import junit.framework.Assert;
 
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
+import org.ink.core.vm.lang.InkClass;
+import org.ink.core.vm.lang.Property;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.junit.Test;
@@ -135,6 +138,18 @@ public class TestTutorial2Test {
 		Assert.assertEquals(false, registrationFailed);
 		Assert.assertEquals(registrationReceipt, "firstName='Lior',lastName='Schachter',email='lior@ink.org',optIn='true'");
 		
+	}
+
+	@Test
+	public void testProperty() {
+		InkClass baseOffer = context.getObject("ink.tutorial2:BaseOffer");
+		ClassMirror mirror = baseOffer.reflect();
+		Property property = mirror.getProperty("studentOnlyOffer");
+		Class clazz = property.getType().getTypeClass();
+		Assert.assertEquals("java.lang.Boolean", clazz.getName());
+		property = mirror.getProperty("registrationFormType");
+		clazz = property.getType().getTypeClass();
+		Assert.assertEquals("org.ink.core.vm.lang.InkClassState", clazz.getName());
 	}
 
 }

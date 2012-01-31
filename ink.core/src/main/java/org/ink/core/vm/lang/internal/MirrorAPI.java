@@ -80,7 +80,7 @@ public interface MirrorAPI extends InkObjectState {
 
 	public void cacheBeahvior(InkObject behavior);
 
-	public InkObject getCachedBehavior();
+	public <B extends InkObject> B getCachedBehavior();
 
 	public <T extends InkObjectState> T cloneState(boolean identicalTwin);
 

@@ -4,6 +4,7 @@ import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.ComponentType;
 import org.ink.core.vm.lang.InkClass;
+import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
@@ -249,4 +250,10 @@ public interface Mirror extends Trait {
 	 * @throws ArrayIndexOutOfBoundsException if the index is invalid.
 	 */
 	public <T extends Trait> T asTrait(byte trait, boolean forceNew);
+	
+	/**
+	 * Retrieves the cached behavior instance of this state, resulting null if the method {@link InkObjectState#getBehavior()} not called on this state.  
+	 * @return the behavior instances.
+	 */
+	public <B extends InkObject> B getCachedBehavior();
 }

@@ -729,8 +729,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		}
 
 		@Override
-		public final InkObject getCachedBehavior() {
-			return behavior;
+		public final <B extends InkObject> B getCachedBehavior() {
+			return (B) behavior;
 		}
 
 		@Override

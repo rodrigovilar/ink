@@ -9,11 +9,14 @@ public class PropertyDescriptor {
 	boolean isClassType;
 	boolean isList;
 	boolean isMap;
+	
+	
 	public String getName() {
 		return name;
 	}
 	public String getJavaType() {
 		return javaType;
 	}
+	
 
 }

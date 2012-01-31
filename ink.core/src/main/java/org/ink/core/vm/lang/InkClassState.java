@@ -35,13 +35,13 @@ import org.ink.core.vm.utils.CoreUtils;
 /* ,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type} */)
 public interface InkClassState extends InkTypeState {
 
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(defaultValue = "")
 	public static final byte p_java_path = 0;
 
 	// TODO - should be mandatory true
 	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_description = 1;
-	@CoreField(mandatory = true, defaultValue = "State_Behavior_Interface", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(mandatory = true, defaultValue = "Only_State", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_java_mapping = 2;
 	@CoreField(defaultValue = "true")
 	public static final byte p_can_cache_behavior_instance = 3;
@@ -56,7 +56,7 @@ public interface InkClassState extends InkTypeState {
 	public String getDescription();
 
 	public void setDescription(String value);
-
+            
 	public JavaMapping getJavaMapping();
 
 	public void setJavaMapping(JavaMapping value);

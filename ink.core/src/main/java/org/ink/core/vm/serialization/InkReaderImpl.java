@@ -294,10 +294,6 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 			}
 			return null;
 		}
-		ClassMirror cm = clsState.reflect();
-		if (cm.isMetaClass() && superId == null) {
-			addError(tag, "An Ink class must sepecify its 'super' attribute.");
-		}
 		MirrorAPI result = null;
 		if (!clsState.reflect().isValid()) {
 			containsError = true;
@@ -492,6 +488,10 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 			isKeyValue = false;
 		}
 		for (Tag t : tags) {
+			if(!t.getName().equals(mapPM.getSpecifictation().getEntryName())){
+				addError(t, "Invalid map entry name '" + t.getName() +"'.");
+				continue;
+			}
 			entries = t.getChildren();
 			Object mapKey = null;
 			Object mapvalue = null;

@@ -32,7 +32,7 @@ public interface ClassMirror extends Mirror {
 
 	public boolean shouldCreateProxyOnBehaviorInstance();
 
-	public InkObject getCachedBehavior(InkObjectState state);
+	public <B extends InkObject> B getCachedBehavior(InkObjectState state);
 
 	public void cacheBeahvior(InkObjectState state, InkObject behavior);
 

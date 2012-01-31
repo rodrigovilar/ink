@@ -90,7 +90,7 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	}
 
 	@Override
-	public InkObject getCachedBehavior(InkObjectState state) {
+	public <B extends InkObject> B getCachedBehavior(InkObjectState state) {
 		return ((MirrorAPI) state).getCachedBehavior();
 	}
 

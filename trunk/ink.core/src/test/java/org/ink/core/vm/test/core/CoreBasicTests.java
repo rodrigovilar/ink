@@ -119,7 +119,7 @@ public class CoreBasicTests extends TestCase {
 		assertNotNull(inkClass);
 		InkClassState o = (InkClassState) inkClass.newInstance();
 		assertNotNull(o.getComponentType());
-		assertTrue(o.getJavaMapping().hasBehavior());
+		assertTrue(o.getJavaMapping().hasState());
 	}
 
 	public void testClone() {

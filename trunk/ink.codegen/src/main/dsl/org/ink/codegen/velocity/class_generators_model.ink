@@ -3,12 +3,6 @@ Class id="RootObjectRetriever" class="ink.core:InkClass" super="ink.core:Propert
 	java_mapping "State_Behavior"	
 }  
 
-Class id="EntryPointTargetRetriever" class="ink.core:InkClass" super="ink.core:PropertyValueCalculator"{
-	java_path "class_gen"
-	java_mapping "State_Behavior"	
-}  
-
-
 Class id="ClassGenerator" class="VelocityGeneratorMeta" super="VelocityGenerator"{
 	java_path "class_gen"
 	java_mapping "State_Behavior"

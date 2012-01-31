@@ -17,7 +17,7 @@ public class ClassGeneratorImpl<S extends ClassGeneratorState> extends
 	protected void prepareContext(Map context) {
 		super.prepareContext(context);
 		ClassDescriptor clsDesc = newClassDescriptor();
-		ClassMirror cMirror = getState().getTarget().reflect();
+		ClassMirror cMirror = findTargetClass();
 		clsDesc.id = cMirror.getShortId();
 		clsDesc.fullId = cMirror.getId();
 		clsDesc.javaPath = cMirror.getFullJavaPackage();
@@ -37,6 +37,10 @@ public class ClassGeneratorImpl<S extends ClassGeneratorState> extends
 		context.put("target", clsDesc);
 	}
 
+	protected ClassMirror findTargetClass() {
+		return getState().getTarget().reflect();
+	}
+
 	protected PropertyDescriptor newPropertyDescriptor() {
 		return new PropertyDescriptor();
 	}
@@ -49,7 +53,6 @@ public class ClassGeneratorImpl<S extends ClassGeneratorState> extends
 	}
 
 	protected void addPropertyData(PropertyMirror pm, PropertyDescriptor pd) {
-		
 	}
 	
 

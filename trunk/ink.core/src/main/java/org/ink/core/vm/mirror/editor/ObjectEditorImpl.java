@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.ink.core.vm.exceptions.CompilationException;
 import org.ink.core.vm.lang.DataTypeMarker;
+import org.ink.core.vm.lang.InheritanceConstraints;
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
@@ -244,120 +245,119 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 		Object o;
 		for (PropertyMirror pm : pMirrors) {
 			Object superObjectValue = null;
-			if (superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
+			if (pm.getInheritanceConstraints()!=InheritanceConstraints.Instance_Must_Override_Inherited_Value &&
+					superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
 				superObjectValue = superObject.getPropertyValue(pm.getIndex());
 			}
-			if (pm.isMutable()) {
-				o = object.getRawValue(pm.getIndex());
-				if (o == null) {
-					if (superObjectValue != null) {
-						superObjectValue = CoreUtils.cloneOneValue(pm, superObjectValue, false);
-					} else {
-						superObjectValue = ((Property) pm.getTargetBehavior()).getDefaultValue();
-					}
-					object.setRawValue(pm.getIndex(), superObjectValue);
+			o = object.getRawValue(pm.getIndex());
+			if (o == null) {
+				if (superObjectValue != null) {
+					superObjectValue = CoreUtils.cloneOneValue(pm, superObjectValue, false);
 				} else {
-					if (pm.getTypeMarker() == DataTypeMarker.Class) {
-						if (((Proxiable) o).isProxied()) {
-							o = ((Proxiability) o).getVanillaState();
+					superObjectValue = ((Property) pm.getTargetBehavior()).getDefaultValue();
+				}
+				object.setRawValue(pm.getIndex(), superObjectValue);
+			} else {
+				if (pm.getTypeMarker() == DataTypeMarker.Class) {
+					if (((Proxiable) o).isProxied()) {
+						o = ((Proxiability) o).getVanillaState();
+					}
+					if (!((MirrorAPI) o).reflect().isRoot()) {
+						Mirror innerSuper = null;
+						if (superObjectValue != null) {
+							innerSuper = ((Proxiable)superObjectValue).reflect();
 						}
-						if (!((MirrorAPI) o).reflect().isRoot()) {
-							Mirror innerSuper = null;
-							if (superObjectValue != null) {
-								innerSuper = ((Proxiable)superObjectValue).reflect();
+						innerCompile((MirrorAPI) o, innerSuper);
+					}
+				} else if (pm.getTypeMarker() == DataTypeMarker.Collection) {
+					switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
+					case List:
+						if (((ListPropertyMirror) pm).getItemMirror().getTypeMarker() == DataTypeMarker.Class) {
+							Collection<MirrorAPI> col = (Collection<MirrorAPI>) o;
+							for (Proxiable item : col) {
+								if ((item).isProxied()) {
+									item = ((Proxiability) item).getVanillaState();
+								}
+								if (!item.reflect().isRoot()) {
+									innerCompile((MirrorAPI) item, null);
+								}
 							}
-							innerCompile((MirrorAPI) o, innerSuper);
 						}
-					} else if (pm.getTypeMarker() == DataTypeMarker.Collection) {
-						switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-						case List:
-							if (((ListPropertyMirror) pm).getItemMirror().getTypeMarker() == DataTypeMarker.Class) {
-								Collection<MirrorAPI> col = (Collection<MirrorAPI>) o;
-								for (Proxiable item : col) {
-									if ((item).isProxied()) {
-										item = ((Proxiability) item).getVanillaState();
-									}
-									if (!item.reflect().isRoot()) {
-										innerCompile((MirrorAPI) item, null);
-									}
+						if (superObjectValue != null) {
+							List<?> superValue = (List<?>) superObjectValue;
+							PropertyMirror itemPM = ((ListPropertyMirror) pm).getItemMirror();
+							Object itemToAdd;
+							List mergedList = new ArrayList();
+							for (Object i : superValue) {
+								itemToAdd = CoreUtils.cloneOneValue(itemPM, i, false);
+								mergedList.add(itemToAdd);
+							}
+							((List) o).addAll(0, mergedList);
+						}
+						break;
+					case Map:
+						Map map = (Map) o;
+						Map<?, ?> superValue = (Map<?, ?>)superObjectValue;
+						PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
+						PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
+						if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {
+							Collection<MirrorAPI> col = map.keySet();
+							for (Proxiable item : col) {
+								if ((item).isProxied()) {
+									item = ((Proxiability) item).getVanillaState();
+								}
+								if (!item.reflect().isRoot()) {
+									// no need to inner compile the key with the super, since if the key adds data it can not be
+									// equals to the super key...
+									innerCompile((MirrorAPI) item, null);
 								}
 							}
-							if (superObjectValue != null) {
-								List<?> superValue = (List<?>) superObjectValue;
-								PropertyMirror itemPM = ((ListPropertyMirror) pm).getItemMirror();
-								Object itemToAdd;
-								List mergedList = new ArrayList();
-								for (Object i : superValue) {
-									itemToAdd = CoreUtils.cloneOneValue(itemPM, i, false);
-									mergedList.add(itemToAdd);
+						}
+						if (valueMirror.getTypeMarker() == DataTypeMarker.Class) {
+							Collection<Map.Entry<?, ?>> col = map.entrySet();
+							for (Map.Entry<?, ?> en : col) {
+								Proxiable val = (Proxiable) en.getValue();
+								if (val.isProxied()) {
+									val = ((Proxiability) val).getVanillaState();
 								}
-								((List) o).addAll(0, mergedList);
-							}
-							break;
-						case Map:
-							Map map = (Map) o;
-							Map<?, ?> superValue = (Map<?, ?>)superObjectValue;
-							PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
-							PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
-							if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {
-								Collection<MirrorAPI> col = map.keySet();
-								for (Proxiable item : col) {
-									if ((item).isProxied()) {
-										item = ((Proxiability) item).getVanillaState();
+								if (!val.reflect().isRoot()) {
+									Proxiable existingObject = null;
+									if (superValue != null) {
+										existingObject = (Proxiable) superValue.get(en.getKey());
 									}
-									if (!item.reflect().isRoot()) {
-										// no need to inner compile the key with the super, since if the key adds data it can not be
-										// equals to the super key...
-										innerCompile((MirrorAPI) item, null);
-									}
-								}
-							}
-							if (valueMirror.getTypeMarker() == DataTypeMarker.Class) {
-								Collection<Map.Entry<?, ?>> col = map.entrySet();
-								for (Map.Entry<?, ?> en : col) {
-									Proxiable val = (Proxiable) en.getValue();
-									if (val.isProxied()) {
-										val = ((Proxiability) val).getVanillaState();
-									}
-									if (!val.reflect().isRoot()) {
-										Proxiable existingObject = null;
-										if (superValue != null) {
-											existingObject = (Proxiable) superValue.get(en.getKey());
-										}
-										if (existingObject != null) {
-											innerCompile((MirrorAPI) val, existingObject.reflect());
-										} else {
-											innerCompile((MirrorAPI) val, null);
-										}
-									}
-								}
-							}
-							if (superValue != null && !superValue.isEmpty()) {
-								Map<?, ?> tempMap = ((MapPropertyMirror) pm).getNewInstance();
-								tempMap.putAll(map);
-								map.clear();
-								Object existingObject;
-								for (Map.Entry<?, ?> superEn : ((Map<?, ?>) superValue).entrySet()) {
-									if ((existingObject = tempMap.get(superEn.getKey())) == null) {
-										Object keyToadd = CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false);
-										Object valueToadd = CoreUtils.cloneOneValue(valueMirror, superEn.getValue(), false);
-										map.put(keyToadd, valueToadd);
+									if (existingObject != null) {
+										innerCompile((MirrorAPI) val, existingObject.reflect());
 									} else {
-										map.put(CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false), existingObject);
+										innerCompile((MirrorAPI) val, null);
 									}
 								}
-								for (Map.Entry<?, ?> en : tempMap.entrySet()) {
-									if (!map.containsKey(en.getKey())) {
-										map.put(en.getKey(), en.getValue());
-									}
-								}
-
 							}
 						}
+						if (superValue != null && !superValue.isEmpty()) {
+							Map<?, ?> tempMap = ((MapPropertyMirror) pm).getNewInstance();
+							tempMap.putAll(map);
+							map.clear();
+							Object existingObject;
+							for (Map.Entry<?, ?> superEn : ((Map<?, ?>) superValue).entrySet()) {
+								if ((existingObject = tempMap.get(superEn.getKey())) == null) {
+									Object keyToadd = CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false);
+									Object valueToadd = CoreUtils.cloneOneValue(valueMirror, superEn.getValue(), false);
+									map.put(keyToadd, valueToadd);
+								} else {
+									map.put(CoreUtils.cloneOneValue(keyMirror, superEn.getKey(), false), existingObject);
+								}
+							}
+							for (Map.Entry<?, ?> en : tempMap.entrySet()) {
+								if (!map.containsKey(en.getKey())) {
+									map.put(en.getKey(), en.getValue());
+								}
+							}
 
+						}
 					}
 
 				}
+
 			}
 		}
 	}

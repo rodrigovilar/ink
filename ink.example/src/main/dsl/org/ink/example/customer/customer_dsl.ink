@@ -95,6 +95,7 @@ Class id="MyProperty" class="ink.core:InkClass" super="ink.core:Reference"{
 Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkObject"{
 	java_path ""
 	component_type "Root"
+	java_mapping "State_Behavior_Interface"
 	operations{
 		operation class="ink.core:Operation"{
 			name "sendLetter"

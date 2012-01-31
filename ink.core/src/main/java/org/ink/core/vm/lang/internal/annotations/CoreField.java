@@ -18,7 +18,7 @@ public @interface CoreField {
 
 	public boolean mandatory() default true;
 
-	public String defaultValue() default "";
+	public String defaultValue() default "NO_VALUE";
 
 	public boolean computed() default false;
 

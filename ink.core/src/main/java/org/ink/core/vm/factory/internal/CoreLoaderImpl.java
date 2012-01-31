@@ -866,7 +866,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		((MirrorAPI) result).setRawValue(PropertyState.p_name, propertyName);
 		((MirrorAPI) result).setRawValue(PropertyState.p_type, typeDesc.getObject());
 		CoreField fieldAnnot = f.getAnnotation(CoreField.class);
-		if (fieldAnnot != null && !fieldAnnot.defaultValue().equals("")) {
+		if (shouldApplyDefaultValue(fieldAnnot)) {
 			try {
 				Object defaultValue = convertStringValue(fieldAnnot.defaultValue(), typeClass);
 				byte loc = (Byte) attDesc.getStateClass().getField(P_DEFAULT_VALUE_NAME).get(null);
@@ -876,6 +876,10 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			}
 		}
 		return result;
+	}
+
+	private boolean shouldApplyDefaultValue(CoreField fieldAnnot) {
+		return fieldAnnot != null && !fieldAnnot.defaultValue().equals("NO_VALUE");
 	}
 
 	private Object convertStringValue(String value, Class<?> typeClass) throws Exception {
@@ -907,7 +911,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			throw new CoreException("Could not resolve reference type " + typeClass.getName() + ", of class " + containerClass.getName());
 		}
 		CoreField fieldAnnot = f.getAnnotation(CoreField.class);
-		if (fieldAnnot != null && !fieldAnnot.defaultValue().equals("")) {
+		if (shouldApplyDefaultValue(fieldAnnot)) {
 			try {
 				Object defaultValue = convertStringValue(fieldAnnot.defaultValue(), typeClass);
 				CoreClassDescriptor attDesc = classElements.get(ReferenceState.class);
@@ -1037,7 +1041,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		((MirrorAPI) result).setRawValue(PropertyState.p_name, propertyName);
 		Object defaultValue = null;
 		CoreField fieldAnnot = f.getAnnotation(CoreField.class);
-		if (fieldAnnot != null && !fieldAnnot.defaultValue().equals("")) {
+		if (shouldApplyDefaultValue(fieldAnnot)) {
 			try {
 				defaultValue = fieldAnnot.defaultValue();
 				// just checking that the enum string is valid

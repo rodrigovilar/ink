@@ -35,7 +35,7 @@ import org.ink.core.vm.utils.CoreUtils;
 /* ,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type} */)
 public interface InkClassState extends InkTypeState {
 
-	@CoreField(defaultValue = "")
+	@CoreField(defaultValue = "", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
 	public static final byte p_java_path = 0;
 
 	// TODO - should be mandatory true

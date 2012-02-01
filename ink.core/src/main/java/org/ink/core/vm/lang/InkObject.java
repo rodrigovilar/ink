@@ -5,6 +5,7 @@ import org.ink.core.vm.constraints.PropertyValueValidator;
 import org.ink.core.vm.constraints.SystemState;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.Validator;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.proxy.Proxiable;
 
@@ -63,5 +64,13 @@ public interface InkObject extends Proxiable {
 	 * @see PropertyValueValidator#validate(Property, Object, InkObjectState, ValidationContext, SystemState)
 	 */
 	public boolean validate(ValidationContext context);
+	
+	/**
+	 * Allows fetching a value from an object graph whose root is this object, using dot notation path.  
+	 * @param path - the path to the value.  Elements in the path are property names.
+	 * @return {@link Object} - The value
+	 * @throws InvalidPathException
+	 */
+	public Object getValueByPath(String path);
 
 }

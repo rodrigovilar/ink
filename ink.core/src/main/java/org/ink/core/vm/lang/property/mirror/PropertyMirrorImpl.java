@@ -69,7 +69,7 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 		hasStaticValue = true;
 		// t==null when building up a peroprty e.g. while creating a property in the editor
 		if (t != null) {
-			typeClass = t.getTypeClass();
+			typeClass = t.getJavaClass();
 			typeMarker = t.getTypeMarker();
 		}
 	}

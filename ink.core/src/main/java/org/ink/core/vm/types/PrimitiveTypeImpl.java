@@ -86,7 +86,7 @@ public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectIm
 	}
 
 	@Override
-	public final Class<?> getTypeClass() {
+	public final Class<?> getJavaClass() {
 		return typeClass;
 	}
 

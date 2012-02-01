@@ -49,7 +49,7 @@ public class CollectionTypeImpl<S extends CollectionTypeState> extends InkObject
 	}
 
 	@Override
-	public final Class<?> getTypeClass() {
+	public final Class<?> getJavaClass() {
 		return typeClass;
 	}
 }

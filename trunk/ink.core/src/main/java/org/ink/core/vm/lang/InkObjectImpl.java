@@ -4,12 +4,14 @@ import org.ink.core.vm.constraints.SystemState;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.traits.Trait;
 
 /**
- * The class of the base Ink behavior object. Every behavior class in Ink extends this class (explicitly or implicitly).
+ * The class of the base Ink behavior object. Every behavior class in Ink
+ * extends this class (explicitly or implicitly).
  * 
  * @see InkObject
  * @see InkObjectState
@@ -21,8 +23,8 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	private Context context = null;
 
 	/**
-	 * This method is invoked by the Ink VM in order to inject the behavior object with its state and context objects.
-	 * <br/>
+	 * This method is invoked by the Ink VM in order to inject the behavior
+	 * object with its state and context objects. <br/>
 	 * <b>This method is intended for internal use by the Ink VM only.</b>
 	 */
 	@SuppressWarnings("unchecked")
@@ -32,10 +34,12 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	/**
-	 * Retrieves the state object of this behavior object. The state object contains the values of the properties defined in this object's class.
-	 * The state object is guaranteed to be non-null.
-	 * <br/>
-	 * The behavior object should never expose its state object to external clients. The state should be accessible to its behavior only.
+	 * Retrieves the state object of this behavior object. The state object
+	 * contains the values of the properties defined in this object's class. The
+	 * state object is guaranteed to be non-null. <br/>
+	 * The behavior object should never expose its state object to external
+	 * clients. The state should be accessible to its behavior only.
+	 * 
 	 * @return the state object of this behavior object.
 	 */
 	protected S getState() {
@@ -43,7 +47,10 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	/**
-	 * The {@link Context} of this behavior object. This is the <code>context</code> trait of the {@link DslFactory} that loaded this object.
+	 * The {@link Context} of this behavior object. This is the
+	 * <code>context</code> trait of the {@link DslFactory} that loaded this
+	 * object.
+	 * 
 	 * @return the {@link Context} of this behavior object.
 	 */
 	protected Context getContext() {
@@ -80,7 +87,8 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	/**
-	 * Returns a string representation of this object's state in the Ink source format.
+	 * Returns a string representation of this object's state in the Ink source
+	 * format.
 	 */
 	@Override
 	public String toString() {
@@ -88,7 +96,8 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	/**
-	 * Returns <code>true</code> if <code>obj</code> is an Ink behavior object whose ID is equal to this object's ID, <code>false</code> otherwise.
+	 * Returns <code>true</code> if <code>obj</code> is an Ink behavior object
+	 * whose ID is equal to this object's ID, <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -125,13 +134,45 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	}
 
 	@Override
-	public final boolean validate(ValidationContext context, SystemState systemState) {
+	public final boolean validate(ValidationContext context,
+			SystemState systemState) {
 		return getState().validate(context, systemState);
 	}
 
 	@Override
 	public <T extends Trait> T asTrait(String role) {
 		return getState().asTrait(role);
+	}
+
+	public Object getValueByPath(String path) {
+		Object result = null;
+		boolean badPath = false;
+
+		String name = null;
+		result = getState();
+		String[] parts = path.split("\\.");
+		int i = 0;
+		for (i = 0; i < parts.length && (result != null); i++) {
+			name = parts[i];
+
+			Mirror mirror = ((InkObjectState)result).reflect();
+			if (mirror.getPropertyMirror(name) != null) {
+				result = mirror.getPropertyValue(name);
+			}
+			else {
+				badPath = true;
+			}
+			
+
+		}
+		
+		if (i < (parts.length - 1) || badPath) {
+			throw new InvalidPathException(
+					"Could not obtain the value for path +'" + path
+							+ "', in object ='" + getState().getId() + "'");
+		}
+		
+		return result;
 	}
 
 }

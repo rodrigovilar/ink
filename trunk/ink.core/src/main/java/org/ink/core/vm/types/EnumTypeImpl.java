@@ -43,7 +43,7 @@ public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> impl
 	}
 
 	@Override
-	public final Class<?> getTypeClass() {
+	public final Class<?> getJavaClass() {
 		return typeClass;
 	}
 

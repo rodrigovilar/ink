@@ -5,7 +5,7 @@ package org.ink.core.vm.lang;
  */
 public interface InkType extends InkObject {
 
-	public Class<?> getTypeClass();
+	public Class<?> getJavaClass();
 
 	public DataTypeMarker getTypeMarker();
 

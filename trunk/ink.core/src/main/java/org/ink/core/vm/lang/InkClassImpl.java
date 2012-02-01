@@ -11,7 +11,7 @@ import org.ink.core.vm.mirror.ClassMirror;
 public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> implements InkClass {
 
 	@Override
-	public Class<?> getTypeClass() {
+	public Class<?> getJavaClass() {
 		return ((ClassMirror) reflect()).getStateInterface();
 	}
 

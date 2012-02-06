@@ -18,6 +18,18 @@ Class id="Address" class="ink.core:StructClass" super="ink.core:Struct"{
 	}
 }
 
+Class id="USAAddress" class="ink.core:StructClass" super="Address"{
+	java_path ""
+	properties{
+		property class="ink.core:IntegerAttribute"{
+			name "zip"
+			mandatory true
+			min_value 0
+			max_value 99999
+		}
+	}
+}
+
 Class id="CustomerClass" class="ink.core:InkClass" super="ink.core:InkClass"{
 	java_path ""
 	java_mapping "No_Java"
@@ -236,17 +248,18 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 	}
 }
 
-Object id="TheSecondCustomer" class="example.customer:Customer"{
-	first_name "Lior"
-	last_name "Schachter"
-	age 32
+Object id="TheSecondCustomer" class="example.customer:Customer" super="TheFirstCustomer"{
+	first_name "Also Lior"
+	last_name "Also Schachter"
+	age 33
 	fan.favorite_sport "BasketBall"
 	fan.favorite_player "sad"
 	stam.shmupu "kuku"
-	address class="example.customer:Address"{
+	address class="USAAddress" {
 		city "Tel-Aviv"
-		street "Bar Kokva"
+		street "Hovevey Zion"
 		number 10
+		zip 02468
 	}
 }
 

@@ -11,11 +11,11 @@ import java.util.UUID;
 
 import org.ink.core.utils.StringUtils;
 import org.ink.core.vm.exceptions.CoreException;
-import org.ink.core.vm.exceptions.InkException;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.Scope;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
@@ -288,7 +288,7 @@ public class CoreUtils {
 		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
 	}
 
-	public static Object getValue(Mirror mirror, String path) throws InkException {
+	public static Object getValue(Mirror mirror, String path) throws InvalidPathException {
 		Object result = null;
 		try {
 			if (path == null || path.length() == 0) {
@@ -298,16 +298,16 @@ public class CoreUtils {
 				String lastSegments = null;
 				String firstSegment = null;
 				if (firstSegmentLocation > 0) {
-					firstSegment = path.substring(0, firstSegmentLocation - 1);
-					lastSegments = path.substring(firstSegmentLocation + 1, path.length() - 1);
+					firstSegment = path.substring(0, firstSegmentLocation);
+					lastSegments = path.substring(firstSegmentLocation + 1, path.length());
 				} else if (firstSegmentLocation < 0) {
 					firstSegment = path;
 				} else if (firstSegmentLocation == 0) {
-					throw new InkException("sdg");
+					throw new InvalidPathException("error");
 				}
 				PropertyMirror propertyMirror = getPropertyMirror(mirror, firstSegment);
 				if (propertyMirror == null) {
-					throw new InkException("");
+					throw new InvalidPathException("error");
 				}
 				result = mirror.getPropertyValue(propertyMirror.getIndex());
 				if (lastSegments != null && result != null) {
@@ -321,7 +321,7 @@ public class CoreUtils {
 							try {
 								int ind = Integer.parseInt(index);
 								if (ind < 0) {
-									throw new InkException("sdfg");
+									throw new InvalidPathException("error");
 								}
 								List<?> l = (List<?>) result;
 								if (ind < l.size()) {
@@ -333,13 +333,13 @@ public class CoreUtils {
 									PropertyMirror itemMirror = ((ListPropertyMirror) colMirror).getItemMirror();
 									if (itemMirror.getTypeMarker() != DataTypeMarker.Class) {
 										// not supporting collection inside collection
-										throw new InkException("sdaf");
+										throw new InvalidPathException("error");
 									}
 									Mirror innerMirror = ((Proxiable) result).reflect();
 									result = getValue(innerMirror, lastSegments);
 								}
 							} catch (NumberFormatException e) {
-								throw new InkException("sdfg");
+								throw new InvalidPathException("error");
 							}
 							break;
 						case Map:
@@ -357,8 +357,11 @@ public class CoreUtils {
 					}
 				}
 			}
-		} catch (Exception e) {
-			throw new InkException("Could not parse path :'" + path + "'.", e);
+		}catch(InvalidPathException e){
+			throw e;
+		}
+		catch (Exception e) {
+			throw new InvalidPathException("Could not parse path :'" + path + "'.", e);
 		}
 
 		return result;
@@ -370,8 +373,7 @@ public class CoreUtils {
 	}
 
 	private static PropertyMirror getPropertyMirror(Mirror mirror, String firstSegment) {
-		// TODO Auto-generated method stub
-		return null;
+		return mirror.getPropertyMirror(firstSegment);
 	}
 
 	private static int getFirstSegment(String path) {

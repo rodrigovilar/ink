@@ -4,8 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="var" path="INK_HOME/lib/ink-core.jar"/>
 	<classpathentry kind="var" path="INK_HOME/lib/ink-sdl.jar"/>
 	<classpathentry kind="src" path="output/gen"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ink.core"/>
 	<classpathentry kind="output" path="output/bin"/>
 </classpath>

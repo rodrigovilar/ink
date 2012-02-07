@@ -143,7 +143,7 @@ public class StateClassGenerator extends BaseGenerator {
 			typesName[1] = enumType;
 			break;
 		default:
-			String primitiveType = pm.getPropertyType().getTypeClass().getName();
+			String primitiveType = pm.getPropertyType().getJavaClass().getName();
 			typesName[0] = primitiveType;
 			typesName[1] = primitiveType;
 			break;

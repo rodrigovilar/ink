@@ -7,6 +7,7 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Scope;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.proxy.Proxiable;
@@ -256,4 +257,12 @@ public interface Mirror extends Trait {
 	 * @return the behavior instances.
 	 */
 	public <B extends InkObject> B getCachedBehavior();
+
+	/**
+	 * Allows fetching a value from an object graph whose root is this object, using dot notation path.  
+	 * @param path - the path to the value.  Elements in the path are property names.
+	 * @return {@link Object} - The value
+	 * @throws InvalidPathException : when path syntax error occurs 
+	 */
+	public Object getValueByPath(String path) throws InvalidPathException;
 }

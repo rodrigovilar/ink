@@ -4,7 +4,6 @@ import org.ink.core.vm.constraints.SystemState;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.DslFactory;
-import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.traits.Trait;
@@ -142,37 +141,6 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	@Override
 	public <T extends Trait> T asTrait(String role) {
 		return getState().asTrait(role);
-	}
-
-	public Object getValueByPath(String path) {
-		Object result = null;
-		boolean badPath = false;
-
-		String name = null;
-		result = getState();
-		String[] parts = path.split("\\.");
-		int i = 0;
-		for (i = 0; i < parts.length && (result != null); i++) {
-			name = parts[i];
-
-			Mirror mirror = ((InkObjectState)result).reflect();
-			if (mirror.getPropertyMirror(name) != null) {
-				result = mirror.getPropertyValue(name);
-			}
-			else {
-				badPath = true;
-			}
-			
-
-		}
-		
-		if (i < (parts.length - 1) || badPath) {
-			throw new InvalidPathException(
-					"Could not obtain the value for path +'" + path
-							+ "', in object ='" + getState().getId() + "'");
-		}
-		
-		return result;
 	}
 
 }

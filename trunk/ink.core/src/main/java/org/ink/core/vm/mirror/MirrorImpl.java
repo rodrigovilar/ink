@@ -6,12 +6,14 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.Scope;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.editor.ObjectEditor;
 import org.ink.core.vm.traits.Trait;
 import org.ink.core.vm.traits.TraitImpl;
 import org.ink.core.vm.types.ObjectTypeMarker;
+import org.ink.core.vm.utils.CoreUtils;
 
 /**
  * @author Lior Schachter
@@ -226,6 +228,11 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public <B extends InkObject> B getCachedBehavior() {
 		return ((MirrorAPI) getTargetState()).getCachedBehavior();
+	}
+	
+	@Override
+	public Object getValueByPath(String path) throws InvalidPathException {
+		return CoreUtils.getValue(this, path);
 	}
 
 }

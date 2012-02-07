@@ -6,4 +6,8 @@ public class InvalidPathException extends InkException {
 		super(msg);
 	}
 
+	public InvalidPathException(String msg, Exception e) {
+		super(msg, e);
+	}
+
 }

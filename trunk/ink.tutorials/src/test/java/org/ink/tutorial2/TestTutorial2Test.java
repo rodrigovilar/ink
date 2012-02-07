@@ -145,10 +145,10 @@ public class TestTutorial2Test {
 		InkClass baseOffer = context.getObject("ink.tutorial2:BaseOffer");
 		ClassMirror mirror = baseOffer.reflect();
 		Property property = mirror.getProperty("studentOnlyOffer");
-		Class clazz = property.getType().getTypeClass();
+		Class clazz = property.getType().getJavaClass();
 		Assert.assertEquals("java.lang.Boolean", clazz.getName());
 		property = mirror.getProperty("registrationFormType");
-		clazz = property.getType().getTypeClass();
+		clazz = property.getType().getJavaClass();
 		Assert.assertEquals("org.ink.core.vm.lang.InkClassState", clazz.getName());
 	}
 

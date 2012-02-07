@@ -24,6 +24,9 @@ public class InkScanner extends RuleBasedScanner {
 		// rules[1] = new MultiLineRule("<!DOCTYPE", ">", docType);
 		// Add generic whitespace rule.
 		rules[0] = new WhitespaceRule(new WhitespaceDetector());
+//		org.eclipse.jface.text.rules.IToken comment = new Token(new TextAttribute(manager.getColor(InkColorConstants.COMMENT)));
+//        
+//        rules[1] = new EndOfLineRule("#", comment);
 
 		setRules(rules);
 	}

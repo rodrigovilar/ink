@@ -287,6 +287,14 @@ public class CoreUtils {
 	public static String getShortId(String id) {
 		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
 	}
+	
+	public static boolean validatePath(Mirror mirror, String path) throws InvalidPathException {
+		if (path != null && path.length() > 0) {
+			
+		}
+		return true;
+	}
+	
 
 	public static Object getValue(Mirror mirror, String path) throws InvalidPathException {
 		Object result = null;
@@ -295,62 +303,71 @@ public class CoreUtils {
 				result = mirror;
 			} else {
 				int firstSegmentLocation = getFirstSegment(path);
-				String lastSegments = null;
-				String firstSegment = null;
+				String[] segments = new String[2];
 				if (firstSegmentLocation > 0) {
-					firstSegment = path.substring(0, firstSegmentLocation);
-					lastSegments = path.substring(firstSegmentLocation + 1, path.length());
+					segments[0] = path.substring(0, firstSegmentLocation);
+					segments[1] = path.substring(firstSegmentLocation, path.length());
 				} else if (firstSegmentLocation < 0) {
-					firstSegment = path;
+					segments[0] = path;
 				} else if (firstSegmentLocation == 0) {
 					throw new InvalidPathException("error");
 				}
-				PropertyMirror propertyMirror = getPropertyMirror(mirror, firstSegment);
+				PropertyMirror propertyMirror = getPropertyMirror(mirror, segments[0]);
 				if (propertyMirror == null) {
 					throw new InvalidPathException("error");
 				}
 				result = mirror.getPropertyValue(propertyMirror.getIndex());
-				if (lastSegments != null && result != null) {
+				if (segments[1] != null && result!=null) {
 					switch (propertyMirror.getTypeMarker()) {
 					case Collection:
 						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
 						switch (colMirror.getCollectionTypeMarker()) {
 						case List:
-							String index = extractKey(lastSegments, LIST_INDEX_START, LIST_INDEX_END);
-							lastSegments = lastSegments.substring(lastSegments.indexOf(PATH_SEPERATOR) + 1, lastSegments.length() - 1);
-							try {
-								int ind = Integer.parseInt(index);
-								if (ind < 0) {
+							int indexLoc = getListEndIndexLocation(segments[1], LIST_INDEX_START, LIST_INDEX_END);
+							String indexStr = segments[1].substring(1, indexLoc);
+							try{
+								int index = Integer.valueOf(indexStr);
+								if(index <0 || index >= ((List)result).size()){
 									throw new InvalidPathException("error");
 								}
-								List<?> l = (List<?>) result;
-								if (ind < l.size()) {
-									result = l.get(ind);
-								} else {
-									result = null;
-								}
-								if (result != null && lastSegments.length() > 0) {
-									PropertyMirror itemMirror = ((ListPropertyMirror) colMirror).getItemMirror();
-									if (itemMirror.getTypeMarker() != DataTypeMarker.Class) {
-										// not supporting collection inside collection
+								result=((List)result).get(index);
+								if(result!=null && segments[1].length()-1 > indexLoc){
+									PropertyMirror valueMirror = ((ListPropertyMirror)propertyMirror).getItemMirror();
+									if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
 										throw new InvalidPathException("error");
 									}
 									Mirror innerMirror = ((Proxiable) result).reflect();
-									result = getValue(innerMirror, lastSegments);
+									result = getValue(innerMirror, segments[1].substring(indexLoc+2, segments[1].length())); 
 								}
-							} catch (NumberFormatException e) {
+							}catch(NumberFormatException e){
 								throw new InvalidPathException("error");
 							}
+							
 							break;
 						case Map:
-							@SuppressWarnings("unused")
-							String key = extractKey(lastSegments, MAP_KEY_START, MAP_KEY_END);
+							PropertyMirror keyMirror = ((MapPropertyMirror)propertyMirror).getKeyMirror();
+							if(keyMirror.getTypeMarker()!=DataTypeMarker.Primitive){
+								throw new InvalidPathException("error");
+							}
+							int keyLoc = getMapKeyEndLocation(segments[1], MAP_KEY_START, MAP_KEY_END);
+							String keyStr = segments[1].substring(1, keyLoc);
+							Object key = convertPrimitiveTypeValue(keyStr, (PrimitiveAttributeMirror)keyMirror);	
+							result=((Map)result).get(key);
+							if(result!=null && segments[1].length()-1 > keyLoc){
+								PropertyMirror valueMirror = ((MapPropertyMirror)propertyMirror).getValueMirror();
+								if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+									throw new InvalidPathException("error");
+								}
+								Mirror innerMirror = ((Proxiable) result).reflect();
+								result = getValue(innerMirror, segments[1].substring(keyLoc+2, segments[1].length())); 
+							}
+							
 							break;
 						}
 						break;
 					case Class:
 						Mirror innerMirror = ((Proxiable) result).reflect();
-						result = getValue(innerMirror, lastSegments);
+						result = getValue(innerMirror, segments[1].substring(1, segments[1].length()));
 						break;
 					default:
 						break;
@@ -367,9 +384,26 @@ public class CoreUtils {
 		return result;
 	}
 
-	private static String extractKey(String lastSegments, char listIndexStart, char listIndexEnd) {
-		// TODO Auto-generated method stub
-		return null;
+	private static int getMapKeyEndLocation(String lastSegments, char mapIndexStart, char mapIndexEnd) {
+		if(lastSegments.charAt(0)!='<'){
+			throw new InvalidPathException("error");
+		}
+		int keyEndLocation = lastSegments.indexOf('>');
+		if(keyEndLocation<0){
+			throw new InvalidPathException("error");
+		}
+		return keyEndLocation;
+	}
+	
+	private static int getListEndIndexLocation(String lastSegments, char listIndexStart, char listIndexEnd) {
+		if(lastSegments.charAt(0)!='['){
+			throw new InvalidPathException("error");
+		}
+		int keyEndLocation = lastSegments.indexOf(']');
+		if(keyEndLocation<0){
+			throw new InvalidPathException("error");
+		}
+		return keyEndLocation;
 	}
 
 	private static PropertyMirror getPropertyMirror(Mirror mirror, String firstSegment) {
@@ -379,9 +413,51 @@ public class CoreUtils {
 	private static int getFirstSegment(String path) {
 		int result = path.indexOf(PATH_SEPERATOR);
 		int tmp = path.indexOf(LIST_INDEX_START);
-		result = tmp > result ? tmp : result;
+		result = result < 0 || (tmp > 0 && tmp < result)? tmp : result;
 		tmp = path.indexOf(MAP_KEY_START);
-		result = tmp > result ? tmp : result;
+		result = result < 0 || (tmp > 0 && tmp < result)? tmp : result;
+		return result;
+	}
+	
+	public static Object convertPrimitiveTypeValue(String val, PrimitiveAttributeMirror pm) {
+		Object result = val;
+		if (result != null) {
+			try {
+				switch ((pm).getPrimitiveTypeMarker()) {
+				case Boolean:
+					if(val.equals("true")){
+						result = Boolean.TRUE;
+					}else if(val.equals("false")){
+						result = Boolean.FALSE;
+					}else{
+						throw new RuntimeException("error");
+					}
+					break;
+				case Byte:
+					result = Byte.valueOf(val);
+					break;
+				case Double:
+					result = Double.valueOf(val);
+					break;
+				case Float:
+					result = Float.valueOf(val);
+					break;
+				case Integer:
+					result = Integer.valueOf(val);
+					break;
+				case Long:
+					result = Long.valueOf(val);
+					break;
+				case Short:
+					result = Short.valueOf(val);
+					break;
+				case Date:
+					throw new RuntimeException("error");
+				}
+			} catch (NumberFormatException e) {
+				throw new InvalidPathException("error");
+			}
+		}
 		return result;
 	}
 

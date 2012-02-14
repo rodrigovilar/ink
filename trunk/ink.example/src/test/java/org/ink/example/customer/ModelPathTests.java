@@ -25,6 +25,10 @@ public class ModelPathTests extends TestCase {
 		CustomerState customer2 = context.getState("example.customer:TheSecondCustomer");
 		assertNotNull(customer2);
 
+		CustomerState customer3 = context.getState("example.customer:TheThirdCustomer");
+		assertNotNull(customer3);
+
+		
 		assertEquals(customer1.getFirstName(),"Lior");
 		assertEquals(customer1.getLastName(),"Schachter");
 		Byte age = 32;
@@ -41,11 +45,18 @@ public class ModelPathTests extends TestCase {
 		assertEquals(c1.getValueByPath("first_name"), "Lior");
 		assertEquals(c1.getValueByPath("last_name"), "Schachter");
 		assertEquals(c1.getValueByPath("address.street"), "Bar Kokva");
+		assertEquals(c1.getValueByPath("keyValueMap<ads>"), 23);
+		assertEquals(c1.getValueByPath("elementsMap<Also Lior>.first_name"), "Also Lior");
+		assertEquals(c1.getValueByPath("string_list[1]"), "asdasd");
+		
 
 		Mirror c2 = customer2.reflect();
 		assertEquals(c2.getValueByPath("first_name"), "Also Lior");
 		assertEquals(c2.getValueByPath("last_name"), "Also Schachter");
 		assertEquals(c2.getValueByPath("address.street"), "Hovevey Zion");
+		
+		Mirror c3 = customer3.reflect();
+		assertEquals(c3.getValueByPath("friends[1].first_name"), "Also Lior");
 		
 		Object zip = null;
 		boolean exceptionThrown = false;

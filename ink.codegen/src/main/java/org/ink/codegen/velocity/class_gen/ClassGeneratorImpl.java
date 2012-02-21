@@ -35,6 +35,7 @@ public class ClassGeneratorImpl<S extends ClassGeneratorState> extends
 		clsDesc.properties = props;
 		//todo - finish
 		context.put("target", clsDesc);
+		context.put("subject", getTargetState());
 	}
 
 	protected ClassMirror findTargetClass() {

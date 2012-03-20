@@ -20,6 +20,7 @@ import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.core.vm.proxy.Proxiability;
 import org.ink.core.vm.proxy.Proxiable;
@@ -288,13 +289,89 @@ public class CoreUtils {
 		return id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
 	}
 	
-	public static boolean validatePath(Mirror mirror, String path) throws InvalidPathException {
+	public static void validatePath(ClassMirror cm, String path) throws InvalidPathException {
 		if (path != null && path.length() > 0) {
+			try {
+				String[] segments = splitPath(path);
+				PropertyMirror propertyMirror = cm.getClassPropertyMirror(segments[0]);
+				if (propertyMirror == null) {
+					throw new InvalidPathException("Invalid path : The class '" + cm.getId() +"' does not define the property '" + segments[0] +"'.");
+				}
+				if (segments[1] != null) {
+					switch (propertyMirror.getTypeMarker()) {
+					case Collection:
+						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
+						switch (colMirror.getCollectionTypeMarker()) {
+						case List:
+							int indexLoc = getListEndIndexLocation(propertyMirror.getName(), segments[1], LIST_INDEX_START, LIST_INDEX_END);
+							String indexStr = segments[1].substring(1, indexLoc);
+							try{
+								int index = Integer.valueOf(indexStr);
+								if(index <0){
+									throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' index should be a positive integer and not '" + indexStr +"'.");
+								}
+								if(segments[1].length()-1 > indexLoc){
+									PropertyMirror valueMirror = ((ListPropertyMirror)propertyMirror).getItemMirror();
+									if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+										throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' is not of user-defined class.");
+									}
+									
+									validatePath((ClassMirror)valueMirror.getPropertyType().reflect(), segments[1].substring(indexLoc+2, segments[1].length())); 
+								}
+							}catch(NumberFormatException e){
+								throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' index should be a positive integer and not '" + indexStr +"'.");
+							}
+							
+							break;
+						case Map:
+							PropertyMirror keyMirror = ((MapPropertyMirror)propertyMirror).getKeyMirror();
+							if(keyMirror.getTypeMarker()!=DataTypeMarker.Primitive){
+								throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' key should be of a simple type.");
+							}
+							int keyLoc = getMapKeyEndLocation(propertyMirror.getName(), segments[1], MAP_KEY_START, MAP_KEY_END);
+							String keyStr = segments[1].substring(1, keyLoc);
+							Object key = convertPrimitiveTypeValue(propertyMirror.getName(),keyStr, (PrimitiveAttributeMirror)keyMirror);	
+							if(segments[1].length()-1 > keyLoc){
+								PropertyMirror valueMirror = ((MapPropertyMirror)propertyMirror).getValueMirror();
+								if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+									throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' value is not of user-defined class.");
+								}
+								validatePath((ClassMirror) valueMirror.getPropertyType().reflect(), segments[1].substring(keyLoc+2, segments[1].length())); 
+							}
+							
+							break;
+						}
+						break;
+					case Class:
+						validatePath((ClassMirror) propertyMirror.getPropertyType().reflect(), segments[1].substring(1, segments[1].length()));
+						break;
+					default:
+						break;
+					}
+				}
+			}catch(InvalidPathException e){
+				throw e;
+			}
+			catch (Exception e) {
+				throw new InvalidPathException("Could not parse path :'" + path + "'.", e);
+			}
 			
 		}
-		return true;
 	}
 	
+	private static String[] splitPath(String path){
+		int firstSegmentLocation = getFirstSegment(path);
+		String[] segments = new String[2];
+		if (firstSegmentLocation > 0) {
+			segments[0] = path.substring(0, firstSegmentLocation);
+			segments[1] = path.substring(firstSegmentLocation, path.length());
+		} else if (firstSegmentLocation < 0) {
+			segments[0] = path;
+		} else if (firstSegmentLocation == 0) {
+			throw new InvalidPathException("path can't start with '" + PATH_SEPERATOR +"'.");
+		}
+		return segments;
+	}
 
 	public static Object getValue(Mirror mirror, String path) throws InvalidPathException {
 		Object result = null;
@@ -302,19 +379,10 @@ public class CoreUtils {
 			if (path == null || path.length() == 0) {
 				result = mirror;
 			} else {
-				int firstSegmentLocation = getFirstSegment(path);
-				String[] segments = new String[2];
-				if (firstSegmentLocation > 0) {
-					segments[0] = path.substring(0, firstSegmentLocation);
-					segments[1] = path.substring(firstSegmentLocation, path.length());
-				} else if (firstSegmentLocation < 0) {
-					segments[0] = path;
-				} else if (firstSegmentLocation == 0) {
-					throw new InvalidPathException("error");
-				}
+				String[] segments = splitPath(path);
 				PropertyMirror propertyMirror = getPropertyMirror(mirror, segments[0]);
 				if (propertyMirror == null) {
-					throw new InvalidPathException("error");
+					throw new InvalidPathException("Invalid path : The class '" + mirror.getClassMirror().getId() +"' does not define the property '" + segments[0] +"'.");
 				}
 				result = mirror.getPropertyValue(propertyMirror.getIndex());
 				if (segments[1] != null && result!=null) {
@@ -323,40 +391,40 @@ public class CoreUtils {
 						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
 						switch (colMirror.getCollectionTypeMarker()) {
 						case List:
-							int indexLoc = getListEndIndexLocation(segments[1], LIST_INDEX_START, LIST_INDEX_END);
+							int indexLoc = getListEndIndexLocation(propertyMirror.getName(),segments[1], LIST_INDEX_START, LIST_INDEX_END);
 							String indexStr = segments[1].substring(1, indexLoc);
 							try{
 								int index = Integer.valueOf(indexStr);
 								if(index <0 || index >= ((List)result).size()){
-									throw new InvalidPathException("error");
+									throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' index should be between 0 to " + (((List)result).size()-1)+" and not '" + indexStr +"'.");
 								}
 								result=((List)result).get(index);
 								if(result!=null && segments[1].length()-1 > indexLoc){
 									PropertyMirror valueMirror = ((ListPropertyMirror)propertyMirror).getItemMirror();
 									if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
-										throw new InvalidPathException("error");
+										throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' is not of user-defined class.");
 									}
 									Mirror innerMirror = ((Proxiable) result).reflect();
 									result = getValue(innerMirror, segments[1].substring(indexLoc+2, segments[1].length())); 
 								}
 							}catch(NumberFormatException e){
-								throw new InvalidPathException("error");
+								throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' index should be between 0 to " + (((List)result).size()-1)+" and not '" + indexStr +"'.");
 							}
 							
 							break;
 						case Map:
 							PropertyMirror keyMirror = ((MapPropertyMirror)propertyMirror).getKeyMirror();
 							if(keyMirror.getTypeMarker()!=DataTypeMarker.Primitive){
-								throw new InvalidPathException("error");
+								throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' key should be of a simple type.");
 							}
-							int keyLoc = getMapKeyEndLocation(segments[1], MAP_KEY_START, MAP_KEY_END);
+							int keyLoc = getMapKeyEndLocation(propertyMirror.getName(), segments[1], MAP_KEY_START, MAP_KEY_END);
 							String keyStr = segments[1].substring(1, keyLoc);
-							Object key = convertPrimitiveTypeValue(keyStr, (PrimitiveAttributeMirror)keyMirror);	
+							Object key = convertPrimitiveTypeValue(propertyMirror.getName(), keyStr, (PrimitiveAttributeMirror)keyMirror);	
 							result=((Map)result).get(key);
 							if(result!=null && segments[1].length()-1 > keyLoc){
 								PropertyMirror valueMirror = ((MapPropertyMirror)propertyMirror).getValueMirror();
 								if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
-									throw new InvalidPathException("error");
+									throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' value is not of user-defined class.");
 								}
 								Mirror innerMirror = ((Proxiable) result).reflect();
 								result = getValue(innerMirror, segments[1].substring(keyLoc+2, segments[1].length())); 
@@ -384,24 +452,24 @@ public class CoreUtils {
 		return result;
 	}
 
-	private static int getMapKeyEndLocation(String lastSegments, char mapIndexStart, char mapIndexEnd) {
+	private static int getMapKeyEndLocation(String mapName, String lastSegments, char mapIndexStart, char mapIndexEnd) {
 		if(lastSegments.charAt(0)!='<'){
-			throw new InvalidPathException("error");
+			throw new InvalidPathException("Invalid path : map '" +mapName +", expecting key definition <..>.");
 		}
 		int keyEndLocation = lastSegments.indexOf('>');
 		if(keyEndLocation<0){
-			throw new InvalidPathException("error");
+			throw new InvalidPathException("Invalid path : map '" +mapName +", expecting key definition <..>.");
 		}
 		return keyEndLocation;
 	}
 	
-	private static int getListEndIndexLocation(String lastSegments, char listIndexStart, char listIndexEnd) {
+	private static int getListEndIndexLocation(String listName, String lastSegments, char listIndexStart, char listIndexEnd) {
 		if(lastSegments.charAt(0)!='['){
-			throw new InvalidPathException("error");
+			throw new InvalidPathException("Invalid path : list '" +listName +", expecting index definition <..>.");
 		}
 		int keyEndLocation = lastSegments.indexOf(']');
 		if(keyEndLocation<0){
-			throw new InvalidPathException("error");
+			throw new InvalidPathException("Invalid path : list '" +listName +", expecting index definition <..>.");
 		}
 		return keyEndLocation;
 	}
@@ -419,7 +487,7 @@ public class CoreUtils {
 		return result;
 	}
 	
-	public static Object convertPrimitiveTypeValue(String val, PrimitiveAttributeMirror pm) {
+	public static Object convertPrimitiveTypeValue(String mapName, String val, PrimitiveAttributeMirror pm) {
 		Object result = val;
 		if (result != null) {
 			try {
@@ -430,7 +498,7 @@ public class CoreUtils {
 					}else if(val.equals("false")){
 						result = Boolean.FALSE;
 					}else{
-						throw new RuntimeException("error");
+						throw new InvalidPathException("Invalid path : map '" +mapName +" key definition <"+val+">, expecting true/false.");
 					}
 					break;
 				case Byte:
@@ -452,10 +520,10 @@ public class CoreUtils {
 					result = Short.valueOf(val);
 					break;
 				case Date:
-					throw new RuntimeException("error");
+					throw new InvalidPathException("Invalid path : map '" +mapName +". Date keys are not supported.");
 				}
 			} catch (NumberFormatException e) {
-				throw new InvalidPathException("error");
+				throw new InvalidPathException("Invalid path : map '" + mapName +"' index should be a number and not '" + val +"'.");
 			}
 		}
 		return result;

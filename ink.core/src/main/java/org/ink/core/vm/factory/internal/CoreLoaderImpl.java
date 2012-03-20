@@ -109,6 +109,7 @@ import org.ink.core.vm.lang.operation.interceptors.ValidationInterceptorState;
 import org.ink.core.vm.lang.property.AttributeState;
 import org.ink.core.vm.lang.property.CollectionPropertyState;
 import org.ink.core.vm.lang.property.PropertyValueCalculatorState;
+import org.ink.core.vm.lang.property.RootObjectRetrieverState;
 import org.ink.core.vm.lang.property.ValuePropertyState;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirrorImpl;
@@ -163,6 +164,7 @@ import org.ink.core.vm.utils.property.KeyValueDictionaryState;
 import org.ink.core.vm.utils.property.ListPropertyState;
 import org.ink.core.vm.utils.property.LongAttributeState;
 import org.ink.core.vm.utils.property.MapPropertyState;
+import org.ink.core.vm.utils.property.ModelPathAttributeState;
 import org.ink.core.vm.utils.property.NumericAttributeState;
 import org.ink.core.vm.utils.property.PrimitiveAttributeState;
 import org.ink.core.vm.utils.property.ReferenceKind;
@@ -171,6 +173,7 @@ import org.ink.core.vm.utils.property.ShortAttributeState;
 import org.ink.core.vm.utils.property.StringAttributeState;
 import org.ink.core.vm.utils.property.constraints.EnumAttributeValidatorState;
 import org.ink.core.vm.utils.property.constraints.EnumAttributeValueValidatorState;
+import org.ink.core.vm.utils.property.constraints.ModelPathAttributeValueValidatorState;
 import org.ink.core.vm.utils.property.constraints.NumericAttributeValidatorState;
 import org.ink.core.vm.utils.property.constraints.NumericAttributeValueValidatorState;
 import org.ink.core.vm.utils.property.constraints.StringAttributeValidatorState;
@@ -773,7 +776,9 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		PrimitiveTypeMarker primitiveMarker = null;
 		if (prop.getClass() == StringAttributeState.Data.class) {
 			primitiveMarker = PrimitiveTypeMarker.String;
-		} else if (prop.getClass() == LongAttributeState.Data.class) {
+		} else if (prop.getClass() == ModelPathAttributeState.Data.class) {
+			primitiveMarker = PrimitiveTypeMarker.String;
+		}else if (prop.getClass() == LongAttributeState.Data.class) {
 			primitiveMarker = PrimitiveTypeMarker.Long;
 		} else if (prop.getClass() == DoubleAttributeState.Data.class) {
 			primitiveMarker = PrimitiveTypeMarker.Double;
@@ -1342,6 +1347,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(AttributeState.class);
 		newInkObject(CollectionPropertyState.class);
 		newInkObject(PropertyValueCalculatorState.class);
+		newInkObject(RootObjectRetrieverState.class);
 		newInkObject(TraitClassState.class);
 		newInkObject(TargetLocatorState.class);
 		newInkObject(TraitState.class);
@@ -1395,6 +1401,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		newInkObject(MapPropertyState.class);
 		newInkObject(ReferenceState.class);
 		newInkObject(StringAttributeState.class);
+		newInkObject(ModelPathAttributeState.class);
+		newInkObject(ModelPathAttributeValueValidatorState.class);
 		newInkObject(ListPropertyMirrorState.class);
 		newInkObject(MapPropertyMirrorState.class);
 		newInkObject(PrimitiveAttributeMirrorState.class);

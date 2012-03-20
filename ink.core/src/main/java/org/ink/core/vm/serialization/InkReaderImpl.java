@@ -279,7 +279,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 			}
 		}
 		if (classId == null) {
-			addError(tag, "Attribute 'classId' must be assigned a value.");
+			addError(tag, "Attribute 'class' should not be empty.");
 			return null;
 		}
 		return createInkObject(tag, id, classId, superId, isAbstract == null ? false : isAbstract, isInnerObject);

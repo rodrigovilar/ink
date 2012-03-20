@@ -119,7 +119,6 @@ public class GenerateJavaOperation extends InkEditorOperation {
 				offset++;
 				break;
 			}
-			offset++;
 		}
 		return offset;
 	}

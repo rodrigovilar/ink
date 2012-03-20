@@ -7,6 +7,7 @@ import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.exceptions.InvalidPathException;
+import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
 
 /**
@@ -78,5 +79,26 @@ public class ModelPathTests extends TestCase {
 		assertFalse(exceptionThrown);
 		assertEquals(zip, 2468);
 	}
+	
+	public void testModelPathValidation() throws InkException{
+		InkObject customerClass = context.getObject("example.customer:Customer");
+		assertNotNull(customerClass);
+		
+		ClassMirror cm = customerClass.reflect();
+		assertNull(cm.validatePath("first_name"));
+		assertNull(cm.validatePath("last_name"));
+		assertNull(cm.validatePath("address.street"));
+		assertNull(cm.validatePath("keyValueMap<ads>"));
+		assertNull(cm.validatePath("elementsMap<Also Lior>.first_name"));
+		assertNull(cm.validatePath("string_list[1]"));
+		assertNull(cm.validatePath("friends[1].first_name"));
+		assertNotNull(cm.validatePath("address.zip"));
+		assertNotNull(cm.validatePath("friends.first_name"));
+		assertNotNull(cm.validatePath("friends[a].first_name"));
+		assertNotNull(cm.validatePath("friends[1].first_name2"));
+		assertNotNull(cm.validatePath("keyValueMap<ads>.1"));
+		assertNotNull(cm.validatePath("kuku"));
+	}
+
 
 }

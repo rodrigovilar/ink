@@ -93,6 +93,7 @@ public class CoreNotations {
 		public static final String ENUM_ILLEGAL_VALUE = "ink.core:enum_illegal_value";
 		public static final String JAVA_MAPPING_ERROR = "ink.core:java_mapping_error";
 		public static final String DUPLICATE_ID = "ink.core:duplicate_id_error";
+		public static final String INVALID_MODELPATH = "ink.core:invalid_modelpath";
 
 		public static final String STRING_MAX_LENGTH_VIOLATION = "ink.core:string_max_length_violation";
 		public static final String STRING_MIN_LENGTH_VIOLATION = "ink.core:string_min_length_violation";

@@ -136,6 +136,10 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 			name "last_name"
 			mandatory true
 		}
+		property class="ink.core:ModelPathAttribute"{
+			name "path"
+			mandatory false
+		}
 		property class="ink.core:ByteAttribute"{
 			name "age"
 			min_value 0
@@ -225,6 +229,7 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 	last_name "Schachter"
 	age 32
 	fan.favorite_sport "BasketBall"
+	path "first_name"
 	address class="example.customer:Address"{
 		city "Tel-Aviv"
 		street "Bar Kokva"
@@ -266,6 +271,7 @@ Object id="TheSecondCustomer" class="example.customer:Customer" super="TheFirstC
 Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example.customer:TheFirstCustomer"{
 	stam.shmupu "kuku2"
 	my_ref ref="TheFirstCustomer"
+	path "friends[0].address.city"
 	friends{
 		friend ref="TheFirstCustomer"
 		friend ref="TheSecondCustomer"

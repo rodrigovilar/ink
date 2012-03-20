@@ -1,5 +1,6 @@
 package org.ink.core.vm.lang.property.mirror;
 
+import org.ink.core.vm.exceptions.CoreException;
 import org.ink.core.vm.lang.DataTypeMarker;
 import org.ink.core.vm.lang.InheritanceConstraints;
 import org.ink.core.vm.lang.InkObjectState;
@@ -61,10 +62,17 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	public void afterTargetSet() {
 		super.afterStateSet();
 		Property prop = getTargetBehavior();
-		InkType t = prop.getType();
+		name = prop.getName();
+		InkType t = null;
+		try{
+			t = prop.getType();
+		}catch(ClassCastException e){
+			InkType type = ((org.ink.core.vm.mirror.ClassMirror)prop.getMeta().reflect()).getClassPropertyMirror(org.ink.core.vm.lang.PropertyState.p_type).getPropertyType();
+			throw new CoreException("Invalid property type was defined for property '" +name+"'. Value should be of type '" + type.reflect().getId() +"'.");
+		}
+			
 		isFinal = prop.getFinalValue() != null;
 		isMutable = !isFinal;
-		name = prop.getName();
 		isComputed = false;
 		hasStaticValue = true;
 		// t==null when building up a peroprty e.g. while creating a property in the editor

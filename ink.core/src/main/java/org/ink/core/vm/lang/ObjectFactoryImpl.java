@@ -181,7 +181,9 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 				((TraitImpl<?>) vanillaBehavior).afterTargetSet();
 			}
 			return result;
-		} catch (Exception e) {
+		} catch(CoreException e){
+			throw e;
+		}catch (Exception e) {
 			throw new CoreException("Could not instantiate behavior class : " + bClass.getName(), e);
 		}
 	}

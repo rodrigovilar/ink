@@ -90,4 +90,5 @@ public interface ClassMirror extends Mirror {
 	
 	public String getDescription();
 
+	public String validatePath(String path);
 }

@@ -92,7 +92,7 @@ public class StateClassGenerator extends BaseGenerator {
 
 	private String resolveRealBehaviorClassName(ClassMirror m) {
 		String result = null;
-		if (m.getJavaMapping().hasBehavior()) {
+		if (m.getJavaMapping().hasInterface()) {
 			result = m.getFullJavaPackage() + "." + m.getShortId();
 		} else {
 			return resolveRealBehaviorClassName((ClassMirror) m.getSuper());

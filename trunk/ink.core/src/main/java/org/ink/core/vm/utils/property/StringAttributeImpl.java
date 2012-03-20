@@ -26,7 +26,7 @@ public class StringAttributeImpl<S extends StringAttributeState> extends Primiti
 	}
 
 	@Override
-	public Object getFinalValue() {
+	public String getFinalValue() {
 		return getState().getFinalValue();
 	}
 

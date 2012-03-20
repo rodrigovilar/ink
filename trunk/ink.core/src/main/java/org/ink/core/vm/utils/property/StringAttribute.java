@@ -12,4 +12,7 @@ public interface StringAttribute extends PrimitiveAttribute {
 
 	@Override
 	public String getDefaultValue();
+	
+	@Override
+	public String getFinalValue();
 }

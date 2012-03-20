@@ -14,12 +14,14 @@ import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.JavaMapping;
 import org.ink.core.vm.lang.ObjectFactory;
 import org.ink.core.vm.lang.Property;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.operation.Operation;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.traits.Personality;
 import org.ink.core.vm.traits.Trait;
+import org.ink.core.vm.utils.CoreUtils;
 
 /**
  * @author Lior Schachter
@@ -255,6 +257,17 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	@Override
 	public String getDescription() {
 		return ((ClassMirrorAPI) getTargetState()).getDescription();
+	}
+
+	@Override
+	public String validatePath(String path) {
+		String result = null;
+		try{
+			CoreUtils.validatePath(this, path);
+		}catch(InvalidPathException e){
+			result = e.getMessage();
+		}
+		return result;
 	}
 
 }

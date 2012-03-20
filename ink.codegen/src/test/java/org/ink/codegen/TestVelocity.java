@@ -13,7 +13,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.ink.codegen.velocity.VelocityGenerator;
 import org.ink.codegen.velocity.VelocityGeneratorState;
-import org.ink.codegen.velocity.class_gen.ClassGeneratorState;
 import org.ink.core.vm.factory.InkVM;
 import org.junit.Assert;
 import org.junit.Test;

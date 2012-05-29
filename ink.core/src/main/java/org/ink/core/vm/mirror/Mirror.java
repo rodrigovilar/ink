@@ -6,6 +6,7 @@ import org.ink.core.vm.lang.ComponentType;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.LifeCycleState;
 import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
@@ -265,4 +266,16 @@ public interface Mirror extends Trait {
 	 * @throws InvalidPathException : when path syntax error occurs 
 	 */
 	public Object getValueByPath(String path) throws InvalidPathException;
+	
+	/**
+	 * Set the life-cycle-state of an Ink object
+	 * @param toState
+	 */
+	public void setLifeCycleState(LifeCycleState toState);
+	
+	/**
+	 * Retrieves the current life-cycle-state of the Ink object
+	 * @return the life-cycle-state of the Ink object
+	 */
+	public LifeCycleState getLifeCycleState();
 }

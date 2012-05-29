@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 import org.ink.core.vm.factory.Context;
 import org.ink.core.vm.factory.ElementDescriptor;
@@ -29,7 +30,7 @@ public interface InkReader<D> extends InkObject {
 
 	public InkObjectState[] read(String data, Context context);
 
-	public InkObjectState read(D data, Context context);
+	public InkObjectState read(D data, Context context, Map<String, InkObjectState> serializationContext);
 
 	public List<ElementDescriptor<D>> extractRawData(File f, Context context) throws IOException;
 

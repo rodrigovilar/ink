@@ -1,5 +1,6 @@
 package org.ink.core.vm.mirror;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,10 +62,11 @@ public class ClassMirrorImpl<S extends ClassMirrorState> extends MirrorImpl<S> i
 	@Override
 	public Class<? extends InkObject> getBehaviorClass() {
 		ClassMirrorAPI target = (ClassMirrorAPI) getTargetState();
-		if (target.isAbstract()) {
-			return ((ClassMirror) target.reflect().getSuper()).getBehaviorClass();
+		Class<? extends InkObject> result = ((ClassMirrorAPI) getTargetState()).getBehaviorClass();
+		if(Modifier.isAbstract(result.getModifiers())){
+			result = ((ClassMirror) target.reflect().getSuper()).getBehaviorClass();
 		}
-		return ((ClassMirrorAPI) getTargetState()).getBehaviorClass();
+		return result;
 	}
 
 	@Override

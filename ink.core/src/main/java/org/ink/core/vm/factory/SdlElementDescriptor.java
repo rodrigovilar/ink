@@ -13,8 +13,8 @@ public class SdlElementDescriptor extends BaseElementDescriptor<Tag> {
 	private String id;
 	private String superId;
 	private String classId;
-	private Tag data;
-	private File f;
+	private final Tag data;
+	private final File f;
 
 	public SdlElementDescriptor(String ns, Tag data, File f) {
 		this.data = data;
@@ -59,6 +59,11 @@ public class SdlElementDescriptor extends BaseElementDescriptor<Tag> {
 	@Override
 	public String getClassId() {
 		return classId;
+	}
+
+	@Override
+	public int getLineNumber() {
+		return data.getLineNumber();
 	}
 
 }

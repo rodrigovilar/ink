@@ -74,7 +74,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreInstanceValuesLocation;
 		@CoreInstanceValues(values = { "The value ''{0}'' is not part of ''{1}'' enumeration. Please select one of the following: [{2}]." }), 
 		@CoreInstanceValues(values = { "Java-Mapping Error : {0}" }), 
 		@CoreInstanceValues(values = { "The Ink element with ID ''{0}'' appears more than once in {1}." }),
-		@CoreInstanceValues(values = { "Invalid model-path ''{0}'':''{1}''" }),})
+		@CoreInstanceValues(values = { "Invalid model-path ''{0}'':{1}" }),})
 public interface MessageState extends InkObjectState {
 
 	@CoreField(mandatory = true)

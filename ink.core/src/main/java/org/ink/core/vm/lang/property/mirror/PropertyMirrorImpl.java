@@ -46,15 +46,15 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 			isInherited = false;
 		}
 		definingClass = holdingClass;
-		Mirror classSuper;
+		Mirror classSuper = definingClass.getSuper();
 		boolean found = false;
-		while (!found) {
-			classSuper = definingClass.getSuper();
-			if (classSuper == null || !((ClassMirror) classSuper).getClassPropertiesIndexes().containsKey(name)) {
+		while (!found && classSuper!=null) {
+			if (!((ClassMirror) classSuper).getClassPropertiesIndexes().containsKey(name)) {
 				found = true;
 			} else {
 				definingClass = (ClassMirror) classSuper;
 			}
+			classSuper = classSuper.getSuper();
 		}
 	}
 
@@ -75,7 +75,7 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 		isMutable = !isFinal;
 		isComputed = false;
 		hasStaticValue = true;
-		// t==null when building up a peroprty e.g. while creating a property in the editor
+		// t==null when building up a property e.g. while creating a property in the editor
 		if (t != null) {
 			typeClass = t.getJavaClass();
 			typeMarker = t.getTypeMarker();
@@ -169,6 +169,11 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	@Override
 	public InkType getPropertyType() {
 		return ((PropertyState) getTargetState()).getType();
+	}
+
+	@Override
+	public Class<?> getJavaPropertyType() {
+		return Object.class;
 	}
 
 }

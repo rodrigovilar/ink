@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +51,14 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 
 	private List<ParseError> errors = new ArrayList<ParseError>();
 	private URL url = null;
-	private DslFactory serializationContext = null;
-	// private Map<String, MirrorAPI> objects = new HashMap<String, MirrorAPI>();
+	private DslFactory applicationContext = null;
+	Map<String, InkObjectState> serializationContext = null;
 	private boolean containsError = false;
 
 	@Override
 	public void reset() {
 		errors = new ArrayList<ParseError>();
 		url = null;
-		// objects = new HashMap<String, MirrorAPI>();
 	}
 
 	protected void addError(Tag t, String description) {
@@ -83,7 +83,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 
 	@Override
 	public InkObjectState[] read(File f, Context context) throws IOException {
-		this.serializationContext = context.getFactory();
+		this.applicationContext = context.getFactory();
 		return read(f.toURI().toURL());
 	}
 
@@ -94,7 +94,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 
 	@Override
 	public InkObjectState[] read(URL url, Context context) throws IOException {
-		this.serializationContext = context.getFactory();
+		this.applicationContext = context.getFactory();
 		try {
 			this.url = url;
 			Tag tag = SdlParser.parse(url);
@@ -113,7 +113,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 
 	@Override
 	public InkObjectState[] read(String data, Context context) {
-		this.serializationContext = context.getFactory();
+		this.applicationContext = context.getFactory();
 		try {
 			Tag tag = SdlParser.parse(data);
 			return transform(tag);
@@ -141,12 +141,13 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 
 	@Override
 	public InkObjectState read(Tag data) {
-		return read(data, InkVM.instance().getContext());
+		return read(data, InkVM.instance().getContext(), new HashMap<String, InkObjectState>());
 	}
 
 	@Override
-	public InkObjectState read(Tag data, Context context) {
-		this.serializationContext = context.getFactory();
+	public InkObjectState read(Tag data, Context context, Map<String, InkObjectState> serializationContext) {
+		this.applicationContext = context.getFactory();
+		this.serializationContext = serializationContext;
 		return createInkObject(data, false);
 	}
 
@@ -181,7 +182,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 						if (id == null || id.trim().length() == 0) {
 							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
-						id = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
+						id = applicationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + id;
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName + "' should be of a string type.");
 						return null;
@@ -198,7 +199,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
 						if (classId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
-							classId = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + classId;
+							classId = applicationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + classId;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName + "' should be of a string type.");
@@ -216,7 +217,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 							addError(tag, "Attribute '" + attName + "' should not be empty.");
 						}
 						if (ref.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
-							ref = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + ref;
+							ref = applicationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + ref;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName + "' should be of a string type.");
@@ -234,7 +235,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 							return null;
 						}
 						if (superId.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) < 0) {
-							superId = serializationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + superId;
+							superId = applicationContext.getNamespace() + InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C + superId;
 						}
 					} catch (ClassCastException e) {
 						addError(tag, "Attribute '" + attName + "' should be of a string type.");
@@ -262,16 +263,17 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 				addError(tag, "The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
-				// InkObjectState result = objects.get(ref);
-				// if(result==null){
-				InkObjectState result = serializationContext.getState(ref, false);
+				InkObjectState result = serializationContext.get(ref);
 				if (result == null) {
-					ElementDescriptor<?> desc = serializationContext.getDescriptor(ref);
+					result = applicationContext.getState(ref, false);
+				}
+				if (result == null) {
+					ElementDescriptor<?> desc = applicationContext.getDescriptor(ref);
 					if (desc != null && !desc.isValid()) {
 						return null;
 					}
 				}
-				// }
+				
 				if (result == null) {
 					addError(tag, "Could not find Ink object with id '" + ref + "'.");
 				}
@@ -286,10 +288,10 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 	}
 
 	protected InkObjectState createInkObject(Tag tag, String id, String classId, String superId, boolean isAbstract, boolean isInnerObject) {
-		InkClassState clsState = serializationContext.getState(classId, false);
+		InkClassState clsState = applicationContext.getState(classId, false);
 		if (clsState == null) {
 			containsError = true;
-			if (serializationContext.getDescriptor(classId) == null) {
+			if (applicationContext.getDescriptor(classId) == null) {
 				addError(tag, "Could not resolve class id '" + classId + "'.");
 			}
 			return null;
@@ -300,7 +302,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 			return null;
 		} else {
 			InkClass cls = clsState.getBehavior();
-			result = cls.newInstance(serializationContext, false, false);
+			result = cls.newInstance(applicationContext, false, false);
 			try {
 				ClassMirror cMirror = cls.reflect();
 				Map<String, PropertyMirror> propertiesMap = cMirror.getClassPropertiesMap();
@@ -311,7 +313,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 				result.setSuperId(superId);
 				if (id != null) {
 					// to support circular dependency
-					serializationContext.register(result);
+					serializationContext.put(id, result);
 				}
 				List<Tag> fields = tag.getChildren();
 				PropertyMirror pm;
@@ -331,7 +333,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 						result.setPropertyValue(pm.getIndex(), transformPropertyValue(field, pm));
 					}
 				}
-				if (!containsErrors()) {
+				if (!containsErrors() && serializationContext.size()==1) {
 					if (!isInnerObject) {
 						try {
 							result.reflect().edit().compile();

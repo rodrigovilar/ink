@@ -5,6 +5,7 @@ import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.LifeCycleState;
 import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -117,5 +118,9 @@ public interface MirrorAPI extends InkObjectState {
 	public String getSuperId();
 
 	public <T extends Trait> T asTrait(byte trait, boolean forceNew);
+	
+	public void setLifeCycleState(LifeCycleState toState);
+	
+	public LifeCycleState getLifeCycleState();
 
 }

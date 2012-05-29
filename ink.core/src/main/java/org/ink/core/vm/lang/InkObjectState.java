@@ -152,6 +152,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		protected ClassMirrorAPI myClass;
 		private byte[] realPropertiesIndex;
 		private Map<Object, Object> cache = null;
+		private LifeCycleState lcs = LifeCycleState.NEW;
 
 		@Override
 		public Context getContext() {
@@ -699,10 +700,6 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 
 		@Override
 		public void afterPropertiesSet() {
-			if (this.mySuper == null && this.superId != null) {
-				this.mySuper = myFactory.getState(superId);
-				// TODO add exception if mySuper still equals null
-			}
 			if (scope == null) {
 				scope = Scope.all;
 			}
@@ -716,6 +713,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			if (behavior != null) {
 				behavior.afterStateSet();
 			}
+			setLifeCycleState(LifeCycleState.READY);
 		}
 
 		@Override
@@ -842,6 +840,16 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			Constraints constraints = asTrait(InkObjectState.t_constraints);
 			Mirror mirror = reflect();
 			return constraints.validateTarget(mirror.getSuper(), context, systemState);
+		}
+		
+		@Override
+		public void setLifeCycleState(LifeCycleState toState){
+			this.lcs = toState;
+		}
+		
+		@Override
+		public LifeCycleState getLifeCycleState(){
+			return this.lcs;
 		}
 
 	}

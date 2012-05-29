@@ -5,6 +5,7 @@ import org.ink.core.vm.factory.ElementDescriptor;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.LifeCycleState;
 import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.internal.MirrorAPI;
@@ -233,6 +234,16 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 	@Override
 	public Object getValueByPath(String path) throws InvalidPathException {
 		return CoreUtils.getValue(this, path);
+	}
+
+	@Override
+	public void setLifeCycleState(LifeCycleState toState) {
+		 ((MirrorAPI) getTargetState()).setLifeCycleState(toState);
+	}
+
+	@Override
+	public LifeCycleState getLifeCycleState() {
+		return  ((MirrorAPI) getTargetState()).getLifeCycleState();
 	}
 
 }

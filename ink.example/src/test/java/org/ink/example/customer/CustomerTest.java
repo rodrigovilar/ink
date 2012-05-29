@@ -233,6 +233,11 @@ public class CustomerTest extends TestCase{
 		assertTrue(exception);
 		assertFalse(customerImpl.isFriend((Customer) context.getObject("example.customer:TheFirstCustomer")));
 	}
+	
+	public void testModelPath(){
+		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
+		assertEquals(customer.reflect().getValueByPath(customer.getPath()), 23);
+	}
 
 	private String extractFirstMessageId(ValidationContext vc) {
 		return vc.getMessages().get(0).getMessageTemplate().reflect().getId();

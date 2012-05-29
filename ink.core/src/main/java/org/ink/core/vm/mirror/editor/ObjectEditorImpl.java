@@ -137,10 +137,16 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 		MirrorAPI superState = (MirrorAPI) workOnObject.getSuper();
 		if (superState != null) {
 			superObject = superState.reflect();
+		}else if(workOnObject.getSuperId()!=null){
+			superState = workOnObject.getContext().getState(workOnObject.getSuperId(), false);
+			if(superState!=null){
+				superObject = superState.reflect();
+				workOnObject.setSuper(superState);
+			}
 		}
 		innerCompile(workOnObject, superObject);
-		workOnObject.afterPropertiesSet();
 		setFields(workOnObject);
+		workOnObject.afterPropertiesSet();
 	}
 
 	private void setFields(MirrorAPI object) {
@@ -231,16 +237,6 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 		// TODO - add a compiler object
 		MirrorAPI superState = object.getSuper();
 		Mirror superObject = zuper;
-		if (superState == null) {
-			String superId = object.getSuperId();
-			if (superId != null) {
-				superState = object.getContext().getState(superId);
-				superObject = superState.reflect();
-				object.setSuper(superState);
-			}
-		} else {
-			superObject = superState.reflect();
-		}
 		PropertyMirror[] pMirrors = object.getPropertiesMirrors();
 		Object o;
 		for (PropertyMirror pm : pMirrors) {

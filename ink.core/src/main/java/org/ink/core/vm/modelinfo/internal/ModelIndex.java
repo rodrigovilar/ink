@@ -52,12 +52,19 @@ class ModelIndex {
 
 	void insert(Mirror referrer) {
 		for (ModelRelation relation : relations) {
-			recursiveFindReferents(relation, referrer);
+			Set<String> visited = new HashSet<String>();
+			recursiveFindReferents(relation, referrer, visited);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void recursiveFindReferents(ModelRelation relation, Mirror referrer) {
+	protected void recursiveFindReferents(ModelRelation relation, Mirror referrer,Set<String> visited) {
+		if(referrer.isRoot()){
+			if(visited.contains(referrer.getId())){
+				return;
+			}
+			visited.add(referrer.getId());
+		}
 		if (!isRef(referrer)) {
 			addToIndex(relation, referrer);
 			PropertyMirror[] propertiesMirrors = referrer.getPropertiesMirrors();
@@ -67,7 +74,7 @@ class ModelIndex {
 					switch (propertyMirror.getTypeMarker()) {
 					case Class:
 						if (!isRef((Proxiable) value)) {
-							recursiveFindReferents(relation, ((Proxiable) value).reflect());
+							recursiveFindReferents(relation, ((Proxiable) value).reflect(), visited);
 						}
 						break;
 					case Collection:
@@ -78,7 +85,7 @@ class ModelIndex {
 							switch (innerPropertyMirror.getTypeMarker()) {
 							case Class:
 								for (Proxiable listItem : (List<Proxiable>) value) {
-									recursiveFindReferents(relation, listItem.reflect());
+									recursiveFindReferents(relation, listItem.reflect(), visited);
 								}
 								break;
 							case Enum:
@@ -93,10 +100,10 @@ class ModelIndex {
 							if (shouldIndexKey || shouldIndexValue) {
 								for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
 									if (shouldIndexKey) {
-										recursiveFindReferents(relation, ((Proxiable) entry.getKey()).reflect());
+										recursiveFindReferents(relation, ((Proxiable) entry.getKey()).reflect(), visited);
 									}
 									if (shouldIndexValue) {
-										recursiveFindReferents(relation, ((Proxiable) entry.getValue()).reflect());
+										recursiveFindReferents(relation, ((Proxiable) entry.getValue()).reflect(), visited);
 									}
 								}
 							}

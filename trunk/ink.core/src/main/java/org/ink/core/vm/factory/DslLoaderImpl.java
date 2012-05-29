@@ -3,12 +3,12 @@ package org.ink.core.vm.factory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ink.core.vm.constraints.ResourceType;
@@ -20,6 +20,7 @@ import org.ink.core.vm.factory.internal.CoreNotations;
 import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.LifeCycleState;
 import org.ink.core.vm.messages.Message;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -39,7 +40,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private static final Map<String, List<String>> file2Elements = new ConcurrentHashMap<String, List<String>>(1000);
 	private DslFactory ownerFactory = null;
 	private InkClass readerCls = null;
-	Stack<InkReader<D>> s = new Stack<InkReader<D>>();
+	private final Map<String, InkObjectState> serializationContext = new HashMap<String, InkObjectState>();
+	private int counter = 0;
 	ValidationContext vc = null;
 	private File[] folders = null;
 
@@ -53,31 +55,51 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	}
 
 	@Override
-	public synchronized InkObjectState getObject(String id, Context context) throws ObjectLoadingException {
+	public synchronized InkObjectState getObject(String id, Context applicationContext) throws ObjectLoadingException {
+		InkObjectState result = serializationContext.get(id);
+		if(result!=null){
+			return result;
+		}
 		ElementDescriptor<D> desc = elements.get(id);
-		boolean readerCreated = false;
 		if (desc != null) {
 			try {
 				Mirror clsMirror = null;
 				if (desc.getClassId() != null) {
-					InkObjectState clsState = context.getState(desc.getClassId(), false);
+					InkObjectState clsState = applicationContext.getState(desc.getClassId(), false);
 					if (clsState != null) {
 						clsMirror = clsState.reflect();
 					}
 				}
 				Mirror superMirror = null;
-				if (desc.getSuperId() != null) {
-					InkObjectState superState = context.getState(desc.getSuperId(), false);
-					if (superState != null) {
+				if(desc.getSuperId()!=null){
+					InkObjectState superState = applicationContext.getState(desc.getSuperId(), false);
+					if(superState!=null){
 						superMirror = superState.reflect();
 					}
 				}
-				if ((clsMirror == null || clsMirror.isValid()) && (superMirror == null || superMirror.isValid())) {
+				
+				if ((clsMirror == null || clsMirror.isValid()) && (superMirror==null || superMirror.isValid())) {
 					InkReader<D> reader = createReader();
-					s.add(reader);
-					readerCreated = true;
-					InkObjectState result = reader.read(desc.getRawData(), context);
-					if (reader.containsErrors()) {
+					if(serializationContext.isEmpty()){
+						counter = 1;
+					}else{
+						counter++;
+					}
+					result = reader.read(desc.getRawData(), applicationContext, serializationContext);
+					if(!reader.containsErrors()){
+						counter--;
+						if(counter==0){
+							for(InkObjectState s : serializationContext.values()){
+								compile(s, (ElementDescriptor<D>) s.reflect().getDescriptor(), reader);
+							}
+							serializationContext.clear();
+							
+						}else{
+							if(result.reflect().isClass()){
+								compile(result, desc, reader);
+							}
+						}
+					}else{
 						List<ParseError> errors = reader.getErrors();
 						desc.setInvalid();
 						desc.setParsingErrors(errors);
@@ -89,34 +111,47 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							System.out.println("=================================================================================================================================");
 						}
 						throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
-					} else if (shouldValidateResult(result) && !result.validate(vc)) {
-						List<ValidationMessage> errors = vc.getMessages();
-						desc.setValidationErrorMessages(errors);
-						if (!errors.isEmpty()) {
-							System.out.println("============================================Load Error=====================================================================================");
-							for (ValidationMessage er : errors) {
-								System.out.println("Object '" + id + "':" + er.getFormattedMessage());
-							}
-							System.out.println("=================================================================================================================================");
-						}
-						// todo -this is a hack
-						if (vc.containsMessage(Severity.INK_ERROR)) {
-							desc.setInvalid();
-							throw new ObjectLoadingException(result, errors, null, desc.getResource(), id);
-						}
 					}
+					
 					return result;
 				} else {
 					desc.setInvalid();
 				}
 			} finally {
-				if (readerCreated) {
-					s.pop();
-				}
 				vc.reset();
 			}
 		}
 		return null;
+	}
+
+	private void compile(InkObjectState state, ElementDescriptor<D> desc, InkReader<D> reader) throws ObjectLoadingException {
+		Mirror m = state.reflect();
+		String id = m.getId();
+		if(m.getLifeCycleState()!=LifeCycleState.READY){
+			try{
+				m.edit().compile();
+				if (shouldValidateResult(state) && !state.validate(vc)) {
+					List<ValidationMessage> errors = vc.getMessages();
+					desc.setValidationErrorMessages(errors);
+					if (!errors.isEmpty()) {
+						System.out.println("============================================Load Error=====================================================================================");
+						for (ValidationMessage er : errors) {
+							System.out.println("Object '" + id + "':" + er.getFormattedMessage());
+						}
+						System.out.println("=================================================================================================================================");
+					}
+					// todo -this is a hack
+					if (vc.containsMessage(Severity.INK_ERROR)) {
+						desc.setInvalid();
+						throw new ObjectLoadingException(state, errors, null, desc.getResource(), id);
+					}
+				}
+			}catch(Exception e){
+				ParseError error = new ParseError(desc.getLineNumber(), 0, e.getMessage(), null);
+				throw new ObjectLoadingException(state, null, Arrays.asList(error), desc.getResource(), id);
+			}
+		}
+		
 	}
 
 	private boolean shouldValidateResult(InkObjectState result) {

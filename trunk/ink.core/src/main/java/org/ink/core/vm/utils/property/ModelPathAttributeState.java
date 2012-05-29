@@ -1,8 +1,6 @@
 package org.ink.core.vm.utils.property;
 
 import org.ink.core.vm.constraints.PropertyConstraintsState;
-import org.ink.core.vm.lang.InkClass;
-import org.ink.core.vm.lang.InkClassState;
 import org.ink.core.vm.lang.PropertyState;
 import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 import org.ink.core.vm.lang.internal.annotations.CoreField;
@@ -21,8 +19,6 @@ public interface ModelPathAttributeState extends PrimitiveAttributeState {
 	public static final byte p_default_value = 7;
 	@CoreField(mandatory = false)
 	public static final byte p_final_value = 8;
-	@CoreField(mandatory = false)
-	public static final byte p_path_root = 9;
 
 	public String getDefaultValue();
 
@@ -32,12 +28,8 @@ public interface ModelPathAttributeState extends PrimitiveAttributeState {
 
 	public void setFinalValue(String value);
 	
-	public InkClass getPathRoot();
-
-	public void setPathRoot(InkClassState value);
 
 	public class Data extends PrimitiveAttributeState.Data implements ModelPathAttributeState {
-
 
 		@Override
 		public String getDefaultValue() {
@@ -57,16 +49,6 @@ public interface ModelPathAttributeState extends PrimitiveAttributeState {
 		@Override
 		public void setFinalValue(String value) {
 			setValue(p_final_value, value);
-		}
-
-		@Override 
-		public InkClass getPathRoot() {
-			return (InkClass) getValue(p_path_root);
-		}
-
-		@Override
-		public void setPathRoot(InkClassState value) {
-			setValue(p_path_root, value);
 		}
 
 	}

@@ -27,7 +27,7 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 	@Override
 	public void validate(Property property, Object propertyValue, InkObjectState dataContainer, ValidationContext context, SystemState systemState) {
 		if (propertyValue == null) {
-			if (!dataContainer.reflect().isAbstract() && property.isMandatory()) {
+			if (!dataContainer.reflect().getRootOwner().isAbstract() && property.isMandatory()) {
 				context.addError(dataContainer, this, "field.required", property.getName());
 			}
 		} else {

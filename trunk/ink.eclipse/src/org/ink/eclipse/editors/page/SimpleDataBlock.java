@@ -2,14 +2,20 @@ package org.ink.eclipse.editors.page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.lang.DataTypeMarker;
+import org.ink.core.vm.lang.InkObject;
+import org.ink.core.vm.lang.exceptions.InvalidPathException;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
 import org.ink.core.vm.mirror.Mirror;
+import org.ink.core.vm.proxy.Proxiable;
 import org.ink.core.vm.types.EnumType;
+import org.ink.core.vm.utils.property.ModelPathAttribute;
 import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
 import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
 import org.ink.core.vm.utils.property.mirror.ReferenceMirror;
@@ -46,6 +52,32 @@ public class SimpleDataBlock extends DataBlock {
 				case Boolean:
 					addValueProposal(result, "true", "true", cursorLocation, prefix);
 					addValueProposal(result, "false", "false", cursorLocation, prefix);
+					break;
+				case String:
+					if(pm.getTargetBehavior() instanceof ModelPathAttribute){
+						DataBlock root = this;
+						while(root.getParent()!=null){
+							root = root.getParent();
+						}
+						String id = root.getAttributeValue("id");
+						if(id!=null){
+							InkObject o = InkVM.instance().getContext().getFactory().getObject(id, false);
+							if(o!=null){
+								int startPath = line.indexOf('\"') + 1;
+								if(startPath>0){
+									String existingPath = line.substring(startPath, cursorLocation - startIndex);
+									try{
+										try{
+											getPathOptions(cursorLocation, result, o, existingPath);
+										}catch(InvalidPathException e){}
+									}catch(InvalidPathException e){
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+						
+					}
 					break;
 				}
 				break;
@@ -159,6 +191,51 @@ public class SimpleDataBlock extends DataBlock {
 			}
 		}
 		return result;
+	}
+
+	private void getPathOptions(int cursorLocation, List<ICompletionProposal> result, InkObject o, String existingPath) {
+		Object innerO = null;
+		boolean filterByPrefix = false;
+		try{
+			innerO = o.reflect().getValueByPath(existingPath);
+		}catch(InvalidPathException e){
+			int loc = existingPath.lastIndexOf(".");
+			if(loc>0){
+				//String start = existingPath.substring(0, loc-1);
+				//String end = existingPath.
+			}else{
+				
+			}
+		}
+		if(innerO instanceof Proxiable){
+			Mirror m = ((Proxiable)innerO).reflect();
+			for(PropertyMirror p : m.getPropertiesMirrors()){
+				if(m.getPropertyValue(p.getIndex())!=null){
+					if(p.isMutable()){
+						if(existingPath.length()>0){
+							if(existingPath.endsWith(".")){
+								addValueProposal(result, p.getName(), p.getName(), cursorLocation, "");
+							}else{
+								addValueProposal(result, "." + p.getName(), p.getName(), cursorLocation, "");
+							}
+						}else{
+							addValueProposal(result, p.getName(), p.getName(), cursorLocation, "");
+						}
+						
+					}
+				}
+			} 
+		}else if(innerO instanceof Map){
+			Map<?,?> m = (Map<?,?>)innerO;
+			for(Object k : m.keySet()){
+				addValueProposal(result, "<"+k.toString() +">", k.toString(), cursorLocation, "");
+			}
+		}else if(innerO instanceof List){
+			List<?> l = (List<?>)innerO;
+			for(int i=0;i<l.size();i++){
+				addValueProposal(result, "["+i +"]", i +"", cursorLocation, "");
+			}
+		}
 	}
 
 	private boolean checkCursorLocation(int cursorLocation, String prefix) {

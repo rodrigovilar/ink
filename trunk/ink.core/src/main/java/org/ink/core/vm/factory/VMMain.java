@@ -286,7 +286,7 @@ public class VMMain {
 						// TODO need to check also if subclass
 						if (classId.equals(CoreNotations.Ids.DSL_FACTORY)) {
 							long start = System.currentTimeMillis();
-							DslFactoryState factoryState = (DslFactoryState) reader.read(elem, coreFactory.getAppContext());
+							DslFactoryState factoryState = (DslFactoryState) reader.read(elem, coreFactory.getAppContext(), new HashMap<String, InkObjectState>());
 							if(factoryState==null || reader.containsErrors()){
 								String errorMsg = "Could not loaf factory in file " + inkFile.getAbsolutePath() +".";
 								if(reader.containsErrors()){

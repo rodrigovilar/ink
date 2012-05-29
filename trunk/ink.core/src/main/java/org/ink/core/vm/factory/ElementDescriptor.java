@@ -16,6 +16,8 @@ public interface ElementDescriptor<D> {
 	public D getRawData();
 
 	public File getResource();
+	
+	public int getLineNumber();
 
 	public void setValidationErrorMessages(List<ValidationMessage> validationErrorMessages);
 

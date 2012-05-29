@@ -1,3 +1,32 @@
+Class id="MetaSegment" class="ink.core:InkClass" super="ink.core:InkClass"{
+	java_path ""
+	java_mapping "State_Behavior_Interface"
+	properties{
+		property class="ink.core:IntegerAttribute"{
+			name "maxSize"
+			max_value 3500
+			mandatory true
+		}
+		property class="ink.core:StringAttribute"{
+			name "table_name"
+			mandatory true
+			reg_exp "[A-Z].*"
+		}
+	}
+}
+
+Class id="MySegment" class="MetaSegment" super="ink.core:InkObject"{
+	java_mapping "No_Java"
+	java_path ""
+	maxSize 3200
+	table_name "Segment"
+	personality class="CustomerPersonality"{
+		fan class="SportFan"{
+		}
+	}
+}
+
+
 Class id="Address" class="ink.core:StructClass" super="ink.core:Struct"{
 	java_path ""
 	properties{
@@ -229,7 +258,7 @@ Object id="TheFirstCustomer" class="example.customer:Customer"{
 	last_name "Schachter"
 	age 32
 	fan.favorite_sport "BasketBall"
-	path "first_name"
+	path "keyValueMap<ads>"
 	address class="example.customer:Address"{
 		city "Tel-Aviv"
 		street "Bar Kokva"

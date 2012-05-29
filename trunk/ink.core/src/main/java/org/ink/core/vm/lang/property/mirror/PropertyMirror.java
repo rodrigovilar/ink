@@ -43,5 +43,7 @@ public interface PropertyMirror extends Mirror {
 	public boolean isValueContainsInkObject();
 
 	public InkType getPropertyType();
+	
+	public Class<?> getJavaPropertyType();
 
 }

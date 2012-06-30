@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="inkstone.category.inkstone"
+            name="InkStone">
+      </category>
+      <view
+            allowMultiple="false"
+            category="inkstone.category.inkstone"
+            class="inkstone.views.kioskView"
+            icon="icons/INKSTONE Kiosk View Icon.png"
+            id="inkstone.views.KioskView"
+            name="INK Kiosk View">
+      </view>
+   </extension>
+
+</plugin>

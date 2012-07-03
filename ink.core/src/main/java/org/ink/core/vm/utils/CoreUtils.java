@@ -386,8 +386,11 @@ public class CoreUtils {
 				}
 				result = mirror.getPropertyValue(propertyMirror.getIndex());
 				if(result==null){
-					throw new InvalidPathException("Invalid path : property value '"+segments[0] +"', should not be NULL.");
+					return null;
 				}
+//				if(result==null && segments[1]!=null){
+//					throw new InvalidPathException("Invalid path : property value '"+segments[0] +"', should not be NULL.");
+//				}
 				if (segments[1] != null) {
 					switch (propertyMirror.getTypeMarker()) {
 					case Collection:

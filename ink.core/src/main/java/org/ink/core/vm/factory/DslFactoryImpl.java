@@ -207,7 +207,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 						}
 						result = e.getObject();
 						if (result != null) {
-							repository.setObject(id, result);
+							repository.setObject(result.getId(), result);
 							try {
 								ModelInfoFactory.getWriteableInstance().register(result.reflect());
 							} catch (Throwable e1) {

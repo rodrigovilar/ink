@@ -21,6 +21,7 @@ import org.ink.core.vm.lang.InkClass;
 import org.ink.core.vm.lang.InkObjectImpl;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.LifeCycleState;
+import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.messages.Message;
 import org.ink.core.vm.mirror.ClassMirror;
 import org.ink.core.vm.mirror.Mirror;
@@ -48,6 +49,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	@Override
 	public void init() {
 		elements.clear();
+		serializationContext.clear();
 		file2Elements.clear();
 		readerCls = null;
 		vc = null;
@@ -87,6 +89,9 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 					}
 					result = reader.read(desc.getRawData(), applicationContext, serializationContext);
 					if(!reader.containsErrors()){
+						if(result.reflect().isClass()){
+							compile(result, desc, reader);
+						}
 						counter--;
 						if(counter==0){
 							for(InkObjectState s : serializationContext.values()){
@@ -94,13 +99,12 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							}
 							serializationContext.clear();
 							
-						}else{
-							if(result.reflect().isClass()){
-								compile(result, desc, reader);
-							}
 						}
 					}else{
 						List<ParseError> errors = reader.getErrors();
+						if(result!=null){
+							result.reflect().setLifeCycleState(LifeCycleState.INVALID);
+						}
 						desc.setInvalid();
 						desc.setParsingErrors(errors);
 						if (!errors.isEmpty()) {
@@ -110,6 +114,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 							}
 							System.out.println("=================================================================================================================================");
 						}
+						serializationContext.clear();
 						throw new ObjectLoadingException(result, null, errors, desc.getResource(), id);
 					}
 					
@@ -129,6 +134,20 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 		String id = m.getId();
 		if(m.getLifeCycleState()!=LifeCycleState.READY){
 			try{
+				String superId = ((MirrorAPI)state).getSuperId();
+				InkObjectState superObject = null;
+				if(superId!=null && (superObject=serializationContext.get(superId))!=null){
+					Mirror superMirror = superObject.reflect();
+					if(superMirror.getLifeCycleState()!=LifeCycleState.READY){
+						ElementDescriptor<D> superDesc = elements.get(superId);
+						compile(superObject, superDesc, reader);
+						if(!m.isValid()){
+							desc.setInvalid();
+							m.setLifeCycleState(LifeCycleState.INVALID);
+						}
+					}
+					
+				}
 				m.edit().compile();
 				if (shouldValidateResult(state) && !state.validate(vc)) {
 					List<ValidationMessage> errors = vc.getMessages();
@@ -143,6 +162,7 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 					// todo -this is a hack
 					if (vc.containsMessage(Severity.INK_ERROR)) {
 						desc.setInvalid();
+						m.setLifeCycleState(LifeCycleState.INVALID);
 						throw new ObjectLoadingException(state, errors, null, desc.getResource(), id);
 					}
 				}

@@ -193,7 +193,7 @@ public abstract class DataBlock {
 	protected void addRefPropsals(int cursorLocation, String prefix, List<ICompletionProposal> result) {
 		PropertyMirror pm;
 		pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-		if (pm.getTypeMarker() == DataTypeMarker.Class) {
+		if (pm!=null && pm.getTypeMarker() == DataTypeMarker.Class) {
 			String constraintClass = ((ReferenceMirror) pm).getPropertyType().reflect().getId();
 			List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
 			for (String id : options) {
@@ -206,19 +206,23 @@ public abstract class DataBlock {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		String line = textString.substring(newLineLoc, textString.indexOf('\n', cursorLocation));
 		if (text[cursorLocation - 1] == ' ') {
-			if (!attributes.containsKey("class") && !attributes.containsKey("ref")) {
-				result.add(createAttributeProposal("class", cursorLocation, count, true));
-				result.add(createAttributeProposal("ref", cursorLocation, count, true));
-			}
-			if (result.isEmpty()) {
-				result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length() - 2, null, "{", null, null));
-			}
-			if (!attributes.containsKey("super")) {
-				result.add(createAttributeProposal("super", cursorLocation, count, true));
-			}
-			if (attributes.containsKey("class") && !line.contains("{")) {
-				String tabs = calculateTabs();
-				result.add(new CompletionProposal("{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", cursorLocation, 0, new String("{\n" + tabs + "\n}").length() - 2, null, "{", null, null));
+			List<String> pathsToClassBlock = getPathToClassBlock();
+			PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), pathsToClassBlock);
+			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Class){
+				if (!attributes.containsKey("class") && !attributes.containsKey("ref")) {
+					result.add(createAttributeProposal("class", cursorLocation, count, true));
+					result.add(createAttributeProposal("ref", cursorLocation, count, true));
+				}
+				if (result.isEmpty()) {
+					result.add(new CompletionProposal("{\n\t\n}", cursorLocation, 0, "{\n\t\n}".length() - 2, null, "{", null, null));
+				}
+				if (!attributes.containsKey("super")) {
+					result.add(createAttributeProposal("super", cursorLocation, count, true));
+				}
+				if (attributes.containsKey("class") && !line.contains("{")) {
+					String tabs = calculateTabs();
+					result.add(new CompletionProposal("{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", cursorLocation, 0, new String("{\n" + tabs + "\n}").length() - 2, null, "{", null, null));
+				}
 			}
 		} else {
 			StringBuilder buf = new StringBuilder(10);
@@ -241,7 +245,7 @@ public abstract class DataBlock {
 				if (getContainingClass() != null) {
 					PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 					if (attr.equals("class")) {
-						if (pm.getTypeMarker() == DataTypeMarker.Class) {
+						if (pm!=null && pm.getTypeMarker() == DataTypeMarker.Class) {
 							Mirror m = ((ReferenceMirror) pm).getPropertyType().reflect();
 							String constraintClass = m.getId();
 							List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);

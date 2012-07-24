@@ -498,6 +498,10 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 			Object mapKey = null;
 			Object mapvalue = null;
 			if (isKeyValue) {
+				if(t.getAttributes().size()>0){
+					addError(t, "Attributes are not allowed in key/value map entry definition.");
+					continue;
+				}
 				boolean keyFound = false;
 				boolean valueFound = false;
 				for (Tag mapEn : entries) {

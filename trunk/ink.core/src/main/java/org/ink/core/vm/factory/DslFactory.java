@@ -109,5 +109,7 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactory
 	public List<String> getElements(String filepath);
 
 	public void reload();
+	
+	public List<File> getSourceFiles();
 
 }

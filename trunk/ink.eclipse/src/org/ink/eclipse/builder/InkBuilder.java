@@ -27,6 +27,7 @@ import org.ink.core.vm.constraints.ResourceType;
 import org.ink.core.vm.constraints.ValidationContext;
 import org.ink.core.vm.constraints.ValidationMessage;
 import org.ink.core.vm.factory.Context;
+import org.ink.core.vm.factory.DslFactory;
 import org.ink.core.vm.factory.InkErrorDetails;
 import org.ink.core.vm.factory.InkVM;
 import org.ink.core.vm.factory.internal.CoreNotations;
@@ -41,12 +42,14 @@ import org.ink.eclipse.generators.Generator;
 import org.ink.eclipse.generators.StateClassGenerator;
 import org.ink.eclipse.utils.EclipseUtils;
 import org.ink.eclipse.utils.InkUtils;
+import org.ink.eclipse.vm.EclipseResourceResolver;
 
 public class InkBuilder extends IncrementalProjectBuilder {
 
 	public static final IPath INK_DIR_PATH = new Path("src" + IPath.SEPARATOR + "main" + IPath.SEPARATOR + "dsl");
 	public static final IPath INK_TEST_DIR_PATH = new Path("src" + IPath.SEPARATOR + "test" + IPath.SEPARATOR + "dsl");
 	private static final String DSL_DEF_FILENAME = "dsls.ink";
+	private static final EclipseResourceResolver RR = new EclipseResourceResolver();
 
 	private final InkErrorHandler errorHandler = new InkErrorHandler();
 	private final List<IFile> changedInkFiles = new ArrayList<IFile>();
@@ -286,6 +289,26 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		}
 		return result;
 	}
+	
+	private List<InkErrorDetails> reloadDsl(IFile changedFile) throws CoreException {
+		DslFactory factory = InkUtils.getFactory(changedFile.getLocation().toFile());
+		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
+		if (factory!=null) {
+			String ns = factory.getNamespace();
+			for(File f : factory.getSourceFiles()){
+				try{
+					IFile ifile = EclipseUtils.getEclipseFile(f);
+					ifile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+				}catch(Throwable e){
+					e.printStackTrace();
+				}
+			}
+			System.out.println("Reloading DSL " + ns);
+			InkVM.instance().reloadDSL(ns);
+			result.addAll(InkVM.instance().collectErrors(ns));
+		}
+		return result;
+	}
 
 	private void genrateJavaFiles(IFolder output) {
 		Generator gen = new StateClassGenerator(output);
@@ -332,11 +355,19 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				moveInkFile(f, monitor);
 			}
 			if (!fullBuild) {
-				getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-				errors = reloadProjectDSLs();
-				processErrors(errors, monitor);
-				IFolder outputFolder = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
-				genrateJavaFiles(outputFolder);
+				if(changedInkFiles.size()>1){
+					getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+					errors = reloadProjectDSLs();
+					processErrors(errors, monitor);
+					IFolder outputFolder = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
+					genrateJavaFiles(outputFolder);
+				}else{
+					//very ugly hack - do real incremental
+					errors = reloadDsl(changedInkFiles.get(0));
+					processErrors(errors, monitor);
+					IFolder outputFolder = (IFolder) EclipseUtils.getJavaOutputFolder(getProject()).getParent();
+					genrateJavaFiles(outputFolder);
+				}
 			}
 			changedInkFiles.clear();
 			fullBuild = false;

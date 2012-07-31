@@ -652,4 +652,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		}
 	}
 
+	@Override
+	public List<File> getSourceFiles() {
+		return loader.getInkFiles();
+	}
+
 }

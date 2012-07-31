@@ -460,7 +460,13 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 				break;
 			case Enum:
 				try {
-					result = ((EnumType) ((Property) pm.getTargetBehavior()).getType()).getEnumObject(tag.getValue().toString());
+					EnumType eType = ((EnumType) ((Property) pm.getTargetBehavior()).getType());
+					String val = tag.getValue().toString();
+					if(eType.getValues().contains(val)){
+						result = eType.getEnumObject(tag.getValue().toString());
+					}else{
+						addError(tag, "Invalid enumeration value : '" + tag.getValue() + "'");						
+					}
 				} catch (CoreException e) {
 					addError(tag, "Invalid enumeration value : '" + tag.getValue() + "'");
 				}
@@ -523,9 +529,11 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 				}
 			} else {
 				mapvalue = transformPropertyValue(t, valueM);
-				mapKey = ((Proxiable) mapvalue).reflect().getPropertyValue(keyM.getName());
-				if (mapKey == null) {
-					addError(t, "The field '" + keyM.getName() + "' should not be empty.");
+				if(mapvalue!=null){
+					mapKey = ((Proxiable) mapvalue).reflect().getPropertyValue(keyM.getName());
+					if (mapKey == null) {
+						addError(t, "The field '" + keyM.getName() + "' should not be empty.");
+					}
 				}
 			}
 			if (mapKey != null && mapvalue != null) {

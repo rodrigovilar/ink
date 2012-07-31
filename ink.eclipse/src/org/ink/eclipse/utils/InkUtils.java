@@ -339,11 +339,15 @@ public class InkUtils {
 	}
 
 	public static String resolveNamespace(File f) {
-		DslFactory factory = InkVM.instance().getOwnerFactory(f);
+		DslFactory factory = getFactory(f);
 		if (factory != null) {
 			return factory.getNamespace();
 		}
 		return null;
+	}
+	
+	public static DslFactory getFactory(File f) {
+		return InkVM.instance().getOwnerFactory(f);
 	}
 
 }

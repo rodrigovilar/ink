@@ -29,4 +29,6 @@ public interface DslLoader extends InkObject {
 
 	public List<String> getElements(String filepath);
 
+	List<String> getElementsIds();
+
 }

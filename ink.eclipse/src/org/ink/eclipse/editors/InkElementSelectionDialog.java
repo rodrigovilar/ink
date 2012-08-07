@@ -12,8 +12,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
-import org.ink.core.vm.factory.internal.CoreNotations;
-import org.ink.core.vm.mirror.Mirror;
 import org.ink.eclipse.InkPlugin;
 import org.ink.eclipse.utils.InkUtils;
 
@@ -66,9 +64,10 @@ public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 	@Override
 	protected void fillContentProvider(AbstractContentProvider contentProvider, ItemsFilter itemsFilter, IProgressMonitor progressMonitor) throws CoreException {
 		// TODO Auto-generated method stub
-		Collection<Mirror> all = InkUtils.getInstances(CoreNotations.Ids.INK_OBJECT, true);
-		for (Mirror m : all) {
-			contentProvider.add(m.getShortId() + " - " + m.getNamespace(), itemsFilter);
+		Collection<String> all = InkUtils.getAllIDs();
+		for (String id : all) {
+			int loc = id.indexOf(':');
+			contentProvider.add(id.substring(loc+1, id.length()) + " - " + id.substring(0, loc), itemsFilter);
 		}
 	}
 

@@ -350,4 +350,13 @@ public class InkUtils {
 		return InkVM.instance().getOwnerFactory(f);
 	}
 
+	public static Collection<String> getAllIDs() {
+		Collection<DslFactory> factories = VMMain.getAllFactories();
+		List<String> result = new ArrayList<String>(10000);
+		for(DslFactory f : factories){
+			result.addAll(f.getElementsIds());
+		}
+		return result;
+	}
+
 }

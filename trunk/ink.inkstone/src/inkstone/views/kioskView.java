@@ -1,37 +1,55 @@
 package inkstone.views;
 
+import inkstone.utils.inkstoneGallery;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.MenuDetectEvent;
+import org.eclipse.swt.events.MenuDetectListener;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.MenuDetectEvent;
-import org.eclipse.swt.events.MenuDetectListener;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.part.*;
-import inkstone.utils.*;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.part.ViewPart;
+import org.ink.core.vm.lang.InkObjectState;
+import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
+import org.ink.core.vm.lang.property.mirror.PropertyMirror;
+import org.ink.core.vm.mirror.Mirror;
+import org.ink.core.vm.proxy.Proxiable;
+import org.ink.core.vm.utils.property.mirror.ListPropertyMirror;
+import org.ink.core.vm.utils.property.mirror.MapPropertyMirror;
+import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
+import org.ink.eclipse.InkPlugin;
+import org.ink.eclipse.utils.EclipseUtils;
+import org.ink.eclipse.utils.InkUtils;
 
 
 public class kioskView extends ViewPart {
 
+	private static final String INK_META_CLASSES_BAR = "INK Meta-Classes bar";
+	
 	public static final String ID_ = "inkstone.views.KioskView";
 	private final Display display_ = Display.getCurrent();
 	private final Shell shell_ = new Shell(display_);
-	private inkstoneGallery inkGallery_;
+	private final inkstoneGallery inkGallery_;
 	private Menu popupMenu_;
 	private ExpandBar mainExpBar_;
 	private MenuDetectListener popupMenuListener_;
-	private Map<String,expBarBundle> eBarsMap_ = new HashMap<String,expBarBundle>();
+	private final Map<String,expBarBundle> eBarsMap_ = new HashMap<String,expBarBundle>();
 	
 	class expBarBundle {
 		ExpandItem expItem_;
@@ -60,7 +78,9 @@ public class kioskView extends ViewPart {
 				popupMenu_.setLocation(e.x, e.y);
 				popupMenu_.setVisible(true);
 				while (!popupMenu_.isDisposed () && popupMenu_.isVisible ()) {
-					if (!display_.readAndDispatch ()) display_.sleep ();
+					if (!display_.readAndDispatch ()) {
+						display_.sleep ();
+					}
 				}
 				popupMenu_.setVisible(false);
 			}
@@ -160,22 +180,137 @@ public class kioskView extends ViewPart {
         messageBox.open();
 	}
 	*/
+
+	private Mirror getInkElement(String id){
+		InkObjectState s = InkPlugin.getDefault().getInkContext().getState(id, false);
+		if(s!=null){
+			return s.reflect();
+		}
+		return null;
+	}
+	
+	private void openInkElement(String id){
+		Mirror m = getInkElement(id);
+		if(m!=null){
+			EclipseUtils.openEditor(m);
+		}
+	}
+	
+	private void examplePropertiesReflection(String id){
+		Mirror m = getInkElement(id);
+		if(m!=null){
+			examplePropertiesReflection(m);
+			
+		}
+	}
+	
+	private void examplePropertiesReflection(Mirror m){
+		PropertyMirror[] pms = m.getPropertiesMirrors();
+		for(PropertyMirror pm : pms){
+			reflectProperty(m, pm);
+		}
+		
+	}
+
+	private void reflectProperty(Mirror owner, PropertyMirror pm) {
+		Object value = owner.getPropertyValue(pm.getIndex());
+		switch(pm.getTypeMarker()){
+		case Primitive:
+			PrimitiveAttributeMirror pam = (PrimitiveAttributeMirror)pm;
+			switch(pam.getPrimitiveTypeMarker()){
+			case Integer:
+				break;
+			case String:
+				break;
+			case Boolean:
+				break;
+			default:
+				break;
+			}
+			break;
+		case Collection:
+			CollectionPropertyMirror cpm = (CollectionPropertyMirror)pm;
+			switch(cpm.getCollectionTypeMarker()){
+			case List:
+				ListPropertyMirror lpm = (ListPropertyMirror)cpm;
+				if(value!=null){
+					List l = (List)value;
+				}
+				PropertyMirror itemMirror = lpm.getItemMirror();
+				reflectProperty(owner, itemMirror);
+				break;
+			case Map:
+				MapPropertyMirror mpm = (MapPropertyMirror)cpm;
+				if(value!=null){
+					Map l = (Map)value;
+				}
+				PropertyMirror keyMirror = mpm.getKeyMirror();
+				PropertyMirror valueMirror = mpm.getValueMirror();
+				reflectProperty(owner, keyMirror);
+				reflectProperty(owner, valueMirror);
+				break;
+			}
+			break;
+		case Enum:
+			
+			break;
+		case Class:
+			if(value!=null){
+				Proxiable p = (Proxiable)value;
+				examplePropertiesReflection(p.reflect());
+				
+			}
+			break;
+		}
+	}
+	
+	
 	
 	private void doSyncWithInkModel() {
 		// TODO: Replace this code with INK model investigation algorithm.
 		// TODO: Decide how to group INK elements (by type, by src files names, ...)
+		// TODO: EclipseUtils.openEditor(o);
+		List<IProject> inkProjects = InkPlugin.getDefault().getInkProjects();
+		List<String> metaClasses = new ArrayList<String>();
+		List<String> classes = new ArrayList<String>();
+		List<String> instances = new ArrayList<String>();
+		List<String> enums = new ArrayList<String>();
+		for(IProject p : inkProjects){
+			String[] nss = InkUtils.getProjectNamespaces(p);
+			Collection<Mirror> mirrors = InkUtils.getInstances(nss, "ink.core:InkObject", true, true);
+			for(Mirror m : mirrors){
+				switch(m.getObjectTypeMarker()){
+				case Metaclass:
+					metaClasses.add(m.getId());
+					break;
+				case Class:
+					classes.add(m.getId());
+					break;
+				case Enumeration:
+					enums.add(m.getId());
+				default:
+					instances.add(m.getId());
+				}
+			}
+		}
 		
-		addExpandBar(mainExpBar_,"INK Meta-Classes bar".intern(),1);
-		addNotation("INK Meta-Classes bar".intern(), "Shape", inkGallery_.getImage(inkstoneGallery.METACLASS_ICON));
+		
+		addExpandBar(mainExpBar_,INK_META_CLASSES_BAR.intern(),1);
+		for(String id : metaClasses){
+			addNotation(INK_META_CLASSES_BAR, id, inkGallery_.getImage(inkstoneGallery.METACLASS_ICON));
+		}
 		addExpandBar(mainExpBar_,"INK Classes bar".intern(),2);
-		addNotation("INK Classes bar".intern(), "Circle".intern(), inkGallery_.getImage(inkstoneGallery.CLASS_ICON));
-		addNotation("INK Classes bar".intern(), "Square".intern(), inkGallery_.getImage(inkstoneGallery.CLASS_ICON));
-		addNotation("INK Classes bar".intern(), "triangle".intern(), inkGallery_.getImage(inkstoneGallery.CLASS_ICON));
+		for(String id : classes){
+			addNotation("INK Classes bar", id, inkGallery_.getImage(inkstoneGallery.CLASS_ICON));
+		}
 		addExpandBar(mainExpBar_,"INK Objects bar".intern(),3);
-		addNotation("INK Objects bar".intern(), "30Rad Circle".intern(), inkGallery_.getImage(inkstoneGallery.OBJECT_ICON));
-		addNotation("INK Objects bar".intern(), "Small Square".intern(), inkGallery_.getImage(inkstoneGallery.OBJECT_ICON));
-		addNotation("INK Objects bar".intern(), "Equilateral Triangle".intern(), inkGallery_.getImage(inkstoneGallery.OBJECT_ICON));
-
+		for(String id : instances){
+			addNotation("INK Objects bar", id, inkGallery_.getImage(inkstoneGallery.OBJECT_ICON));
+		}
+		addExpandBar(mainExpBar_,"INK Enums bar".intern(),4);
+		for(String id : enums){
+			addNotation("INK Enums bar", id, inkGallery_.getImage(inkstoneGallery.OBJECT_ICON));
+		}
 	}
 	
 	private void addGeneralExpandBar(ExpandBar bar) {

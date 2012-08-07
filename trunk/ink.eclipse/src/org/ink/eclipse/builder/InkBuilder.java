@@ -295,17 +295,20 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
 		if (factory!=null) {
 			String ns = factory.getNamespace();
-			for(File f : factory.getSourceFiles()){
-				try{
-					IFile ifile = EclipseUtils.getEclipseFile(f);
-					ifile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-				}catch(Throwable e){
-					e.printStackTrace();
+			List<DslFactory> factories = new ArrayList<DslFactory>(factory.getDependentFactories());
+			factories.add(factory);
+			for(DslFactory f : factories){
+				for(File file : f.getSourceFiles()){
+					try{
+						IFile ifile = EclipseUtils.getEclipseFile(file);
+						ifile.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+					}catch(Throwable e){
+						e.printStackTrace();
+					}
 				}
 			}
-			System.out.println("Reloading DSL " + ns);
 			InkVM.instance().reloadDSL(ns);
-			result.addAll(InkVM.instance().collectErrors(ns));
+			result.addAll(InkVM.instance().collectErrors());
 		}
 		return result;
 	}

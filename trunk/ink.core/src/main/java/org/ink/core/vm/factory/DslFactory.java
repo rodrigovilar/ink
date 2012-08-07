@@ -111,5 +111,9 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactory
 	public void reload();
 	
 	public List<File> getSourceFiles();
+	
+	public List<DslFactory> getDependentFactories();
+	
+	public void addDependentFactory(DslFactory factory);
 
 }

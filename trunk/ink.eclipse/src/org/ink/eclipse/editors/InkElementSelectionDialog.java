@@ -20,6 +20,7 @@ import org.ink.eclipse.utils.InkUtils;
 public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 
 	private static final String DIALOG_SETTINGS = "org.ink.dialog.InkElementSelectionDialog";
+	private static InkItemsFilter FILTER = null;
 
 	public InkElementSelectionDialog(Shell shell) {
 		super(shell);
@@ -46,6 +47,9 @@ public class InkElementSelectionDialog extends FilteredItemsSelectionDialog {
 
 	@Override
 	protected ItemsFilter createFilter() {
+//		if(FILTER==null){
+//			FILTER = new InkItemsFilter();
+//		}
 		return new InkItemsFilter();
 	}
 

@@ -65,9 +65,11 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	private final Map<String, Class<?>> classRepository = new ConcurrentHashMap<String, Class<?>>(200);
 	protected Map<String, DslFactory> boundedFactories;
 	protected Set<String> scope;
+	private final List<DslFactory> dependentFactories = new ArrayList<DslFactory>();
 
 	@Override
 	public void reload() {
+		System.out.println("Reloading DSL " + getNamespace());
 		repository.clear();
 		loader.init();
 		scan();
@@ -117,8 +119,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 					f = (DslFactory) ((Proxiability) f).getVanillaBehavior();
 				}
 				boundedFactories.put(f.getNamespace(), f);
-				DslFactoryEventDispatcher dispatcher = f.asTrait(DslFactoryState.t_event_dispatcher);
-				dispatcher.addListener(this);
+				f.addDependentFactory(this);
 				this.scope.addAll(f.getScope());
 			}
 		}
@@ -645,9 +646,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void handleEvent(DslFactoryEvent event) {
 		switch (event.getKind()) {
 		case reload:
-			repository.clear();
-			DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
-			dispatcher.publishEvent(event);
+			reload();
 			break;
 		}
 	}
@@ -655,6 +654,18 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public List<File> getSourceFiles() {
 		return loader.getInkFiles();
+	}
+
+	@Override
+	public List<DslFactory> getDependentFactories() {
+		return new ArrayList<DslFactory>(dependentFactories);
+	}
+
+	@Override
+	public void addDependentFactory(DslFactory factory) {
+		this.dependentFactories .add(factory);
+		DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
+		dispatcher.addListener(factory);
 	}
 
 }

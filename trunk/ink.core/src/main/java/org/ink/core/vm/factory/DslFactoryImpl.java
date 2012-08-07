@@ -667,5 +667,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
 		dispatcher.addListener(factory);
 	}
+	
+	@Override
+	public List<String> getElementsIds(){
+		return loader.getElementsIds();
+	}
+	
+	
 
 }

@@ -367,5 +367,10 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	public List<String> getElements(String filepath) {
 		return file2Elements.get(new File(filepath).getAbsolutePath());
 	}
+	
+	@Override
+	public List<String> getElementsIds(){
+		return new ArrayList<String>(elements.keySet());
+	}
 
 }

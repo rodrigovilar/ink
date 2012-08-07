@@ -116,4 +116,6 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactory
 	
 	public void addDependentFactory(DslFactory factory);
 
+	List<String> getElementsIds();
+
 }

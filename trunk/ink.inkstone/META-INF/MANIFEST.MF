@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Inkstone
 Bundle-SymbolicName: ink.inkstone;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.1
 Bundle-Activator: inkstone.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- ink.eclipse;bundle-version="0.4.0",
- org.eclipse.core.resources;bundle-version="3.7.100"
+ org.eclipse.core.resources;bundle-version="3.7.100",
+ ink.eclipse;bundle-version="0.4.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

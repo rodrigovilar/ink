@@ -263,9 +263,7 @@ public class kioskView extends ViewPart {
 			break;
 		}
 	}
-	
-	
-	
+		
 	private void doSyncWithInkModel() {
 		// TODO: Replace this code with INK model investigation algorithm.
 		// TODO: Decide how to group INK elements (by type, by src files names, ...)

@@ -1464,7 +1464,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			object.setRawValue(InkClassState.p_properties, new ArrayList<PropertyState>());
 			object.setRawValue(InkClassState.p_java_mapping, mapping);
 			object.setAbstract(isAbstract);
-			object.setScope(scope);
+			object.setInkScope(scope);
 			CoreClassDescriptorImpl desc = new CoreClassDescriptorImpl(id, metaClassId, stateInterface, object, fields, numberOfTraits);
 			desc.setMetadata(annot);
 			elements.put(id, desc);

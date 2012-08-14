@@ -587,12 +587,12 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		}
 
 		@Override
-		public Scope getScope() {
+		public Scope getInkScope() {
 			return scope;
 		}
 
 		@Override
-		public void setScope(Scope scope) {
+		public void setInkScope(Scope scope) {
 			this.scope = scope;
 		}
 

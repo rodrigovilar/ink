@@ -116,7 +116,7 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	@Override
 	public int hashCode() {
 		String id = state.getId();
-		return id == null ? 0 : id.hashCode();
+		return id == null ? super.hashCode() : id.hashCode();
 	}
 
 	/**

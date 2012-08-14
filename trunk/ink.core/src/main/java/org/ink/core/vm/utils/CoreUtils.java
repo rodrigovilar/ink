@@ -67,8 +67,8 @@ public class CoreUtils {
 			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=\"").append(object.getSuper().getId()).append("\"");
 			;
 		}
-		if (object.getScope() != Scope.all) {
-			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getScope()).append("\"");
+		if (object.getInkScope() != Scope.all) {
+			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getInkScope()).append("\"");
 			;
 		}
 		builder.append("{");

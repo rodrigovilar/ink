@@ -69,7 +69,7 @@ public interface MirrorAPI extends InkObjectState {
 
 	public byte getPropertiesCount();
 
-	public Scope getScope();
+	public Scope getInkScope();
 
 	public boolean hasBehaviorClass();
 
@@ -77,7 +77,7 @@ public interface MirrorAPI extends InkObjectState {
 
 	public boolean hasInterfaceClass();
 
-	public void setScope(Scope scope);
+	public void setInkScope(Scope scope);
 
 	public void cacheBeahvior(InkObject behavior);
 

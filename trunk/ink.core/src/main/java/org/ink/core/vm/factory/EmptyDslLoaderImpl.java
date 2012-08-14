@@ -1,5 +1,9 @@
 package org.ink.core.vm.factory;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.ink.core.vm.exceptions.ObjectLoadingException;
 import org.ink.core.vm.lang.InkObjectState;
 
@@ -15,6 +19,11 @@ public class EmptyDslLoaderImpl<S extends EmptyDslLoaderState, D> extends DslLoa
 
 	@Override
 	public void scan(DslFactory ownerFactory) {
+	}
+	
+	@Override
+	public List<File> getInkFiles() {
+		return new ArrayList<File>();
 	}
 
 }

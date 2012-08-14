@@ -169,6 +169,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 			}catch(Exception e){
 				ParseError error = new ParseError(desc.getLineNumber(), 0, e.getMessage(), null);
 				throw new ObjectLoadingException(state, null, Arrays.asList(error), desc.getResource(), id);
+			}finally{
+				vc.reset();
 			}
 		}
 		

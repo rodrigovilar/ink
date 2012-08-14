@@ -225,13 +225,15 @@ public class VMMain {
 		facadeFactory.setDslPackage("");
 		facadeFactory.setJavaPackage("");
 		facadeFactory.setNamespace("ink.facade");
-		for (int i = factories.size()-1; i >=0; i--) {
+		for (int i = 0; i <factories.size(); i++) {
 			boolean shouldAdd = true; 
 			DslFactory imp = factories.get(i);
-			for(int j=0;j<imports.size();j++){
-				DslFactory existingImp = imports.get(j).getBehavior(); 
-				if(existingImp.compareTo(imp)<0){
-					shouldAdd = false;
+			for (int j = 0; j <factories.size(); j++) {
+				if(i!=j){
+					DslFactory other = factories.get(j);
+					if(other.compareTo(imp)<0){
+						shouldAdd = false;
+					}
 				}
 			}
 			if(shouldAdd){

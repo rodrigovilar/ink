@@ -107,7 +107,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 
 	@Override
 	public void setScope(Scope scope) {
-		workOnObject.setScope(scope);
+		workOnObject.setInkScope(scope);
 	}
 
 	@Override

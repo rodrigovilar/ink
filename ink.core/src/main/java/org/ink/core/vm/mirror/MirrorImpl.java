@@ -134,7 +134,7 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 
 	@Override
 	public Scope getScope() {
-		return ((MirrorAPI) getTargetState()).getScope();
+		return ((MirrorAPI) getTargetState()).getInkScope();
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -266,19 +267,29 @@ public class InkBuilder extends IncrementalProjectBuilder {
 	}
 
 	private List<InkErrorDetails> reloadProjectDSLs() {
-		String[] nss = InkUtils.getProjectNamespaces(getProject());
+		Map<String, DslFactory> factories = InkUtils.getProjectDSLFactories(getProject());
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
-		if (nss.length > 0) {
-			for (String ns : nss) {
-				System.out.println("Reloading DSL " + ns);
-				InkVM.instance().reloadDSL(ns);
-				result.addAll(InkVM.instance().collectErrors(ns));
+		if (factories.size() > 0) {
+			for (DslFactory factory : factories.values()) {
+				Set<String> scope = factory.getScope();
+				boolean reload = true;
+				for(String ns : scope){
+					if(!ns.equals(factory.getNamespace()) && factories.containsKey(ns)){
+						reload = false;
+						break;
+					}
+				}
+				if(reload){
+					String ns = factory.getNamespace();
+					InkVM.instance().reloadDSL(ns);
+					result.addAll(InkVM.instance().collectErrors(ns));
+				}
 			}
 		} else {
 			IFile f = getProject().getFile("dsls.ink");
 			try {
 				InkVM.instance().introduceNewDSl(f.getLocation().toFile().getAbsolutePath());
-				nss = InkUtils.getProjectNamespaces(getProject());
+				String[] nss = InkUtils.getProjectNamespaces(getProject());
 				for (String ns : nss) {
 					result.addAll(InkVM.instance().collectErrors(ns));
 				}

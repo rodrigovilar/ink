@@ -146,7 +146,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				Iterator<String> iter = loader.iterator();
 				while (iter.hasNext()) {
 					try {
-						getState(iter.next(), false);
+						String id = iter.next();
+						System.out.println(id);
+						getState(id, false);
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw new CoreException("Internal Error.", e);

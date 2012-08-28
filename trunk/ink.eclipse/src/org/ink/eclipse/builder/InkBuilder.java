@@ -282,7 +282,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				if(reload){
 					String ns = factory.getNamespace();
 					InkVM.instance().reloadDSL(ns);
-					result.addAll(InkVM.instance().collectErrors(ns));
+					result.addAll(InkVM.instance().collectErrors());
 				}
 			}
 		} else {

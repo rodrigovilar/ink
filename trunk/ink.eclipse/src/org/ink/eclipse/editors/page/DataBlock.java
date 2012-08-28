@@ -24,7 +24,6 @@ public abstract class DataBlock {
 	protected int startIndex = -1;
 	protected final Map<String, String> attributes = new HashMap<String, String>();
 	protected int endIndex = -1;
-	protected String startLine;
 	protected char[] text;
 	private final String key;
 	protected String ns;
@@ -109,7 +108,7 @@ public abstract class DataBlock {
 
 	public abstract DataBlock getBlock(int cursorLocation);
 
-	public List<ICompletionProposal> getContentAssist(int cursorLocation) {
+	public List<ICompletionProposal> getContentAssist(int lineNumber, int cursorLocation) {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		StringBuilder b = new StringBuilder(10);
 		if (cursorLocation >= startIndex && cursorLocation <= endIndex) {
@@ -118,38 +117,40 @@ public abstract class DataBlock {
 			if (i >= text.length) {
 				i = text.length - 1;
 			}
-			if (text[i] == ' ') {
-				for (; i >= 0; i--) {
-					if (text[i] == '\n') {
-						break;
-					} else if (!Character.isWhitespace(text[i])) {
-						isNewLineProposal = false;
-						break;
-					}
-				}
-			} else {
-				boolean foundChar = false;
-				boolean foundWhitspace = false;
-				boolean foundGeresh = false;
-				for (; i >= 0; i--) {
-					if (text[i] == '\n') {
-						break;
-					} else if (!Character.isWhitespace(text[i])) {
-						if (text[i] == '\"') {
-							foundGeresh = true;
-							continue;
-						}
-						if (foundWhitspace && foundChar) {
+			if(i>-1){
+				if (text[i] == ' ') {
+					for (; i >= 0; i--) {
+						if (text[i] == '\n') {
+							break;
+						} else if (!Character.isWhitespace(text[i])) {
 							isNewLineProposal = false;
 							break;
 						}
-						foundChar = true;
-					} else {
-						foundWhitspace = true;
-
 					}
-					if (!foundGeresh) {
-						b.append(text[i]);
+				} else {
+					boolean foundChar = false;
+					boolean foundWhitspace = false;
+					boolean foundGeresh = false;
+					for (; i >= 0; i--) {
+						if (text[i] == '\n') {
+							break;
+						} else if (!Character.isWhitespace(text[i])) {
+							if (text[i] == '\"') {
+								foundGeresh = true;
+								continue;
+							}
+							if (foundWhitspace && foundChar) {
+								isNewLineProposal = false;
+								break;
+							}
+							foundChar = true;
+						} else {
+							foundWhitspace = true;
+	
+						}
+						if (!foundGeresh) {
+							b.append(text[i]);
+						}
 					}
 				}
 			}
@@ -162,7 +163,7 @@ public abstract class DataBlock {
 				}
 			}
 			if (isNewLineProposal) {
-				result = getNewLineProposals(cursorLocation, prefix);
+				result = getNewLineProposals(lineNumber, cursorLocation, prefix);
 			} else {
 				result = getInlineProposals(cursorLocation, prefix);
 			}
@@ -591,6 +592,6 @@ public abstract class DataBlock {
 		}
 	}
 
-	protected abstract List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix);
+	protected abstract List<ICompletionProposal> getNewLineProposals(int lineNumber, int cursorLocation, String prefix);
 
 }

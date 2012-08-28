@@ -31,8 +31,6 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 			IFile sourceFile = ((FileEditorInput) ei).getFile();
 			File f = sourceFile.getLocation().toFile();
 			String doc = viewer.getDocument().get();
-			System.out.println(viewer.getSelectedRange());
-			System.out.println(viewer.getTopInset());
 			int lineNumber = 0;
 			try {
 				lineNumber = viewer.getDocument().getLineOfOffset(offset);

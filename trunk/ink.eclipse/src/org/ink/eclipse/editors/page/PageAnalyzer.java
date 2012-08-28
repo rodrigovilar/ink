@@ -8,16 +8,18 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 public class PageAnalyzer {
 
-	private String text;
-	private int cursorLocation;
+	private final String text;
+	private final int cursorLocation;
 	private ObjectDataBlock currentElement;
 	List<DataBlock> elements = new ArrayList<DataBlock>();
-	private String ns;
+	private final String ns;
+	private final int lineNumber;
 
-	public PageAnalyzer(String ns, String text, int cursorLocation) {
+	public PageAnalyzer(String ns, String text, int cursorLocation, int lineNumber) {
 		this.text = text;
 		this.ns = ns;
 		this.cursorLocation = cursorLocation;
+		this.lineNumber = lineNumber;
 		scan();
 	}
 
@@ -26,7 +28,7 @@ public class PageAnalyzer {
 		List<ICompletionProposal> result = null;
 		if (currentElement != null) {
 			DataBlock b = currentElement.getBlock(cursorLocation);
-			result = b.getContentAssist(cursorLocation);
+			result = b.getContentAssist(lineNumber, cursorLocation);
 		} else {
 			result = getResultForNewElement();
 		}
@@ -45,8 +47,7 @@ public class PageAnalyzer {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
 		result.add(new CompletionProposal("Object ", cursorLocation, 0, "Object ".length(), null, null, null, null));
-		// result.add(new CompletionProposal("Ink ", cursorLocation, 0,"Ink ".length(), null, null, null, null));
-		// result.add(new CompletionProposal("InkInk ", cursorLocation, 0,"InkInk ".length(), null, null, null, null));
+		result.add(new CompletionProposal("Ink ", cursorLocation, 0, "Ink ".length(), null, null, null, null));
 		return result;
 	}
 

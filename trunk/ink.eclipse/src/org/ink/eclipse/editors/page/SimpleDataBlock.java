@@ -195,7 +195,6 @@ public class SimpleDataBlock extends DataBlock {
 
 	private void getPathOptions(int cursorLocation, List<ICompletionProposal> result, InkObject o, String existingPath) {
 		Object innerO = null;
-		boolean filterByPrefix = false;
 		try{
 			innerO = o.reflect().getValueByPath(existingPath);
 		}catch(InvalidPathException e){
@@ -250,8 +249,8 @@ public class SimpleDataBlock extends DataBlock {
 	}
 
 	@Override
-	protected List<ICompletionProposal> getNewLineProposals(int cursorLocation, String prefix) {
-		return parent.getNewLineProposals(cursorLocation, prefix);
+	protected List<ICompletionProposal> getNewLineProposals(int lineNumber, int cursorLocation, String prefix) {
+		return parent.getNewLineProposals(lineNumber, cursorLocation, prefix);
 	}
 
 }

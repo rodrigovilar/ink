@@ -263,11 +263,11 @@ public class InkUtils {
 		if (inkObject != null && inkObject.reflect().isClass()) {
 			ClassMirror cm = inkObject.reflect();
 			if (cm.isValid()) {
-				Map<String, PropertyMirror> props = new HashMap<String, PropertyMirror>(cm.getClassPropertiesMap());
-				for (String key : exclude) {
-					props.remove(key);
+				for(PropertyMirror pm : cm.getClassPropertiesMirrors()){
+					if(!exclude.contains(pm.getName())){
+						result.add(pm);
+					}
 				}
-				return props.values();
 			}
 		}
 		return result;

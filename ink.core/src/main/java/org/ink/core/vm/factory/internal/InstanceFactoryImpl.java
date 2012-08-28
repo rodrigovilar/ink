@@ -6,15 +6,13 @@ import org.ink.core.vm.factory.InstanceFactory;
 public class InstanceFactoryImpl implements InstanceFactory {
 
 	@Override
-	public Object newInstance(String namespace, String className) {
+	public Object newInstance(String namespace, Class<?> clazz) {
 		try {
-			return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+			return clazz.newInstance();
 		} catch (InstantiationException e) {
-			throw new CoreException("Could not instantiate class : " + className, e);
+			throw new CoreException("Could not instantiate class : " + clazz.getName(), e);
 		} catch (IllegalAccessException e) {
-			throw new CoreException("Could not instantiate class : " + className, e);
-		} catch (ClassNotFoundException e) {
-			throw new CoreException("Could not instantiate class : " + className, e);
+			throw new CoreException("Could not instantiate class : " + clazz.getName(), e);
 		}
 	}
 }

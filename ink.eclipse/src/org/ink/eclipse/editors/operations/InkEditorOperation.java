@@ -65,7 +65,15 @@ public abstract class InkEditorOperation {
 			o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
 		}
 		if (o == null) {
-			pa = new PageAnalyzer(ns, text, offset);
+			int lineNumber = 0;
+			try{
+				lineNumber = doc.getLineOfOffset(offset);
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			pa = new PageAnalyzer(ns, text, offset, lineNumber);
 			ObjectDataBlock root = pa.getCurrentElement();
 			if (root != null) {
 				DataBlock element = root.getBlock(offset);

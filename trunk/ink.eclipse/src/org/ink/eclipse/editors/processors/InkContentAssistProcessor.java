@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -30,9 +31,17 @@ public class InkContentAssistProcessor implements IContentAssistProcessor {
 			IFile sourceFile = ((FileEditorInput) ei).getFile();
 			File f = sourceFile.getLocation().toFile();
 			String doc = viewer.getDocument().get();
+			System.out.println(viewer.getSelectedRange());
+			System.out.println(viewer.getTopInset());
+			int lineNumber = 0;
+			try {
+				lineNumber = viewer.getDocument().getLineOfOffset(offset);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
 			String ns = InkUtils.resolveNamespace(f);
 			if (ns != null) {
-				PageAnalyzer pageAnalyzer = new PageAnalyzer(ns, doc, offset);
+				PageAnalyzer pageAnalyzer = new PageAnalyzer(ns, doc, offset, lineNumber);
 				List<ICompletionProposal> props = pageAnalyzer.getContentAssist();
 				return props.toArray(new ICompletionProposal[] {});
 			}

@@ -387,7 +387,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	}
 
 	private Object instantiate(Class<?> stateClass) {
-		return VMMain.getInstanceFactory().newInstance(getNamespace(), stateClass.getName());
+		return VMMain.getInstanceFactory().newInstance(getNamespace(), stateClass);
 	}
 
 	protected Class<?> getClass(String className) {

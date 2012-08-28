@@ -132,8 +132,8 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 	private void compile(InkObjectState state, ElementDescriptor<D> desc, InkReader<D> reader) throws ObjectLoadingException {
 		Mirror m = state.reflect();
 		String id = m.getId();
-		if(m.getLifeCycleState()!=LifeCycleState.READY){
-			try{
+		try{
+			if(m.getLifeCycleState()!=LifeCycleState.READY){
 				String superId = ((MirrorAPI)state).getSuperId();
 				InkObjectState superObject = null;
 				if(superId!=null && (superObject=serializationContext.get(superId))!=null){
@@ -149,31 +149,33 @@ public class DslLoaderImpl<S extends DslLoaderState, D> extends InkObjectImpl<S>
 					
 				}
 				m.edit().compile();
-				if (shouldValidateResult(state) && !state.validate(vc)) {
-					List<ValidationMessage> errors = vc.getMessages();
-					desc.setValidationErrorMessages(errors);
-					if (!errors.isEmpty()) {
-						System.out.println("============================================Load Error=====================================================================================");
-						for (ValidationMessage er : errors) {
-							System.out.println("Object '" + id + "':" + er.getFormattedMessage());
-						}
-						System.out.println("=================================================================================================================================");
-					}
-					// todo -this is a hack
-					if (vc.containsMessage(Severity.INK_ERROR)) {
-						desc.setInvalid();
-						m.setLifeCycleState(LifeCycleState.INVALID);
-						throw new ObjectLoadingException(state, errors, null, desc.getResource(), id);
-					}
-				}
-			}catch(Exception e){
-				ParseError error = new ParseError(desc.getLineNumber(), 0, e.getMessage(), null);
-				throw new ObjectLoadingException(state, null, Arrays.asList(error), desc.getResource(), id);
-			}finally{
-				vc.reset();
 			}
+			if (desc.isValid() && shouldValidateResult(state) && !state.validate(vc)) {
+				List<ValidationMessage> errors = vc.getMessages();
+				desc.setValidationErrorMessages(errors);
+				if (!errors.isEmpty()) {
+					System.out.println("============================================Load Error=====================================================================================");
+					for (ValidationMessage er : errors) {
+						System.out.println("Object '" + id + "':" + er.getFormattedMessage());
+					}
+					System.out.println("=================================================================================================================================");
+				}
+				// todo -this is a hack
+				if (vc.containsMessage(Severity.INK_ERROR)) {
+					desc.setInvalid();
+					m.setLifeCycleState(LifeCycleState.INVALID);
+					throw new ObjectLoadingException(state, errors, null, desc.getResource(), id);
+				}
+			}
+			
+		}catch(ObjectLoadingException e){
+			throw e;
+		}catch(Exception e){
+			ParseError error = new ParseError(desc.getLineNumber(), 0, e.getMessage(), null);
+			throw new ObjectLoadingException(state, null, Arrays.asList(error), desc.getResource(), id);
+		}finally{
+			vc.reset();
 		}
-		
 	}
 
 	private boolean shouldValidateResult(InkObjectState result) {

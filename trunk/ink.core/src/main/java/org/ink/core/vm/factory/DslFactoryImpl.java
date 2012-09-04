@@ -147,7 +147,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				while (iter.hasNext()) {
 					try {
 						String id = iter.next();
-						System.out.println(id);
 						getState(id, false);
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -61,6 +61,8 @@ public class ObjectDataBlock extends DataBlock {
 						if(result!=null){
 							toContinue=false;
 						}
+					}else{
+						addObjectBlock(elementStart + 1, i + 1, cursorLocation);
 					}
 				}
 				currentLine.append(text[i]);

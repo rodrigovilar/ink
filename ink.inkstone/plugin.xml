@@ -10,11 +10,22 @@
       <view
             allowMultiple="false"
             category="inkstone.category.inkstone"
-            class="inkstone.views.kioskView"
-            icon="icons/INKSTONE Kiosk View Icon.png"
+            class="inkstone.views.KioskView"
+            icon="src/inkstone/utils/gallery/INKSTONE Kiosk View Icon.png"
             id="inkstone.views.KioskView"
-            name="INK Kiosk View">
+            name="INK Kiosk"
+            restorable="true">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="inkstone.InkstoneMainPerspective"
+            fixed="false"
+            icon="src/inkstone/utils/gallery/inkstone_perspective_icon.png"
+            id="inkstone.perspective.main"
+            name="Inkstone">
+      </perspective>
    </extension>
 
 </plugin>

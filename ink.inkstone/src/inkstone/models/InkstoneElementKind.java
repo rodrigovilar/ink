@@ -138,6 +138,7 @@ public class InkstoneElementKind {
 			elements_.add(element);
 			element.drawInKiosk(childComposite_, image_);
 		}
+		expandItem_.setText("    " + this.kindName_ + " (" + String.valueOf(elements_.size()) + " elements)");
 		newHeight = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		setDisplayHeight(newHeight-oldHeight);
 	}

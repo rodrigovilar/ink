@@ -100,8 +100,6 @@ public class KioskView extends ViewPart {
 		public void dispose() {}
 	}
 	
-	
-
 	public KioskView() {
 		this.inkGallery_ = InkstoneGallery.getInstance();
 		this.selectedElement_ = null;
@@ -315,6 +313,7 @@ public class KioskView extends ViewPart {
 				}
 			}
 		}
+		selectedElement_.setSelected(true);
 		//refresh expand bars display by Collapse and Expand all bars
 		setExpandedKioskBars(false);
 		setExpandedKioskBars(true);
@@ -441,7 +440,7 @@ public class KioskView extends ViewPart {
 				for (InkstoneLibrary library : project.getDslLibs()) {
 					for (InkstoneElementKind kind : library.getinkTypes()) {
 						for (InkstoneElement element : kind.getElements()) {
-							element.redrawByRegxMatch(regex);
+							element.redrawByRegexMatch(regex);
 						}
 					}
 				}

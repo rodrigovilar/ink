@@ -196,38 +196,21 @@ public class InkstoneLibrary {
 					break;
 			}
 		}
-		
-		if( inkMetaclasses.size() > 0 ) {
-			if(inkTypesMap_.containsKey(META_CLASSES)) {
-				inkTypesMap_.get(META_CLASSES).refreshData(inkMetaclasses);
+
+		if( inkEnumerations.size() > 0 ) {
+			if(inkTypesMap_.containsKey(ENUMERATIONS)) {
+				inkTypesMap_.get(ENUMERATIONS).refreshData(inkEnumerations);
 			}
 			else {
-				kind = new InkstoneElementKind(META_CLASSES, this, inkMetaclasses,
-						inkGallery_.getImage(InkstoneGallery.METACLASS_ICON));
+				kind = new InkstoneElementKind(ENUMERATIONS, this, inkEnumerations,
+						inkGallery_.getImage(InkstoneGallery.ENUMERATION_ICON));
 				inkTypes_.add(kind);
-				inkTypesMap_.put(META_CLASSES, kind);
-			}
+				inkTypesMap_.put(ENUMERATIONS, kind);
+			}			
 		}
 		else {
-			if(inkTypesMap_.containsKey(META_CLASSES)) {
-				inkTypesMap_.get(META_CLASSES).dispose();
-			}
-		}
-		
-		if( inkClasses.size() > 0 ) {
-			if(inkTypesMap_.containsKey(CLASSES)) {
-				inkTypesMap_.get(CLASSES).refreshData(inkClasses);
-			}
-			else {
-				kind = new InkstoneElementKind(CLASSES, this, inkClasses,
-						inkGallery_.getImage(InkstoneGallery.CLASS_ICON));
-				inkTypes_.add(kind);
-				inkTypesMap_.put(CLASSES, kind);
-			}
-		}
-		else {
-			if(inkTypesMap_.containsKey(CLASSES)) {
-				inkTypesMap_.get(CLASSES).dispose();
+			if(inkTypesMap_.containsKey(ENUMERATIONS)) {
+				inkTypesMap_.get(ENUMERATIONS).dispose();
 			}
 		}
 		
@@ -248,22 +231,40 @@ public class InkstoneLibrary {
 			}
 		}
 		
-		if( inkEnumerations.size() > 0 ) {
-			if(inkTypesMap_.containsKey(ENUMERATIONS)) {
-				inkTypesMap_.get(ENUMERATIONS).refreshData(inkEnumerations);
+		if( inkClasses.size() > 0 ) {
+			if(inkTypesMap_.containsKey(CLASSES)) {
+				inkTypesMap_.get(CLASSES).refreshData(inkClasses);
 			}
 			else {
-				kind = new InkstoneElementKind(ENUMERATIONS, this, inkEnumerations,
-						inkGallery_.getImage(InkstoneGallery.ENUMERATION_ICON));
+				kind = new InkstoneElementKind(CLASSES, this, inkClasses,
+						inkGallery_.getImage(InkstoneGallery.CLASS_ICON));
 				inkTypes_.add(kind);
-				inkTypesMap_.put(ENUMERATIONS, kind);
-			}			
+				inkTypesMap_.put(CLASSES, kind);
+			}
 		}
 		else {
-			if(inkTypesMap_.containsKey(ENUMERATIONS)) {
-				inkTypesMap_.get(ENUMERATIONS).dispose();
+			if(inkTypesMap_.containsKey(CLASSES)) {
+				inkTypesMap_.get(CLASSES).dispose();
 			}
-		}		
+		}
+		
+		if( inkMetaclasses.size() > 0 ) {
+			if(inkTypesMap_.containsKey(META_CLASSES)) {
+				inkTypesMap_.get(META_CLASSES).refreshData(inkMetaclasses);
+			}
+			else {
+				kind = new InkstoneElementKind(META_CLASSES, this, inkMetaclasses,
+						inkGallery_.getImage(InkstoneGallery.METACLASS_ICON));
+				inkTypes_.add(kind);
+				inkTypesMap_.put(META_CLASSES, kind);
+			}
+		}
+		else {
+			if(inkTypesMap_.containsKey(META_CLASSES)) {
+				inkTypesMap_.get(META_CLASSES).dispose();
+			}
+		}
+		
 	}
 	
 	

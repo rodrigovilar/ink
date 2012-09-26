@@ -1,6 +1,8 @@
 package inkstone.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -33,6 +35,16 @@ public class InkstoneElementKind {
 	private int displayHeight_ = 0;
 	
 	/**
+	 * Comparator class for sorting {@link InkstoneElement} by their full INK id.
+	 */
+	public class InkstoneElementComparable implements Comparator<InkstoneElement>{
+	    @Override
+	    public int compare(InkstoneElement e1, InkstoneElement e2) {
+	        return (e1.getFullId().compareTo(e2.getFullId()));
+	    }
+	}
+	
+	/**
 	 * Class constructor.
 	 * 
 	 * @param kindName The list name.
@@ -46,6 +58,7 @@ public class InkstoneElementKind {
 		for( Mirror m : mirrors) {
 			elements_.add(new InkstoneElement(m.getShortId(), m.getNamespace(), this));
 		}
+		Collections.sort(elements_, new InkstoneElementComparable());
 	}
 	
 	public String getKindName() {
@@ -138,6 +151,7 @@ public class InkstoneElementKind {
 			elements_.add(element);
 			element.drawInKiosk(childComposite_, image_);
 		}
+		Collections.sort(elements_, new InkstoneElementComparable());
 		expandItem_.setText("    " + this.kindName_ + " (" + String.valueOf(elements_.size()) + " elements)");
 		newHeight = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		setDisplayHeight(newHeight-oldHeight);

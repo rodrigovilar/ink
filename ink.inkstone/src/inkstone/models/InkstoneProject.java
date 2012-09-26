@@ -3,6 +3,8 @@ package inkstone.models;
 import inkstone.views.KioskView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -13,7 +15,6 @@ import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
-import org.eclipse.swt.widgets.Menu;
 
 import org.eclipse.core.resources.IProject;
 import org.ink.eclipse.utils.InkUtils;
@@ -36,8 +37,16 @@ public class InkstoneProject {
 	private KioskView parentKiosk_;
 	private ExpandListener expandListener_;
 		
+	/**
+	 * Comparator class for sorting {@link InkstoneLibrary} by their name-space names.
+	 */
+	public class InkstoneLibraryComparable implements Comparator<InkstoneLibrary>{
+	    @Override
+	    public int compare(InkstoneLibrary l1, InkstoneLibrary l2) {
+	        return (l1.getDslName().compareTo(l2.getDslName()));
+	    }
+	}
 	
-	// 
 	/**
 	 * Class constructor.
 	 * Auto starts by filling given INK project DSL namespaces.
@@ -51,6 +60,7 @@ public class InkstoneProject {
 		for (int i = 0; i < nss.length; i++) {
 			DslLibs_.add( new InkstoneLibrary(nss[i], this) );
 		}
+		Collections.sort(DslLibs_, Collections.reverseOrder(new InkstoneLibraryComparable()));
 	}
 	
 	// Constructor for selective fill of the model

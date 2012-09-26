@@ -2,7 +2,6 @@ package inkstone.models;
 
 import inkstone.views.KioskView;
 
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseAdapter;
@@ -35,7 +34,6 @@ import org.ink.core.vm.utils.InkNotations;
  * @author Ofer Calvo
  *
  */
-@SuppressWarnings("rawtypes")
 public class InkstoneElement {
 
 	private String name_;
@@ -164,6 +162,7 @@ public class InkstoneElement {
 				kiosk.getSelectedElement().setSelected(false, this);
 			}
 			kiosk.setSelectedElement(this);
+			//label_.setBackground(display_.getSystemColor(SWT.COLOR_LIST_SELECTION));
 		}
 		else {
 			if(callingElement == this) {
@@ -174,7 +173,18 @@ public class InkstoneElement {
 					label_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
 				}
 			}
+			//label_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
 		}		
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected_ = selected;
+		if( selected ) {
+			label_.setBackground(display_.getSystemColor(SWT.COLOR_LIST_SELECTION));
+		}
+		else {
+			label_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
+		}
 	}
 	
 	/**
@@ -226,6 +236,15 @@ public class InkstoneElement {
 				
 			}
 		});
+		
+		// Check if current element was selected before (in case of refreshing data in the kiosk)
+		InkstoneElement lastKioskSelectedElement = elementkind_.getDslLib().getProject().getKiosk().getSelectedElement();
+		if( lastKioskSelectedElement != null ) {
+			if(lastKioskSelectedElement.getFullId().compareTo(getFullId()) == 0) {
+				label_.setBackground(display_.getSystemColor(SWT.COLOR_LIST_SELECTION));
+				setSelected(true, InkstoneElement.this);
+			}
+		}		
 	}
 	
 	/**
@@ -240,7 +259,7 @@ public class InkstoneElement {
 	 * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#sum">Summary of regular-expression</a>
 	 * @param regex  - the regular expression to which this element is to be matched. 
 	 */
-	public void redrawByRegxMatch(String regex) {
+	public void redrawByRegexMatch(String regex) {
 		GridData data = (GridData) label_.getLayoutData();
 		boolean isaMatch = label_.getText().matches(regex);
 		if(label_.getVisible()) {

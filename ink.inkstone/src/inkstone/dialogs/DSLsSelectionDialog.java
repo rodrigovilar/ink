@@ -1,9 +1,7 @@
-/**
- * 
- */
 package inkstone.dialogs;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Collections;
 
@@ -59,6 +57,16 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 	// dialog results (OK
 	public static final int DONE = 0;
 	public static final int CANCEL = 1;  
+	
+	/**
+	 * Comparator class for sorting {@link InkstoneProject} by their project names.
+	 */
+	public class InkstoneProjectComparable implements Comparator<InkstoneProject>{
+	    @Override
+	    public int compare(InkstoneProject p1, InkstoneProject p2) {
+	        return (p1.getName().compareTo(p2.getName()));
+	    }
+	}
 	
 	/**
 	 * The dialogs constructor. Sets help button and the dialog title image.
@@ -290,6 +298,7 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 				}
 			}
 		}
+		Collections.sort(selectedInktoneModel_, Collections.reverseOrder(new InkstoneProjectComparable()));
 	}
  	
  	/**

@@ -135,8 +135,9 @@ public class InkstoneElementKind {
 		
 		if(expandItem_.getExpanded()) {
 			expandItem_.setHeight(displayHeight_);
-			DslLib_.setDisplayHeight(displayHeight);
 			expandBar_.pack();
+			DslLib_.setDisplayHeight(displayHeight);
+			expandBar_.redraw();
 		}
 	}
 	

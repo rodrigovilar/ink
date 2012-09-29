@@ -178,6 +178,10 @@ public class InkstoneElement {
 	}
 	
 	public void setSelected(boolean selected) {
+		if(label_.isDisposed()) {
+			elementkind_.getDslLib().getProject().getKiosk().setSelectedElement(null);
+			return;
+		}
 		this.selected_ = selected;
 		if( selected ) {
 			label_.setBackground(display_.getSystemColor(SWT.COLOR_LIST_SELECTION));
@@ -244,7 +248,7 @@ public class InkstoneElement {
 				label_.setBackground(display_.getSystemColor(SWT.COLOR_LIST_SELECTION));
 				setSelected(true, InkstoneElement.this);
 			}
-		}		
+		}
 	}
 	
 	/**

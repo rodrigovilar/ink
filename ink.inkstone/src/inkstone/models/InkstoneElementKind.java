@@ -128,6 +128,7 @@ public class InkstoneElementKind {
 	 * @param displayHeight The height.
 	 */
 	public void setDisplayHeight(int displayHeight) {
+		// handle zero height for the filter display look...
 		if(displayHeight_== 4) {displayHeight_ = 0;}
 		this.displayHeight_ += displayHeight;
 		if(displayHeight_==0) {displayHeight_ = 4;}
@@ -135,7 +136,7 @@ public class InkstoneElementKind {
 		if(expandItem_.getExpanded()) {
 			expandItem_.setHeight(displayHeight_);
 			DslLib_.setDisplayHeight(displayHeight);
-			expandBar_.redraw();
+			expandBar_.pack();
 		}
 	}
 	
@@ -149,9 +150,11 @@ public class InkstoneElementKind {
 		for( Mirror m : mirrors) {
 			InkstoneElement element = new InkstoneElement(m.getShortId(), m.getNamespace(), this);
 			elements_.add(element);
-			element.drawInKiosk(childComposite_, image_);
 		}
 		Collections.sort(elements_, new InkstoneElementComparable());
+		for( InkstoneElement element : elements_) {
+			element.drawInKiosk(childComposite_, image_);			
+		}
 		expandItem_.setText("    " + this.kindName_ + " (" + String.valueOf(elements_.size()) + " elements)");
 		newHeight = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		setDisplayHeight(newHeight-oldHeight);

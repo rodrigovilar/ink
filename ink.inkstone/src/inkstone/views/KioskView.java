@@ -303,6 +303,8 @@ public class KioskView extends ViewPart {
 		filterButton_.setSelection(false);
 		filterTextbox_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
 		filterTextbox_.setText(".*");
+		
+		setExpandedKioskBars(true);
 		//refresh all libraries objects in the inkstone model
 		if( inkstoneModel_ != null ) {
 			if(inkstoneModel_.size() > 0) {
@@ -313,7 +315,9 @@ public class KioskView extends ViewPart {
 				}
 			}
 		}
-		selectedElement_.setSelected(true);
+		if( selectedElement_ != null ) {
+			selectedElement_.setSelected(true);
+		}
 		//refresh expand bars display by Collapse and Expand all bars
 		setExpandedKioskBars(false);
 		setExpandedKioskBars(true);

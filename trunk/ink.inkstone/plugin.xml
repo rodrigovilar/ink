@@ -16,6 +16,15 @@
             name="INK Kiosk"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            category="inkstone.category.inkstone"
+            class="inkstone.views.DiagramView"
+            icon="src/inkstone/utils/gallery/INK Diagram Icon - Normal.png"
+            id="inkstone.views.DiagramView"
+            name="INK Diagram"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -26,6 +35,30 @@
             id="inkstone.perspective.main"
             name="Inkstone">
       </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            alias-for="svg"
+            file-extensions="isd"
+            id="ink.inkstone.isd.contenttype"
+            name="InkStone Diagram file"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            canFinishEarly="false"
+            category="org.ink.eclipse"
+            class="inkstone.wizards.NewInkstoneDiagramWizard"
+            descriptionImage="src/inkstone/utils/gallery/inkstone_small_logo.jpg"
+            finalPerspective="inkstone.perspective.main"
+            hasPages="true"
+            icon="src/inkstone/utils/gallery/INK Diagram Icon - Normal.png"
+            id="ink.inkstone.wizards.NewInkstoneDiagramWizard"
+            name="INK Diagram">
+      </wizard>
    </extension>
 
 </plugin>

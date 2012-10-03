@@ -158,8 +158,9 @@ public class InkstoneProject {
 	 * Draw the kiosk view display widgets.
 	 * @param parentComposite The parent {@link Composite} object. Sub-type: {@link ExpandBar}.
 	 */
-	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener ) {
+	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, boolean zeroIndex ) {
 		expandBar_ = parentComposite;
+		expandBarItemIndex_ = (zeroIndex) ? 0 : 1;
 		
 		childComposite_ = new ExpandBar (parentComposite, SWT.NONE);
 		childComposite_.addMenuDetectListener(popupMenuListener);

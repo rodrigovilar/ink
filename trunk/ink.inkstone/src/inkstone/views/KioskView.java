@@ -1,6 +1,5 @@
 package inkstone.views;
 
-
 import java.util.List;
 
 import inkstone.dialogs.DSLsSelectionDialog;
@@ -35,7 +34,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-
 import org.eclipse.jface.action.Action;  
 import org.eclipse.ui.PlatformUI;  
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction; 
@@ -61,6 +59,23 @@ public class KioskView extends ViewPart {
 	private MenuDetectListener popupMenuListener_;
 	private List<InkstoneProject> inkstoneModel_;
 	private InkstoneElement selectedElement_;
+	private boolean hideInkNotations_;
+
+	/**
+	 * Inner class to handle custom action of INK notations bar show/hide action.
+	 */
+	private class ShowHideInkNotationsAction extends Action implements IWorkbenchAction{
+		public ShowHideInkNotationsAction() {
+			super("Show/Hide the INK Notations bar", Action.AS_CHECK_BOX);
+		}
+		
+		@Override
+		public void run() {
+			showHideInkNotations(this.isChecked());
+		}
+		
+		public void dispose() {}
+	}
 	
 	/**
 	 * Inner class to handle custom action of INK namespaces refresh.
@@ -103,6 +118,7 @@ public class KioskView extends ViewPart {
 	public KioskView() {
 		this.inkGallery_ = InkstoneGallery.getInstance();
 		this.selectedElement_ = null;
+		this.hideInkNotations_ = true;
 		
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 		dslsSelectionDialog_ = new DSLsSelectionDialog(shell, this); 
@@ -115,12 +131,18 @@ public class KioskView extends ViewPart {
 		popupMenu_ = new Menu(shell_, SWT.POP_UP);
 		initPopupMenu();
 		
+		//Define the show/hide ink notations expand bar
+		ShowHideInkNotationsAction customShowHideInkNotationsAction = new ShowHideInkNotationsAction();
+		customShowHideInkNotationsAction.setImageDescriptor(inkGallery_.getImageDescriptor(InkstoneGallery.PAINT_ICON));
+		customShowHideInkNotationsAction.setChecked(!hideInkNotations_);
+		getViewSite().getActionBars().getToolBarManager().add(customShowHideInkNotationsAction);
+		
 		// Define the refress kiosk custom action in the view's Menu
 		RefreshInkNamespacesAction customActionRefreshInkNamespaces = new RefreshInkNamespacesAction();
 		customActionRefreshInkNamespaces.setText("Refresh Kiosk data");
 		customActionRefreshInkNamespaces.setImageDescriptor(inkGallery_.getImageDescriptor(InkstoneGallery.GENERAL_REFRESH_ICON));
 		getViewSite().getActionBars().getToolBarManager().add(customActionRefreshInkNamespaces);
-		
+
 		// Define ADD/SELECT Ink namespaces custom action in the view's Menu  
 		SelectInkNamespacesAction customActionSelectInkNamespaces = new SelectInkNamespacesAction();  
 		customActionSelectInkNamespaces.setText("Open DSL namespaces selection dialog");  
@@ -221,7 +243,7 @@ public class KioskView extends ViewPart {
 			}
 		};
 		mainExpBar_.addMenuDetectListener(popupMenuListener_);
-		addGeneralExpandBar(mainExpBar_);
+		//addGeneralExpandBar(mainExpBar_);
 	}
 
 	@Override
@@ -269,8 +291,10 @@ public class KioskView extends ViewPart {
 	private void setExpandedKioskBars(boolean expanded) {
 		int heightMark =(expanded ? 1 : (-1) );
 		
-		if(mainExpBar_.getItem(0).getExpanded() != expanded ) {
-			mainExpBar_.getItem(0).setExpanded(expanded);
+		if( !hideInkNotations_ ) {
+			if(mainExpBar_.getItem(0).getExpanded() != expanded ) {
+				mainExpBar_.getItem(0).setExpanded(expanded);
+			}
 		}
 		
 		if(inkstoneModel_==null) {return;}
@@ -294,6 +318,18 @@ public class KioskView extends ViewPart {
 		}
 	}
 
+	private void showHideInkNotations(boolean checked) {
+		hideInkNotations_ = !checked;
+		if(!hideInkNotations_) {
+			addGeneralExpandBar(mainExpBar_);
+		}
+		else {
+			mainExpBar_.getItem(0).getControl().dispose();
+			mainExpBar_.getItem(0).dispose();
+			mainExpBar_.redraw();
+		}
+	}
+	
 	/**
 	 * Refresh the kiosk display using silent mode of the DSLsSelectionDialog.
 	 */
@@ -358,7 +394,7 @@ public class KioskView extends ViewPart {
 		this.inkstoneModel_= selectedInktoneModel;
 		
 		for( InkstoneProject project : this.inkstoneModel_) {
-			project.drawInKiosk(mainExpBar_, popupMenuListener_);
+			project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_);
 		}
 	}
 	

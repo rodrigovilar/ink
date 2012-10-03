@@ -27,6 +27,7 @@ public class InkstoneGallery {
 	public static final String      ENUMERATION_ICON = "enumerations icon";
 	public static final String        EXTENSION_ICON = "extension icon";
 	public static final String       INSTANCING_ICON = "instancing icon";
+	public static final String            PAINT_ICON = "paint icon"; //paint_icon.png
 	public static final String      REFERENCING_ICON = "referencing icon";
 	public static final String  PROJECTEXP_PLUS_ICON = "projects Explorer plus icon";
 	public static final String PROJECTEXP_MINUS_ICON = "projects Explorer minus icon";
@@ -39,6 +40,8 @@ public class InkstoneGallery {
 	public static final String     INKSTONE_MED_LOGO = "INKSTONE Medium Logo";
 	public static final String   INKSTONE_SMALL_LOGO = "INKSTONE Small Logo";
 	public static final String   INKSTONE_KIOSK_ICON = "INKSTONE KIOSK icon";
+	public static final String  INKSTONE_DIAG_NORMAL = "INKSTONE Diagram Normal icon";
+	public static final String  INKSTONE_DIAG_ERROR  = "INKSTONE Diagram Error icon";
 	public static final String INKSTONE_PERSPTV_ICON = "INKSTONE Perspective icon";
 
 	
@@ -53,6 +56,7 @@ public class InkstoneGallery {
 		registry_.put(ENUMERATION_ICON      , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\ink_enum_icon.png"));
 		registry_.put(EXTENSION_ICON        , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\ink_extension_icon.png"));
 		registry_.put(INSTANCING_ICON       , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\ink_instancing_icon.png"));
+		registry_.put(PAINT_ICON            , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\paint_icon.png"));
 		registry_.put(REFERENCING_ICON      , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\ink_referencing_icon.png"));
 		registry_.put(GENERAL_ADD_ICON      , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\add_icon.png"));
 		registry_.put(GENERAL_DELETE_ICON   , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\delete_icon.png"));
@@ -65,6 +69,8 @@ public class InkstoneGallery {
 		registry_.put(INKSTONE_MED_LOGO     , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\inkstone_medium_logo.jpg"));
 		registry_.put(INKSTONE_SMALL_LOGO   , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\inkstone_small_logo.jpg"));
 		registry_.put(INKSTONE_KIOSK_ICON   , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\INKSTONE Kiosk View Icon.png"));
+		registry_.put(INKSTONE_DIAG_NORMAL  , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\INK Diagram Icon - Normal.png"));
+		registry_.put(INKSTONE_DIAG_ERROR   , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\INK Diagram Icon - Error.png"));
 		registry_.put(INKSTONE_PERSPTV_ICON , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\inkstone_perspective_icon.png"));
 	};
 	

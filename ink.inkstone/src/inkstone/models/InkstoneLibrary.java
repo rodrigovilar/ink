@@ -7,15 +7,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
+import org.eclipse.swt.widgets.Listener;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.eclipse.utils.InkUtils;
 
@@ -148,7 +149,8 @@ public class InkstoneLibrary {
 		
 		expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
 		expandItem_.setHeight(displayHeight_);
-		expandItem_.setText("  " + DslName_ + " (" + String.valueOf(inkTypes_.size()) + " types)");
+		expandItem_.setText( getBarText() );
+		childComposite_.setToolTipText( getBarToolTip() );
 		expandItem_.setControl(childComposite_);
 		
 		expandListener_ = new ExpandListener() {
@@ -162,6 +164,31 @@ public class InkstoneLibrary {
 			}
 		};
 		childComposite_.addExpandListener(expandListener_);
+	}
+
+	public String getBarText() {
+		String text = DslName_;
+		int elementsSum = 0;
+		if( inkTypes_.size() > 0 ) {
+			for(InkstoneElementKind kind : inkTypes_) {
+				elementsSum += kind.getElements().size();
+			}
+			text += " (" + String.valueOf(elementsSum) + " elements)";
+		}
+		return text;
+	}
+	
+	public String getBarToolTip() {
+		String mapKeys[] = {META_CLASSES, CLASSES, OBJECTS, ENUMERATIONS};
+		String text = DslName_ + " : \n";
+		if( inkTypesMap_.size() > 0 ) {
+			for( String key : mapKeys ) {
+				if( inkTypesMap_.containsKey(key) ) {
+					text += String.valueOf(inkTypesMap_.get(key).getElements().size()) + " " + inkTypesMap_.get(key).getKindName() + "\n";
+				}
+			}
+					}
+		return text;
 	}
 	
 	/**

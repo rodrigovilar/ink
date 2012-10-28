@@ -48,5 +48,9 @@ Object id="defaultVelocityExecutor" class="VelocityExecutor"{
 			key "file.resource.loader.class"
 			value "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader"
 		}
+		item{
+			key "directive.set.null.allowed"
+			value "true"
+		}
 	}
 }

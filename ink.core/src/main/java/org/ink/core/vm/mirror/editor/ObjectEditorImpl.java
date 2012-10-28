@@ -258,12 +258,21 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 					if (((Proxiable) o).isProxied()) {
 						o = ((Proxiability) o).getVanillaState();
 					}
-					if (!((MirrorAPI) o).reflect().isRoot()) {
+					MirrorAPI oMirror = (MirrorAPI)o;
+					if (!oMirror.reflect().isRoot()) {
 						Mirror innerSuper = null;
-						if (superObjectValue != null) {
+						if(superObjectValue==null){
+							if(oMirror.getSuperId()!=null){
+								superState = oMirror.getContext().getState(oMirror.getSuperId(), false);
+								if(superState!=null){
+									innerSuper = superState.reflect();
+									oMirror.setSuper(superState);
+								}
+							}
+						}else{
 							innerSuper = ((Proxiable)superObjectValue).reflect();
 						}
-						innerCompile((MirrorAPI) o, innerSuper);
+						innerCompile(oMirror, innerSuper);
 					}
 				} else if (pm.getTypeMarker() == DataTypeMarker.Collection) {
 					switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {

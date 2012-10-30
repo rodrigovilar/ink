@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar" sourcepath="lib/velocity-1.7.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="var" path="INK_HOME/lib/ink-core.jar"/>
 	<classpathentry kind="var" path="INK_HOME/lib/ink-sdl.jar"/>
 	<classpathentry kind="output" path="output/bin"/>

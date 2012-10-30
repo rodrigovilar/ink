@@ -87,7 +87,11 @@ public abstract class InkEditorOperation {
 							if (id == null) {
 								element = element.getParent();
 							} else {
-								o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, false);
+								try{
+									o = InkPlugin.getDefault().getInkContext().getFactory().getObject(id, true);
+								}catch(Throwable e){
+									break;
+								}
 							}
 						} else {
 							element = element.getParent();

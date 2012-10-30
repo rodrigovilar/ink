@@ -263,19 +263,24 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 				addError(tag, "The attribute 'class' is invalid in this context.");
 				return null;
 			} else {
-				InkObjectState result = serializationContext.get(ref);
+				MirrorAPI result = (MirrorAPI) serializationContext.get(ref);
 				if (result == null) {
 					result = applicationContext.getState(ref, false);
 				}
-				if (result == null) {
-					ElementDescriptor<?> desc = applicationContext.getDescriptor(ref);
-					if (desc != null && !desc.isValid()) {
-						return null;
-					}
-				}
 				
 				if (result == null) {
-					addError(tag, "Could not find Ink object with id '" + ref + "'.");
+					ElementDescriptor<?> desc = applicationContext.getDescriptor(ref);
+					if(desc==null){
+						addError(tag, "Could not find Ink object with id '" + ref + "'.");
+					}
+					containsError = true;
+					return null;
+				}else{
+					ElementDescriptor<?> desc = applicationContext.getDescriptor(ref);
+					if (desc != null && !desc.isValid()) {
+						containsError = true;
+						return null;
+					}
 				}
 				return result;
 			}
@@ -292,9 +297,19 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 		if (clsState == null) {
 			containsError = true;
 			if (applicationContext.getDescriptor(classId) == null) {
-				addError(tag, "Could not resolve class id '" + classId + "'.");
+				addError(tag, "Could not resolve class with id '" + classId + "'.");
 			}
 			return null;
+		}
+		if(superId!=null){
+			InkObjectState superState = applicationContext.getState(superId, false);
+			if (superState == null) {
+				containsError = true;
+				if (applicationContext.getDescriptor(superId) == null) {
+					addError(tag, "Could not resolve object with id '" + superId + "'.");
+				}
+				return null;
+			}
 		}
 		MirrorAPI result = null;
 		if (!clsState.reflect().isValid()) {

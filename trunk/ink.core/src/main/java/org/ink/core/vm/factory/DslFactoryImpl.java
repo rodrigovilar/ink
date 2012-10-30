@@ -635,7 +635,16 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public ElementDescriptor<?> getDescriptor(String id) {
-		return loader.getDescriptor(id);
+		String ns = extractNamespace(id, false);
+		if (ns != null) {
+			if (getNamespace().equals(ns)) {
+				return loader.getDescriptor(id);
+			} else if (scope.contains(ns)) {
+				DslFactory factory = boundedFactories.get(ns);
+				return factory.getDescriptor(id);
+			}
+		}
+		return null;
 	}
 
 	@Override

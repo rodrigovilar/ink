@@ -181,6 +181,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
+			changedInkFiles.clear();
 			addMarker(getProject(), "internal error.", 0, IMarker.SEVERITY_ERROR);
 		}
 		return getProject().getReferencedProjects();
@@ -319,7 +320,7 @@ public class InkBuilder extends IncrementalProjectBuilder {
 				}
 			}
 			InkVM.instance().reloadDSL(ns);
-			result.addAll(InkVM.instance().collectErrors());
+			result.addAll(InkVM.instance().collectErrors(ns));
 		}
 		return result;
 	}

@@ -157,8 +157,12 @@ public class InkstoneElementKind {
 		childComposite_.setLayout(layout);
 		childComposite_.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 		
+		// Re-calc element pages variables
 		pageSize = inkstone.Activator.getDefault().getPreferenceStore().getInt(InkstonePreferenceConstants.KIOSK_PAGE_SIZE);
-		pagesCount_ = 1 + (elementsCount_ / pageSize);
+		pagesCount_ = (elementsCount_ / pageSize);
+		if( elementsCount_ % pageSize != 0 ) {
+			pagesCount_++;
+		}
 		lastPageButton_ = null;
 		
 		if(elements_.size() > pageSize) {

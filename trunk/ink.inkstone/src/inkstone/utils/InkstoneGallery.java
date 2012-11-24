@@ -43,6 +43,8 @@ public class InkstoneGallery {
 	public static final String  INKSTONE_DIAG_NORMAL = "INKSTONE Diagram Normal icon";
 	public static final String  INKSTONE_DIAG_ERROR  = "INKSTONE Diagram Error icon";
 	public static final String INKSTONE_PERSPTV_ICON = "INKSTONE Perspective icon";
+	
+	public static final String    INKSTONE_WAIT_ANIM = "INKSTONE Wait Animation";
 
 	
 	/**
@@ -72,6 +74,8 @@ public class InkstoneGallery {
 		registry_.put(INKSTONE_DIAG_NORMAL  , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\INK Diagram Icon - Normal.png"));
 		registry_.put(INKSTONE_DIAG_ERROR   , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\INK Diagram Icon - Error.png"));
 		registry_.put(INKSTONE_PERSPTV_ICON , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\inkstone_perspective_icon.png"));
+		
+		registry_.put(INKSTONE_WAIT_ANIM    , ImageDescriptor.createFromFile(InkstoneGallery.class, "\\gallery\\ink_logo_swirl_anim.gif"));
 	};
 	
 	/**

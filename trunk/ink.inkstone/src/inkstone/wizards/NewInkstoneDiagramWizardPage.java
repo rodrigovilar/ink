@@ -3,11 +3,13 @@ package inkstone.wizards;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -24,9 +26,12 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 
 	private ISelection selection_;
 	private Text folderText_;
-	private Text fileText_;
+	private Text diagramFileText_;
+	private Text inkFileText_;
+	private IPath diagramFolderPath_;
+	private IPath inkFilePath_;
 	
-	public NewInkstoneDiagramWizardPage(ISelection selection) {
+ 	public NewInkstoneDiagramWizardPage(ISelection selection) {
 		super("New INK Diagram");
 		setTitle("New INK Diagram - Create settings");
 		setDescription("This wizard creates a new Inkstone diagram file with *.isd extension.");
@@ -42,11 +47,27 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 		layout.verticalSpacing = 9;
 
 		Label label = new Label(container, SWT.NULL);
-		label.setText("&Dialog Folder:");
+		label.setText("Diagram file name:");
+
+		diagramFileText_ = new Text(container, SWT.BORDER | SWT.SINGLE);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		diagramFileText_.setLayoutData(gd);
+		diagramFileText_.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				dialogChanged();
+			}
+		});
+		
+		Label filler= new Label(container, SWT.LEFT);
+		filler.setText(" ");
+		
+		label = new Label(container, SWT.NULL);
+		label.setText("Dialog Folder:");
 
 		folderText_ = new Text(container, SWT.BORDER | SWT.SINGLE);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
 		folderText_.setLayoutData(gd);
+		folderText_.setEditable(false);
 		folderText_.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -58,22 +79,32 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 		button.setText("Browse...");
 		button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				handleBrowse();
+				handleFolderBrowse();
 			}
 		});
-		
-		label = new Label(container, SWT.NULL);
-		label.setText("&Diagram file name:");
 
-		fileText_ = new Text(container, SWT.BORDER | SWT.SINGLE);
+		label = new Label(container, SWT.NULL);
+		label.setText("Default saves INK file:");
+	
+		inkFileText_ = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
-		fileText_.setLayoutData(gd);
-		fileText_.addModifyListener(new ModifyListener() {
+		inkFileText_.setLayoutData(gd);
+		inkFileText_.setEditable(false);
+		inkFileText_.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
-				dialogChanged();
+				dialogChanged();				
 			}
 		});
 		
+		button = new Button(container, SWT.PUSH);
+		button.setText("Browse...");
+		button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				handleFileBrowse();
+			}
+		});
+
 		initialize();
 		dialogChanged();
 		setControl(container);
@@ -90,29 +121,51 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 					container = (IContainer) obj;
 				else
 					container = ((IResource) obj).getParent();
+				diagramFolderPath_ = container.getLocation();
 				folderText_.setText(container.getFullPath().toString());
 			}
 		}
-		fileText_.setText("new_ink_diagram");
+		diagramFileText_.setText("new_ink_diagram");
 	}
 	
-	private void handleBrowse() {
+	private void handleFolderBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), true,
-				"Select a folder to place the new INK diagram.");
+				"Select an INK file to contain the diagram new future elements.");
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				folderText_.setText(((Path) result[0]).toString());
+				diagramFolderPath_ = (IPath)result[0];
+				folderText_.setText(diagramFolderPath_.toOSString());
 			}
 		}
 	}
-	
+
+	private void handleFileBrowse() {
+		SaveAsDialog dialog = new SaveAsDialog(getShell());
+		dialog.setOriginalName(diagramFileText_.getText() + ".ink");
+		dialog.open();
+		inkFilePath_ = dialog.getResult();
+		if( inkFilePath_ != null ) {
+			inkFileText_.setText(inkFilePath_.toString());
+		}
+	}
+
 	private void dialogChanged() {
-		IResource container = ResourcesPlugin.getWorkspace().getRoot().findMember( new Path(getFolderName()) );
-		String fileName = getFileName();
+		IResource container = ResourcesPlugin.getWorkspace().getRoot().findMember( new Path(getDiagramFolderName()) );
+		String fileName = getDiagramFileName();
 		
-		if (getFolderName().length() == 0) {
+		if (fileName.length() == 0) {
+			updateStatus("Diagram file name must be specified !");
+			return;
+		}
+		
+		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
+			updateStatus("File name must be valid !");
+			return;
+		}
+		
+		if (getDiagramFolderName().length() == 0) {
 			updateStatus("File folder must be specified !");
 			return;
 		}
@@ -127,13 +180,8 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 			return;
 		}
 		
-		if (fileName.length() == 0) {
-			updateStatus("Diagram file name must be specified !");
-			return;
-		}
-		
-		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-			updateStatus("File name must be valid !");
+		if(getInkFileName().length() == 0) {
+			updateStatus("INK File must be specified !");
 			return;
 		}
 		
@@ -145,12 +193,28 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 		setPageComplete(message == null);
 	}
 	
-	public String getFolderName() {
+	public String getDiagramFolderName() {
 		return folderText_.getText();
 	}
+	
+	public IPath getDiagramFolderPath() {
+		return diagramFolderPath_;
+	}
 
-	public String getFileName() {
-		return fileText_.getText();
+	public String getDiagramFileName() {
+		return diagramFileText_.getText();
+	}
+	
+	public IPath getDiagramFilePath() {
+		return new Path(getDiagramFileName());
+	}
+	
+	public String getInkFileName() {
+		return inkFileText_.getText();
+	}
+	
+	public IPath getInkFilePath() {
+		return inkFilePath_;
 	}
 
 }

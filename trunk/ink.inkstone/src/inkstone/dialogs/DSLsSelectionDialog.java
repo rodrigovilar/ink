@@ -10,6 +10,8 @@ import inkstone.models.InkstoneProject;
 import inkstone.models.dslLibsLabelProvider;
 import inkstone.models.dslLibsTreeContentProvider;
 import inkstone.utils.InkstoneGallery;
+import inkstone.utils.KioskOverloadOfElements;
+import inkstone.utils.KioskOverloadOfVisualElements;
 import inkstone.views.KioskView;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -28,6 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TreeItem;
 
 
@@ -127,7 +130,12 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 		// Define the check-box tree viewer 
 	    cbTreeViewer_ = new CheckboxTreeViewer(treeComposite, SWT.BORDER);
 	    cbTreeViewer_.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-	    cbTreeViewer_.setContentProvider(new dslLibsTreeContentProvider(kiosk_));
+	    try {
+			cbTreeViewer_.setContentProvider(new dslLibsTreeContentProvider(kiosk_));
+		} catch (KioskOverloadOfVisualElements e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	    cbTreeViewer_.setLabelProvider(new dslLibsLabelProvider());
 	    cbTreeViewer_.setAutoExpandLevel(2);
 	    cbTreeViewer_.setInput("root");
@@ -255,7 +263,19 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
  
 	@Override
 	protected void okPressed() {
-		saveInput();
+		try {
+			saveInput();
+		} catch (KioskOverloadOfVisualElements e) {
+			// Not handled here. See the KioskView 'drawInKiosk' method.
+		} catch (KioskOverloadOfElements e) {
+			KioskOverloadOfElementsMessgae(e.getMessage());
+			if( selectedInktoneModel_.size() > 0 ) {
+				for( InkstoneProject project : selectedInktoneModel_) {
+		 			project.dispose();
+				}
+			}
+			selectedInktoneModel_.clear();
+		}
 		super.okPressed();
 	}
 
@@ -269,10 +289,11 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 	// 
 	/**
 	 * Copy selections to persistent data model variable.
+	 * @throws KioskOverloadOfVisualElements 
 	 * 
 	 * @see selectedInktoneProjects_
 	 */
- 	private void saveInput() { 
+ 	private void saveInput() throws KioskOverloadOfVisualElements, KioskOverloadOfElements { 
 		if( cbTreeViewer_.getCheckedElements().length == 0 ) {
 			selectedInktoneModel_ = null;
 			return;
@@ -295,11 +316,28 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 				}
 				if( dslCount > 0 ) {
 					selectedInktoneModel_.add(tempInkstoneProject);
+					if( getSelectedInktoneModelElementsCount() > KioskView.maxAllowedElement_ ) {
+						throw new KioskOverloadOfElements("Maximum allowed elements reached the upper barrier limit (currently set to " + KioskView.maxAllowedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
+					}
 				}
 			}
 		}
 		Collections.sort(selectedInktoneModel_, Collections.reverseOrder(new InkstoneProjectComparable()));
 	}
+ 	
+ 	private int getSelectedInktoneModelElementsCount() {
+ 		
+ 		if( selectedInktoneModel_ == null ) { return 0; }
+ 		else if( selectedInktoneModel_.isEmpty()) { return 0; }
+ 		
+ 		int elementsSum = 0;
+ 		if( selectedInktoneModel_.size() > 0 ) {
+	 		for( InkstoneProject project : selectedInktoneModel_) {
+	 			elementsSum += project.getElementsCount();
+			}
+ 		}
+ 		return elementsSum;
+ 	}
  	
  	/**
  	 * Restores last tree check-boxes selections from previous run of the dialog. 
@@ -320,5 +358,12 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 			}
  		}
  	}
+ 	
+	private void KioskOverloadOfElementsMessgae(String msg) {
+		MessageBox messageBox = new MessageBox(this.getShell(), SWT.ICON_ERROR);
+		messageBox.setText("InkStone Kiosk error !");
+		messageBox.setMessage(msg);
+		messageBox.open();
+	}
  	 	
 }

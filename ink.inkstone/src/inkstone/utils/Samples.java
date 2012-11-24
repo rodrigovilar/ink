@@ -7,13 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
+import org.eclipse.swt.widgets.FileDialog;
 import org.ink.core.vm.lang.InkObjectState;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
@@ -231,6 +234,33 @@ public class Samples {
 				bundle.labels_.put(itemName,label);
 				bundle.expItem_.setHeight(bundle.composite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 			}			
+		}
+	}
+
+	private void handleFileBrowse1() {
+		String filterNames[]; 
+		String filterExtensions[];
+		String filterPath;
+		String fileSelected;
+		FileDialog dialog = new FileDialog (Display.getCurrent().getActiveShell(), SWT.OPEN);
+		
+		String platform = SWT.getPlatform();
+		if (platform.equals("win32") || platform.equals("wpf")) {
+			filterNames = new String[] {"INK Files", "All Files (*.*)"};
+			filterExtensions = new String[] {"*.ink", "*.*"};
+		}
+		else {
+			filterNames = new String [] {"INK Files", "All Files (*)"};
+			filterExtensions = new String [] {"*.ink", "*"};
+		}
+		filterPath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		dialog.setFilterNames(filterNames);
+		dialog.setFilterExtensions(filterExtensions);
+		dialog.setFilterPath(filterPath);
+
+		fileSelected = dialog.open();
+		if(fileSelected != null ) {
+			// Do ....
 		}
 	}
 }

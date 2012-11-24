@@ -1,5 +1,6 @@
 package inkstone.models;
 
+import inkstone.utils.KioskOverloadOfVisualElements;
 import inkstone.views.KioskView;
 
 import org.eclipse.swt.SWT;
@@ -46,6 +47,8 @@ public class InkstoneElement {
 	private boolean selected_;
 	private Menu popupMenu_;
 	private MenuDetectListener popupMenuListener_;
+
+	private static int numOfVisualInstances_ = 0;
 	
 	/**
 	 * Class constructor.
@@ -121,7 +124,7 @@ public class InkstoneElement {
 		return null;
 	}
 	
-	private void openInkElement(String id){
+	public void openInkElement(String id){
 		Mirror mirror = getInkElement(id);
 		if(mirror != null){
 			EclipseUtils.openEditor(mirror);
@@ -149,6 +152,14 @@ public class InkstoneElement {
 	 */
 	public boolean getSelected() {
 		return  this.selected_;
+	}
+	
+	public static int getNumOfVisualElements() {
+		return numOfVisualInstances_;
+	}
+	
+	public static void resetNumOfVisualElements() {
+		numOfVisualInstances_ = 0;
 	}
 	
 	private void setSelected(boolean selected, InkstoneElement callingElement) {
@@ -199,7 +210,12 @@ public class InkstoneElement {
 		this.composite_ = composite;
 	}
 	
-	public void drawInKiosk(Composite composite, Image image ) {
+	public void drawInKiosk(Composite composite, Image image ) throws KioskOverloadOfVisualElements {
+		// check maximum visual elements...
+		if(numOfVisualInstances_ >= KioskView.maxViewedElement_) {
+			throw new KioskOverloadOfVisualElements("Maximum visible elements reached the upper barrier limit (currently set to " + KioskView.maxViewedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
+		}
+		
 		this.composite_ = composite;
 		this.display_ = composite_.getDisplay();
 		shell_ = new Shell(display_);
@@ -219,10 +235,10 @@ public class InkstoneElement {
 		};
 	
 		label_ = new CLabel(composite, SWT.NONE);
-		label_.setText( getFullId() );
+		label_.setText( getName() );
 		label_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
 		label_.setImage(image);
-		label_.setToolTipText(this.elementkind_.getDslLib().getProject().getName() + " - " + getName());
+		label_.setToolTipText(this.getFullId());
 		label_.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true,false));
 		label_.addMenuDetectListener(popupMenuListener_);
 		label_.addMouseListener(new MouseAdapter() {
@@ -249,6 +265,9 @@ public class InkstoneElement {
 				setSelected(true, InkstoneElement.this);
 			}
 		}
+		
+		// handle max element instances
+		numOfVisualInstances_++;
 	}
 	
 	/**
@@ -291,7 +310,13 @@ public class InkstoneElement {
 	 */
  	public void dispose() {
 		if( label_ != null ) {
-			label_.dispose();
+			if( !label_.isDisposed() ) { label_.dispose(); }
+		}
+		if( shell_ != null ) {
+			if( !shell_.isDisposed() ) { shell_.dispose(); }
+		}
+		if( popupMenu_ != null ) {
+			if( !popupMenu_.isDisposed() ) { popupMenu_.dispose(); }
 		}
 	}
 

@@ -1,5 +1,6 @@
 package inkstone.models;
 
+import inkstone.utils.KioskOverloadOfVisualElements;
 import inkstone.views.KioskView;
 
 import java.util.ArrayList;
@@ -52,8 +53,9 @@ public class InkstoneProject {
 	 * Auto starts by filling given INK project DSL namespaces.
 	 * 
 	 * @param p Eclipce resource project (must be an ink-project !).
+	 * @throws KioskOverloadOfVisualElements 
 	 */
-	public InkstoneProject(IProject p, KioskView kiosk) {
+	public InkstoneProject(IProject p, KioskView kiosk) throws KioskOverloadOfVisualElements {
 		this.name_ = p.getName();
 		this.parentKiosk_ = kiosk;
 		String[] nss = InkUtils.getProjectNamespaces(p);
@@ -100,8 +102,9 @@ public class InkstoneProject {
 	 * Add single DSL namespace library to the {@link InkstoneProject} list.
 	 * Used for selective fill of the model when we want to hide part of the data in the InkStone descriptive model.
 	 * @param DslLibName
+	 * @throws KioskOverloadOfVisualElements 
 	 */
-	public void addDslLib(String DslLibName) {
+	public void addDslLib(String DslLibName) throws KioskOverloadOfVisualElements {
 		DslLibs_.add(new InkstoneLibrary(DslLibName, this));
 	}
 	
@@ -157,39 +160,64 @@ public class InkstoneProject {
 	/**
 	 * Draw the kiosk view display widgets.
 	 * @param parentComposite The parent {@link Composite} object. Sub-type: {@link ExpandBar}.
+	 * @throws KioskOverloadOfVisualElements 
 	 */
-	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, boolean zeroIndex ) {
+	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, boolean zeroIndex ) throws KioskOverloadOfVisualElements {
 		expandBar_ = parentComposite;
 		expandBarItemIndex_ = (zeroIndex) ? 0 : 1;
 		
 		childComposite_ = new ExpandBar (parentComposite, SWT.NONE);
 		childComposite_.addMenuDetectListener(popupMenuListener);
 		
-		if( this.DslLibs_.size() > 0 ) {
-			for (InkstoneLibrary library : this.DslLibs_) {
-				library.drawInKiosk( childComposite_, popupMenuListener );
-				displayHeight_ += library.getExpandItem().getHeaderHeight() + 4;
+		try {
+			if (this.DslLibs_.size() > 0) {
+				for (InkstoneLibrary library : this.DslLibs_) {
+					library.drawInKiosk(childComposite_, popupMenuListener);
+					displayHeight_ += library.getExpandItem().getHeaderHeight() + 4;
+				}
+			}
+		} catch (KioskOverloadOfVisualElements e) {
+			throw(e);
+		} finally {
+			expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
+			expandItem_.setHeight(displayHeight_);
+			expandItem_.setText(this.name_ + " (" + String.valueOf(DslLibs_.size()) + " namespaces)");
+			expandItem_.setControl(childComposite_);
+	
+			expandListener_ = new ExpandListener() {
+				
+				@Override
+				public void itemExpanded(ExpandEvent e) {
+					setDisplayHeight( ((ExpandItem)e.item).getHeight() );
+				}
+				
+				@Override
+				public void itemCollapsed(ExpandEvent e) {
+					setDisplayHeight( -((ExpandItem)e.item).getHeight() );
+				}
+			};
+			childComposite_.addExpandListener(expandListener_);
+		}
+	}
+	
+	public int getElementsCount() {
+		int elementsSum = 0;
+		if( DslLibs_.size() > 0 ) {
+			for(InkstoneLibrary lib : DslLibs_) {
+				elementsSum += lib.getElementsCount();
 			}
 		}
-				
-		expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
-		expandItem_.setHeight(displayHeight_);
-		expandItem_.setText(this.name_ + " (" + String.valueOf(DslLibs_.size()) + " namespaces)");
-		expandItem_.setControl(childComposite_);
-
-		expandListener_ = new ExpandListener() {
-			
-			@Override
-			public void itemExpanded(ExpandEvent e) {
-				setDisplayHeight( ((ExpandItem)e.item).getHeight() );
+		return elementsSum;
+	}
+	
+	public String getStatistics() {
+		String statMsg = "Ink project : " + this.getName() + "\n";
+		if( DslLibs_.size() > 0 ) {
+			for(InkstoneLibrary lib : DslLibs_) {
+				statMsg += lib.getStatistics();
 			}
-			
-			@Override
-			public void itemCollapsed(ExpandEvent e) {
-				setDisplayHeight( -((ExpandItem)e.item).getHeight() );
-			}
-		};
-		childComposite_.addExpandListener(expandListener_);
+		}
+		return statMsg;
 	}
 	
 	/**

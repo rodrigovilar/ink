@@ -1,6 +1,7 @@
 package inkstone.models;
 
 import inkstone.utils.InkstoneGallery;
+import inkstone.utils.KioskOverloadOfVisualElements;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,10 +14,8 @@ import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
-import org.eclipse.swt.widgets.Listener;
 import org.ink.core.vm.mirror.Mirror;
 import org.ink.eclipse.utils.InkUtils;
 
@@ -52,8 +51,9 @@ public class InkstoneLibrary {
 	 * 
 	 * @param DslName is the name of the ink namespace.
 	 * @param project is a reference to the parent project object in the model.
+	 * @throws KioskOverloadOfVisualElements 
 	 */
-	public InkstoneLibrary (String DslName, InkstoneProject project) {
+	public InkstoneLibrary (String DslName, InkstoneProject project) throws KioskOverloadOfVisualElements {
 	
 		this.DslName_ = DslName;
 		this.project_ = project;
@@ -133,49 +133,76 @@ public class InkstoneLibrary {
 	/**
 	 * Draw the kiosk view display widgets.
 	 * @param parentComposite The parent {@link Composite} object. Sub-type: {@link ExpandBar}.
+	 * @throws KioskOverloadOfVisualElements 
 	 */
-	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener ) {
+	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener ) throws KioskOverloadOfVisualElements {
 		expandBar_ = parentComposite;
 		
 		childComposite_ = new ExpandBar(parentComposite, SWT.NONE);
 		childComposite_.addMenuDetectListener(popupMenuListener);
 		
-		if( inkTypes_.size() > 0 ) {
-			for(InkstoneElementKind kind : inkTypes_) {
-				kind.drawInKiosk( childComposite_ );
-				displayHeight_ += kind.getExpandItem().getHeaderHeight() + 4;
+		try {
+			if (inkTypes_.size() > 0) {
+				for (InkstoneElementKind kind : inkTypes_) {
+					kind.drawInKiosk(childComposite_);
+					displayHeight_ += kind.getExpandItem().getHeaderHeight() + 4;
+				}
 			}
+		} catch (KioskOverloadOfVisualElements e) {
+			throw(e);
+		} finally {
+			expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
+			expandItem_.setHeight(displayHeight_);
+			expandItem_.setText( getBarText() );
+			childComposite_.setToolTipText( getBarToolTip() );
+			expandItem_.setControl(childComposite_);
+			expandListener_ = new ExpandListener() {
+				@Override
+				public void itemExpanded(ExpandEvent e) {
+					setDisplayHeight( ((ExpandItem)e.item).getHeight() );
+				}
+				@Override
+				public void itemCollapsed(ExpandEvent e) {
+					setDisplayHeight( -((ExpandItem)e.item).getHeight() );
+				}
+			};
+			childComposite_.addExpandListener(expandListener_);
 		}
 		
-		expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
-		expandItem_.setHeight(displayHeight_);
-		expandItem_.setText( getBarText() );
-		childComposite_.setToolTipText( getBarToolTip() );
-		expandItem_.setControl(childComposite_);
-		
-		expandListener_ = new ExpandListener() {
-			@Override
-			public void itemExpanded(ExpandEvent e) {
-				setDisplayHeight( ((ExpandItem)e.item).getHeight() );
-			}
-			@Override
-			public void itemCollapsed(ExpandEvent e) {
-				setDisplayHeight( -((ExpandItem)e.item).getHeight() );
-			}
-		};
-		childComposite_.addExpandListener(expandListener_);
 	}
 
 	public String getBarText() {
-		String text = DslName_;
+		String text = DslName_ + " (" + String.valueOf( getElementsCount() ) + " elements)";
+		return text;
+	}
+	
+	public int getElementsCount() {
 		int elementsSum = 0;
 		if( inkTypes_.size() > 0 ) {
 			for(InkstoneElementKind kind : inkTypes_) {
 				elementsSum += kind.getElements().size();
 			}
-			text += " (" + String.valueOf(elementsSum) + " elements)";
 		}
-		return text;
+		return elementsSum;
+	}
+	
+	public String getStatistics() {
+		String statStr = "\tInk library : " + this.getDslName() + "\n";
+		if(inkTypesMap_.size() > 0) {
+			if(inkTypesMap_.containsKey(META_CLASSES)) {
+				statStr += "\t\t" + inkTypesMap_.get(META_CLASSES).getElements().size() + " " + META_CLASSES + "\n";
+			}
+			if(inkTypesMap_.containsKey(CLASSES)) {
+				statStr += "\t\t" + inkTypesMap_.get(CLASSES).getElements().size() + " " + CLASSES + "\n";
+			}
+			if(inkTypesMap_.containsKey(OBJECTS)) {
+				statStr += "\t\t" + inkTypesMap_.get(OBJECTS).getElements().size() + " " + OBJECTS + "\n";
+			}
+			if(inkTypesMap_.containsKey(ENUMERATIONS)) {
+				statStr += "\t\t" + inkTypesMap_.get(ENUMERATIONS).getElements().size() + " " + ENUMERATIONS + "\n";
+			}
+		}
+		return statStr;
 	}
 	
 	public String getBarToolTip() {
@@ -194,7 +221,7 @@ public class InkstoneLibrary {
 	/**
 	 * Refresh the element-library data (or set new data at first constructor call).
 	 */
-	public void refreshData() {
+	public void refreshData() throws KioskOverloadOfVisualElements{
 		List<Mirror> inkMetaclasses 	= new ArrayList<Mirror>();
 		List<Mirror> inkClasses 		= new ArrayList<Mirror>();
 		List<Mirror> inkObjects 		= new ArrayList<Mirror>();

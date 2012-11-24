@@ -1,0 +1,10 @@
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+	<!-- Created with INKSTONE Eclipse plug-in (Addition to the INK framework - http://code.google.com/a/eclipselabs.org/p/ink/) -->
+
+	<g opacity="0.25">
+		<title>Background Layer</title>
+		<image xlink:href="inkstone_big_logo.jpg" id="inkstone_big_logo" height="100" width="100" y="300" x="500"/>
+	</g>
+	
+</svg>

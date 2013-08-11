@@ -14,7 +14,7 @@ import inkstone.models.InkstoneLibrary;
 import inkstone.models.InkstoneProject;
 import inkstone.preferences.InkstonePreferenceConstants;
 import inkstone.utils.InkstoneGallery;
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -54,7 +54,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.app.Messages;
 import org.eclipse.jface.action.Action;  
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;  
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction; 
@@ -400,7 +402,7 @@ public class KioskView extends ViewPart {
 					for(InkstoneLibrary library : project.getDslLibs()) {
 						try {
 							library.refreshData();
-						} catch (KioskOverloadOfVisualElements e) {
+						} catch (KioskOverloadOfVisualElementsException e) {
 							KioskOverloadOfVisualElementsMessgae(e.getMessage());
 						}
 					}
@@ -441,15 +443,22 @@ public class KioskView extends ViewPart {
 	 */
  	private void clearModelExpandBars() {
 		if ( this.inkstoneModel_ != null ) {
-			for (InkstoneProject project: inkstoneModel_) {
-				project.dispose();
+			if ( this.inkstoneModel_.size() > 0 ) {
+				BusyIndicator.showWhile(display_, new Runnable() {
+					@Override
+					public void run() {
+						for (final InkstoneProject project: inkstoneModel_) {
+	  						project.dispose();
+	  					}
+	  					inkstoneModel_.clear();
+						for (int i = 1; i < mainExpBar_.getItems().length; i++) {
+							mainExpBar_.getItem(i).dispose();
+						}
+						InkstoneElement.resetNumOfVisualElements();
+					}
+				}); 
 			}
-			inkstoneModel_.clear();
 		}
-		for (int i = 1; i < mainExpBar_.getItems().length; i++) {
-			mainExpBar_.getItem(i).dispose();
-		}
-		InkstoneElement.resetNumOfVisualElements();
 	}
 
  	private int getElementsCount() {
@@ -467,84 +476,39 @@ public class KioskView extends ViewPart {
  	}
  	
 	private void drawInKiosk(List<InkstoneProject> selectedInktoneModel) {
-
 		this.inkstoneModel_= selectedInktoneModel;
+		if( inkstoneModel_.size() == 0 ) return;
 		
-//		UIJob job = new UIJob(display_, "Build INK Kiosk job") { 
-//			@Override
-//			public IStatus runInUIThread(IProgressMonitor monitor) {
-//		    	
-//		    	int progressMaxSize = getElementsCount();
-//				int progressStep = ( inkstoneModel_.size() > 0 ) ? (progressMaxSize /  inkstoneModel_.size()) : progressMaxSize;
-//				
-//				monitor.beginTask("building INK Kiosk ...",  progressMaxSize IProgressMonitor.UNKNOWN);
-//				
-//				for( InkstoneProject project : inkstoneModel_) {
-//					project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_);
-//					monitor.worked(progressStep);
-//				}
-//
-//		        monitor.done();
-//				return Status.OK_STATUS; 
-//		        
-//		    }
-//		};
-//			    	
-//		job.setUser(true);
-//		job.schedule();
-		
-//		display_.asyncExec(new Runnable() {
-//			  public void run() {
-//				  for( InkstoneProject project : inkstoneModel_) {
-//						project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_);
-//					}
-//			  }
-//		});
-		
-//		final IProgressMonitor globalMonitor;
-//		final int progressMaxSize = getElementsCount();
-//    	final int progressStep = ( inkstoneModel_.size() > 0 ) ? (progressMaxSize /  inkstoneModel_.size()) : progressMaxSize;
-//		
-//		final Runnable uiRun = new Runnable() {
-//			public void run() {
-//				//int currentProgress = 0;
-//				for( InkstoneProject project : inkstoneModel_) {
-//					project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_);
-//				}
-//			}
-//		};
-//		
-//	Job job = new Job("Build INK Kiosk job") { 
-//		@Override
-//		public IStatus run(IProgressMonitor monitor) {
-//	    	
-//			
-//			monitor.beginTask("building INK Kiosk ...",  progressMaxSize);
-//			
-//			display_.syncExec(uiRun);			
-//
-//	        monitor.done();
-//			return Status.OK_STATUS; 
-//	        
-//	    }
-//	};
-//	
-//	// Show a busy indicator while the runnable is executed
-//	BusyIndicator.showWhile(display_, uiRun); 
-//	
-//	job.setUser(true);
-//	job.schedule();
-	
-		for( InkstoneProject project : inkstoneModel_) {
-			try {
-				mainExpBar_.setVisible(false);
-				project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_);
-				mainExpBar_.setVisible(true);
-			} catch (KioskOverloadOfVisualElements e) {
-				KioskOverloadOfVisualElementsMessgae(e.getMessage());
+		Job job = new Job("Kiosk drawing ...") {
+			@Override
+			public IStatus run(final IProgressMonitor monitor) {
+				monitor.beginTask("Drawing INK Kiosk view ...", 100);
+				for( final InkstoneProject project : inkstoneModel_) {
+					if( InkstoneElement.getStopFlag() ) { break; }
+		  			final int progressSteps = 100 / inkstoneModel_.size();
+		  			display_.syncExec(new Runnable() {
+		  				public void run() {
+				  			try {
+				  				project.drawInKiosk(mainExpBar_, popupMenuListener_, hideInkNotations_, monitor, progressSteps);
+				  			} catch (KioskOverloadOfVisualElementsException e) {
+								// Dispose the model and show over load error message:
+								KioskOverloadOfVisualElementsMessgae(e.getMessage());
+							}
+		  				}
+		  			});
+		  			if( InkstoneElement.getStopFlag() ) {
+		  				InkstoneElement.resetStopFlag();
+		  				break;
+		  			}
+				}
+				monitor.done();
+				return Status.OK_STATUS;
 			}
-		}
-		
+		};
+		job.setUser(true);
+		job.setPriority(Job.SHORT);
+		job.schedule();
+		if( InkstoneElement.getStopFlag() ) { InkstoneElement.resetStopFlag(); }
 	}
 	
 	private void addGeneralExpandBar(ExpandBar bar) {
@@ -600,6 +564,7 @@ public class KioskView extends ViewPart {
 		notationsPanel.setControl(composite);
 		notationsPanel.setExpanded(true);
 	}
+	
 
 	/**
 	 * @return The current selected Inkstone element.
@@ -622,21 +587,30 @@ public class KioskView extends ViewPart {
 
 	 * @param regex - regular expression string. 
 	 */
-	private void filterKioskBars(String regex) {
+	private void filterKioskBars(final String regex) {
 		mainExpBar_.setVisible(false);
 		setExpandedKioskBars(true);	
 		if ( this.inkstoneModel_ != null ) {
-			for (InkstoneProject project: inkstoneModel_) {
-				for (InkstoneLibrary library : project.getDslLibs()) {
-					for (InkstoneElementKind kind : library.getinkTypes()) {
-						for (int i = (kind.getCurrentPage()-1)*kind.getPageSize(); (i < kind.getElements().size()) && (i < kind.getCurrentPage()*kind.getPageSize()); i++) {
-							kind.getElements().get(i).redrawByRegexMatch(regex);
+			if ( this.inkstoneModel_.size() > 0 ) {
+				BusyIndicator.showWhile(display_, new Runnable() {
+					@Override
+					public void run() {
+						for (InkstoneProject project: inkstoneModel_) {
+							for (InkstoneLibrary library : project.getDslLibs()) {
+								for (InkstoneElementKind kind : library.getinkTypes()) {
+									for (int i = (kind.getCurrentPage()-1)*kind.getPageSize(); (i < kind.getElements().size()) && (i < kind.getCurrentPage()*kind.getPageSize()); i++) {
+										kind.getElements().get(i).redrawByRegexMatch(regex);
+										if( InkstoneElement.getStopFlag() ) { break; }
+									}
+								}
+							}
 						}
 					}
-				}
+				});
 			}
 		}
 		mainExpBar_.setVisible(true);
+		if( InkstoneElement.getStopFlag() ) { InkstoneElement.resetStopFlag(); }
 	}
 	
 	private void KioskOverloadOfVisualElementsMessgae(String msg) {
@@ -650,5 +624,6 @@ public class KioskView extends ViewPart {
  	public void dispose() {
 		super.dispose();
 		dslsSelectionDialog_.close();
+		clearModelExpandBars();
 	}
 }

@@ -1,21 +1,16 @@
 package inkstone.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -31,7 +26,9 @@ public class NewInkstoneDiagramWizard extends Wizard implements INewWizard {
 	private static String[] svgDiagramTemplate = {
 		"<svg width=\"640\" height=\"480\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n",
 		"\n",
-		"<!-- Created with INKSTONE Eclipse plug-in (Addition to the INK framework - http://code.google.com/a/eclipselabs.org/p/ink/) -->",
+		"<!-- Created with INKSTONE Eclipse plug-in (Addition to the INK framework - http://code.google.com/a/eclipselabs.org/p/ink/) -->" + "\n",
+		"\n",
+		"\n",
 		"\n",
 		"<g opacity=\"0.25\">\n",
 		"	<title>Background Layer</title>\n",
@@ -71,7 +68,7 @@ public class NewInkstoneDiagramWizard extends Wizard implements INewWizard {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(page_.getDiagramFolderPath(), page_.getDiagramFilePath(), page_.getInkFilePath(), monitor);
+					doFinish(page_.getDiagramFolderPath(), page_.getDiagramFileName(), page_.getInkFilePath(), monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -91,14 +88,71 @@ public class NewInkstoneDiagramWizard extends Wizard implements INewWizard {
 		return true;
 	}
 	
-	private void doFinish(IPath diagramFolder, IPath diagramFile, IPath inkFile, IProgressMonitor monitor) throws CoreException {
-		IFolder diagFolder;
-		IFile   diagFile;
+	private void doFinish(IPath diagramFolder, String diagramFile, IPath inkFilePath, IProgressMonitor monitor) throws CoreException {
+		IFile	testInkFile;
+		IFile	testDiagramFile;
 		
-		monitor.beginTask("Create new InkStone diagram file.", 3);
+		monitor.beginTask("Create new InkStone diagram file.", 2);
 
+		// Step 1 : Set default ink file:
+		testInkFile = (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(inkFilePath);		
+		if( testInkFile == null ) {
+			String initialText = "// INK Diagram auto generated file \n\n";
+			String inkFileprojectName = inkFilePath.segment(0);
+			String inkFileName = inkFilePath.lastSegment();
+			String relInkFileFolderLocation = ""; 
+			for(int i=1; i < (inkFilePath.segments().length - 1); i++) {
+				relInkFileFolderLocation += inkFilePath.segment(i) + "/";
+			}
+			IProject targetInkFileProject = ResourcesPlugin.getWorkspace().getRoot().getProject(inkFileprojectName);
+			if (targetInkFileProject.exists() && !targetInkFileProject.isOpen()) {
+				targetInkFileProject.open(null);
+			}
+			IFolder inkFileFolder = targetInkFileProject.getFolder(relInkFileFolderLocation);
+			if (inkFileFolder.exists()) {
+				// create a new file
+				IFile newInkFile =  inkFileFolder.getFile(new Path(inkFileName));
+				InputStream inkFileStream = new ByteArrayInputStream(initialText.getBytes());
+				newInkFile.create(inkFileStream, true, monitor);				   
+			}
+		}
+		
+		monitor.worked(1);
+		
+		// Step 2 : Create isd file
+		IPath diagramFilePath = new Path(diagramFolder.toString() + "/" + diagramFile); 
+		testDiagramFile = (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(diagramFilePath);
+		if( testDiagramFile == null ) {
+			svgDiagramTemplate[4] = "<defaultInkFile value=" + inkFilePath.toOSString() + ">\n";
+			String diagramProjectName = diagramFolder.segment(0);
+			IProject targetDiagramProject = ResourcesPlugin.getWorkspace().getRoot().getProject(diagramProjectName);
+			String relDiagramFileFolderLocation = ""; 
+			for(int i=1; i < (diagramFilePath.segments().length - 1); i++) {
+				relDiagramFileFolderLocation += diagramFilePath.segment(i) + "/";
+			}
+			IFolder diagramFileFolder = targetDiagramProject.getFolder(relDiagramFileFolderLocation);
+			if (diagramFileFolder.exists()) {
+				// create a new file
+				IFile newDiagramFile = diagramFileFolder.getFile(new Path(diagramFile));
+				StringBuilder sb = new StringBuilder();
+			    for(String s : svgDiagramTemplate){
+			        sb.append(s);           
+			    }
+				InputStream diagramFileStream = new ByteArrayInputStream(sb.toString().getBytes());
+				newDiagramFile.create(diagramFileStream, true, monitor);
+			}
+		}
+		
+		/*
 		// Check input
 		diagFolder = ResourcesPlugin.getWorkspace().getRoot().getFolder(diagramFolder);
+		if( !diagFolder.exists() ) {
+			try {
+				diagFolder.create(true, true, null);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
 		if( diagFolder.exists() ) {
 			diagFile = diagFolder.getFile(diagramFile);
 			if (!diagFile.exists()) {
@@ -136,6 +190,7 @@ public class NewInkstoneDiagramWizard extends Wizard implements INewWizard {
 		catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
+		*/
 		
 		monitor.done();
 	}

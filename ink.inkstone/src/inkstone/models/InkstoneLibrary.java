@@ -1,7 +1,7 @@
 package inkstone.models;
 
 import inkstone.utils.InkstoneGallery;
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,11 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.ink.core.vm.mirror.Mirror;
@@ -51,9 +54,9 @@ public class InkstoneLibrary {
 	 * 
 	 * @param DslName is the name of the ink namespace.
 	 * @param project is a reference to the parent project object in the model.
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 */
-	public InkstoneLibrary (String DslName, InkstoneProject project) throws KioskOverloadOfVisualElements {
+	public InkstoneLibrary (String DslName, InkstoneProject project) throws KioskOverloadOfVisualElementsException {
 	
 		this.DslName_ = DslName;
 		this.project_ = project;
@@ -133,10 +136,13 @@ public class InkstoneLibrary {
 	/**
 	 * Draw the kiosk view display widgets.
 	 * @param parentComposite The parent {@link Composite} object. Sub-type: {@link ExpandBar}.
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 */
-	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener ) throws KioskOverloadOfVisualElements {
+	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, IProgressMonitor monitor, int percentage ) throws KioskOverloadOfVisualElementsException {
 		expandBar_ = parentComposite;
+		
+		if( inkTypes_.size() == 0 ) return;
+		int progressSteps = percentage / inkTypes_.size();
 		
 		childComposite_ = new ExpandBar(parentComposite, SWT.NONE);
 		childComposite_.addMenuDetectListener(popupMenuListener);
@@ -144,11 +150,14 @@ public class InkstoneLibrary {
 		try {
 			if (inkTypes_.size() > 0) {
 				for (InkstoneElementKind kind : inkTypes_) {
+					if( monitor.isCanceled() || InkstoneElement.getStopFlag() ) { break; }
+					monitor.subTask("Adding " + kind.getKindName() + " elements of library " + getDslName());
 					kind.drawInKiosk(childComposite_);
 					displayHeight_ += kind.getExpandItem().getHeaderHeight() + 4;
+					monitor.worked(progressSteps);
 				}
 			}
-		} catch (KioskOverloadOfVisualElements e) {
+		} catch (KioskOverloadOfVisualElementsException e) {
 			throw(e);
 		} finally {
 			expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
@@ -221,7 +230,7 @@ public class InkstoneLibrary {
 	/**
 	 * Refresh the element-library data (or set new data at first constructor call).
 	 */
-	public void refreshData() throws KioskOverloadOfVisualElements{
+	public void refreshData() throws KioskOverloadOfVisualElementsException{
 		List<Mirror> inkMetaclasses 	= new ArrayList<Mirror>();
 		List<Mirror> inkClasses 		= new ArrayList<Mirror>();
 		List<Mirror> inkObjects 		= new ArrayList<Mirror>();

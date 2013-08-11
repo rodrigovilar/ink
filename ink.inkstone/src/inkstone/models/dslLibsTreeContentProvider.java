@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.ink.eclipse.InkPlugin;
 
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 import inkstone.views.KioskView;
 
 import java.util.ArrayList;
@@ -25,14 +25,14 @@ public class dslLibsTreeContentProvider implements ITreeContentProvider {
 	 * Class Constructor.
 	 * Auto starts a build of a full ink descriptive model, by calling the {@link InkstoneProject} 
 	 * constructor with {@link IProject} instances.
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 *  
 	 *  @see inkstone.models.InkstoneProject
 	 *  @see inkstone.models.InkstoneLibrary
 	 *  @see inkstone.models.InkstoneElementKind
 	 *  @see inkstone.models.InkstoneElement
 	 */
-	public dslLibsTreeContentProvider(KioskView kiosk) throws KioskOverloadOfVisualElements {
+	public dslLibsTreeContentProvider(KioskView kiosk) throws KioskOverloadOfVisualElementsException {
 		List<IProject> inkProjects = InkPlugin.getDefault().getInkProjects();
 		if(inkProjects!=null) {
 			for (IProject p : inkProjects) {

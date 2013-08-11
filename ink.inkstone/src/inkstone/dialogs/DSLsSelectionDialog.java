@@ -10,8 +10,8 @@ import inkstone.models.InkstoneProject;
 import inkstone.models.dslLibsLabelProvider;
 import inkstone.models.dslLibsTreeContentProvider;
 import inkstone.utils.InkstoneGallery;
-import inkstone.utils.KioskOverloadOfElements;
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfElementsException;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 import inkstone.views.KioskView;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -132,7 +132,7 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 	    cbTreeViewer_.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	    try {
 			cbTreeViewer_.setContentProvider(new dslLibsTreeContentProvider(kiosk_));
-		} catch (KioskOverloadOfVisualElements e1) {
+		} catch (KioskOverloadOfVisualElementsException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -265,9 +265,9 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 	protected void okPressed() {
 		try {
 			saveInput();
-		} catch (KioskOverloadOfVisualElements e) {
+		} catch (KioskOverloadOfVisualElementsException e) {
 			// Not handled here. See the KioskView 'drawInKiosk' method.
-		} catch (KioskOverloadOfElements e) {
+		} catch (KioskOverloadOfElementsException e) {
 			KioskOverloadOfElementsMessgae(e.getMessage());
 			if( selectedInktoneModel_.size() > 0 ) {
 				for( InkstoneProject project : selectedInktoneModel_) {
@@ -289,11 +289,11 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 	// 
 	/**
 	 * Copy selections to persistent data model variable.
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 * 
 	 * @see selectedInktoneProjects_
 	 */
- 	private void saveInput() throws KioskOverloadOfVisualElements, KioskOverloadOfElements { 
+ 	private void saveInput() throws KioskOverloadOfVisualElementsException, KioskOverloadOfElementsException { 
 		if( cbTreeViewer_.getCheckedElements().length == 0 ) {
 			selectedInktoneModel_ = null;
 			return;
@@ -317,7 +317,7 @@ public class DSLsSelectionDialog extends TitleAreaDialog {
 				if( dslCount > 0 ) {
 					selectedInktoneModel_.add(tempInkstoneProject);
 					if( getSelectedInktoneModelElementsCount() > KioskView.maxAllowedElement_ ) {
-						throw new KioskOverloadOfElements("Maximum allowed elements reached the upper barrier limit (currently set to " + KioskView.maxAllowedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
+						throw new KioskOverloadOfElementsException("Maximum allowed elements reached the upper barrier limit (currently set to " + KioskView.maxAllowedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
 					}
 				}
 			}

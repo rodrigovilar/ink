@@ -122,7 +122,7 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 				else
 					container = ((IResource) obj).getParent();
 				diagramFolderPath_ = container.getLocation();
-				folderText_.setText(container.getFullPath().toString());
+				folderText_.setText("/" + container.getProject().getName() + "/" + container.getProjectRelativePath().toString());
 			}
 		}
 		diagramFileText_.setText("new_ink_diagram");
@@ -136,7 +136,7 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
 				diagramFolderPath_ = (IPath)result[0];
-				folderText_.setText(diagramFolderPath_.toOSString());
+				folderText_.setText(diagramFolderPath_.toPortableString());
 			}
 		}
 	}
@@ -198,11 +198,11 @@ public class NewInkstoneDiagramWizardPage extends WizardPage {
 	}
 	
 	public IPath getDiagramFolderPath() {
-		return diagramFolderPath_;
+		return (new Path(folderText_.getText()));
 	}
 
 	public String getDiagramFileName() {
-		return diagramFileText_.getText();
+		return diagramFileText_.getText() + ".isd";
 	}
 	
 	public IPath getDiagramFilePath() {

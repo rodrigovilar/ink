@@ -1,7 +1,7 @@
 package inkstone.models;
 
 import inkstone.preferences.InkstonePreferenceConstants;
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -108,35 +109,46 @@ public class InkstoneElementKind {
 		return pageSize;
 	}
 	
-	public void redrawInKiosk(int newPage, Button pressedButton, Display display) throws KioskOverloadOfVisualElements {
+	public void redrawInKiosk(final int newPage, final Button pressedButton, final Display display) throws KioskOverloadOfVisualElementsException {
 		if(currentPage_ == newPage) {
 			return;
 		}
 		
-		for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {
-			elements_.get(i).dispose();
-		}
-
-		if( lastPageButton_ != null) {
-			lastPageButton_.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
-		}
+		BusyIndicator.showWhile(display, new Runnable() {
+			@Override
+			public void run() {
+				for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {
+					elements_.get(i).dispose();
+				}
 		
-		currentPage_ = newPage;
-		lastPageButton_ = pressedButton;
-		
-		for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {
-			elements_.get(i).drawInKiosk(childComposite_, image_);
-		}
-		
-		int oldDisplayHeight = displayHeight_;
-		int newDisplayHeight = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		
-		//childComposite_.pack(true);
-		//expandItem_.setHeight(displayHeight_);
-		setDisplayHeight(newDisplayHeight - oldDisplayHeight);
-		
-		pressedButton.setFocus();
-		pressedButton.setForeground(display.getSystemColor(SWT.COLOR_BLUE));
+				if( lastPageButton_ != null) {
+					lastPageButton_.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
+				}
+				
+				currentPage_ = newPage;
+				lastPageButton_ = pressedButton;
+				
+				for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {
+					if(InkstoneElement.getStopFlag()) break;
+					try {
+						elements_.get(i).drawInKiosk(childComposite_, image_);
+					} catch (KioskOverloadOfVisualElementsException e) {
+						// exception never happen here cause visual elements overload check only happen first time the Kiosk draw (not in the redraw). 
+						e.printStackTrace();
+					}
+				}
+				
+				int oldDisplayHeight = displayHeight_;
+				int newDisplayHeight = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+				
+				//childComposite_.pack(true);
+				//expandItem_.setHeight(displayHeight_);
+				setDisplayHeight(newDisplayHeight - oldDisplayHeight);
+				
+				pressedButton.setFocus();
+				pressedButton.setForeground(display.getSystemColor(SWT.COLOR_BLUE));
+			}
+		});
 	}
 	
 	/**
@@ -144,9 +156,11 @@ public class InkstoneElementKind {
 	 * 
 	 * @param parentComposite The ink kind parent composite widget.
 	 */
-	public void drawInKiosk(ExpandBar parentComposite) throws KioskOverloadOfVisualElements {
+	public void drawInKiosk(ExpandBar parentComposite) throws KioskOverloadOfVisualElementsException {
 		
-		boolean overloadOfVisualElements = false;
+		if(InkstoneElement.getStopFlag()) return;
+		if( elements_.size() == 0 ) return;
+		
 		this.expandBar_ = parentComposite;
 		final Display display = parentComposite.getDisplay();
 		
@@ -189,7 +203,7 @@ public class InkstoneElementKind {
 					public void widgetSelected(SelectionEvent e) {
 						try {
 							redrawInKiosk((Integer)e.widget.getData(), ((Button)e.getSource()), display);
-						} catch (KioskOverloadOfVisualElements e1) {
+						} catch (KioskOverloadOfVisualElementsException e1) {
 							// This exception should not be reached if the KioskOverloadOfVisualElements was throw properly at the elements drawKiosk method. 
 							e1.printStackTrace();
 						}
@@ -215,7 +229,7 @@ public class InkstoneElementKind {
 			for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {
 				elements_.get(i).drawInKiosk(childComposite_, image_);
 			}
-		} catch (KioskOverloadOfVisualElements e) {
+		} catch (KioskOverloadOfVisualElementsException e) {
 			throw(e);
 		} finally {
 			displayHeight_ = childComposite_.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
@@ -259,7 +273,7 @@ public class InkstoneElementKind {
 		}
 	}
 	
-	public void refreshData(List<Mirror> mirrors) throws KioskOverloadOfVisualElements {
+	public void refreshData(List<Mirror> mirrors) throws KioskOverloadOfVisualElementsException {
 		int oldHeight = displayHeight_;
 		int newHeight = 0;
 		for (int i = (currentPage_-1)*pageSize; (i < elements_.size()) && (i < currentPage_*pageSize); i++) {

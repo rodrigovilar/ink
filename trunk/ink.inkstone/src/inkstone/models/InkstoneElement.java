@@ -1,10 +1,12 @@
 package inkstone.models;
 
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 import inkstone.views.KioskView;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
@@ -47,6 +49,8 @@ public class InkstoneElement {
 	private boolean selected_;
 	private Menu popupMenu_;
 	private MenuDetectListener popupMenuListener_;
+	private static boolean stopFlag_;
+	KeyListener keylistener_;
 
 	private static int numOfVisualInstances_ = 0;
 	
@@ -61,6 +65,17 @@ public class InkstoneElement {
 		this.namespace_ = namespace;
 		this.elementkind_ = elementkind;
 		this.selected_ = false;
+		stopFlag_ = false;
+		keylistener_ = new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.keyCode == SWT.ESC) { stopFlag_ = true; }
+			}
+		};
 	}
 	
  	private void initPopupMenu() {
@@ -78,6 +93,20 @@ public class InkstoneElement {
 	    shell_.setMenu(popupMenu_);
  	}
  	
+ 	/**
+ 	 * Get the stop flag state.
+ 	 * @return TRUE if the ESC key was pressed. used to stop long draws operations.
+ 	 */
+ 	public static boolean getStopFlag() {
+ 		return stopFlag_;
+ 	}
+ 	
+ 	/**
+ 	 *  Resets the stop flag to false.
+ 	 */
+ 	public static void resetStopFlag() {
+ 		stopFlag_ = false;
+ 	}
  	
 	/**
 	 * @return The element short name.
@@ -210,15 +239,16 @@ public class InkstoneElement {
 		this.composite_ = composite;
 	}
 	
-	public void drawInKiosk(Composite composite, Image image ) throws KioskOverloadOfVisualElements {
+	public void drawInKiosk(Composite composite, Image image ) throws KioskOverloadOfVisualElementsException {
 		// check maximum visual elements...
 		if(numOfVisualInstances_ >= KioskView.maxViewedElement_) {
-			throw new KioskOverloadOfVisualElements("Maximum visible elements reached the upper barrier limit (currently set to " + KioskView.maxViewedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
+			throw new KioskOverloadOfVisualElementsException("Maximum visible elements reached the upper barrier limit (currently set to " + KioskView.maxViewedElement_ + "). Select less DSLs. Or, change Kiosk configuration at the Inkstone preferences.");
 		}
 		
 		this.composite_ = composite;
 		this.display_ = composite_.getDisplay();
 		shell_ = new Shell(display_);
+		shell_.addKeyListener(keylistener_);
 		initPopupMenu();
 		popupMenuListener_ = new MenuDetectListener() {
 			@Override
@@ -233,6 +263,7 @@ public class InkstoneElement {
 				popupMenu_.setVisible(false);
 			}
 		};
+		shell_.addKeyListener(keylistener_);
 	
 		label_ = new CLabel(composite, SWT.NONE);
 		label_.setText( getName() );
@@ -253,7 +284,6 @@ public class InkstoneElement {
 					setSelected(true, InkstoneElement.this);
 				}
 				label_.redraw();
-				
 			}
 		});
 		
@@ -283,24 +313,29 @@ public class InkstoneElement {
 	 * @param regex  - the regular expression to which this element is to be matched. 
 	 */
 	public void redrawByRegexMatch(String regex) {
-		GridData data = (GridData) label_.getLayoutData();
-		boolean isaMatch = label_.getText().matches(regex);
-		if(label_.getVisible()) {
-			if(!isaMatch) {
-	            data.exclude = true;
-	            label_.setVisible(false);
-	            composite_.setBackground(display_.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
-	            composite_.layout(false);
-	            elementkind_.setDisplayHeight(-getDisplayHeight());
+
+		shell_.addKeyListener(keylistener_);
+		
+		if( !stopFlag_ ) {
+			GridData data = (GridData) label_.getLayoutData();
+			boolean isaMatch = label_.getText().matches(regex);
+			if(label_.getVisible()) {
+				if(!isaMatch) {
+		            data.exclude = true;
+		            label_.setVisible(false);
+		            composite_.setBackground(display_.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		            composite_.layout(false);
+		            elementkind_.setDisplayHeight(-getDisplayHeight());
+				}
 			}
-		}
-		else {
-			if(isaMatch) {
-	            data.exclude = false;
-	            label_.setVisible(true);
-	            composite_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
-	            composite_.layout(false);
-	            elementkind_.setDisplayHeight(getDisplayHeight());
+			else {
+				if(isaMatch) {
+		            data.exclude = false;
+		            label_.setVisible(true);
+		            composite_.setBackground(display_.getSystemColor(SWT.COLOR_WHITE));
+		            composite_.layout(false);
+		            elementkind_.setDisplayHeight(getDisplayHeight());
+				}
 			}
 		}
 	}

@@ -31,7 +31,6 @@ public class DiagramEditor extends EditorPart {
 			throws PartInitException {
 		
 		svgCanvas_ = new JSVGCanvas(null, true, true);
-		
 		// TODO Auto-generated method stub
 
 	}

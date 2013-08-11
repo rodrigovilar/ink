@@ -1,6 +1,6 @@
 package inkstone.models;
 
-import inkstone.utils.KioskOverloadOfVisualElements;
+import inkstone.utils.KioskOverloadOfVisualElementsException;
 import inkstone.views.KioskView;
 
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.ink.eclipse.utils.InkUtils;
 
 /**
@@ -53,9 +54,9 @@ public class InkstoneProject {
 	 * Auto starts by filling given INK project DSL namespaces.
 	 * 
 	 * @param p Eclipce resource project (must be an ink-project !).
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 */
-	public InkstoneProject(IProject p, KioskView kiosk) throws KioskOverloadOfVisualElements {
+	public InkstoneProject(IProject p, KioskView kiosk) throws KioskOverloadOfVisualElementsException {
 		this.name_ = p.getName();
 		this.parentKiosk_ = kiosk;
 		String[] nss = InkUtils.getProjectNamespaces(p);
@@ -102,9 +103,9 @@ public class InkstoneProject {
 	 * Add single DSL namespace library to the {@link InkstoneProject} list.
 	 * Used for selective fill of the model when we want to hide part of the data in the InkStone descriptive model.
 	 * @param DslLibName
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 */
-	public void addDslLib(String DslLibName) throws KioskOverloadOfVisualElements {
+	public void addDslLib(String DslLibName) throws KioskOverloadOfVisualElementsException {
 		DslLibs_.add(new InkstoneLibrary(DslLibName, this));
 	}
 	
@@ -160,11 +161,15 @@ public class InkstoneProject {
 	/**
 	 * Draw the kiosk view display widgets.
 	 * @param parentComposite The parent {@link Composite} object. Sub-type: {@link ExpandBar}.
-	 * @throws KioskOverloadOfVisualElements 
+	 * @throws KioskOverloadOfVisualElementsException 
 	 */
-	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, boolean zeroIndex ) throws KioskOverloadOfVisualElements {
+	public void drawInKiosk(ExpandBar parentComposite, MenuDetectListener popupMenuListener, boolean zeroIndex, IProgressMonitor monitor, int percentage ) throws KioskOverloadOfVisualElementsException {
 		expandBar_ = parentComposite;
 		expandBarItemIndex_ = (zeroIndex) ? 0 : 1;
+		
+		if( DslLibs_.size() == 0 ) return;
+		
+		int progressSteps = percentage / DslLibs_.size();
 		
 		childComposite_ = new ExpandBar (parentComposite, SWT.NONE);
 		childComposite_.addMenuDetectListener(popupMenuListener);
@@ -172,11 +177,12 @@ public class InkstoneProject {
 		try {
 			if (this.DslLibs_.size() > 0) {
 				for (InkstoneLibrary library : this.DslLibs_) {
-					library.drawInKiosk(childComposite_, popupMenuListener);
+					if( InkstoneElement.getStopFlag() ) break;
+					library.drawInKiosk(childComposite_, popupMenuListener, monitor, progressSteps);
 					displayHeight_ += library.getExpandItem().getHeaderHeight() + 4;
 				}
 			}
-		} catch (KioskOverloadOfVisualElements e) {
+		} catch (KioskOverloadOfVisualElementsException e) {
 			throw(e);
 		} finally {
 			expandItem_ = new ExpandItem(parentComposite, SWT.NONE, expandBarItemIndex_++);
@@ -224,11 +230,6 @@ public class InkstoneProject {
 	 * Clear sub widgets on disposing.
 	 */
 	public void dispose() {
-//		if( (childComposite_ != null) && (expandListener_ != null) ) {
-//			if( !childComposite_.getDisplay().isDisposed() ) {
-//				childComposite_.removeExpandListener(expandListener_);
-//			}
-//		}
 		if( this.DslLibs_ != null ) {
 			for (InkstoneLibrary library : this.DslLibs_) {
 				library.dispose();

@@ -106,10 +106,10 @@ public class StateClassGenerator extends BaseGenerator {
 		}
 		String[] typesName = new String[2];
 		switch (pm.getTypeMarker()) {
-		case Collection:
+		case COLLECTION:
 			CollectionPropertyMirror cpm = (CollectionPropertyMirror) pm;
 			switch (cpm.getCollectionTypeMarker()) {
-			case List:
+			case LIST:
 				String[] itemTypes = resolveGetterType(((ListPropertyMirror) pm).getItemMirror());
 				if (itemTypes == null) {
 					return null;
@@ -117,7 +117,7 @@ public class StateClassGenerator extends BaseGenerator {
 				typesName[0] = cpm.getTypeClass().getName() + "<" + itemTypes[0] + ">";
 				typesName[1] = cpm.getTypeClass().getName() + "<" + itemTypes[1] + ">";
 				break;
-			case Map:
+			case MAP:
 				String[] keyTypes = resolveGetterType(((MapPropertyMirror) pm).getKeyMirror());
 				String[] valTypes = resolveGetterType(((MapPropertyMirror) pm).getValueMirror());
 				if (keyTypes == null || valTypes == null) {
@@ -128,7 +128,7 @@ public class StateClassGenerator extends BaseGenerator {
 				break;
 			}
 			break;
-		case Class:
+		case CLASS:
 			ClassMirror propertyType = pm.getPropertyType().reflect();
 			typesName[1] = resolveRealStateClassName(propertyType);
 			if (propertyType.isStruct()) {
@@ -137,7 +137,7 @@ public class StateClassGenerator extends BaseGenerator {
 				typesName[0] = resolveRealBehaviorClassName(propertyType);
 			}
 			break;
-		case Enum:
+		case ENUM:
 			String enumType = resolveEnumClassName((EnumTypeMirror) pm.getPropertyType().reflect());
 			typesName[0] = enumType;
 			typesName[1] = enumType;

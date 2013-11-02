@@ -12,7 +12,7 @@ import org.ink.core.vm.utils.property.mirror.ListPropertyMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass = ListPropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, javaMapping = JavaMapping.State_Behavior, finalValuesLocation = { PropertyState.p_type }, finalValues = { "ink.core:List" })
+@CoreClassSpec(mirrorClass = ListPropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, javaMapping = JavaMapping.STATE_BEHAVIOR, finalValuesLocation = { PropertyState.p_type }, finalValues = { "ink.core:List" })
 public interface ListPropertyState extends CollectionPropertyState {
 
 	@CoreField(mandatory = true)

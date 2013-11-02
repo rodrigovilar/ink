@@ -6,6 +6,20 @@ import org.ink.core.vm.lang.internal.annotations.CoreEnumField;
  * @author Lior Schachter
  */
 public enum ReferenceKind {
-	Association_Only, Composition_Only, @CoreEnumField(isDefault = true)
-	Association_or_Composition;
+	ASSOCIATION_ONLY("Association_Only"), 
+	COMPOSITION_ONLY("Composition_Only"), 
+	@CoreEnumField(isDefault = true)
+	ASSOCIATION_OR_COMPOSITION("Association_or_Composition");
+	
+	public final String key;
+
+	private ReferenceKind(String key) {
+		this.key = key;
+	}
+	
+	@Override
+	public String toString() {
+		return key;
+	}
+
 }

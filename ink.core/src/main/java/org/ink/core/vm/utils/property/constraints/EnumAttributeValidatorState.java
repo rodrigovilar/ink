@@ -10,7 +10,7 @@ import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
  * @author Lior Schachter
  */
 @ValidatorMessages(codes = { "enum.illegal.value" }, messages = { "ink.core:enum_illegal_value" })
-@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.State_Behavior)
+@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.STATE_BEHAVIOR)
 public interface EnumAttributeValidatorState extends InstanceValidatorState {
 
 	public class Data extends InstanceValidatorState.Data implements EnumAttributeValidatorState {

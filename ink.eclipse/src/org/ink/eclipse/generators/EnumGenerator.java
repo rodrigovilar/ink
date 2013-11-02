@@ -26,14 +26,34 @@ public class EnumGenerator extends BaseGenerator {
 			List<String> vals = enumType.getValues();
 			if (!vals.isEmpty()) {
 				for (int i = 0; i < vals.size(); i++) {
-					result.append(vals.get(i));
+					String val = vals.get(i);
+					StringBuilder builder = new StringBuilder(val.length());
+					char[] cs = val.toCharArray();
+					for(int j=0;j<cs.length;j++){
+						char c= cs[j];
+						switch (c) {
+						case '-':
+							builder.append('_');
+							break;
+						default:
+							if(Character.isWhitespace(c)){
+								builder.append('_');
+							}else if(Character.isJavaIdentifierPart(c)){
+								builder.append(c);
+							}
+							break;
+						}
+					}
+					result.append(builder.toString().toUpperCase()).append("(\"").append(val).append("\")");
 					if (i < (vals.size() - 1)) {
 						result.append(',');
 					}
 				}
 				result.append(';');
 			}
-
+			result.append("public final String key;");
+			result.append("private " + name +"(String key){this.key=key;}");
+			result.append("@Override public String toString(){return key;}");
 			result.append("}");
 			writeFile(result.toString(), fullJavaPack, name, true);
 		}

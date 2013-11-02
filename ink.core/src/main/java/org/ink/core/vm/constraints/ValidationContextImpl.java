@@ -42,22 +42,22 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator) {
-		add(erroneousObject, validator, null, Severity.Warning);
+		add(erroneousObject, validator, null, Severity.WARNING);
 	}
 
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator, Object... args) {
-		add(erroneousObject, validator, null, Severity.Warning, args);
+		add(erroneousObject, validator, null, Severity.WARNING, args);
 	}
 
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator, String code) {
-		add(erroneousObject, validator, null, Severity.Warning);
+		add(erroneousObject, validator, null, Severity.WARNING);
 	}
 
 	@Override
 	public void addWarning(InkObjectState erroneousObject, Validator validator, String code, Object... args) {
-		add(erroneousObject, validator, code, Severity.Warning, args);
+		add(erroneousObject, validator, code, Severity.WARNING, args);
 	}
 
 	private void add(InkObjectState erroneousObject, Validator validator, String code, Severity severity, Object... args) {
@@ -117,7 +117,7 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	@Override
 	public boolean containsError() {
-		return containsMessage(Severity.Error);
+		return containsMessage(Severity.ERROR);
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class ValidationContextImpl<S extends ValidatorClassState> extends InkObj
 
 	@Override
 	public void logMessages() {
-		logMessages(Severity.Warning);
+		logMessages(Severity.WARNING);
 	}
 
 	@Override

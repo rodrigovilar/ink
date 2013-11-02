@@ -114,7 +114,7 @@ public class ObjectFactoryImpl<S extends ObjectFactoryState> extends InkObjectIm
 					state.setPropertyValue(loc, CoreUtils.cloneOneValue(propMirrors[loc], value, false));
 				}
 			}
-			if (cls.getComponentType() == ComponentType.Root) {
+			if (cls.getComponentType() == ComponentType.ROOT) {
 				state.setRoot(true);
 			}
 		}

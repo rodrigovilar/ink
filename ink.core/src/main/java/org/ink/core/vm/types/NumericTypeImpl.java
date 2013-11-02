@@ -22,22 +22,22 @@ public class NumericTypeImpl<S extends NumericTypeState> extends PrimitiveTypeIm
 		isLong = false;
 		isShort = false;
 		switch (getPrimitiveMarker()) {
-		case Byte:
+		case BYTE:
 			isByte = true;
 			break;
-		case Double:
+		case DOUBLE:
 			isDouble = true;
 			break;
-		case Float:
+		case FLOAT:
 			isFloat = true;
 			break;
-		case Integer:
+		case INTEGER:
 			isInteger = true;
 			break;
-		case Long:
+		case LONG:
 			isLong = true;
 			break;
-		case Short:
+		case SHORT:
 			isShort = true;
 			break;
 

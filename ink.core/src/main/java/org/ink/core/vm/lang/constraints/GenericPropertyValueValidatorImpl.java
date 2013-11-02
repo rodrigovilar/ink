@@ -41,10 +41,10 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 	protected void validatePropertyTypeConstraints(Object propertyValue, InkObjectState dataContainer, ValidationContext context, PropertyMirror pMirror) {
 		Class<?> propertyTypeClass = pMirror.getTypeClass();
 		switch (pMirror.getTypeMarker()) {
-		case Class:
+		case CLASS:
 			validateClassValue(propertyValue, dataContainer, context, pMirror);
 			break;
-		case Collection:
+		case COLLECTION:
 			validateCollectionValue(propertyValue, dataContainer, context, pMirror, propertyTypeClass);
 			break;
 		default:
@@ -59,7 +59,7 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 		CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror) pMirror).getCollectionTypeMarker();
 		PropertyMirror itemMirror;
 		switch (collectionMarker) {
-		case List:
+		case LIST:
 			try {
 				List<?> col = (List<?>) propertyValue;
 				itemMirror = ((ListPropertyMirror) pMirror).getItemMirror();
@@ -77,7 +77,7 @@ public class GenericPropertyValueValidatorImpl<S extends GenericPropertyValueVal
 				context.addError(dataContainer, this, "wrong.value.type", pMirror.getName(), expected, actual);
 			}
 			break;
-		case Map:
+		case MAP:
 			try {
 				Map<?, ?> mapValue = (Map<?, ?>) propertyValue;
 				itemMirror = ((MapPropertyMirror) pMirror).getKeyMirror();

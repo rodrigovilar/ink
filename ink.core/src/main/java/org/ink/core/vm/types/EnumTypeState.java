@@ -11,7 +11,7 @@ import org.ink.core.vm.mirror.EnumTypeMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass = EnumTypeMirrorState.class, metaclass = EnumTypeClassState.class, javaMapping = JavaMapping.State_Behavior_Interface)
+@CoreClassSpec(mirrorClass = EnumTypeMirrorState.class, metaclass = EnumTypeClassState.class, javaMapping = JavaMapping.STATE_BEHAVIOR_INTERFACE)
 public interface EnumTypeState extends InkTypeState {
 
 	public static final byte p_java_path = 0;

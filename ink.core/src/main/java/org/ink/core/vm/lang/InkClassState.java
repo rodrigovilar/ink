@@ -31,17 +31,17 @@ import org.ink.core.vm.utils.CoreUtils;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(constraintsClass = ClassConstraintsState.class, mirrorClass = ClassMirrorState.class, javaMapping = JavaMapping.State_Behavior_Interface
+@CoreClassSpec(constraintsClass = ClassConstraintsState.class, mirrorClass = ClassMirrorState.class, javaMapping = JavaMapping.STATE_BEHAVIOR_INTERFACE
 /* ,finalValues={"Root"}, finalValuesLocation={InkClassState.p_component_type} */)
 public interface InkClassState extends InkTypeState {
 
-	@CoreField(defaultValue = "", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(defaultValue = "", valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_java_path = 0;
 
 	// TODO - should be mandatory true
-	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_description = 1;
-	@CoreField(mandatory = true, defaultValue = "Only_State", valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(mandatory = true, defaultValue = "Only_State", valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_java_mapping = 2;
 	@CoreField(defaultValue = "true")
 	public static final byte p_can_cache_behavior_instance = 3;

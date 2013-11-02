@@ -152,9 +152,9 @@ public class ObjectDataBlock extends DataBlock {
 					List<String> paths = new ArrayList<String>(pathsToClassBlock);
 					pm = InkUtils.getPropertyMirror(getContainingClass(), paths.remove(pathsToClassBlock.size() - 1), paths);
 				}
-				if (pm != null && pm.getTypeMarker() == DataTypeMarker.Collection) {
+				if (pm != null && pm.getTypeMarker() == DataTypeMarker.COLLECTION) {
 					switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-					case List:
+					case LIST:
 						PropertyMirror itempMirror = ((ListPropertyMirror) pm).getItemMirror();
 						if (itempMirror.getPropertyType().isEnumeration()) {
 							EnumType enumT = (EnumType) itempMirror.getPropertyType();
@@ -164,10 +164,10 @@ public class ObjectDataBlock extends DataBlock {
 						} else if (itempMirror.getPropertyType().isPrimitive()) {
 							PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
 							switch (primitivePM.getPrimitiveTypeMarker()) {
-							case String:
+							case STRING:
 								addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", "", " \"\"", prefix);
 								break;
-							case Date:
+							case DATE:
 								addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", "", " \"\"", prefix);
 								break;
 							default:
@@ -177,7 +177,7 @@ public class ObjectDataBlock extends DataBlock {
 							getProposal(cursorLocation, result, ((ListPropertyMirror) pm).getItemMirror(), prefix);
 						}
 						break;
-					case Map:
+					case MAP:
 						PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
 						PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
 						if (keyMirror != null && valueMirror != null) {
@@ -217,20 +217,20 @@ public class ObjectDataBlock extends DataBlock {
 		if (isPrefix) {
 			String name = pm.getName();
 			switch (pm.getTypeMarker()) {
-			case Class:
+			case CLASS:
 				displayString = name + " - " + getTypeDisplayString(pm);
 				addPropertyNameCompletion(cursorLocation, 0, allProposals, displayString, name, " ", prefix);
 				break;
-			case Collection:
+			case COLLECTION:
 				displayString = name + " - " + getTypeDisplayString(pm);
 				String tabs = calculateTabs() + "\t";
 				addPropertyNameCompletion(cursorLocation, tabs.length() + 1, allProposals, displayString, name, "{\n" + tabs + "\n" + tabs.substring(0, tabs.length() - 1) + "}", prefix);
 				break;
-			case Enum:
+			case ENUM:
 				displayString = name + " - " + getTypeDisplayString(pm);
 				addPropertyNameCompletion(cursorLocation, 1, allProposals, displayString, name, " \"\"", prefix);
 				break;
-			case Primitive:
+			case PRIMITIVE:
 				displayString = pm.getName() + " - " + getTypeDisplayString(pm);
 				PrimitiveAttribute pa = pm.getTargetBehavior();
 				if (pa.getType().isNumeric() || pa.getType().isBoolean()) {

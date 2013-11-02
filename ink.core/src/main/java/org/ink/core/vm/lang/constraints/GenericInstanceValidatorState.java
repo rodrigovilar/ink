@@ -9,7 +9,7 @@ import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.State_Behavior)
+@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.STATE_BEHAVIOR)
 @ValidatorMessages(codes = { "refinement.violation", "component.type.violation" }, messages = { "ink.core:refinement_violation", "ink.core:component_type_violation" })
 public interface GenericInstanceValidatorState extends InstanceValidatorState {
 

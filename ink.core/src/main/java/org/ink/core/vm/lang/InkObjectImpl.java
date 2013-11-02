@@ -124,12 +124,12 @@ public class InkObjectImpl<S extends InkObjectState> implements InkObject {
 	 */
 	@Override
 	public Kind getObjectKind() {
-		return Proxiable.Kind.Behavior;
+		return Proxiable.Kind.BEHAVIOR;
 	}
 
 	@Override
 	public final boolean validate(ValidationContext context) {
-		return getState().validate(context, SystemState.Run_Time);
+		return getState().validate(context, SystemState.RUN_TIME);
 	}
 
 	@Override

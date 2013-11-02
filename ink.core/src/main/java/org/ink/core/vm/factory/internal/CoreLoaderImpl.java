@@ -391,7 +391,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			}
 			marker = m.getTypeMarker();
 			switch (marker) {
-			case Class:
+			case CLASS:
 				MirrorAPI innerO = (MirrorAPI) value;
 				if (propertyValue != null) {
 					if (((Proxiable) propertyValue).isProxied()) {
@@ -407,11 +407,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 					cleanUpObject(innerO, allObjects);
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror) m).getCollectionTypeMarker();
 				switch (collectionMarker) {
-				case List:
-					if (((ListPropertyMirror) m).getItemMirror().getTypeMarker() == DataTypeMarker.Class) {
+				case LIST:
+					if (((ListPropertyMirror) m).getItemMirror().getTypeMarker() == DataTypeMarker.CLASS) {
 						List<MirrorAPI> l = (List<MirrorAPI>) value;
 						if (l != null) {
 							MirrorAPI item;
@@ -426,17 +426,17 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 						}
 					}
 					break;
-				case Map:
+				case MAP:
 					Map<?, ?> mapValue = (Map<?, ?>) value;
 					if (mapValue != null) {
 						PropertyMirror keyMirror = ((MapPropertyMirror) m).getKeyMirror();
 						PropertyMirror valueMirror = ((MapPropertyMirror) m).getValueMirror();
-						if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (keyMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							for (Object item : mapValue.keySet()) {
 								cleanUpObject((MirrorAPI) item, allObjects);
 							}
 						}
-						if (valueMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (valueMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							for (Object item : mapValue.values()) {
 								cleanUpObject((MirrorAPI) item, allObjects);
 							}
@@ -488,7 +488,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		classDesc = classElements.get(InkClassState.class);
 		o = classDesc.getObject();
 		// TODO - This should be removed once we have InkMetaClass
-		o.setRawValue(InkClassState.p_component_type, ComponentType.Root);
+		o.setRawValue(InkClassState.p_component_type, ComponentType.ROOT);
 		o.boot((InkClassState) o, factory, new InkClassImpl(), context, createMirror(o, classDesc, null, (byte) -1));
 		for (CoreObjectDescriptor desc : elements.values()) {
 			o = desc.getObject();
@@ -560,18 +560,18 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		for (PropertyMirror m : mirrors) {
 			marker = m.getTypeMarker();
 			switch (marker) {
-			case Class:
+			case CLASS:
 				MirrorAPI innerO = (MirrorAPI) o.getRawValue(m.getIndex());
 				if (innerO != null && !innerO.isRoot()) {
 					innerCoerDesc = classElements.get(getStateInterface(innerO));
 					activateObject(innerO, innerCoerDesc, null, (byte) -1);
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror) m).getCollectionTypeMarker();
 				switch (collectionMarker) {
-				case List:
-					if (((ListPropertyMirror) m).getItemMirror().getTypeMarker() == DataTypeMarker.Class) {
+				case LIST:
+					if (((ListPropertyMirror) m).getItemMirror().getTypeMarker() == DataTypeMarker.CLASS) {
 						List<MirrorAPI> l = (List<MirrorAPI>) o.getRawValue(m.getIndex());
 						if (l != null) {
 							MirrorAPI item;
@@ -590,18 +590,18 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 						}
 					}
 					break;
-				case Map:
+				case MAP:
 					Map<?, ?> mapValue = (Map<?, ?>) o.getRawValue(m.getIndex());
 					if (mapValue != null) {
 						PropertyMirror keyMirror = ((MapPropertyMirror) m).getKeyMirror();
 						PropertyMirror valueMirror = ((MapPropertyMirror) m).getValueMirror();
-						if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (keyMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							for (Object item : mapValue.keySet()) {
 								innerCoerDesc = classElements.get(getStateInterface((InkObjectState) item));
 								activateObject((MirrorAPI) item, innerCoerDesc, null, (byte) -1);
 							}
 						}
-						if (valueMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (valueMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							for (Object item : mapValue.values()) {
 								innerCoerDesc = classElements.get(getStateInterface((InkObjectState) item));
 								activateObject((MirrorAPI) item, innerCoerDesc, null, (byte) -1);
@@ -720,11 +720,11 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void instantiateCollectionMirror(CoreClassDescriptor desc, PropertyState prop, byte index, CollectionPropertyMirrorImpl<?> mirror, boolean isComputed, boolean hasStaticValue) throws Exception {
-		DataTypeMarker marker = DataTypeMarker.Collection;
+		DataTypeMarker marker = DataTypeMarker.COLLECTION;
 		CollectionTypeMarker collectionMarker = null;
 		Class<?> typeClass = null;
 		if (prop.getClass() == MapPropertyState.Data.class) {
-			collectionMarker = CollectionTypeMarker.Map;
+			collectionMarker = CollectionTypeMarker.MAP;
 			typeClass = factory.resolveCollectionClass(collectionMarker);
 			DictionaryState ds = (DictionaryState) ((MirrorAPI) prop).getRawValue(MapPropertyState.p_specifications);
 			if (ds.getClass() == KeyValueDictionaryState.Data.class) {
@@ -746,7 +746,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			}
 
 		} else if (prop.getClass() == ListPropertyState.Data.class) {
-			collectionMarker = CollectionTypeMarker.List;
+			collectionMarker = CollectionTypeMarker.LIST;
 			PropertyMirror itemMirror = createPropertyMirror((PropertyState) ((MirrorAPI) prop).getRawValue(ListPropertyState.p_list_item), desc, Property.UNBOUNDED_PROPERTY_INDEX);
 			String name = (String) ((MirrorAPI) prop).getRawValue(PropertyState.p_name);
 			((ListPropertyMirrorImpl<?>) mirror).boot(index, name, typeClass, marker, hasStaticValue, isComputed, collectionMarker, itemMirror);
@@ -756,7 +756,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void instantiateReferenceMirror(PropertyState prop, byte index, PropertyMirrorImpl<?> mirror, boolean isComputed, boolean hasStaticValue) {
-		DataTypeMarker marker = DataTypeMarker.Class;
+		DataTypeMarker marker = DataTypeMarker.CLASS;
 		CoreClassDescriptor typeDescriptor = (CoreClassDescriptor) elements.get(((InkObjectState) ((MirrorAPI) prop).getRawValue(PropertyState.p_type)).getId());
 		Class<?> typeClass = typeDescriptor.getStateClass();
 		String name = (String) ((MirrorAPI) prop).getRawValue(PropertyState.p_name);
@@ -764,7 +764,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void instantiateEnumMirror(PropertyState prop, byte index, PropertyMirrorImpl<?> mirror, boolean isComputed, boolean hasStaticValue) throws Exception {
-		DataTypeMarker marker = DataTypeMarker.Enum;
+		DataTypeMarker marker = DataTypeMarker.ENUM;
 		EnumTypeState enumState = (EnumTypeState) ((MirrorAPI) prop).getRawValue(PropertyState.p_type);
 		Class<?> typeClass = loadClass(getEnumClassName(enumState));
 		String name = (String) ((MirrorAPI) prop).getRawValue(PropertyState.p_name);
@@ -772,28 +772,28 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void instantiatePrimitiveMirror(PropertyState prop, byte index, PrimitiveAttributeMirrorImpl<?> mirror, boolean isComputed, boolean hasStaticValue) {
-		DataTypeMarker marker = DataTypeMarker.Primitive;
+		DataTypeMarker marker = DataTypeMarker.PRIMITIVE;
 		PrimitiveTypeMarker primitiveMarker = null;
 		if (prop.getClass() == StringAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.String;
+			primitiveMarker = PrimitiveTypeMarker.STRING;
 		} else if (prop.getClass() == ModelPathAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.String;
+			primitiveMarker = PrimitiveTypeMarker.STRING;
 		}else if (prop.getClass() == LongAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Long;
+			primitiveMarker = PrimitiveTypeMarker.LONG;
 		} else if (prop.getClass() == DoubleAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Double;
+			primitiveMarker = PrimitiveTypeMarker.DOUBLE;
 		} else if (prop.getClass() == ShortAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Short;
+			primitiveMarker = PrimitiveTypeMarker.SHORT;
 		} else if (prop.getClass() == FloatAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Float;
+			primitiveMarker = PrimitiveTypeMarker.FLOAT;
 		} else if (prop.getClass() == ByteAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Byte;
+			primitiveMarker = PrimitiveTypeMarker.BYTE;
 		} else if (prop.getClass() == BooleanAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Boolean;
+			primitiveMarker = PrimitiveTypeMarker.BOOLEAN;
 		} else if (prop.getClass() == DateAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Date;
+			primitiveMarker = PrimitiveTypeMarker.DATE;
 		} else if (prop.getClass() == IntegerAttributeState.Data.class) {
-			primitiveMarker = PrimitiveTypeMarker.Integer;
+			primitiveMarker = PrimitiveTypeMarker.INTEGER;
 		} else {
 			throw new CoreException("Could not resolve collection type marker for collection property " + prop.getClass().getName());
 		}
@@ -838,7 +838,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 
 	private PropertyState createProperty(Field f, Method m, String propertyName, Class<?> typeClass, Class<?> containerClass) throws Exception {
 		boolean mandatory = false;
-		InheritanceConstraints st = InheritanceConstraints.Instance_Can_Refine_Inherited_Value;
+		InheritanceConstraints st = InheritanceConstraints.INSTANCE_CAN_REFINE_INHERITED_VALUE;
 		CoreField fieldAnnot = f.getAnnotation(CoreField.class);
 		if (fieldAnnot != null) {
 			mandatory = fieldAnnot.mandatory();
@@ -893,9 +893,30 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			result = elements.get(value).getObject();
 		} else if (typeClass != String.class) {
 			Method valueMethod = typeClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[] { String.class });
-			result = valueMethod.invoke(null, new Object[] { value });
+			result = valueMethod.invoke(null, new Object[] { getJavaEnum(value) });
 		}
 		return result;
+	}
+	
+	private String getJavaEnum(String val){
+		StringBuilder builder = new StringBuilder(val.length());
+		char[] cs = val.toCharArray();
+		for(int j=0;j<cs.length;j++){
+			char c= cs[j];
+			switch (c) {
+			case '-':
+				builder.append('_');
+				break;
+			default:
+				if(Character.isWhitespace(c)){
+					builder.append('_');
+				}else if(Character.isJavaIdentifierPart(c)){
+					builder.append(Character.toUpperCase(c));
+				}
+				break;
+			}
+		}
+		return builder.toString();
 	}
 
 	private PropertyState createReference(Field f, Method m, String propertyName, Class<?> typeClass, Class<?> containerClass, boolean mandatory) throws Exception {
@@ -906,7 +927,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		((MirrorAPI) result).setRawValue(ReferenceState.p_name, propertyName);
 		ReferenceKind refKind = (ReferenceKind) getEnumerationDefault(ReferenceKind.class);
 		if (refKind == null) {
-			refKind = ReferenceKind.Association_or_Composition;
+			refKind = ReferenceKind.ASSOCIATION_OR_COMPOSITION;
 		}
 		// to solve a problem in getFinalValue/getDefaultValue in ReferenceState
 		typeClass = typeClass == Proxiable.class ? InkObjectState.class : typeClass;
@@ -1222,7 +1243,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 				((MirrorAPI) constraints).setRawValue(PropertyConstraintsState.p_property_value_validators, validators);
 			}
 		}
-		if (ValidatorState.class.isAssignableFrom(ce.getStateClass()) && ce.getStateClass() != ValidatorState.class && (metadata == null || metadata.javaMapping() != JavaMapping.State_Interface)) {
+		if (ValidatorState.class.isAssignableFrom(ce.getStateClass()) && ce.getStateClass() != ValidatorState.class && (metadata == null || metadata.javaMapping() != JavaMapping.STATE_INTERFACE)) {
 			ValidatorMessages vm = ce.getStateClass().getAnnotation(ValidatorMessages.class);
 			if (vm == null) {
 				throw new CoreException("Validator must have messages defined. Please fix " + ce.getId());
@@ -1294,7 +1315,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 			ce.getObject().setSuper(elements.get(superId).getObject());
 		}
 		if (ce.isClass()) {
-			JavaMapping javaRepresentation = JavaMapping.State_Behavior_Interface;
+			JavaMapping javaRepresentation = JavaMapping.STATE_BEHAVIOR_INTERFACE;
 			CoreClassSpec metadata = ((CoreClassDescriptor) ce).getMetadata();
 			if (metadata != null) {
 				javaRepresentation = metadata.javaMapping();
@@ -1304,8 +1325,8 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 	}
 
 	private void instantiateCollectionTypes() throws Exception {
-		newCollectionType(MAP, CollectionTypeState.class, CollectionTypeMarker.Map);
-		newCollectionType(LIST, CollectionTypeState.class, CollectionTypeMarker.List);
+		newCollectionType(MAP, CollectionTypeState.class, CollectionTypeMarker.MAP);
+		newCollectionType(LIST, CollectionTypeState.class, CollectionTypeMarker.LIST);
 	}
 
 	private void newCollectionType(String id, Class<?> stateInteface, CollectionTypeMarker marker) throws Exception {
@@ -1324,7 +1345,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		PrimitiveTypeMarker marker;
 		for (String id : ids) {
 			type = id.substring(id.indexOf(InkNotations.Path_Syntax.NAMESPACE_DELIMITER_C) + 1, id.length());
-			marker = PrimitiveTypeMarker.valueOf(type);
+			marker = PrimitiveTypeMarker.valueOf(type.toUpperCase());
 			try {
 				newPrimitive(desc, id, marker);
 			} catch (Exception e) {
@@ -1443,9 +1464,9 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		try {
 			String id = createId(stateInterface);
 			Class<?> metaClass = InkClassState.class;
-			JavaMapping mapping = JavaMapping.State_Behavior_Interface;
+			JavaMapping mapping = JavaMapping.STATE_BEHAVIOR_INTERFACE;
 			boolean isAbstract = false;
-			Scope scope = Scope.all;
+			Scope scope = Scope.ALL;
 			CoreClassSpec annot = findAnnotation(stateInterface, CoreClassSpec.class);
 			if (annot != null) {
 				metaClass = annot.metaclass();

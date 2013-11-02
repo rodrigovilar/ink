@@ -18,7 +18,7 @@ public interface PropertyState extends TypedObjectState {
 	public static final byte p_display_name = 3;
 
 	// TODO should be mandatory true
-	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(mandatory = false, valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_description = 4;
 	@CoreField(defaultValue = "Instance_Can_Refine_Inherited_Value")
 	public static final byte p_inheritance_constraints = 5;

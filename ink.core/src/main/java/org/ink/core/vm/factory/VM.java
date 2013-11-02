@@ -63,7 +63,7 @@ public interface VM {
 	 * Re-scans and reloads the {@link DslFactory} of the required namespace. Has no effect if the namespace is not found.
 	 * @param namespace the namespace of the factory, such as <code>ink.core</code>.
 	 */
-	public void reloadDSL(String namespace);
+	public void reloadDSL(String namespace, boolean propagate);
 
 	/**
 	 * Loads a new {@link DslFactory} and adds it to the running Ink VM. This also loads the new factory's dependencies (i.e., additional DSL factories).

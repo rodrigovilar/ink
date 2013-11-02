@@ -3,6 +3,7 @@ package org.ink.eclipse.builder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -271,18 +272,23 @@ public class InkBuilder extends IncrementalProjectBuilder {
 		Map<String, DslFactory> factories = InkUtils.getProjectDSLFactories(getProject());
 		List<InkErrorDetails> result = new ArrayList<InkErrorDetails>();
 		if (factories.size() > 0) {
-			for (DslFactory factory : factories.values()) {
+			List<DslFactory> sortedFactories = new ArrayList<DslFactory>(factories.values());
+			Collections.sort(sortedFactories);
+			for (int i=sortedFactories.size()-1;i>=0;i--) {
+				DslFactory factory = sortedFactories.get(i);
 				Set<String> scope = factory.getScope();
 				boolean reload = true;
-				for(String ns : scope){
-					if(!ns.equals(factory.getNamespace()) && factories.containsKey(ns)){
-						reload = false;
-						break;
+				if(!fullBuild){
+					for(String ns : scope){
+						if(!ns.equals(factory.getNamespace()) && factories.containsKey(ns)){
+							reload = false;
+							break;
+						}
 					}
 				}
 				if(reload){
 					String ns = factory.getNamespace();
-					InkVM.instance().reloadDSL(ns);
+					InkVM.instance().reloadDSL(ns, !fullBuild);
 					result.addAll(InkVM.instance().collectErrors());
 				}
 			}
@@ -319,8 +325,10 @@ public class InkBuilder extends IncrementalProjectBuilder {
 					}
 				}
 			}
-			InkVM.instance().reloadDSL(ns);
-			result.addAll(InkVM.instance().collectErrors(ns));
+			InkVM.instance().reloadDSL(ns, true);
+			for(DslFactory f : factories){
+				result.addAll(InkVM.instance().collectErrors(f.getNamespace()));
+			}
 		}
 		return result;
 	}

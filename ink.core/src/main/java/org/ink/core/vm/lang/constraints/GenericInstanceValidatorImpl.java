@@ -34,7 +34,7 @@ public class GenericInstanceValidatorImpl<S extends GenericInstanceValidatorStat
 			}
 		} else {
 			PropertyMirror pm = targetMirror.getDefiningProperty();
-			if (pm.getTypeMarker() == DataTypeMarker.Class && pm.getInheritanceConstraints() == InheritanceConstraints.Instance_Can_Refine_Inherited_Value) {
+			if (pm.getTypeMarker() == DataTypeMarker.CLASS && pm.getInheritanceConstraints() == InheritanceConstraints.INSTANCE_CAN_REFINE_INHERITED_VALUE) {
 				ClassMirror cm = target.getMeta().reflect();
 				if (!cm.isSubClassOf(targetSuper.getClassMirror())) {
 					// TODO - should use path here
@@ -46,12 +46,12 @@ public class GenericInstanceValidatorImpl<S extends GenericInstanceValidatorStat
 
 	protected void checkComponentType(InkObjectState target, ValidationContext context, ClassMirror cMirror) {
 		switch (cMirror.getComponentType()) {
-		case Pure_Component:
+		case PURE_COMPONENT:
 			if (target.reflect().isRoot()) {
 				context.addError(target, this, "component.type.violation", target.getId(), cMirror.getComponentType().toString());
 			}
 			break;
-		case Root:
+		case ROOT:
 			if (!target.reflect().isRoot()) {
 				context.addError(target, this, "component.type.violation", cMirror.getId(), cMirror.getComponentType().toString());
 			}

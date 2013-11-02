@@ -2,6 +2,7 @@ package org.ink.core.vm.factory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.ink.core.vm.exceptions.InkException;
@@ -124,14 +125,22 @@ public class InkVM implements VM {
 	@Override
 	public List<InkErrorDetails> collectErrors(String namespace) {
 		DslFactory factory = VMMain.getFactory(namespace);
-		return factory.collectErrors();
+		if(factory!=null){
+			return factory.collectErrors();
+		}
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
-	public void reloadDSL(String namespace) {
+	public void reloadDSL(String namespace, boolean propagateChange) {
 		DslFactory factory = VMMain.getFactory(namespace);
 		if (factory != null) {
-			factory.reload();
+			factory.reload(propagateChange);
+			if(!propagateChange && VMMain.hasfacadeFactory()){
+				DslFactory facadeFactory = VMMain.getDefaultFactory();
+				facadeFactory.clearCaches();
+				
+			}
 		}
 	}
 

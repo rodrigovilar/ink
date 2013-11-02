@@ -68,7 +68,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	private final List<DslFactory> dependentFactories = new ArrayList<DslFactory>();
 
 	@Override
-	public void reload() {
+	public void reload(boolean propagateChange) {
 		System.out.println("Reloading DSL " + getNamespace());
 		repository.clear();
 		loader.init();
@@ -76,10 +76,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 		ModelInfoWriteableRepository repo = ModelInfoFactory.getWriteableInstance();
 		repo.reset(getNamespace());
 		loadModelReopsitory();
-		DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
-		DslFactoryEvent event = newInstance(CoreNotations.Ids.DSL_FACTORY_EVENT);
-		event.setKind(DslFactoryEventKind.reload);
-		dispatcher.publishEvent(event);
+		if(propagateChange){
+			DslFactoryEventDispatcher dispatcher = asTrait(DslFactoryState.t_event_dispatcher);
+			DslFactoryEvent event = newInstance(CoreNotations.Ids.DSL_FACTORY_EVENT);
+			event.setKind(DslFactoryEventKind.RELOAD);
+			dispatcher.publishEvent(event);
+		}
 	}
 
 	@Override
@@ -135,11 +137,6 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 				InkObjectState o = objectIterator.next();
 				if (o.reflect().isClass()) {
 					applyDetachableTraits((InkClassState) o, false);
-					try {
-						o.toString();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
 			}
 			if (VMConfig.instance().getResourceResolver().enableEagerFetch()) {
@@ -435,9 +432,9 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 
 	@Override
 	public Class<?> resolveCollectionClass(CollectionTypeMarker marker) {
-		if (marker == CollectionTypeMarker.List) {
+		if (marker == CollectionTypeMarker.LIST) {
 			return List.class;
-		} else if (marker == CollectionTypeMarker.Map) {
+		} else if (marker == CollectionTypeMarker.MAP) {
 			return Map.class;
 		}
 		return null;
@@ -453,31 +450,31 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public Class<?> resolvePrimitiveClass(PrimitiveTypeMarker marker) {
 		Class<?> typeClass = null;
 		switch (marker) {
-		case Boolean:
+		case BOOLEAN:
 			typeClass = Boolean.class;
 			break;
-		case Byte:
+		case BYTE:
 			typeClass = Byte.class;
 			break;
-		case Date:
+		case DATE:
 			typeClass = Date.class;
 			break;
-		case Double:
+		case DOUBLE:
 			typeClass = Double.class;
 			break;
-		case Float:
+		case FLOAT:
 			typeClass = Float.class;
 			break;
-		case Integer:
+		case INTEGER:
 			typeClass = Integer.class;
 			break;
-		case Long:
+		case LONG:
 			typeClass = Long.class;
 			break;
-		case Short:
+		case SHORT:
 			typeClass = Short.class;
 			break;
-		case String:
+		case STRING:
 			typeClass = String.class;
 			break;
 		default:
@@ -608,7 +605,7 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	public void validateAllElements(ValidationContext vc) {
 		Iterator<InkObjectState> iter = repository.iterator();
 		while (iter.hasNext()) {
-			iter.next().getBehavior().validate(vc, SystemState.Run_Time);
+			iter.next().getBehavior().validate(vc, SystemState.RUN_TIME);
 		}
 	}
 
@@ -655,8 +652,8 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public void handleEvent(DslFactoryEvent event) {
 		switch (event.getKind()) {
-		case reload:
-			reload();
+		case RELOAD:
+			reload(true);
 			break;
 		}
 	}
@@ -681,6 +678,12 @@ public class DslFactoryImpl<S extends DslFactoryState> extends InkClassImpl<S> i
 	@Override
 	public List<String> getElementsIds(){
 		return loader.getElementsIds();
+	}
+
+	@Override
+	public void clearCaches() {
+		repository.clear();
+		loader.init();
 	}
 	
 	

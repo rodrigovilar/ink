@@ -157,7 +157,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 				innerO = object.getRawValue(pm.getIndex());
 				if (innerO != null) {
 					switch (pm.getTypeMarker()) {
-					case Class:
+					case CLASS:
 						if (((Proxiable) innerO).isProxied()) {
 							innerO = ((Proxiability) innerO).getVanillaState();
 						}
@@ -166,13 +166,13 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 						}
 						object.setPropertyValue(pm.getIndex(), innerO);
 						break;
-					case Collection:
+					case COLLECTION:
 						switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-						case List:
+						case LIST:
 							handleCollection(((ListPropertyMirror) pm).getItemMirror(), (Collection<?>) innerO);
 							object.setPropertyValue(pm.getIndex(), innerO);
 							break;
-						case Map:
+						case MAP:
 							PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
 							PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
 							boolean keyContainsInkObject = keyMirror.isValueContainsInkObject();
@@ -196,7 +196,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 
 	private void handleCollection(PropertyMirror itemMirror, Collection<?> col) {
 		switch (itemMirror.getTypeMarker()) {
-		case Class:
+		case CLASS:
 			for (Object item : col) {
 				if (((Proxiable) item).isProxied()) {
 					item = ((Proxiability) item).getVanillaState();
@@ -206,15 +206,15 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 				}
 			}
 			break;
-		case Collection:
+		case COLLECTION:
 			switch (((CollectionPropertyMirror) itemMirror).getCollectionTypeMarker()) {
-			case List:
+			case LIST:
 				PropertyMirror listItemMirror = ((ListPropertyMirror) itemMirror).getItemMirror();
 				for (Object list : col) {
 					handleCollection(listItemMirror, (Collection<?>) list);
 				}
 				break;
-			case Map:
+			case MAP:
 				PropertyMirror keyMirror = ((MapPropertyMirror) itemMirror).getKeyMirror();
 				PropertyMirror valueMirror = ((MapPropertyMirror) itemMirror).getValueMirror();
 				boolean keyContainsInkObject = keyMirror.isValueContainsInkObject();
@@ -241,7 +241,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 		Object o;
 		for (PropertyMirror pm : pMirrors) {
 			Object superObjectValue = null;
-			if (pm.getInheritanceConstraints()!=InheritanceConstraints.Instance_Must_Override_Inherited_Value &&
+			if (pm.getInheritanceConstraints()!=InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE &&
 					superObject != null && superObject.getPropertiesCount() > pm.getIndex()) {
 				superObjectValue = superObject.getPropertyValue(pm.getIndex());
 			}
@@ -254,7 +254,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 				}
 				object.setRawValue(pm.getIndex(), superObjectValue);
 			} else {
-				if (pm.getTypeMarker() == DataTypeMarker.Class) {
+				if (pm.getTypeMarker() == DataTypeMarker.CLASS) {
 					if (((Proxiable) o).isProxied()) {
 						o = ((Proxiability) o).getVanillaState();
 					}
@@ -274,10 +274,10 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 						}
 						innerCompile(oMirror, innerSuper);
 					}
-				} else if (pm.getTypeMarker() == DataTypeMarker.Collection) {
+				} else if (pm.getTypeMarker() == DataTypeMarker.COLLECTION) {
 					switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-					case List:
-						if (((ListPropertyMirror) pm).getItemMirror().getTypeMarker() == DataTypeMarker.Class) {
+					case LIST:
+						if (((ListPropertyMirror) pm).getItemMirror().getTypeMarker() == DataTypeMarker.CLASS) {
 							Collection<MirrorAPI> col = (Collection<MirrorAPI>) o;
 							for (Proxiable item : col) {
 								if ((item).isProxied()) {
@@ -300,12 +300,12 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 							((List) o).addAll(0, mergedList);
 						}
 						break;
-					case Map:
+					case MAP:
 						Map map = (Map) o;
 						Map<?, ?> superValue = (Map<?, ?>)superObjectValue;
 						PropertyMirror keyMirror = ((MapPropertyMirror) pm).getKeyMirror();
 						PropertyMirror valueMirror = ((MapPropertyMirror) pm).getValueMirror();
-						if (keyMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (keyMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							Collection<MirrorAPI> col = map.keySet();
 							for (Proxiable item : col) {
 								if ((item).isProxied()) {
@@ -318,7 +318,7 @@ public class ObjectEditorImpl<S extends ObjectEditorState> extends InkObjectImpl
 								}
 							}
 						}
-						if (valueMirror.getTypeMarker() == DataTypeMarker.Class) {
+						if (valueMirror.getTypeMarker() == DataTypeMarker.CLASS) {
 							Collection<Map.Entry<?, ?>> col = map.entrySet();
 							for (Map.Entry<?, ?> en : col) {
 								Proxiable val = (Proxiable) en.getValue();

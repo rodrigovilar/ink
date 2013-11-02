@@ -16,17 +16,17 @@ import org.ink.core.vm.mirror.ClassMirrorState;
 @CoreClassSpec(constraintsClass = ClassConstraintsState.class, traitsClass = DslFactoryPersonalityState.class, mirrorClass = ClassMirrorState.class, finalValuesLocation = { InkClassState.p_component_type }, finalValues = { "Pure_Component" })
 public interface DslFactoryState extends InkClassState {
 
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_namespace = p_personality + 1;
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_loader = p_namespace + 1;
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value, mandatory = false)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE, mandatory = false)
 	public static final byte p_repository = p_loader + 1;
 	@CoreListField(itemName = "import")
 	public static final byte p_imports = p_repository + 1;
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_dsl_package = p_imports + 1;
-	@CoreField(valuePropagationStrategy = InheritanceConstraints.Instance_Must_Override_Inherited_Value)
+	@CoreField(valuePropagationStrategy = InheritanceConstraints.INSTANCE_MUST_OVERRIDE_INHERITED_VALUE)
 	public static final byte p_java_package = p_dsl_package + 1;
 
 	// TODO - dsl factory should have features field e.g. should have owner functionality

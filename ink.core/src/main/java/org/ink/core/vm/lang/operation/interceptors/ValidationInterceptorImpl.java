@@ -23,7 +23,7 @@ public class ValidationInterceptorImpl<S extends ValidationInterceptorState> ext
 				if (o instanceof Proxiable) {
 					Proxiable inkObject = (Proxiable) o;
 					switch (inkObject.getObjectKind()) {
-					case Behavior:
+					case BEHAVIOR:
 						result = ((InkObject) inkObject).validate(vc);
 						break;
 					default:

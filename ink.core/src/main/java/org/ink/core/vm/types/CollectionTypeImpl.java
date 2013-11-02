@@ -45,7 +45,7 @@ public class CollectionTypeImpl<S extends CollectionTypeState> extends InkObject
 
 	@Override
 	public final DataTypeMarker getTypeMarker() {
-		return DataTypeMarker.Collection;
+		return DataTypeMarker.COLLECTION;
 	}
 
 	@Override

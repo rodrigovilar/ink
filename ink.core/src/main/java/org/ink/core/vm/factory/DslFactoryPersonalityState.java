@@ -7,7 +7,7 @@ import org.ink.core.vm.traits.PersonalityState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping = JavaMapping.Only_State)
+@CoreClassSpec(javaMapping = JavaMapping.ONLY_STATE)
 public interface DslFactoryPersonalityState extends PersonalityState {
 
 	public static final byte p_app_context = 2;

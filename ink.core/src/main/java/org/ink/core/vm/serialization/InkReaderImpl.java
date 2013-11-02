@@ -371,25 +371,25 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 		if (result != null) {
 			try {
 				switch ((pm).getPrimitiveTypeMarker()) {
-				case Byte:
+				case BYTE:
 					result = ((Number) val).byteValue();
 					break;
-				case Double:
+				case DOUBLE:
 					result = ((Number) val).doubleValue();
 					break;
-				case Float:
+				case FLOAT:
 					result = ((Number) val).floatValue();
 					break;
-				case Integer:
+				case INTEGER:
 					result = ((Number) val).intValue();
 					break;
-				case Long:
+				case LONG:
 					result = ((Number) val).longValue();
 					break;
-				case Short:
+				case SHORT:
 					result = ((Number) val).shortValue();
 					break;
-				case Date:
+				case DATE:
 					result = ((Calendar) val).getTime();
 					break;
 				}
@@ -412,19 +412,19 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 		Object result = null;
 		try {
 			switch (pm.getTypeMarker()) {
-			case Primitive:
+			case PRIMITIVE:
 				if (tag.getValues().size() > 1) {
 					addError(tag, "Invalid value specified for property '" + tag.getName() + "'. Expected 1 value but found " + tag.getValues().size() + " values.");
 				} else {
 					result = convertPrimitiveTypeValue(tag, tag.getValue(), (PrimitiveAttributeMirror) pm);
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-				case List:
+				case LIST:
 					PropertyMirror itemMirror = ((ListPropertyMirror) pm).getItemMirror();
 					switch (itemMirror.getTypeMarker()) {
-					case Primitive:
+					case PRIMITIVE:
 						result = new ArrayList<Object>();
 						for (Tag t : tag.getChildren()) {
 							List<?> values = t.getValues();
@@ -434,7 +434,7 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 						}
 
 						break;
-					case Enum:
+					case ENUM:
 						result = new ArrayList<Object>();
 						for (Tag t : tag.getChildren()) {
 							List<?> values = t.getValues();
@@ -465,15 +465,15 @@ public class InkReaderImpl<S extends InkReaderState> extends InkObjectImpl<S> im
 						break;
 					}
 					break;
-				case Map:
+				case MAP:
 					result = loadMap(tag, pm);
 					break;
 				}
 				break;
-			case Class:
+			case CLASS:
 				result = createInkObject(tag, true);
 				break;
-			case Enum:
+			case ENUM:
 				try {
 					EnumType eType = ((EnumType) ((Property) pm.getTargetBehavior()).getType());
 					String val = tag.getValue().toString();

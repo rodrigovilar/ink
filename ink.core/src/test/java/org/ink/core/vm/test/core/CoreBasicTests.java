@@ -66,7 +66,7 @@ public class CoreBasicTests extends TestCase {
 		PrimitiveType pt = context.getObject(CoreNotations.Ids.LONG);
 		assertNotNull(pt);
 		assertTrue(pt.isNumeric());
-		assertTrue(pt.getPrimitiveMarker() == PrimitiveTypeMarker.Long);
+		assertTrue(pt.getPrimitiveMarker() == PrimitiveTypeMarker.LONG);
 	}
 
 	public void testObjectCreation() {
@@ -155,7 +155,7 @@ public class CoreBasicTests extends TestCase {
 		stringState.setName("kuku");
 		stringState.setDefaultValue("kuku");
 		ClassEditor cEditor = cMirror.edit();
-		cEditor.setPropertyValue(TraitClassState.p_java_mapping, JavaMapping.No_Java);
+		cEditor.setPropertyValue(TraitClassState.p_java_mapping, JavaMapping.NO_JAVA);
 		List injecteddProps = new ArrayList();
 		injecteddProps.add(stringState);
 		cEditor.setPropertyValue(TraitClassState.p_injected_properties, injecteddProps);
@@ -171,7 +171,7 @@ public class CoreBasicTests extends TestCase {
 		// test weave on a sub-class
 		// create the super-class
 		InkClassState superClass = targetClass.cloneState();
-		((ClassMirrorAPI) superClass).setJavaMapping(JavaMapping.No_Java);
+		((ClassMirrorAPI) superClass).setJavaMapping(JavaMapping.NO_JAVA);
 		((ClassMirrorAPI) superClass).setSuper(context.getState(CoreNotations.Ids.STRING_ATTRIBUTE));
 		((ClassMirrorAPI) superClass).afterPropertiesSet();
 		targetMirror = superClass.reflect();
@@ -179,7 +179,7 @@ public class CoreBasicTests extends TestCase {
 		targetEditor.weaveStructuralTrait("stam_role", (TraitClass) newTrait.getBehavior());
 		// create the sub class
 		InkClassState subClass = (InkClassState) superClass.reflect().edit().createDescendent(null).getEditedState();
-		((ClassMirrorAPI) subClass).setJavaMapping(JavaMapping.No_Java);
+		((ClassMirrorAPI) subClass).setJavaMapping(JavaMapping.NO_JAVA);
 
 		((ClassMirrorAPI) subClass).afterPropertiesSet();
 		// assemble properties
@@ -220,7 +220,7 @@ public class CoreBasicTests extends TestCase {
 		longState.setName("kuku");
 		longState.setDefaultValue(4l);
 		ClassEditor cEditor = cMirror.edit();
-		cEditor.setPropertyValue(TraitClassState.p_java_mapping, JavaMapping.No_Java);
+		cEditor.setPropertyValue(TraitClassState.p_java_mapping, JavaMapping.NO_JAVA);
 		List injecteddProps = new ArrayList();
 		injecteddProps.add(longState);
 		cEditor.setPropertyValue(TraitClassState.p_injected_properties, injecteddProps);
@@ -313,7 +313,7 @@ public class CoreBasicTests extends TestCase {
 		stringState.setRegExp(".*");
 		Map props = new HashMap();
 		props.put(stringState.getName(), stringState);
-		newLoaderClass.setJavaMapping(JavaMapping.No_Java);
+		newLoaderClass.setJavaMapping(JavaMapping.NO_JAVA);
 		newLoaderClass.setProperties(props);
 		cEditor.save();
 		InkObjectState state = ((InkClass) newLoaderClass.getBehavior()).newInstance();

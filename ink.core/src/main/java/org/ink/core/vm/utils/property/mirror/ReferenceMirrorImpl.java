@@ -22,9 +22,9 @@ public class ReferenceMirrorImpl<S extends ReferenceMirrorState> extends ValuePr
 		ClassMirror type = refState.getType().reflect();
 		// todo - remove instance of
 		if (type instanceof StructClassMirror) {
-			return ReferenceTypeMarker.Struct;
+			return ReferenceTypeMarker.STRUCT;
 		}
-		return ReferenceTypeMarker.Object;
+		return ReferenceTypeMarker.OBJECT;
 	}
 
 }

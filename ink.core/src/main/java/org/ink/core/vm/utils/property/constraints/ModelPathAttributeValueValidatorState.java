@@ -14,7 +14,7 @@ import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
  * 
  */
 @ValidatorMessages(codes = { "invalid.model.path" }, messages = { CoreNotations.Ids.INVALID_MODELPATH })
-@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.State_Behavior)
+@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.STATE_BEHAVIOR)
 public interface ModelPathAttributeValueValidatorState extends PropertyValueValidatorState {
 
 	public class Data extends PropertyValueValidatorState.Data implements ModelPathAttributeValueValidatorState {

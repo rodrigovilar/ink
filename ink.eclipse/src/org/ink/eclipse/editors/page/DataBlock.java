@@ -194,7 +194,7 @@ public abstract class DataBlock {
 	protected void addRefPropsals(int cursorLocation, String prefix, List<ICompletionProposal> result) {
 		PropertyMirror pm;
 		pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-		if (pm!=null && pm.getTypeMarker() == DataTypeMarker.Class) {
+		if (pm!=null && pm.getTypeMarker() == DataTypeMarker.CLASS) {
 			String constraintClass = ((ReferenceMirror) pm).getPropertyType().reflect().getId();
 			List<String> options = InkUtils.getInstancesIds(ns, constraintClass, true);
 			for (String id : options) {
@@ -209,7 +209,7 @@ public abstract class DataBlock {
 		if (text[cursorLocation - 1] == ' ') {
 			List<String> pathsToClassBlock = getPathToClassBlock();
 			PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), pathsToClassBlock);
-			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.Class){
+			if(pm!=null && pm.getTypeMarker()==DataTypeMarker.CLASS){
 				if (!attributes.containsKey("class") && !attributes.containsKey("ref")) {
 					result.add(createAttributeProposal("class", cursorLocation, count, true));
 					result.add(createAttributeProposal("ref", cursorLocation, count, true));
@@ -246,7 +246,7 @@ public abstract class DataBlock {
 				if (getContainingClass() != null) {
 					PropertyMirror pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
 					if (attr.equals("class")) {
-						if (pm!=null && pm.getTypeMarker() == DataTypeMarker.Class) {
+						if (pm!=null && pm.getTypeMarker() == DataTypeMarker.CLASS) {
 							Mirror m = ((ReferenceMirror) pm).getPropertyType().reflect();
 							String constraintClass = m.getId();
 							List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);
@@ -568,12 +568,12 @@ public abstract class DataBlock {
 	protected String getTypeDisplayString(PropertyMirror pm) {
 		String result = "";
 		switch (pm.getTypeMarker()) {
-		case Collection:
+		case COLLECTION:
 			switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-			case List:
+			case LIST:
 				result = "List<" + getTypeDisplayString(((ListPropertyMirror) pm).getItemMirror()) + ">";
 				break;
-			case Map:
+			case MAP:
 				result = "Map<" + getTypeDisplayString(((MapPropertyMirror) pm).getKeyMirror()) + "," + getTypeDisplayString(((MapPropertyMirror) pm).getValueMirror()) + ">";
 				break;
 			}

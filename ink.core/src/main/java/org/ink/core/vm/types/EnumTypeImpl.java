@@ -31,15 +31,36 @@ public class EnumTypeImpl<S extends EnumTypeState> extends InkObjectImpl<S> impl
 	@Override
 	public Object getEnumObject(String value) {
 		try {
-			return getValueMethod.invoke(null, new Object[] { value });
-		} catch (Exception e) {
-			throw new CoreException("Could not obtain enum value for string value " + value, e);
+			return getValueMethod.invoke(null, new Object[] { getJavaEnum(value) });
+		}catch (Exception e1) {
+				throw new CoreException("Could not obtain enum value for string value " + value, e1);
 		}
+	}
+	
+	private String getJavaEnum(String val){
+		StringBuilder builder = new StringBuilder(val.length());
+		char[] cs = val.toCharArray();
+		for(int j=0;j<cs.length;j++){
+			char c= cs[j];
+			switch (c) {
+			case '-':
+				builder.append('_');
+				break;
+			default:
+				if(Character.isWhitespace(c)){
+					builder.append('_');
+				}else if(Character.isJavaIdentifierPart(c)){
+					builder.append(Character.toUpperCase(c));
+				}
+				break;
+			}
+		}
+		return builder.toString();
 	}
 
 	@Override
 	public DataTypeMarker getTypeMarker() {
-		return DataTypeMarker.Enum;
+		return DataTypeMarker.ENUM;
 	}
 
 	@Override

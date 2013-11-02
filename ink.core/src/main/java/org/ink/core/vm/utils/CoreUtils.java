@@ -1,5 +1,6 @@
 package org.ink.core.vm.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -16,7 +17,6 @@ import org.ink.core.vm.lang.InkObject;
 import org.ink.core.vm.lang.Property;
 import org.ink.core.vm.lang.Scope;
 import org.ink.core.vm.lang.exceptions.InvalidPathException;
-import org.ink.core.vm.lang.internal.ClassMirrorAPI;
 import org.ink.core.vm.lang.internal.MirrorAPI;
 import org.ink.core.vm.lang.property.mirror.CollectionPropertyMirror;
 import org.ink.core.vm.lang.property.mirror.PropertyMirror;
@@ -37,6 +37,10 @@ import org.ink.core.vm.utils.property.mirror.PrimitiveAttributeMirror;
  * @author Lior Schachter
  */
 public class CoreUtils {
+	
+	public static final String DATE_FORMAT = "yyyy/MM/dd";
+	public static final String TIME_FORMAT = "HH:mm:ss.SSS-z";
+	public static final String DATE_TIME_FORMAT = DATE_FORMAT + " " +TIME_FORMAT;	
 
 	public final static String TAB = "\t";
 	private static final char PATH_SEPERATOR = '.';
@@ -49,9 +53,10 @@ public class CoreUtils {
 		return UUID.randomUUID().toString();
 	}
 
-	public static void toString(MirrorAPI object, ClassMirrorAPI classMirror, StringBuilder builder) {
+	
+	public static void toString(Mirror object, ClassMirror classMirror, StringBuilder builder) {
 		if (object.isRoot()) {
-			builder.append(object.getObjectTypeMarker()).append(" ");
+			builder.append("Ink").append(" ");
 			builder.append(InkNotations.Path_Syntax.ID_ATTRIBUTE).append("=\"").append(object.getShortId()).append("\"").append(" ");
 			if (object.isAbstract()) {
 				builder.append(InkNotations.Path_Syntax.ABSTRACT_ATTRIBUTE).append("=").append("true").append(" ");
@@ -67,40 +72,56 @@ public class CoreUtils {
 			builder.append(" ").append(InkNotations.Path_Syntax.SUPER_ATTRIBUTE).append("=\"").append(object.getSuper().getId()).append("\"");
 			;
 		}
-		if (object.getInkScope() != Scope.all) {
+		if (object.getInkScope() != Scope.ALL) {
 			builder.append(" ").append(InkNotations.Path_Syntax.SCOPE_ATTRIBUTE).append("=\"").append(object.getInkScope()).append("\"");
-			;
 		}
-		builder.append("{");
+		boolean hasValues=false;
 		Object o;
-		boolean firstValue = true;
 		for (PropertyMirror propMirror : object.getPropertiesMirrors()) {
 			o = object.getPropertyValue(propMirror.getIndex());
-			if (o != null) {
-				if (firstValue) {
-					firstValue = false;
-					builder.append(StringUtils.LINE_SEPARATOR);
+			if (o != null && !propMirror.isFinal()) {
+				if(!hasValues){
+					hasValues=true;
+					builder.append("{");
 				}
-				toString(propMirror, propMirror.getIndex(), builder, o, false);
+				builder.append(StringUtils.LINE_SEPARATOR);
+				toString(propMirror, propMirror.getIndex(), builder, o, false, false);
 			}
 		}
-		builder.append("}");
+		if(hasValues){
+			builder.append(StringUtils.LINE_SEPARATOR);
+			builder.append("}");
+		}
 	}
 
-	private static void toString(PropertyMirror definingProperty, byte definingPropertyIndex, StringBuilder builder, Object value, boolean isItem) {
+	private static void toString(PropertyMirror definingProperty, byte definingPropertyIndex, StringBuilder builder, Object value, boolean isItem, boolean isListItem) {
 		Property prop = definingProperty.getTargetBehavior();
-		switch (definingProperty.getTypeMarker()) {
-		case Collection:
+		String displayString = "";
+		String lineBreak = "";
+		DataTypeMarker marker = definingProperty.getTypeMarker(); 
+		if(!isItem || !isListItem || (marker!=DataTypeMarker.ENUM && marker!=DataTypeMarker.PRIMITIVE)){
+			displayString = prop.getDisplayName();
+			lineBreak = StringUtils.LINE_SEPARATOR;
+		}
+		switch (marker) {
+		case COLLECTION:
 			CollectionTypeMarker collectionMarker = ((CollectionPropertyMirror) definingProperty).getCollectionTypeMarker();
 			switch (collectionMarker) {
-			case List:
-				builder.append(prop.getDisplayName()).append("{");
+			case LIST:
 				PropertyMirror itemMirror = ((ListPropertyMirror) definingProperty).getItemMirror();
+				builder.append(displayString);
+				if(itemMirror.getTypeMarker()!=DataTypeMarker.PRIMITIVE && itemMirror.getTypeMarker()!=DataTypeMarker.ENUM){
+					builder.append("{");
+				}
+				
+				
 				serializeCollection(definingPropertyIndex, builder, (Collection<?>) value, itemMirror);
-				builder.append("}").append(StringUtils.LINE_SEPARATOR);
+				if(itemMirror.getTypeMarker()!=DataTypeMarker.PRIMITIVE && itemMirror.getTypeMarker()!=DataTypeMarker.ENUM){
+					builder.append("}");
+				}
 				break;
-			case Map:
-				builder.append(prop.getDisplayName()).append("{");
+			case MAP:
+				builder.append(displayString).append("{");
 				Dictionary dic = ((MapPropertyMirror) definingProperty).getSpecifictation();
 				PropertyMirror keyMirror = ((MapPropertyMirror) definingProperty).getKeyMirror();
 				PropertyMirror valueMirror = ((MapPropertyMirror) definingProperty).getValueMirror();
@@ -110,99 +131,95 @@ public class CoreUtils {
 				} else {
 
 					if (!mapValue.isEmpty()) {
-						builder.append(StringUtils.LINE_SEPARATOR);
+						builder.append(lineBreak);
 					}
 					Iterator<?> iter = mapValue.entrySet().iterator();
 					Map.Entry<?, ?> en;
 					while (iter.hasNext()) {
 						en = (Entry<?, ?>) iter.next();
-						builder.append(CoreUtils.TAB).append("item{");
+						builder.append("item{");
 						builder.append(StringUtils.LINE_SEPARATOR);
-						builder.append(CoreUtils.TAB).append("     ");
-						toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true);
-						builder.append(CoreUtils.TAB).append("     ");// .append(valueMirror.getName()).append("=");
-						toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true);
+						toString(keyMirror, definingPropertyIndex, builder, en.getKey(), true, false);
 						builder.append(StringUtils.LINE_SEPARATOR);
-						builder.append(CoreUtils.TAB).append("}");
+						toString(valueMirror, definingPropertyIndex, builder, en.getValue(), true, false);
+						builder.append(StringUtils.LINE_SEPARATOR);
+						builder.append("}");
 						builder.append(StringUtils.LINE_SEPARATOR);
 					}
 				}
-				builder.append("}").append(StringUtils.LINE_SEPARATOR);
+				builder.append("}");
 				break;
 			default:
 				throw new UnsupportedOperationException(collectionMarker.name());
 			}
 			break;
-		case Class:
+		case CLASS:
 			Mirror m = ((Proxiable) value).reflect();
 			if (m.getOwner() == null) {
 				if(!definingProperty.isComputed()){
 					builder.append(value);
-					if (!isItem) {
-						builder.append(StringUtils.LINE_SEPARATOR);
-					}
+						builder.append(lineBreak);
 				}
 			} else {
 				if (((Proxiable) value).isProxied()) {
-					builder.append(prop.getDisplayName()).append(" ").append("ref=\"").append(m.getId()).append("\"");
+					builder.append(displayString).append(" ").append("ref=\"").append(m.getId()).append("\"");
 				} else {
-					String stringValue = value.toString();
-					builder.append(stringValue);
+					toString(((Proxiable)value).reflect(), m.getClassMirror(), builder);
 				}
-				if (!isItem) {
-					builder.append(StringUtils.LINE_SEPARATOR);
-				}
+					
 			}
 			break;
-		case Enum:
-			builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
+		case ENUM:
+			builder.append(displayString).append(" ").append("\"" + value + "\"");
 			break;
-		case Primitive:
-			if (((PrimitiveAttributeMirror) definingProperty).getPrimitiveTypeMarker() == PrimitiveTypeMarker.String) {
-				builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
-			} else {
-				builder.append(prop.getDisplayName()).append(" ").append(value).append(StringUtils.LINE_SEPARATOR);
+		case PRIMITIVE:
+			switch(((PrimitiveAttributeMirror) definingProperty).getPrimitiveTypeMarker()){
+			case STRING:
+				builder.append(displayString).append(" ").append("\"" + value + "\"");
+				break;
+			case DATE:
+				Date d = (Date)value;
+				SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
+				builder.append(displayString).append(" ").append(sdf.format(d));
+				break;
+			default:
+				builder.append(displayString).append(" ").append(value);
 			}
 			break;
 		default:
 			if (isItem) {
 				builder.append(value);
 			} else {
-				builder.append(prop.getDisplayName()).append(" ").append("\"" + value + "\"").append(StringUtils.LINE_SEPARATOR);
+				builder.append(displayString).append(" ").append("\"" + value + "\"").append(lineBreak);
 			}
 			break;
 		}
 	}
 
 	private static void serializeCollection(byte definingPropertyIndex, StringBuilder builder, Collection<?> value, PropertyMirror itemMirror) {
-		boolean isClass = itemMirror.getTypeMarker() == DataTypeMarker.Class;
+		boolean isClass = itemMirror.getTypeMarker() == DataTypeMarker.CLASS;
 		if (!value.isEmpty() && isClass) {
 			builder.append(StringUtils.LINE_SEPARATOR);
 		}
-		StringBuilder listBuilder = null;
-		if (isClass) {
-			listBuilder = new StringBuilder(1000);
-		} else {
-			listBuilder = builder;
-		}
+		
 		Collection<?> col = value;
 		for (Object o : col) {
-			toString(itemMirror, definingPropertyIndex, listBuilder, o, true);
+			toString(itemMirror, definingPropertyIndex, builder, o, true, true);
 			if (isClass) {
-				listBuilder.append(StringUtils.LINE_SEPARATOR);
+				builder.append(StringUtils.LINE_SEPARATOR);
 			}
 		}
-		if (listBuilder.length() > 0 && isClass) {
-			builder.append(CoreUtils.TAB);
-			char c;
-			for (int i = 0; i < listBuilder.length(); i++) {
-				c = listBuilder.charAt(i);
-				builder.append(c);
-				if (c == '\n' && i < listBuilder.length() - 1) {
-					builder.append(CoreUtils.TAB);
-				}
-			}
-		}
+//		if (listBuilder.length() > 0 && isClass) {
+//			builder.append(CoreUtils.TAB);
+//			char c;
+//			for (int i = 0; i < listBuilder.length(); i++) {
+//				c = listBuilder.charAt(i);
+//				builder.append(c);
+////				if (c == '\n' && i < listBuilder.length() - 1) {
+////					builder.append(CoreUtils.TAB);
+////				}
+//			}
+//		}
 	}
 
 	public static Class<?>[] getBehaviorProxyInterfaces(Class<?> behaviorClass) {
@@ -225,7 +242,7 @@ public class CoreUtils {
 		Object result = null;
 		DataTypeMarker typeMarker = mirror.getTypeMarker();
 		switch (typeMarker) {
-		case Class:
+		case CLASS:
 			if (((Proxiable) value).isProxied()) {
 				value = ((Proxiability) value).getVanillaState();
 				if (((MirrorAPI) value).isRoot()) {
@@ -233,7 +250,7 @@ public class CoreUtils {
 				} else {
 					result = ((MirrorAPI) value).cloneState(identicalTwin);
 				}
-			} else if (((Proxiable) value).getObjectKind() == Kind.Behavior) {
+			} else if (((Proxiable) value).getObjectKind() == Kind.BEHAVIOR) {
 				Mirror m = ((InkObject) value).reflect();
 				// can't be root since then it would have had proxy
 				result = m.cloneTargetState(identicalTwin);
@@ -243,10 +260,10 @@ public class CoreUtils {
 				result = ((MirrorAPI) value).cloneState(identicalTwin);
 			}
 			break;
-		case Collection:
+		case COLLECTION:
 			CollectionTypeMarker cMarker = ((CollectionPropertyMirror) mirror).getCollectionTypeMarker();
 			switch (cMarker) {
-			case List:
+			case LIST:
 				List<?> col = (List<?>) value;
 				result = new ArrayList(col.size());
 				PropertyMirror innerType = ((ListPropertyMirror) mirror).getItemMirror();
@@ -254,7 +271,7 @@ public class CoreUtils {
 					((List) result).add(cloneOneValue(innerType, o, identicalTwin));
 				}
 				break;
-			case Map:
+			case MAP:
 				Map<?, ?> map = (Map) value;
 				result = ((MapPropertyMirror) mirror).getNewInstance();
 				PropertyMirror innerKeyType = ((MapPropertyMirror) mirror).getKeyMirror();
@@ -265,13 +282,13 @@ public class CoreUtils {
 				break;
 			}
 			break;
-		case Enum:
+		case ENUM:
 			result = value;
 			break;
-		case Primitive:
+		case PRIMITIVE:
 			PrimitiveTypeMarker simpleTypeMarker = ((PrimitiveAttributeMirror) mirror).getPrimitiveTypeMarker();
 			switch (simpleTypeMarker) {
-			case Date:
+			case DATE:
 				result = ((Date) value).clone();
 				break;
 			default:// String, Double, Long, Boolean, Byte, Integer, Float, Short - are immutable
@@ -299,10 +316,10 @@ public class CoreUtils {
 				}
 				if (segments[1] != null) {
 					switch (propertyMirror.getTypeMarker()) {
-					case Collection:
+					case COLLECTION:
 						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
 						switch (colMirror.getCollectionTypeMarker()) {
-						case List:
+						case LIST:
 							int indexLoc = getListEndIndexLocation(propertyMirror.getName(), segments[1], LIST_INDEX_START, LIST_INDEX_END);
 							String indexStr = segments[1].substring(1, indexLoc);
 							try{
@@ -312,7 +329,7 @@ public class CoreUtils {
 								}
 								if(segments[1].length()-1 > indexLoc){
 									PropertyMirror valueMirror = ((ListPropertyMirror)propertyMirror).getItemMirror();
-									if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+									if(valueMirror.getTypeMarker()!=DataTypeMarker.CLASS){
 										throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' is not of user-defined class.");
 									}
 									
@@ -323,9 +340,9 @@ public class CoreUtils {
 							}
 							
 							break;
-						case Map:
+						case MAP:
 							PropertyMirror keyMirror = ((MapPropertyMirror)propertyMirror).getKeyMirror();
-							if(keyMirror.getTypeMarker()!=DataTypeMarker.Primitive){
+							if(keyMirror.getTypeMarker()!=DataTypeMarker.PRIMITIVE){
 								throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' key should be of a simple type.");
 							}
 							int keyLoc = getMapKeyEndLocation(propertyMirror.getName(), segments[1], MAP_KEY_START, MAP_KEY_END);
@@ -333,7 +350,7 @@ public class CoreUtils {
 							Object key = convertPrimitiveTypeValue(propertyMirror.getName(),keyStr, (PrimitiveAttributeMirror)keyMirror);	
 							if(segments[1].length()-1 > keyLoc){
 								PropertyMirror valueMirror = ((MapPropertyMirror)propertyMirror).getValueMirror();
-								if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+								if(valueMirror.getTypeMarker()!=DataTypeMarker.CLASS){
 									throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' value is not of user-defined class.");
 								}
 								validatePath((ClassMirror) valueMirror.getPropertyType().reflect(), segments[1].substring(keyLoc+2, segments[1].length())); 
@@ -342,7 +359,7 @@ public class CoreUtils {
 							break;
 						}
 						break;
-					case Class:
+					case CLASS:
 						validatePath((ClassMirror) propertyMirror.getPropertyType().reflect(), segments[1].substring(1, segments[1].length()));
 						break;
 					default:
@@ -393,10 +410,10 @@ public class CoreUtils {
 //				}
 				if (segments[1] != null) {
 					switch (propertyMirror.getTypeMarker()) {
-					case Collection:
+					case COLLECTION:
 						CollectionPropertyMirror colMirror = (CollectionPropertyMirror) propertyMirror;
 						switch (colMirror.getCollectionTypeMarker()) {
-						case List:
+						case LIST:
 							int indexLoc = getListEndIndexLocation(propertyMirror.getName(),segments[1], LIST_INDEX_START, LIST_INDEX_END);
 							String indexStr = segments[1].substring(1, indexLoc);
 							try{
@@ -410,7 +427,7 @@ public class CoreUtils {
 								}
 								if(segments[1].length()-1 > indexLoc){
 									PropertyMirror valueMirror = ((ListPropertyMirror)propertyMirror).getItemMirror();
-									if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+									if(valueMirror.getTypeMarker()!=DataTypeMarker.CLASS){
 										throw new InvalidPathException("Invalid path : list '" + propertyMirror.getName() +"' is not of user-defined class.");
 									}
 									Mirror innerMirror = ((Proxiable) result).reflect();
@@ -421,9 +438,9 @@ public class CoreUtils {
 							}
 							
 							break;
-						case Map:
+						case MAP:
 							PropertyMirror keyMirror = ((MapPropertyMirror)propertyMirror).getKeyMirror();
-							if(keyMirror.getTypeMarker()!=DataTypeMarker.Primitive){
+							if(keyMirror.getTypeMarker()!=DataTypeMarker.PRIMITIVE){
 								throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' key should be of a simple type.");
 							}
 							int keyLoc = getMapKeyEndLocation(propertyMirror.getName(), segments[1], MAP_KEY_START, MAP_KEY_END);
@@ -435,7 +452,7 @@ public class CoreUtils {
 							}
 							if(segments[1].length()-1 > keyLoc){
 								PropertyMirror valueMirror = ((MapPropertyMirror)propertyMirror).getValueMirror();
-								if(valueMirror.getTypeMarker()!=DataTypeMarker.Class){
+								if(valueMirror.getTypeMarker()!=DataTypeMarker.CLASS){
 									throw new InvalidPathException("Invalid path : map '" + propertyMirror.getName() +"' value is not of user-defined class.");
 								}
 								Mirror innerMirror = ((Proxiable) result).reflect();
@@ -445,7 +462,7 @@ public class CoreUtils {
 							break;
 						}
 						break;
-					case Class:
+					case CLASS:
 						Mirror innerMirror = ((Proxiable) result).reflect();
 						result = getValue(innerMirror, segments[1].substring(1, segments[1].length()));
 						break;
@@ -504,7 +521,7 @@ public class CoreUtils {
 		if (result != null) {
 			try {
 				switch ((pm).getPrimitiveTypeMarker()) {
-				case Boolean:
+				case BOOLEAN:
 					if(val.equals("true")){
 						result = Boolean.TRUE;
 					}else if(val.equals("false")){
@@ -513,25 +530,25 @@ public class CoreUtils {
 						throw new InvalidPathException("Invalid path : map '" +mapName +" key definition <"+val+">, expecting true/false.");
 					}
 					break;
-				case Byte:
+				case BYTE:
 					result = Byte.valueOf(val);
 					break;
-				case Double:
+				case DOUBLE:
 					result = Double.valueOf(val);
 					break;
-				case Float:
+				case FLOAT:
 					result = Float.valueOf(val);
 					break;
-				case Integer:
+				case INTEGER:
 					result = Integer.valueOf(val);
 					break;
-				case Long:
+				case LONG:
 					result = Long.valueOf(val);
 					break;
-				case Short:
+				case SHORT:
 					result = Short.valueOf(val);
 					break;
-				case Date:
+				case DATE:
 					throw new InvalidPathException("Invalid path : map '" +mapName +". Date keys are not supported.");
 				}
 			} catch (NumberFormatException e) {

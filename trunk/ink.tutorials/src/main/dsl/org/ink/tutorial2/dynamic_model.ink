@@ -1,7 +1,7 @@
 Object id="Student_Offers_Template_For_2010" class="ink.tutorial2:BaseOffer" abstract=true {
  studentOnlyOffer true
  renewalOnlyOffer false
- validUntil 2013/11/01 
+ validUntil 2020/11/01 
  registrationFormType ref="basic_registration_form"
 } 
 
@@ -20,7 +20,7 @@ Object id="students_50_percent_discount_for_2_years" super="Student_Offers_Templ
 Object id="ExampleOffer" class="PercentageDiscountOffer" {
 	percentage 20.0
 	studentOnlyOffer true
-	validUntil 2013/11/01 
+	validUntil 2020/11/01 
 	renewalOnlyOffer false
 	freeIssues 0
 }

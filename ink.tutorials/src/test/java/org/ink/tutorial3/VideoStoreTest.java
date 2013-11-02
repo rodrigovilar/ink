@@ -57,7 +57,7 @@ public class VideoStoreTest {
 		InkObjectState restrictedVideotape = context.getState("ink.tutorial3:RestrictedVideotape");
 		ObjectEditor dynamicRestrictedVideotapeEditor = restrictedVideotape.reflect().edit().createDescendent(id);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
-		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
+		dynamicRestrictedVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.NO_JAVA);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(MovieState.p_title, title);
 		dynamicRestrictedVideotapeEditor.setPropertyValue(RestrictedMovieState.p_minimumage, minimumAge);
 		dynamicRestrictedVideotapeEditor.save();
@@ -69,7 +69,7 @@ public class VideoStoreTest {
 		InkObjectState videotape = context.getState("ink.tutorial3:Videotape");
 		ObjectEditor dynamicVideotapeEditor = videotape.reflect().edit().createDescendent(id);
 		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_path, "");
-		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.No_Java);
+		dynamicVideotapeEditor.setPropertyValue(InkClassState.p_java_mapping, JavaMapping.NO_JAVA);
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_title, title);
 		dynamicVideotapeEditor.setPropertyValue(MovieState.p_rating, rating);
 		dynamicVideotapeEditor.save();

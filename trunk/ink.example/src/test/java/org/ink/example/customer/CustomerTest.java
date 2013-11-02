@@ -39,7 +39,8 @@ public class CustomerTest extends TestCase{
 		InkObject customerClass = context.getObject("example.customer:Customer");
 		assertNotNull(customerClass);
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
-
+		System.out.println(customer);
+		//System.out.println(customerClass);
 		assertNotNull(customer);
 
 
@@ -50,7 +51,7 @@ public class CustomerTest extends TestCase{
 		assertFalse(customer.getEnumList().isEmpty());
 		assertFalse(customer.getStringList().isEmpty());
 		//checking default value
-		assertEquals(customer.getGender(), Gender.Male);
+		assertEquals(customer.getGender(), Gender.MALE);
 		Customer behv = customer.getBehavior();
 		behv.sendLetter("kuku");
 		assertEquals(customer.reflect().getPropertyValue(FIRST_NAME),"Lior");
@@ -163,7 +164,7 @@ public class CustomerTest extends TestCase{
 
 	public void testCustomerStructuralTraits(){
 		CustomerState customer = context.getState("example.customer:TheFirstCustomer");
-		InkVM.instance().reloadDSL("example.customer");
+		InkVM.instance().reloadDSL("example.customer", true);
 		customer = context.getState("example.customer:TheFirstCustomer");
 		//TODO need to fix this in the state generator
 		//Trait t = customer.asTrait(CustomerState.t_fan);
@@ -172,10 +173,10 @@ public class CustomerTest extends TestCase{
 		t = customer.asTrait("fan");
 		assertNotNull(t);
 		assertNotNull(customer.reflect().getPropertyValue("fan.favorite_sport"));
-		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.BasketBall);
+		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.BASKETBALL);
 		customer = createState("example.customer:Customer");
 		assertNotNull(customer.reflect().getPropertyValue("fan.favorite_sport"));
-		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.FootBall);
+		assertEquals(customer.reflect().getPropertyValue("fan.favorite_sport"), SportsKind.FOOTBALL);
 	}
 
 	@SuppressWarnings("unchecked")

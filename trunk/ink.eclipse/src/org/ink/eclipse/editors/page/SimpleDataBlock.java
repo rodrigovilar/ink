@@ -47,13 +47,13 @@ public class SimpleDataBlock extends DataBlock {
 		String line = new String(text, startIndex, endIndex - startIndex);
 		if (pm != null) {
 			switch (pm.getTypeMarker()) {
-			case Primitive:
+			case PRIMITIVE:
 				switch (((PrimitiveAttributeMirror) pm).getPrimitiveTypeMarker()) {
-				case Boolean:
+				case BOOLEAN:
 					addValueProposal(result, "true", "true", cursorLocation, prefix);
 					addValueProposal(result, "false", "false", cursorLocation, prefix);
 					break;
-				case String:
+				case STRING:
 					if(pm.getTargetBehavior() instanceof ModelPathAttribute){
 						DataBlock root = this;
 						while(root.getParent()!=null){
@@ -81,7 +81,7 @@ public class SimpleDataBlock extends DataBlock {
 					break;
 				}
 				break;
-			case Enum:
+			case ENUM:
 				if (checkCursorLocation(cursorLocation, prefix)) {
 					EnumType enumT = (EnumType) pm.getPropertyType();
 					for (String val : enumT.getValues()) {
@@ -89,9 +89,9 @@ public class SimpleDataBlock extends DataBlock {
 					}
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				switch (((CollectionPropertyMirror) pm).getCollectionTypeMarker()) {
-				case List:
+				case LIST:
 					PropertyMirror itempMirror = ((ListPropertyMirror) pm).getItemMirror();
 					if (itempMirror.getPropertyType().isEnumeration()) {
 						EnumType enumT = (EnumType) itempMirror.getPropertyType();
@@ -101,14 +101,14 @@ public class SimpleDataBlock extends DataBlock {
 					} else if (itempMirror.getPropertyType().isPrimitive()) {
 						PrimitiveAttributeMirror primitivePM = (PrimitiveAttributeMirror) itempMirror;
 						switch (primitivePM.getPrimitiveTypeMarker()) {
-						case String:
+						case STRING:
 							String space = " ";
 							if (text[cursorLocation - 1] == ' ') {
 								space = "";
 							}
 							addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " values separated by space.", "", space + "\"\"", prefix);
 							break;
-						case Date:
+						case DATE:
 							addPropertyNameCompletion(cursorLocation, 1, result, "Insert " + getTypeDisplayString(itempMirror) + " (yyyy/MM/dd) values separated by space.", "", " \"\"", prefix);
 							break;
 						default:
@@ -148,7 +148,7 @@ public class SimpleDataBlock extends DataBlock {
 				}
 
 				break;
-			case Class:
+			case CLASS:
 				if (prefix.length() > 0) {
 					StringBuilder attrB = new StringBuilder(10);
 					for (int i = cursorLocation - (3 + prefix.length()); i >= 0; i--) {
@@ -162,7 +162,7 @@ public class SimpleDataBlock extends DataBlock {
 						addRefPropsals(cursorLocation, prefix, result);
 					} else if (attr.equals("class")) {
 						pm = InkUtils.getPropertyMirror(getContainingClass(), getKey(), getPathToClassBlock());
-						if (pm.getTypeMarker() == DataTypeMarker.Class) {
+						if (pm.getTypeMarker() == DataTypeMarker.CLASS) {
 							Mirror m = ((ReferenceMirror) pm).getPropertyType().reflect();
 							String constraintClass = m.getId();
 							List<String> options = InkUtils.getSubClasses(ns, constraintClass, true, false);

@@ -161,6 +161,10 @@ Class id="Customer" class="example.customer:CustomerClass" super="ink.core:InkOb
 		property class="MyProperty"{
 			name "my_ref"
 		}
+		property class="ink.core:DateAttribute"{
+			name "birthday"
+			mandatory false
+		}
 		property class="ink.core:StringAttribute"{
 			name "last_name"
 			mandatory true
@@ -253,10 +257,11 @@ Class id="SubCustomer" class="example.customer:CustomerClass" super="example.cus
 	}
 }
 
-Object id="TheFirstCustomer" class="example.customer:Customer"{
+Ink id="TheFirstCustomer" class="example.customer:Customer"{
 	first_name "Lior"
 	last_name "Schachter"
 	age 32
+	birthday 1978/10/16
 	fan.favorite_sport "BasketBall"
 	path "keyValueMap<ads>"
 	address class="example.customer:Address"{
@@ -296,6 +301,7 @@ Object id="TheSecondCustomer" class="example.customer:Customer" super="TheFirstC
 		zip 02468
 	}
 }
+
 
 Object id="TheThirdCustomer" class="example.customer:SubCustomer" super="example.customer:TheFirstCustomer"{
 	stam.shmupu "kuku2"

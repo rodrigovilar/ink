@@ -274,8 +274,14 @@ public interface Mirror extends Trait {
 	public void setLifeCycleState(LifeCycleState toState);
 	
 	/**
-	 * Retrieves the current life-cycle-state of the Ink object
+	 * Retrieves the current {@link LifeCycleState} of the Ink object
 	 * @return the life-cycle-state of the Ink object
 	 */
 	public LifeCycleState getLifeCycleState();
+	
+	/**
+	 * Retrieves the {@link Scope} of the Ink element
+	 * @return the scope of the Ink element
+	 */
+	public Scope getInkScope();
 }

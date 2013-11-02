@@ -10,7 +10,7 @@ import org.ink.core.vm.lang.internal.annotations.ValidatorMessages;
  * @author Lior Schachter
  */
 @ValidatorMessages(codes = { "min.value.violation", "max.value.violation" }, messages = { "ink.core:min_value_violation", "ink.core:max_value_violation" })
-@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.State_Behavior)
+@CoreClassSpec(metaclass = ValidatorClassState.class, javaMapping = JavaMapping.STATE_BEHAVIOR)
 public interface NumericAttributeValueValidatorState extends PropertyValueValidatorState {
 
 	public class Data extends PropertyValueValidatorState.Data implements NumericAttributeValueValidatorState {

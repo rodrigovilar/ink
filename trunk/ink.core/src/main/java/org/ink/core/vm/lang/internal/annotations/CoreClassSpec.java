@@ -20,7 +20,7 @@ import org.ink.core.vm.traits.PersonalityState;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CoreClassSpec {
-	public Scope scope() default Scope.all;
+	public Scope scope() default Scope.ALL;
 
 	public boolean isAbstract() default false;
 
@@ -34,7 +34,7 @@ public @interface CoreClassSpec {
 
 	public Class<? extends PersonalityState> traitsClass() default PersonalityState.class;
 
-	public JavaMapping javaMapping() default JavaMapping.State_Behavior_Interface;
+	public JavaMapping javaMapping() default JavaMapping.STATE_BEHAVIOR_INTERFACE;
 
 	public byte[] finalValuesLocation() default {};
 

@@ -21,55 +21,55 @@ public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectIm
 		marker = getState().getTypeMarker();
 		typeClass = getContext().getFactory().resolvePrimitiveClass(marker);
 		switch (marker) {
-		case Boolean:
+		case BOOLEAN:
 			isBoolean = true;
 			isString = false;
 			isNumeric = false;
 			isDate = false;
 			break;
-		case Byte:
+		case BYTE:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case Date:
+		case DATE:
 			isBoolean = false;
 			isString = false;
 			isNumeric = false;
 			isDate = true;
 			break;
-		case Double:
+		case DOUBLE:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case Float:
+		case FLOAT:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case Integer:
+		case INTEGER:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case Long:
+		case LONG:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case Short:
+		case SHORT:
 			isBoolean = false;
 			isString = false;
 			isNumeric = true;
 			isDate = false;
 			break;
-		case String:
+		case STRING:
 			isBoolean = false;
 			isString = true;
 			isNumeric = false;
@@ -132,6 +132,6 @@ public class PrimitiveTypeImpl<S extends PrimitiveTypeState> extends InkObjectIm
 
 	@Override
 	public final DataTypeMarker getTypeMarker() {
-		return DataTypeMarker.Primitive;
+		return DataTypeMarker.PRIMITIVE;
 	}
 }

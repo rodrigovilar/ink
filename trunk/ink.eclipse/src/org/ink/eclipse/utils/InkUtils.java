@@ -283,12 +283,12 @@ public class InkUtils {
 				// TODO should handle unlimited number of inner maps and lists
 				PropertyMirror temp = null;
 				temp = props.get(path.get(0));
-				if (temp != null && temp.getTypeMarker() == DataTypeMarker.Collection) {
+				if (temp != null && temp.getTypeMarker() == DataTypeMarker.COLLECTION) {
 					switch (((CollectionPropertyMirror) temp).getCollectionTypeMarker()) {
-					case List:
+					case LIST:
 						result = ((ListPropertyMirror) temp).getItemMirror().getName().equals(propertyName) ? ((ListPropertyMirror) temp).getItemMirror() : null;
 						break;
-					case Map:
+					case MAP:
 						result = ((MapPropertyMirror) temp).getKeyMirror().getName().equals(propertyName) ? ((MapPropertyMirror) temp).getKeyMirror() : null;
 						if (result == null) {
 							result = ((MapPropertyMirror) temp).getValueMirror().getName().equals(propertyName) ? ((MapPropertyMirror) temp).getValueMirror() : null;

@@ -14,14 +14,14 @@ public class ValidatorClassImpl<S extends ValidatorClassState> extends InkClassI
 	public boolean shouldValidate(SystemState systemState) {
 		ActivationMode whenToValidate = getState().getActiveAt();
 		switch (whenToValidate) {
-		case Always:
+		case ALWAYS:
 			return true;
 		default:
 			switch (systemState) {
-			case Design_Time:
-				return whenToValidate == ActivationMode.Design_Time;
+			case DESIGN_TIME:
+				return whenToValidate == ActivationMode.DESIGN_TIME;
 			default:
-				return whenToValidate == ActivationMode.Run_Time;
+				return whenToValidate == ActivationMode.RUN_TIME;
 			}
 		}
 	}

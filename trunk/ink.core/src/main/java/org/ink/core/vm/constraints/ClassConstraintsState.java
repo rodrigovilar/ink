@@ -8,7 +8,7 @@ import org.ink.core.vm.traits.TraitClassState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping = JavaMapping.State_Behavior, metaclass = TraitClassState.class, mirrorClass = TraitMirrorState.class)
+@CoreClassSpec(javaMapping = JavaMapping.STATE_BEHAVIOR, metaclass = TraitClassState.class, mirrorClass = TraitMirrorState.class)
 public interface ClassConstraintsState extends ConstraintsState {
 
 	public class Data extends ConstraintsState.Data implements ClassConstraintsState {

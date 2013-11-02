@@ -153,9 +153,9 @@ public class PropertyMirrorImpl<S extends PropertyMirrorState> extends MirrorImp
 	@Override
 	public boolean isValueDrillable() {
 		switch (typeMarker) {
-		case Class:
+		case CLASS:
 			return true;
-		case Collection:
+		case COLLECTION:
 			return true;
 		}
 		return false;

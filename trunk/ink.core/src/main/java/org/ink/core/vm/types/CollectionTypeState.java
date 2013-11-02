@@ -7,7 +7,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreClassSpec;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping = JavaMapping.State_Behavior_Interface)
+@CoreClassSpec(javaMapping = JavaMapping.STATE_BEHAVIOR_INTERFACE)
 public interface CollectionTypeState extends InkTypeState {
 
 	public static final byte p_type_marker = 0;

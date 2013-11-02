@@ -7,16 +7,28 @@ import org.ink.core.vm.lang.internal.annotations.CoreEnumField;
  */
 public enum TraitKind {
 
-	Structural, // mandatory?
-	Detachable, // optional?
+	STRUCTURAL("Structural"), // mandatory?
+	DETACHABLE("Detachable"), // optional?
 	@CoreEnumField(isDefault = true)
-	Structural_or_Detachable;
+	STRUCTURAL_OR_DETACHABLE("Structural_or_Detachable");
 
+	public final String key;
+
+	private TraitKind(String key) {
+		this.key = key;
+	}
+
+	
 	public boolean isStructural() {
-		return this == Structural | this == Structural_or_Detachable;
+		return this == STRUCTURAL | this == STRUCTURAL_OR_DETACHABLE;
 	}
 
 	public boolean isDetachable() {
-		return this == Detachable | this == Structural_or_Detachable;
+		return this == DETACHABLE | this == STRUCTURAL_OR_DETACHABLE;
+	}
+	
+	@Override
+	public String toString() {
+		return key;
 	}
 }

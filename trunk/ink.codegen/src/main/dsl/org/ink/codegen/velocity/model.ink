@@ -37,7 +37,7 @@ Class id="VelocityGenerator" class="VelocityGeneratorMeta" super="ink.core:Trait
 	properties{
 		property class="ink.core:StringAttribute"{
 			name "template_relative_path"
-			mandatory true
+			mandatory false
 		}
 	}
 }

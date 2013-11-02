@@ -36,7 +36,11 @@ TraitImpl<S> implements VelocityGenerator {
 	private void generate(Map context, Writer w) {
 		VelocityGeneratorMeta meta = getMeta();
 		prepareContext(context);
-		meta.generate(getState().getTemplateRelativePath(), context, w);
+		String template = getState().getTemplateRelativePath();
+		if(template==null){
+			template = getTargetState().reflect().getClassMirror().getShortId() + ".vm";
+		}
+		meta.generate(template, context, w);
 	}
 
 	protected void prepareContext(Map context) {}

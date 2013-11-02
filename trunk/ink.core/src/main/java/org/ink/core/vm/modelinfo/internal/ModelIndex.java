@@ -72,30 +72,30 @@ class ModelIndex {
 				Object value = referrer.getPropertyValue(propertyMirror.getIndex());
 				if (value != null && !propertyMirror.isComputed()) {
 					switch (propertyMirror.getTypeMarker()) {
-					case Class:
+					case CLASS:
 						if (!isRef((Proxiable) value)) {
 							recursiveFindReferents(relation, ((Proxiable) value).reflect(), visited);
 						}
 						break;
-					case Collection:
+					case COLLECTION:
 						CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) propertyMirror).getCollectionTypeMarker();
 						switch (collectionTypeMarker) {
-						case List:
+						case LIST:
 							PropertyMirror innerPropertyMirror = ((ListPropertyMirror) propertyMirror).getItemMirror();
 							switch (innerPropertyMirror.getTypeMarker()) {
-							case Class:
+							case CLASS:
 								for (Proxiable listItem : (List<Proxiable>) value) {
 									recursiveFindReferents(relation, listItem.reflect(), visited);
 								}
 								break;
-							case Enum:
+							case ENUM:
 								// ???
 								break;
 							}
 							break;
-						case Map:
-							boolean shouldIndexKey = ((MapPropertyMirror) propertyMirror).getKeyMirror().getTypeMarker() == DataTypeMarker.Class;
-							boolean shouldIndexValue = ((MapPropertyMirror) propertyMirror).getValueMirror().getTypeMarker() == DataTypeMarker.Class;
+						case MAP:
+							boolean shouldIndexKey = ((MapPropertyMirror) propertyMirror).getKeyMirror().getTypeMarker() == DataTypeMarker.CLASS;
+							boolean shouldIndexValue = ((MapPropertyMirror) propertyMirror).getValueMirror().getTypeMarker() == DataTypeMarker.CLASS;
 							// TODO Eli Enums???
 							if (shouldIndexKey || shouldIndexValue) {
 								for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
@@ -110,7 +110,7 @@ class ModelIndex {
 							break;
 						}
 						break;
-					case Enum:
+					case ENUM:
 						// ???
 						break;
 					}

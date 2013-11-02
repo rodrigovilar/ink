@@ -42,10 +42,10 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 				value = targetMirror.getPropertyValue(p.getIndex());
 				if (value != null) {
 					switch (p.getTypeMarker()) {
-					case Class:
+					case CLASS:
 						innerContinue = validateClass(stateSuper, context, systemState, value, p);
 						break;
-					case Collection:
+					case COLLECTION:
 						innerContinue = validateCollection(stateSuper, context, systemState, value, p);
 						break;
 					}
@@ -80,7 +80,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 		PropertyMirror innerP;
 		CollectionTypeMarker collectionTypeMarker = ((CollectionPropertyMirror) p).getCollectionTypeMarker();
 		switch (collectionTypeMarker) {
-		case List:
+		case LIST:
 			if (!((List<?>) value).isEmpty()) {
 				innerP = ((ListPropertyMirror) p).getItemMirror();
 				if (innerP.isValueDrillable()) {
@@ -88,7 +88,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 				}
 			}
 			break;
-		case Map:
+		case MAP:
 			if (!((Map<?, ?>) value).isEmpty()) {
 				innerP = ((MapPropertyMirror) p).getKeyMirror();
 				if (innerP.isValueDrillable()) {
@@ -100,7 +100,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 					innerP = ((MapPropertyMirror) p).getValueMirror();
 					if (innerP.isValueDrillable()) {
 						byte index = p.getIndex();
-						if (innerP.getTypeMarker() == DataTypeMarker.Class) {
+						if (innerP.getTypeMarker() == DataTypeMarker.CLASS) {
 							Object superValue = null;
 							if(stateSuper != null && index < stateSuper.getPropertiesCount()){
 								superValue = stateSuper.getPropertyValue(index);
@@ -153,7 +153,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 		Mirror m;
 		for (Object o : value) {
 			switch (p.getTypeMarker()) {
-			case Class:
+			case CLASS:
 				m = ((Proxiable) o).reflect();
 				if (!m.isRoot()) {
 					if (!validateInnerObject(superValue, context, systemState, o, p)) {
@@ -161,7 +161,7 @@ public class ConstraintsImpl<S extends ConstraintsState> extends TraitImpl<S> im
 					}
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				if (!validateCollection(null, context, systemState, value, p)) {
 					return false;
 				}

@@ -9,7 +9,7 @@ import org.ink.core.vm.lang.internal.annotations.CoreField;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(javaMapping = JavaMapping.State_Behavior)
+@CoreClassSpec(javaMapping = JavaMapping.STATE_BEHAVIOR)
 public interface ClassHierarchyLocatorState extends TargetLocatorState {
 
 	@CoreField(mandatory = true)

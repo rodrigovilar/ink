@@ -45,6 +45,7 @@ public class VMMain {
 	private static Map<String, DslFactory> allFactories = new HashMap<String, DslFactory>();
 	private static boolean startupInProgress = false;
 	private static InstanceFactory instanceFactory = null;
+	private static boolean hasFacadeFactory = false;
 
 	public static void restart() {
 		stop();
@@ -75,6 +76,10 @@ public class VMMain {
 			throw new InkBootException("Error in intialization. The start method should be called first.");
 		}
 		return factory;
+	}
+	
+	public static boolean hasfacadeFactory(){
+		return hasFacadeFactory;
 	}
 
 	public static void start(String defaultNamespace, String[] paths) {
@@ -189,7 +194,9 @@ public class VMMain {
 						String defaultFactoryNS = System.getProperty("default.factory");
 						if (defaultFactoryNS == null) {
 							System.out.println("More than one possible default factory was found, creating a facade factory...");
+							hasFacadeFactory = true;
 							factory = createFacadeFactory(coreFactory, factories);
+							allFactories.put(factory.getNamespace(), factory);
 						} else {
 							for (DslFactory f : factories) {
 								if (f.getNamespace().equals(defaultFactoryNS)) {
@@ -221,7 +228,7 @@ public class VMMain {
 		DslLoaderState loader = ((InkClass) coreFactory.getObject(CoreNotations.Ids.EMPTY_DSL_LOADER)).newInstance();
 		facadeFactory.setLoader(loader);
 		facadeFactory.setJavaPath("");
-		facadeFactory.setJavaMapping(JavaMapping.No_Java);
+		facadeFactory.setJavaMapping(JavaMapping.NO_JAVA);
 		facadeFactory.setDslPackage("");
 		facadeFactory.setJavaPackage("");
 		facadeFactory.setNamespace("ink.facade");
@@ -290,7 +297,7 @@ public class VMMain {
 							long start = System.currentTimeMillis();
 							DslFactoryState factoryState = (DslFactoryState) reader.read(elem, coreFactory.getAppContext(), new HashMap<String, InkObjectState>());
 							if(factoryState==null || reader.containsErrors()){
-								String errorMsg = "Could not loaf factory in file " + inkFile.getAbsolutePath() +".";
+								String errorMsg = "Could not load factory in file " + inkFile.getAbsolutePath() +".";
 								if(reader.containsErrors()){
 									errorMsg += "Errors:";
 									for(ParseError err : reader.getErrors()){

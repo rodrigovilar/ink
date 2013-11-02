@@ -323,7 +323,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		@Override
 		public String toString() {
 			StringBuilder temp = new StringBuilder(1000);
-			CoreUtils.toString(this, myClass, temp);
+			CoreUtils.toString(this.reflect(), (ClassMirror) myClass.reflect(), temp);
 			StringBuilder result = new StringBuilder(temp.length() + 100);
 			int count = 0;
 			char c;
@@ -336,17 +336,23 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 					count--;
 				} else if (c == '\n') {
 					if (count > 0) {
-						if (temp.charAt(i + 1) == '}') {
-							if (count >= 2) {
-								result.append(CoreUtils.TAB);
-							}
+						if (temp.length()>i && temp.charAt(i + 1) == '}') {
+							result.append(createIndentation(count-1));
 						} else {
-							result.append(CoreUtils.TAB);
+							result.append(createIndentation(count));
 						}
 					}
 				}
 			}
 			return result.toString();
+		}
+
+		private String createIndentation(int count) {
+			String result = "";
+			for(int i=0;i<count;i++){
+				result+=CoreUtils.TAB;
+			}
+			return result;
 		}
 
 		@Override
@@ -401,7 +407,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			DataTypeMarker typeMarker = propMirror.getTypeMarker();
 			Object result = value;
 			switch (typeMarker) {
-			case Class:
+			case CLASS:
 				if (!((Proxiable) value).isProxied() && ((MirrorAPI) result).canHaveBehavior()) {
 					if (((MirrorAPI) result).isRoot()) {
 						InkObject existingBehavior = ((MirrorAPI) result).getBehavior();
@@ -416,10 +422,10 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 					}
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				CollectionTypeMarker cMarker = ((CollectionPropertyMirror) propMirror).getCollectionTypeMarker();
 				switch (cMarker) {
-				case List:
+				case LIST:
 					List<?> col = (List<?>) value;
 					result = new ArrayList();
 					PropertyMirror innerType = ((ListPropertyMirror) propMirror).getItemMirror();
@@ -431,7 +437,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 						result = col;
 					}
 					break;
-				case Map:
+				case MAP:
 					Map<?, ?> map = (Map<?, ?>) value;
 					result = map;
 					if (!map.isEmpty()) {
@@ -466,8 +472,8 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 			DataTypeMarker typeMarker = propMirror.getTypeMarker();
 			Object result = value;
 			switch (typeMarker) {
-			case Class:
-				if (((Proxiable) value).getObjectKind() == Kind.Behavior) {
+			case CLASS:
+				if (((Proxiable) value).getObjectKind() == Kind.BEHAVIOR) {
 					if (((Proxiable) value).isProxied()) {
 						result = value = ((Proxiability) value).getVanillaState();
 					} else {
@@ -497,10 +503,10 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 					state.setOwner(this);
 				}
 				break;
-			case Collection:
+			case COLLECTION:
 				CollectionTypeMarker cMarker = ((CollectionPropertyMirror) propMirror).getCollectionTypeMarker();
 				switch (cMarker) {
-				case List:
+				case LIST:
 					List col = (List) value;
 					PropertyMirror innerType = ((ListPropertyMirror) propMirror).getItemMirror();
 					if (innerType.isValueDrillable()) {
@@ -515,7 +521,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 						}
 					}
 					break;
-				case Map:
+				case MAP:
 					Map<Object, Object> map = (Map<Object, Object>) value;
 					PropertyMirror innerKeyType = ((MapPropertyMirror) propMirror).getKeyMirror();
 					innerType = ((MapPropertyMirror) propMirror).getValueMirror();
@@ -701,7 +707,7 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		@Override
 		public void afterPropertiesSet() {
 			if (scope == null) {
-				scope = Scope.all;
+				scope = Scope.ALL;
 			}
 			if (traitsCache != null) {
 				for (Trait t : traitsCache) {
@@ -827,12 +833,12 @@ public interface InkObjectState extends Proxiable, Cloneable, Serializable {
 		 */
 		@Override
 		public Kind getObjectKind() {
-			return Proxiable.Kind.State;
+			return Proxiable.Kind.STATE;
 		}
 
 		@Override
 		public boolean validate(ValidationContext context) {
-			return validate(context, SystemState.Run_Time);
+			return validate(context, SystemState.RUN_TIME);
 		}
 
 		@Override

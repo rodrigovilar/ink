@@ -14,7 +14,7 @@ import org.ink.core.vm.lang.InheritanceConstraints;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CoreField {
 
-	public InheritanceConstraints valuePropagationStrategy() default InheritanceConstraints.Instance_Can_Refine_Inherited_Value;
+	public InheritanceConstraints valuePropagationStrategy() default InheritanceConstraints.INSTANCE_CAN_REFINE_INHERITED_VALUE;
 
 	public boolean mandatory() default true;
 

@@ -5,5 +5,5 @@ package org.ink.core.vm.lang;
  */
 
 public enum DataTypeMarker {
-	Class, Enum, Primitive, Collection, UserType;
+	CLASS, ENUM, PRIMITIVE, COLLECTION, USERTYPE;
 }

@@ -246,4 +246,9 @@ public class MirrorImpl<S extends MirrorState> extends TraitImpl<S> implements M
 		return  ((MirrorAPI) getTargetState()).getLifeCycleState();
 	}
 
+	@Override
+	public Scope getInkScope() {
+		return ((MirrorAPI) getTargetState()).getInkScope();
+	}
+
 }

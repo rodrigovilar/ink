@@ -20,7 +20,7 @@ public class InkClassImpl<S extends InkClassState> extends InkObjectImpl<S> impl
 	 */
 	@Override
 	public DataTypeMarker getTypeMarker() {
-		return DataTypeMarker.Class;
+		return DataTypeMarker.CLASS;
 	}
 
 	@Override

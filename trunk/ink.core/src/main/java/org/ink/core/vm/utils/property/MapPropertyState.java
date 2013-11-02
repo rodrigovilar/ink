@@ -11,7 +11,7 @@ import org.ink.core.vm.utils.property.mirror.MapPropertyMirrorState;
 /**
  * @author Lior Schachter
  */
-@CoreClassSpec(mirrorClass = MapPropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, javaMapping = JavaMapping.State_Behavior, finalValuesLocation = { PropertyState.p_type }, finalValues = { "ink.core:Map" })
+@CoreClassSpec(mirrorClass = MapPropertyMirrorState.class, constraintsClass = PropertyConstraintsState.class, javaMapping = JavaMapping.STATE_BEHAVIOR, finalValuesLocation = { PropertyState.p_type }, finalValues = { "ink.core:Map" })
 public interface MapPropertyState extends CollectionPropertyState {
 
 	@CoreField(mandatory = true)

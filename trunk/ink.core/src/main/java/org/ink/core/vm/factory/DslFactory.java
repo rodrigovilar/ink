@@ -108,7 +108,7 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactory
 
 	public List<String> getElements(String filepath);
 
-	public void reload();
+	public void reload(boolean propagateChange);
 	
 	public List<File> getSourceFiles();
 	
@@ -116,6 +116,8 @@ public interface DslFactory extends InkClass, Comparable<DslFactory>, DslFactory
 	
 	public void addDependentFactory(DslFactory factory);
 
-	List<String> getElementsIds();
+	public List<String> getElementsIds();
+
+	public void clearCaches();
 
 }

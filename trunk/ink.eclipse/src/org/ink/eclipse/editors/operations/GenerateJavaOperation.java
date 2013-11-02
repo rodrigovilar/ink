@@ -43,25 +43,25 @@ public class GenerateJavaOperation extends InkEditorOperation {
 				} else if (hasInterface) {
 					int result = showDialog(shell, "Generate behavior class ?", MessageDialog.QUESTION, new String[] { IDialogConstants.OK_LABEL, IDialogConstants.CANCEL_LABEL });
 					if (result == 0) {
-						jm = JavaMapping.Behavior_Interface;
+						jm = JavaMapping.BEHAVIOR_INTERFACE;
 						genrateBehaviorClass(cm, true, file);
 					}
 				} else if (hasBehavior) {
 					int result = showDialog(shell, "Generate interface class ?", MessageDialog.QUESTION, new String[] { IDialogConstants.OK_LABEL, IDialogConstants.CANCEL_LABEL });
 					if (result == 0) {
-						jm = JavaMapping.Behavior_Interface;
+						jm = JavaMapping.BEHAVIOR_INTERFACE;
 						genrateInterfaceClass(cm, file);
 					}
 				} else {
 					int result = showDialog(shell, "Generate java classes ?", MessageDialog.QUESTION, new String[] { "Generate Behavior", "Generate Interface", "Generate Both", IDialogConstants.CANCEL_LABEL });
 					if (result == 0) {
-						jm = JavaMapping.Only_Behavior;
+						jm = JavaMapping.ONLY_BEHAVIOR;
 						genrateBehaviorClass(cm, false, file);
 					} else if (result == 1) {
-						jm = JavaMapping.Only_Interface;
+						jm = JavaMapping.ONLY_INTERFACE;
 						genrateInterfaceClass(cm, file);
 					} else if (result == 2) {
-						jm = JavaMapping.Behavior_Interface;
+						jm = JavaMapping.BEHAVIOR_INTERFACE;
 						genrateInterfaceClass(cm, file);
 						genrateBehaviorClass(cm, true, file);
 					}

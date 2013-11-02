@@ -21,7 +21,7 @@ public interface Proxiable {
 	 * The kind of proxiable object (state or behavior).
 	 */
 	public enum Kind {
-		State, Behavior;
+		STATE, BEHAVIOR;
 	}
 
 	/**

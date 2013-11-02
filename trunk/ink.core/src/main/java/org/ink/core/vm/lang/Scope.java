@@ -1,5 +1,6 @@
 package org.ink.core.vm.lang;
 
+
 /**
  * @author Lior Schachter
  */
@@ -16,6 +17,10 @@ public enum Scope {
 	@Override
 	public String toString() {
 		return key;
+	}
+	
+	public static final Scope enumValue(String val){
+		return Scope.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
 	}
 
 }

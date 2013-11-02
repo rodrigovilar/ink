@@ -58,4 +58,8 @@ public enum JavaMapping {
 	public String toString() {
 		return key;
 	}
+	
+	public static final JavaMapping enumValue(String val){
+		return JavaMapping.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 }

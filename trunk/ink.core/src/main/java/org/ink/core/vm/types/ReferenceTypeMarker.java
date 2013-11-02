@@ -1,5 +1,6 @@
 package org.ink.core.vm.types;
 
+
 /**
  * @author Lior Schachter
  */
@@ -15,5 +16,9 @@ public enum ReferenceTypeMarker {
 	@Override
 	public String toString() {
 		return key;
+	}
+	
+	public static final ReferenceTypeMarker enumValue(String val){
+		return ReferenceTypeMarker.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
 	}
 }

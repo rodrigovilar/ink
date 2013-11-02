@@ -21,5 +21,9 @@ public enum ReferenceKind {
 	public String toString() {
 		return key;
 	}
+	
+	public static final ReferenceKind enumValue(String val){
+		return ReferenceKind.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 
 }

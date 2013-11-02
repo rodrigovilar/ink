@@ -16,5 +16,9 @@ public enum Severity {
 	public int getLevel() {
 		return this.level;
 	}
+	
+	public static final Severity enumValue(String val){
+		return Severity.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 
 }

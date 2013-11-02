@@ -25,7 +25,7 @@ public class InkNotations {
 	}
 
 	public static class Reflection {
-		public static final String VALUE_OF_METHOD_NAME = "valueOf";
+		public static final String ENUM_VALUE_OF_METHOD_NAME = "enumValue";
 	}
 
 }

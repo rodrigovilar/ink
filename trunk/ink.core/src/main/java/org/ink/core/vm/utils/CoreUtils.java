@@ -52,6 +52,28 @@ public class CoreUtils {
 	public static String newUUID() {
 		return UUID.randomUUID().toString();
 	}
+	
+	public static String getJavaEnum(String val){
+		StringBuilder builder = new StringBuilder(val.length());
+		char[] cs = val.toCharArray();
+		for(int j=0;j<cs.length;j++){
+			char c= cs[j];
+			switch (c) {
+			case '-':
+				builder.append('_');
+				break;
+			default:
+				if(Character.isWhitespace(c)){
+					builder.append('_');
+				}else if(Character.isJavaIdentifierPart(c)){
+					builder.append(Character.toUpperCase(c));
+				}
+				break;
+			}
+		}
+		return builder.toString();
+	}
+
 
 	
 	public static void toString(Mirror object, ClassMirror classMirror, StringBuilder builder) {

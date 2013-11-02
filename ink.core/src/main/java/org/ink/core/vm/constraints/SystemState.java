@@ -17,4 +17,8 @@ public enum SystemState {
 	public String toString() {
 		return key;
 	}
+	
+	public static final SystemState enumValue(String val){
+		return SystemState.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 }

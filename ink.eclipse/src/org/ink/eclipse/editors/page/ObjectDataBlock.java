@@ -130,9 +130,9 @@ public class ObjectDataBlock extends DataBlock {
 		List<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 		if(objectPrefix.trim().length()==0){
 			if(lineNumber==0 || getParent()==null){
+				result.add(new CompletionProposal("Ink ", cursorLocation, 0, "Ink ".length(), null, null, null, null));
 				result.add(new CompletionProposal("Class ", cursorLocation, 0, "Class ".length(), null, null, null, null));
 				result.add(new CompletionProposal("Object ", cursorLocation, 0, "Object ".length(), null, null, null, null));
-				result.add(new CompletionProposal("Ink ", cursorLocation, 0, "Ink ".length(), null, null, null, null));
 			}else{
 				return getParent().getNewLineProposals(lineNumber, cursorLocation, prefix);
 			}

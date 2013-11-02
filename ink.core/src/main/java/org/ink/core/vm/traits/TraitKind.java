@@ -31,4 +31,8 @@ public enum TraitKind {
 	public String toString() {
 		return key;
 	}
+	
+	public static final TraitKind enumValue(String val){
+		return TraitKind.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 }

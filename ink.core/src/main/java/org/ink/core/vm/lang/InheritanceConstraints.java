@@ -21,5 +21,9 @@ public enum InheritanceConstraints {
 	public String toString() {
 		return key;
 	}
+	
+	public static final InheritanceConstraints enumValue(String val){
+		return InheritanceConstraints.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 
 }

@@ -20,4 +20,7 @@ public enum ComponentType {
 		return key;
 	}
 
+	public static final ComponentType enumValue(String val){
+		return ComponentType.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
+	}
 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: The Ink Framework
 Bundle-SymbolicName: ink.eclipse; singleton:=true
-Bundle-Version: 0.5.7
+Bundle-Version: 0.6.2
 Bundle-Activator: org.ink.eclipse.InkPlugin
 Bundle-Vendor: Ink
 Require-Bundle: org.eclipse.ui,
@@ -21,7 +21,6 @@ Bundle-ClassPath: lib/ink-core.jar,
  .
 Export-Package: org.ikayzo.codec,
  org.ikayzo.sdl,
- org.ink.anntation.example,
  org.ink.core.utils,
  org.ink.core.utils.sdl,
  org.ink.core.vm.constraints,

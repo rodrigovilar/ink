@@ -54,6 +54,7 @@ public class EnumGenerator extends BaseGenerator {
 			result.append("public final String key;");
 			result.append("private " + name +"(String key){this.key=key;}");
 			result.append("@Override public String toString(){return key;}");
+			result.append("public static final "+name +" enumValue(String val){return "+name+".valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));}");
 			result.append("}");
 			writeFile(result.toString(), fullJavaPack, name, true);
 		}

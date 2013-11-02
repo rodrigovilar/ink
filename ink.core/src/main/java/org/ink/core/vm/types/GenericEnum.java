@@ -1,14 +1,15 @@
 package org.ink.core.vm.types;
 
+
 public class GenericEnum {
 
-	private String value;
+	private final String value;
 
 	private GenericEnum(String value) {
 		this.value = value;
 	}
 
-	public static GenericEnum valueOf(String value) {
+	public static GenericEnum enumValue(String value) {
 		return new GenericEnum(value);
 	}
 
@@ -30,5 +31,5 @@ public class GenericEnum {
 		}
 		return false;
 	}
-
+	
 }

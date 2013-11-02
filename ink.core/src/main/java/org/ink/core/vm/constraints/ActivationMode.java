@@ -1,5 +1,6 @@
 package org.ink.core.vm.constraints;
 
+
 /**
  * @author Lior Schachter
  */
@@ -18,6 +19,10 @@ public enum ActivationMode {
 	@Override
 	public String toString() {
 		return key;
+	}
+	
+	public static final ActivationMode enumValue(String val){
+		return ActivationMode.valueOf(org.ink.core.vm.utils.CoreUtils.getJavaEnum(val));
 	}
 	
 	

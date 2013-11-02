@@ -891,34 +891,16 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 		Object result = value;
 		if (typeClass.isInterface()) {
 			result = elements.get(value).getObject();
-		} else if (typeClass != String.class) {
-			Method valueMethod = typeClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[] { String.class });
-			result = valueMethod.invoke(null, new Object[] { getJavaEnum(value) });
+		}else if(Enum.class.isAssignableFrom(typeClass)){
+			Method valueMethod = typeClass.getMethod(InkNotations.Reflection.ENUM_VALUE_OF_METHOD_NAME, new Class[] { String.class });
+			result = valueMethod.invoke(null, new Object[] { value });
+		}else if (typeClass != String.class) {
+			Method valueMethod = typeClass.getMethod("valueOf", new Class[] { String.class });
+			result = valueMethod.invoke(null, new Object[] { value });
 		}
 		return result;
 	}
 	
-	private String getJavaEnum(String val){
-		StringBuilder builder = new StringBuilder(val.length());
-		char[] cs = val.toCharArray();
-		for(int j=0;j<cs.length;j++){
-			char c= cs[j];
-			switch (c) {
-			case '-':
-				builder.append('_');
-				break;
-			default:
-				if(Character.isWhitespace(c)){
-					builder.append('_');
-				}else if(Character.isJavaIdentifierPart(c)){
-					builder.append(Character.toUpperCase(c));
-				}
-				break;
-			}
-		}
-		return builder.toString();
-	}
-
 	private PropertyState createReference(Field f, Method m, String propertyName, Class<?> typeClass, Class<?> containerClass, boolean mandatory) throws Exception {
 		ReferenceState result = new ReferenceState.Data();
 		CoreClassDescriptor desc = classElements.get(ReferenceState.class);
@@ -1106,7 +1088,7 @@ public final class CoreLoaderImpl<S extends CoreLoaderState> extends DslLoaderIm
 
 		Object defaultValue = null;
 		if (defaultEnumName != null) {
-			defaultValue = enumClass.getMethod(InkNotations.Reflection.VALUE_OF_METHOD_NAME, new Class[] { String.class }).invoke(null, new Object[] { defaultEnumName });
+			defaultValue = enumClass.getMethod(InkNotations.Reflection.ENUM_VALUE_OF_METHOD_NAME, new Class[] { String.class }).invoke(null, new Object[] { defaultEnumName });
 		}
 		return defaultValue;
 	}
